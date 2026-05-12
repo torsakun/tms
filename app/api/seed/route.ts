@@ -25,29 +25,23 @@ export async function GET(req: Request) {
           create: [
             {
               title: "User can add item to cart",
-              status: "ACTIVE",
               priority: "HIGH",
               severity: "MAJOR",
-              behavior: "POSITIVE",
-              automation: "AUTOMATED",
+              automationStatus: "AUTOMATED",
               authorId: user.id
             },
             {
               title: "Checkout process works with credit card",
-              status: "ACTIVE",
-              priority: "CRITICAL",
+              priority: "MEDIUM",
               severity: "CRITICAL",
-              behavior: "POSITIVE",
-              automation: "TO_BE_AUTOMATED",
+              automationStatus: "TO_BE_AUTOMATED",
               authorId: user.id
             },
             {
               title: "Search returns relevant results",
-              status: "ACTIVE",
               priority: "MEDIUM",
               severity: "NORMAL",
-              behavior: "POSITIVE",
-              automation: "MANUAL",
+              automationStatus: "MANUAL",
               authorId: user.id
             }
           ]
