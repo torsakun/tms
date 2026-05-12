@@ -111,6 +111,20 @@ model ProjectMember {
 
 // --- Core Models ---
 
+model ProjectInvitation {
+  id        String      @id @default(uuid())
+  email     String
+  projectId String
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  role      ProjectRole @default(VIEWER)
+  token     String      @unique
+  expiresAt DateTime
+  createdAt DateTime    @default(now())
+  
+  @@unique([email, projectId])
+  @@index([token])
+}
+
 model Project {
   id          String   @id @default(uuid())
   name        String
@@ -130,6 +144,7 @@ model Project {
   testRuns   TestRun[]
   testPlans  TestPlan[]
   members    ProjectMember[]
+  projectInvitations ProjectInvitation[]
   tags       Tag[]
   attachments Attachment[]
   customFields CustomField[] @relation("ProjectToCustomField")
