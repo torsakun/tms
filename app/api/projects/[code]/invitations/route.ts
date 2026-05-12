@@ -89,8 +89,8 @@ export async function POST(
       
       const inviteUrl = `${baseUrl}/accept-invite?token=${token}`;
       
-      await resend.emails.send({
-        from: 'TESSA TMS <no-reply@resend.dev>', // Use a verified domain or resend.dev for testing
+      const { data, error } = await resend.emails.send({
+        from: 'TESSA TMS <onboarding@resend.dev>', // Use onboarding@resend.dev for testing
         to: email,
         subject: `You have been invited to join ${project.name} on TESSA TMS`,
         html: generateInviteEmailHtml({
@@ -101,6 +101,12 @@ export async function POST(
           projectName: project.name
         })
       });
+
+      if (error) {
+        console.error("Resend API Error:", error);
+      } else {
+        console.log("Email sent successfully:", data);
+      }
     } else {
       console.warn("RESEND_API_KEY is not set. The invitation was created in the database, but no email was sent.");
     }
