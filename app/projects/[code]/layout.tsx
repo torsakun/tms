@@ -20,15 +20,17 @@ export default async function ProjectCodeLayout({
 
   const role = await getProjectRole(code, (session.user as any).id);
 
+  const isSystemAdmin = (session.user as any).role === 'ADMIN';
+
   // If role is null, they might not be a member of this project
-  if (!role && (session.user as any).role !== 'ADMIN') {
+  if (!role && !isSystemAdmin) {
     // If they are a system ADMIN, maybe we let them in? Or maybe not. Let's strictly enforce project membership.
     // For now, if no role, redirect to projects list
     redirect('/projects');
   }
 
   return (
-    <ProjectRoleProvider role={role}>
+    <ProjectRoleProvider role={role} isSystemAdmin={isSystemAdmin}>
       <div className="flex flex-1 w-full overflow-hidden bg-background transition-colors">
         <ProjectSidebar projectCode={code} />
         <div className="flex-1 flex flex-col overflow-hidden w-full">

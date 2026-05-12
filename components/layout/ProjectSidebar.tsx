@@ -23,7 +23,7 @@ import {
 
 export function ProjectSidebar({ projectCode }: { projectCode: string }) {
   const pathname = usePathname();
-  const { role } = useProjectRole();
+  const { role, isSystemAdmin } = useProjectRole();
 
   const menuGroups = [
     {
@@ -101,7 +101,7 @@ export function ProjectSidebar({ projectCode }: { projectCode: string }) {
         {/* Settings */}
         <div>
           <ul className="space-y-0.5">
-            {role === 'ADMIN' && (
+            {(role === 'ADMIN' || isSystemAdmin) && (
               <>
                 <li>
                   <Link
