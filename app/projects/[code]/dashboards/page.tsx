@@ -1,0 +1,282 @@
+import React from "react";
+import Link from "next/link";
+import { 
+  Folder, 
+  FileText, 
+  PlayCircle, 
+  Activity, 
+  Settings, 
+  AlertTriangle,
+  ChevronRight
+} from "lucide-react";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
+
+export default async function ProjectOverviewPage({ 
+  params 
+}: { 
+  params: Promise<{ code: string }> 
+}) {
+  const { code } = await params;
+  
+  let projectData = null;
+  let dashboardData = {
+    metrics: { totalSuites: 0, totalCases: 0, totalRuns: 0, activeRuns: 0 },
+    severityCounts: [] as { severity: string; count: number }[],
+    recentRuns: [] as any[]
+  };
+
+  try {
+    const project = await prisma.project.findUnique({
+      where: { code },
+      include: {
+        _count: { select: { suites: true, testCases: true, testRuns: true } },
+        members: true
+      }
+    });
+
+    if (project) {
+      projectData = project;
+      
+      const activeRunsCount = await prisma.testRun.count({ where: { projectId: project.id, status: "ACTIVE" } });
+
+      // Group cases by severity
+      const severityGroups = await prisma.testCase.groupBy({
+        by: ['severity'],
+        where: { projectId: project.id },
+        _count: { id: true }
+      });
+      
+      const severityCounts = severityGroups.map(g => ({
+        severity: g.severity,
+        count: g._count.id
+      }));
+
+      const recentRuns = await prisma.testRun.findMany({
+        where: { projectId: project.id },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: { results: { select: { status: true } } }
+      });
+
+      dashboardData = {
+        metrics: {
+          totalSuites: project._count.suites,
+          totalCases: project._count.testCases,
+          totalRuns: project._count.testRuns,
+          activeRuns: activeRunsCount
+        },
+        severityCounts,
+        recentRuns: recentRuns.map(run => {
+          const total = run.results.length;
+          const passed = run.results.filter(r => r.status === "PASSED").length;
+          const failed = run.results.filter(r => r.status === "FAILED").length;
+          const blocked = run.results.filter(r => r.status === "BLOCKED").length;
+          const skipped = run.results.filter(r => r.status === "SKIPPED").length;
+          const untested = total - passed - failed - blocked - skipped;
+          return { id: run.id, title: run.title, status: run.status, createdAt: run.createdAt, metrics: { total, passed, failed, blocked, skipped, untested } };
+        })
+      };
+    }
+  } catch (err) {
+    console.error("Failed to fetch dashboard data:", err);
+  }
+
+  if (!projectData) {
+    return <div className="p-8">Project not found</div>;
+  }
+
+  const { metrics, severityCounts, recentRuns } = dashboardData;
+  
+  // Severity order mapping
+  const severityOrder = ["BLOCKER", "CRITICAL", "MAJOR", "NORMAL", "MINOR", "TRIVIAL", "NOT_SET"];
+  const severityColors: Record<string, string> = {
+    BLOCKER: "bg-red-600",
+    CRITICAL: "bg-red-500",
+    MAJOR: "bg-orange-500",
+    NORMAL: "bg-blue-500",
+    MINOR: "bg-emerald-500",
+    TRIVIAL: "bg-slate-400",
+    NOT_SET: "bg-slate-300"
+  };
+
+  const getSeverityCount = (sev: string) => severityCounts.find(s => s.severity === sev)?.count || 0;
+
+  return (
+    <div className="flex flex-col flex-1 bg-slate-50 min-h-0">
+      <header className="bg-white border-b border-slate-200 px-8 py-6 shrink-0 z-10 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center">
+            {projectData.name} Overview
+          </h1>
+          <p className="text-sm text-slate-500 mt-1 flex items-center">
+            <span className="font-mono text-xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded border border-slate-200 mr-2">{projectData.code}</span>
+            {metrics.totalCases} Test Cases • {metrics.totalSuites} Suites • {projectData.members.length} Members
+          </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <Link href={`/projects/${code}/settings`} className="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-md text-sm font-medium transition-colors shadow-sm flex items-center">
+            <Settings size={16} className="mr-2" /> Settings
+          </Link>
+        </div>
+      </header>
+
+      <div className="flex-1 overflow-y-auto p-8">
+        <div className="max-w-6xl mx-auto space-y-8">
+          
+          {/* Top Operational Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start mb-4">
+                <div className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Total Test Cases</div>
+                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
+                  <FileText size={20} />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-slate-900">{metrics.totalCases}</div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start mb-4">
+                <div className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Test Suites</div>
+                <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600">
+                  <Folder size={20} />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-slate-900">{metrics.totalSuites}</div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start mb-4">
+                <div className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Total Runs</div>
+                <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600">
+                  <PlayCircle size={20} />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-slate-900">{metrics.totalRuns}</div>
+            </div>
+
+            <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+              <div className="flex justify-between items-start mb-4">
+                <div className="text-sm font-semibold text-slate-500 uppercase tracking-wider">Active Runs</div>
+                <div className="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600">
+                  <Activity size={20} />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-slate-900">{metrics.activeRuns}</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Test Case Severity Breakdown (Operational focus) */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm col-span-1 flex flex-col">
+              <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                <h2 className="text-base font-bold text-slate-800 flex items-center">
+                  <AlertTriangle className="mr-2 text-slate-400" size={18} />
+                  Test Case Severity
+                </h2>
+              </div>
+              
+              <div className="flex-1 p-6">
+                {metrics.totalCases > 0 ? (
+                  <div className="space-y-4">
+                    {severityOrder.map(sev => {
+                      const count = getSeverityCount(sev);
+                      if (count === 0 && sev === "NOT_SET") return null; // hide NOT_SET if empty
+                      
+                      const percent = metrics.totalCases > 0 ? (count / metrics.totalCases) * 100 : 0;
+                      const color = severityColors[sev];
+                      
+                      return (
+                        <div key={sev} className="w-full">
+                          <div className="flex justify-between text-sm mb-1.5">
+                            <span className="font-medium text-slate-700 capitalize">{sev.toLowerCase().replace('_', ' ')}</span>
+                            <span className="font-bold text-slate-900">{count} <span className="text-slate-400 text-xs font-normal ml-1">({percent.toFixed(0)}%)</span></span>
+                          </div>
+                          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div className={`h-full ${color} rounded-full`} style={{ width: `${percent}%` }}></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                    <FileText size={32} className="mb-2 opacity-50" />
+                    <p className="text-sm">No test cases in project</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Recent Test Runs (2/3 width) */}
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm col-span-1 lg:col-span-2 flex flex-col">
+              <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h2 className="text-base font-bold text-slate-800 flex items-center">
+                  <PlayCircle className="mr-2 text-slate-400" size={18} />
+                  Recent Execution Activity
+                </h2>
+                <Link href={`/projects/${code}/runs`} className="text-sm font-medium text-blue-600 hover:underline">
+                  View all runs
+                </Link>
+              </div>
+
+              <div className="p-6">
+                {recentRuns.length === 0 ? (
+                  <div className="py-12 flex flex-col items-center justify-center text-center">
+                    <div className="w-12 h-12 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mb-3">
+                      <PlayCircle size={24} />
+                    </div>
+                    <p className="text-slate-500 text-sm">No test runs executed yet.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recentRuns.map((run) => {
+                      const passPercent = run.metrics.total > 0 ? (run.metrics.passed / run.metrics.total) * 100 : 0;
+                      const failPercent = run.metrics.total > 0 ? (run.metrics.failed / run.metrics.total) * 100 : 0;
+                      const blockPercent = run.metrics.total > 0 ? (run.metrics.blocked / run.metrics.total) * 100 : 0;
+                      const skipPercent = run.metrics.total > 0 ? (run.metrics.skipped / run.metrics.total) * 100 : 0;
+                      const untestedPercent = run.metrics.total > 0 ? (run.metrics.untested / run.metrics.total) * 100 : 0;
+
+                      return (
+                        <Link key={run.id} href={`/projects/${code}/runs/${run.id}`} className="block border border-slate-200 rounded-lg p-5 hover:border-blue-300 hover:shadow-sm transition-all group bg-slate-50 hover:bg-white">
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="font-bold text-slate-800 group-hover:text-blue-600 transition-colors flex items-center">
+                              {run.title}
+                              <ChevronRight size={16} className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
+                            <div className="text-xs font-medium text-slate-500">
+                              {new Date(run.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          </div>
+                          
+                          <div className="w-full h-2 bg-slate-200 rounded-full flex overflow-hidden mb-3">
+                            <div style={{ width: `${passPercent}%` }} className="bg-emerald-500" title={`Passed: ${run.metrics.passed}`} />
+                            <div style={{ width: `${failPercent}%` }} className="bg-red-500" title={`Failed: ${run.metrics.failed}`} />
+                            <div style={{ width: `${blockPercent}%` }} className="bg-amber-500" title={`Blocked: ${run.metrics.blocked}`} />
+                            <div style={{ width: `${skipPercent}%` }} className="bg-slate-400" title={`Skipped: ${run.metrics.skipped}`} />
+                            <div style={{ width: `${untestedPercent}%` }} className="bg-slate-200" title={`Untested: ${run.metrics.untested}`} />
+                          </div>
+                          
+                          <div className="flex items-center space-x-4 text-xs font-medium">
+                            {run.metrics.passed > 0 && <div className="text-emerald-600">{run.metrics.passed} passed</div>}
+                            {run.metrics.failed > 0 && <div className="text-red-600">{run.metrics.failed} failed</div>}
+                            {run.metrics.blocked > 0 && <div className="text-amber-600">{run.metrics.blocked} blocked</div>}
+                            {run.metrics.untested > 0 && <div className="text-slate-500">{run.metrics.untested} untested</div>}
+                          </div>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

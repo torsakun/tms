@@ -1,0 +1,440 @@
+// [วางโค้ด Phase 1 ที่นี่]
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Auth Enums ---
+
+enum SystemRole {
+  ADMIN
+  USER
+}
+
+enum ProjectRole {
+  VIEWER
+  EDITOR
+  ADMIN
+}
+
+// --- Feature Enums ---
+
+enum Severity {
+  NOT_SET
+  BLOCKER
+  CRITICAL
+  MAJOR
+  NORMAL
+  MINOR
+  TRIVIAL
+}
+
+enum Priority {
+  NOT_SET
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum AutomationStatus {
+  MANUAL
+  TO_BE_AUTOMATED
+  AUTOMATED
+}
+
+enum TestRunStatus {
+  ACTIVE
+  COMPLETED
+  ABORTED
+}
+
+enum TestResultStatus {
+  PASSED
+  FAILED
+  BLOCKED
+  SKIPPED
+  IN_PROGRESS
+}
+
+enum FieldType {
+  STRING
+  TEXT
+  SELECT
+  MULTI_SELECT
+  CHECKBOX
+  NUMBER
+  RADIO
+  USER_PICKER
+  URL
+  DATE_PICKER
+}
+
+// --- Auth & User Models ---
+
+model User {
+  id              String          @id @default(uuid())
+  email           String          @unique
+  passwordHash    String
+  name            String?
+  role            SystemRole      @default(USER)
+  workspaceRoleId String?
+  workspaceRole   WorkspaceRole?  @relation(fields: [workspaceRoleId], references: [id], onDelete: SetNull)
+  projects        ProjectMember[]
+  testCases       TestCase[]
+  assignedRunResults TestRunResult[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([workspaceRoleId])
+}
+
+model ProjectMember {
+  id         String      @id @default(uuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId  String
+  project    Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  role       ProjectRole @default(VIEWER)
+  
+  @@unique([userId, projectId])
+  @@index([userId])
+  @@index([projectId])
+}
+
+// --- Core Models ---
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  code        String   @unique // e.g., "PROJ"
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Integrations
+  githubOwner      String?
+  githubRepo       String?
+  githubToken      String?
+  githubWorkflowId String?
+
+  suites     TestSuite[]
+  testCases  TestCase[]
+  testRuns   TestRun[]
+  testPlans  TestPlan[]
+  members    ProjectMember[]
+  tags       Tag[]
+  attachments Attachment[]
+  customFields CustomField[] @relation("ProjectToCustomField")
+  environments Environment[]
+  milestones   Milestone[]
+  sharedSteps  SharedStep[]
+
+  @@index([code])
+}
+
+model TestSuite {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  position    Int      @default(0)
+  
+  // Project Relation
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  // Self-relation for nested tree structure
+  parentId    String?
+  parent      TestSuite?  @relation("SuiteToSuite", fields: [parentId], references: [id], onDelete: Cascade)
+  children    TestSuite[] @relation("SuiteToSuite")
+
+  testCases   TestCase[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([projectId])
+}
+
+model TestCase {
+  id               String           @id @default(uuid())
+  title            String
+  description      String?          @db.Text
+  preconditions    String?          @db.Text
+  postconditions   String?          @db.Text
+  severity         Severity         @default(NORMAL)
+  priority         Priority         @default(MEDIUM)
+  automationStatus AutomationStatus @default(MANUAL)
+  automationScript String?          @db.Text
+  lastVerificationLog String?       @db.Text
+  githubPrUrl      String?          @db.Text
+  
+  // Relations
+  projectId        String
+  project          Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  suiteId          String?
+  suite            TestSuite?       @relation(fields: [suiteId], references: [id], onDelete: SetNull)
+
+  authorId         String?
+  author           User?            @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  steps            TestStep[]
+  runResults       TestRunResult[]
+  tags             Tag[]
+  attachments      Attachment[]
+  testPlans        TestPlan[]      @relation("TestPlanToTestCase")
+
+  customFields     Json?           // Stores custom field values
+
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([projectId])
+  @@index([suiteId])
+}
+
+model Tag {
+  id        String     @id @default(uuid())
+  name      String
+  
+  projectId String
+  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  testCases TestCase[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@unique([name, projectId])
+  @@index([projectId])
+}
+
+model TestStep {
+  id             String   @id @default(uuid())
+  action         String   @db.Text
+  expectedResult String?  @db.Text
+  position       Int      // To maintain order in UI
+
+  caseId         String
+  testCase       TestCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  sharedStepId   String?
+  sharedStep     SharedStep? @relation(fields: [sharedStepId], references: [id], onDelete: SetNull)
+
+  @@index([caseId])
+}
+
+model TestRun {
+  id          String        @id @default(uuid())
+  title       String
+  description String?
+  status      TestRunStatus @default(ACTIVE)
+  
+  projectId   String
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  planId      String?
+  plan        TestPlan?     @relation(fields: [planId], references: [id], onDelete: SetNull)
+
+  environmentId String?
+  environment   Environment? @relation(fields: [environmentId], references: [id], onDelete: SetNull)
+
+  milestoneId   String?
+  milestone     Milestone?   @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+
+  reportUrl     String?      @db.Text
+
+  results     TestRunResult[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([projectId])
+}
+
+model TestRunResult {
+  id           String           @id @default(uuid())
+  status       TestResultStatus @default(IN_PROGRESS)
+  timeSpent    Int?             // Duration in milliseconds
+  errorMessage String?          @db.Text
+  comment      String?          @db.Text
+  stepResults  Json?            // Array of step-level results
+  executionHistory Json?        // Array of past execution logs
+
+  runId        String
+  testRun      TestRun          @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  caseId       String
+  testCase     TestCase         @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  assigneeId   String?
+  assignee     User?            @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  attachments  Attachment[]
+
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([runId])
+  @@index([caseId])
+  @@unique([runId, caseId])
+}
+
+model Attachment {
+  id           String   @id @default(uuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  url          String
+
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  testCaseId   String?
+  testCase     TestCase? @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+
+  resultId     String?
+  runResult    TestRunResult? @relation(fields: [resultId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime @default(now())
+  
+  @@index([projectId])
+}
+
+model TestPlan {
+  id          String     @id @default(uuid())
+  title       String
+  description String?    @db.Text
+  
+  projectId   String
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  testCases   TestCase[] @relation("TestPlanToTestCase")
+  testRuns    TestRun[]
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([projectId])
+}
+
+model WorkspaceRole {
+  id          String   @id @default(uuid())
+  title       String
+  description String?  @db.Text
+  isSystem    Boolean  @default(false)
+  isDefault   Boolean  @default(false)
+  permissions Json     // Array of permission IDs
+
+  users       User[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Invitation {
+  id        String   @id @default(uuid())
+  email     String
+  firstName String?
+  lastName  String?
+  token     String   @unique
+  roleId    String?  // Reference to WorkspaceRole
+  roleTitle String?  // Store the custom title from the form
+  status    String   @default("PENDING") // PENDING, ACCEPTED, EXPIRED
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+// --- Dynamic Fields ---
+
+model CustomField {
+  id          String    @id @default(uuid())
+  name        String
+  entity      String    @default("TestCase")
+  type        FieldType
+  options     Json?     // Used for Select/Multi-select options
+  isRequired  Boolean   @default(false)
+  isSystem    Boolean   @default(false)
+  order       Int       @default(0)
+  isGlobal    Boolean   @default(true) // Applies to all projects if true
+  
+  projects    Project[] @relation("ProjectToCustomField")
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+// --- Environments & Milestones ---
+
+model Environment {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  slug        String
+
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  testRuns    TestRun[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([projectId, slug])
+  @@index([projectId])
+}
+
+model Milestone {
+  id          String   @id @default(uuid())
+  title       String
+  description String?  @db.Text
+  status      String   @default("OPEN") // OPEN, COMPLETED
+  dueDate     DateTime?
+  
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  testRuns    TestRun[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([projectId])
+}
+
+model SharedStep {
+  id             String   @id @default(uuid())
+  title          String
+  action         String   @db.Text
+  expectedResult String?  @db.Text
+  
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  testSteps      TestStep[]
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@index([projectId])
+}
+
+model WorkspaceSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String   @db.Text
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-primary: #5d87ff;
+  --color-primary-hover: #4570ea;
+  --color-primary-light: #ecf2ff;
+  
+  /* Semantic Variables (Mapped to Light mode by default) */
+  --color-background: var(--bg-background);
+  --color-surface: var(--bg-surface);
+  --color-surface-hover: var(--bg-surface-hover);
+  --color-border: var(--border-color);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+}
+
+:root {
+  /* Light Mode Variables (Modernize Theme) */
+  --bg-background: #f4f6f9;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f8fafc;
+  --border-color: #ebf1f6;
+  --text-main: #2a3547;
+  --text-muted: #7c8fac;
+}
+
+.dark {
+  /* Dark Mode Variables (Modernize Theme) */
+  --bg-background: #202936;
+  --bg-surface: #2a3547;
+  --bg-surface-hover: #333f55;
+  --border-color: #333f55;
+  --text-main: #eaeaec;
+  --text-muted: #7c8fac;
+}
+
+body {
+  background-color: var(--bg-background);
+  color: var(--text-main);
+  font-family: var(--font-jakarta), sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Base custom styles to help transition standard elements */
+* {
+  border-color: var(--border-color);
+}
