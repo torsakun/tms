@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
+import { generateInviteEmailHtml } from "@/lib/email-templates";
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 import { v4 as uuidv4 } from "uuid";
@@ -42,20 +43,13 @@ export async function POST(
         from: 'TESSA TMS <no-reply@resend.dev>',
         to: updatedInvite.email,
         subject: `Reminder: You have been invited to join the TESSA workspace`,
-        html: `
-          <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-            <h2 style="color: #2563eb;">Welcome to TESSA!</h2>
-            <p>Hello ${updatedInvite.firstName} ${updatedInvite.lastName},</p>
-            <p>This is a reminder that you have been invited to join the workspace as a <strong>${updatedInvite.roleTitle}</strong>.</p>
-            <div style="margin: 30px 0;">
-              <a href="${inviteLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">Accept Invitation & Set Password</a>
-            </div>
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; color: #6b7280; font-size: 14px;">${inviteLink}</p>
-            <hr style="border: none; border-top: 1px solid #eee; margin-top: 30px;" />
-            <p style="font-size: 12px; color: #9ca3af;">If you didn't expect this invitation, you can safely ignore this email. This link will expire in 7 days.</p>
-          </div>
-        `
+        html: generateInviteEmailHtml({
+          title: "Reminder: You've been invited! 🚀",
+          greeting: `${updatedInvite.firstName} ${updatedInvite.lastName}`,
+          roleText: updatedInvite.roleTitle || "Member",
+          inviteLink: inviteLink,
+          projectName: "TESSA Workspace"
+        })
       });
     } else {
       console.warn("RESEND_API_KEY is not set. The workspace invitation was resent, but no email was actually dispatched.");
