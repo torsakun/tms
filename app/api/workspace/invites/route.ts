@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { v4 as uuidv4 } from "uuid";
-import { Resend } from "resend";
 import { generateInviteEmailHtml } from "@/lib/email-templates";
-
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+import { sendEmail } from "@/lib/mailer";
 
 export async function GET() {
   try {
@@ -68,35 +66,23 @@ export async function POST(req: Request) {
       }
     });
 
-    // Send email via Resend
+    // Send email via Nodemailer
     const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
     const host = req.headers.get("host");
     const baseUrl = process.env.NEXTAUTH_URL || `${protocol}://${host}`;
     const inviteLink = `${baseUrl}/invite/accept?token=${token}`;
     
-    if (resend) {
-      const { data, error } = await resend.emails.send({
-        from: 'TESSA TMS <onboarding@resend.dev>',
-        to: email,
-        subject: `You have been invited to join the TESSA workspace`,
-        html: generateInviteEmailHtml({
-          title: "Welcome to TESSA! 🚀",
-          greeting: `${firstName} ${lastName}`,
-          roleText: roleTitle,
-          inviteLink: inviteLink,
-          projectName: "TESSA Workspace"
-        })
-      });
-
-      if (error) {
-        console.error("Resend API Error:", error);
-      } else {
-        console.log("Email sent successfully:", data);
-      }
-    } else {
-      console.warn("RESEND_API_KEY is not set. The workspace invitation was created, but no email was sent.");
-      console.log(`Simulated invite link: ${inviteLink}`);
-    }
+    await sendEmail({
+      to: email,
+      subject: `You have been invited to join the TESSA workspace`,
+      html: generateInviteEmailHtml({
+        title: "Welcome to TESSA! 🚀",
+        greeting: `${firstName} ${lastName}`,
+        roleText: roleTitle,
+        inviteLink: inviteLink,
+        projectName: "TESSA Workspace"
+      })
+    });
 
     return NextResponse.json({ success: true, invitation }, { status: 201 });
   } catch (error) {

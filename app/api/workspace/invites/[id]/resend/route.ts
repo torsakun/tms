@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Resend } from "resend";
 import { generateInviteEmailHtml } from "@/lib/email-templates";
-
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+import { sendEmail } from "@/lib/mailer";
 import { v4 as uuidv4 } from "uuid";
 
 export async function POST(
@@ -38,29 +36,17 @@ export async function POST(
     const baseUrl = process.env.NEXTAUTH_URL || `${protocol}://${host}`;
     const inviteLink = `${baseUrl}/invite/accept?token=${updatedInvite.token}`;
     
-    if (resend) {
-      const { data, error } = await resend.emails.send({
-        from: 'TESSA TMS <onboarding@resend.dev>',
-        to: updatedInvite.email,
-        subject: `Reminder: You have been invited to join the TESSA workspace`,
-        html: generateInviteEmailHtml({
-          title: "Reminder: You've been invited! 🚀",
-          greeting: `${updatedInvite.firstName} ${updatedInvite.lastName}`,
-          roleText: updatedInvite.roleTitle || "Member",
-          inviteLink: inviteLink,
-          projectName: "TESSA Workspace"
-        })
-      });
-
-      if (error) {
-        console.error("Resend API Error:", error);
-      } else {
-        console.log("Email sent successfully:", data);
-      }
-    } else {
-      console.warn("RESEND_API_KEY is not set. The workspace invitation was resent, but no email was actually dispatched.");
-      console.log(`Simulated resend link: ${inviteLink}`);
-    }
+    await sendEmail({
+      to: updatedInvite.email,
+      subject: `Reminder: You have been invited to join the TESSA workspace`,
+      html: generateInviteEmailHtml({
+        title: "Reminder: You've been invited! 🚀",
+        greeting: `${updatedInvite.firstName} ${updatedInvite.lastName}`,
+        roleText: updatedInvite.roleTitle || "Member",
+        inviteLink: inviteLink,
+        projectName: "TESSA Workspace"
+      })
+    });
 
     return NextResponse.json({ success: true, invitation: updatedInvite });
   } catch (error) {

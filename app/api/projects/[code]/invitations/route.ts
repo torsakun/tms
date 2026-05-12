@@ -4,10 +4,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { requireProjectRole } from "@/lib/project-auth";
 import crypto from "crypto";
-import { Resend } from "resend";
 import { generateInviteEmailHtml } from "@/lib/email-templates";
-
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+import { sendEmail } from "@/lib/mailer";
 
 export async function POST(
   req: Request,
@@ -81,35 +79,23 @@ export async function POST(
     });
 
     // Send email via Resend
-    if (resend) {
-      // Determine the base URL
-      const host = req.headers.get("host");
-      const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
-      const baseUrl = process.env.NEXTAUTH_URL || `${protocol}://${host}`;
-      
-      const inviteUrl = `${baseUrl}/accept-invite?token=${token}`;
-      
-      const { data, error } = await resend.emails.send({
-        from: 'TESSA TMS <onboarding@resend.dev>', // Use onboarding@resend.dev for testing
-        to: email,
-        subject: `You have been invited to join ${project.name} on TESSA TMS`,
-        html: generateInviteEmailHtml({
-          title: "You've been invited! 🚀",
-          greeting: email,
-          roleText: role,
-          inviteLink: inviteUrl,
-          projectName: project.name
-        })
-      });
-
-      if (error) {
-        console.error("Resend API Error:", error);
-      } else {
-        console.log("Email sent successfully:", data);
-      }
-    } else {
-      console.warn("RESEND_API_KEY is not set. The invitation was created in the database, but no email was sent.");
-    }
+    const host = req.headers.get("host");
+    const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+    const baseUrl = process.env.NEXTAUTH_URL || `${protocol}://${host}`;
+    
+    const inviteUrl = `${baseUrl}/accept-invite?token=${token}`;
+    
+    await sendEmail({
+      to: email,
+      subject: `You have been invited to join ${project.name} on TESSA TMS`,
+      html: generateInviteEmailHtml({
+        title: "You've been invited! 🚀",
+        greeting: email,
+        roleText: role,
+        inviteLink: inviteUrl,
+        projectName: project.name
+      })
+    });
 
     return NextResponse.json({ success: true, invitationId: invitation.id });
   } catch (error: any) {
