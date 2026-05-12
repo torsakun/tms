@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
 import { cn } from "@/lib/utils";
 import { 
   ListTodo, 
@@ -22,6 +23,7 @@ import {
 
 export function ProjectSidebar({ projectCode }: { projectCode: string }) {
   const pathname = usePathname();
+  const { role } = useProjectRole();
 
   const menuGroups = [
     {
@@ -99,36 +101,40 @@ export function ProjectSidebar({ projectCode }: { projectCode: string }) {
         {/* Settings */}
         <div>
           <ul className="space-y-0.5">
-            <li>
-              <Link
-                href={`/projects/${projectCode}/settings`}
-                className={cn(
-                  "flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                  pathname === `/projects/${projectCode}/settings`
-                    ? "bg-white/10 text-white"
-                    : "text-slate-400 hover:bg-white/5 hover:text-white"
-                )}
-              >
-                <Settings size={16} className={cn("mr-3", pathname === `/projects/${projectCode}/settings` ? "text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" : "text-slate-500 group-hover:text-slate-300")} />
-                Settings
-              </Link>
-            </li>
-            <li>
-              <Link
-                href={`/projects/${projectCode}/settings/integrations`}
-                className={cn(
-                  "flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                  pathname.startsWith(`/projects/${projectCode}/settings/integrations`)
-                    ? "bg-white/10 text-white"
-                    : "text-slate-400 hover:bg-white/5 hover:text-white"
-                )}
-              >
-                <div className="mr-3 w-4 flex justify-center">
-                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn(pathname.startsWith(`/projects/${projectCode}/settings/integrations`) ? "text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" : "text-slate-500")}><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>
-                </div>
-                Integrations
-              </Link>
-            </li>
+            {role === 'ADMIN' && (
+              <>
+                <li>
+                  <Link
+                    href={`/projects/${projectCode}/settings`}
+                    className={cn(
+                      "flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                      pathname === `/projects/${projectCode}/settings`
+                        ? "bg-white/10 text-white"
+                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    )}
+                  >
+                    <Settings size={16} className={cn("mr-3", pathname === `/projects/${projectCode}/settings` ? "text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" : "text-slate-500 group-hover:text-slate-300")} />
+                    Settings
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href={`/projects/${projectCode}/settings/integrations`}
+                    className={cn(
+                      "flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                      pathname.startsWith(`/projects/${projectCode}/settings/integrations`)
+                        ? "bg-white/10 text-white"
+                        : "text-slate-400 hover:bg-white/5 hover:text-white"
+                    )}
+                  >
+                    <div className="mr-3 w-4 flex justify-center">
+                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn(pathname.startsWith(`/projects/${projectCode}/settings/integrations`) ? "text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" : "text-slate-500")}><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"></path><path d="M9 18c-4.51 2-5-2-7-2"></path></svg>
+                    </div>
+                    Integrations
+                  </Link>
+                </li>
+              </>
+            )}
             <li>
               <Link
                 href={`/projects/${projectCode}/shared-steps`}

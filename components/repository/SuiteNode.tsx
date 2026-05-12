@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Plus, Edit2, Copy, Trash2, ChevronRight, ChevronDown, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
 
 interface SuiteNodeProps {
   suite: any;
@@ -20,6 +21,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   const [quickTestTitle, setQuickTestTitle] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const router = useRouter();
+  const { role } = useProjectRole();
 
   const children = childrenMap.get(suite.id) || [];
   const cases = casesBySuiteId.get(suite.id) || [];
@@ -82,24 +84,26 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
         </div>
 
         {/* Hover Actions */}
-        <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button 
-            onClick={() => setShowQuickTest(true)}
-            className="p-1.5 text-primary hover:bg-primary/10 rounded-md transition-colors"
-            title="Create quick test"
-          >
-            <Plus size={16} />
-          </button>
-          <button className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-md transition-colors">
-            <Edit2 size={16} />
-          </button>
-          <button className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-md transition-colors">
-            <Copy size={16} />
-          </button>
-          <button className="p-1.5 text-text-muted hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors">
-            <Trash2 size={16} />
-          </button>
-        </div>
+        {role !== 'VIEWER' && (
+          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button 
+              onClick={() => setShowQuickTest(true)}
+              className="p-1.5 text-primary hover:bg-primary/10 rounded-md transition-colors"
+              title="Create quick test"
+            >
+              <Plus size={16} />
+            </button>
+            <button className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-md transition-colors">
+              <Edit2 size={16} />
+            </button>
+            <button className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-md transition-colors">
+              <Copy size={16} />
+            </button>
+            <button className="p-1.5 text-text-muted hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors">
+              <Trash2 size={16} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Suite Content (Cases and Child Suites) */}
@@ -107,7 +111,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
         <div className={cn("flex flex-col", depth === 0 && "pl-2")}>
           
           {/* Quick Test Input */}
-          {(showQuickTest || cases.length === 0 && children.length === 0) && (
+          {role !== 'VIEWER' && (showQuickTest || cases.length === 0 && children.length === 0) && (
             <div className="px-6 py-2 mt-1">
               {showQuickTest ? (
                 <input
@@ -147,7 +151,11 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                     }
                   }}
                 >
-                  <GripVertical size={14} className="text-text-muted/50 mr-3 opacity-0 group-hover:opacity-100 cursor-grab transition-opacity" />
+                  {role !== 'VIEWER' ? (
+                    <GripVertical size={14} className="text-text-muted/50 mr-3 opacity-0 group-hover:opacity-100 cursor-grab transition-opacity" />
+                  ) : (
+                    <div className="w-[14px] mr-3"></div>
+                  )}
                   <div className="w-24 shrink-0 text-[13px] text-text-muted font-mono">
                     {tc.code || `${projectCode}-${tc.id.substring(0,4)}`}
                   </div>
@@ -165,7 +173,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
               ))}
               
               {/* Create Quick Test button below cases if there are cases */}
-              {!showQuickTest && (
+              {role !== 'VIEWER' && !showQuickTest && (
                 <div className="px-6 py-2 bg-surface-hover/30 border-t border-border/50 transition-colors">
                   <button 
                     onClick={() => setShowQuickTest(true)}

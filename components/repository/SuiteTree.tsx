@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 import { ChevronRight, ChevronDown, Folder, FolderOpen, Plus } from 'lucide-react';
 import { Suite } from '@/types/repository';
 import { cn } from '@/lib/utils';
-
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useProjectRole } from '@/components/providers/ProjectRoleProvider';
 
 interface SuiteItemProps {
   suite: any;
@@ -17,6 +17,7 @@ interface SuiteItemProps {
 
 const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild }: SuiteItemProps) => {
   const router = useRouter();
+  const { role } = useProjectRole();
   const [isOpen, setIsOpen] = useState(true);
   const hasChildren = suite.children && suite.children.length > 0;
 
@@ -57,16 +58,18 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild }: S
           <span className="text-xs text-text-muted/50 ml-2 group-hover:hidden">{suite.caseCount}</span>
         )}
 
-        <button 
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsOpen(true);
-            onAddChild(suite.id);
-          }}
-          className="opacity-0 group-hover:opacity-100 p-1 hover:text-primary transition-opacity ml-auto"
-        >
-          <Plus size={14} />
-        </button>
+        {role !== 'VIEWER' && (
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsOpen(true);
+              onAddChild(suite.id);
+            }}
+            className="opacity-0 group-hover:opacity-100 p-1 hover:text-primary transition-opacity ml-auto"
+          >
+            <Plus size={14} />
+          </button>
+        )}
       </div>
 
       {isOpen && hasChildren && (
@@ -84,6 +87,7 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
   const [suites, setSuites] = useState<any[]>(initialSuites);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { role } = useProjectRole();
   const selectedSuiteId = searchParams.get('suite');
 
   // Build tree from flat array and calculate case counts
@@ -154,12 +158,14 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
     <div className="flex flex-col h-full bg-surface transition-colors">
       <div className="p-4 border-b border-border/50 bg-surface flex justify-between items-center shrink-0 transition-colors">
         <h2 className="font-semibold text-text-main">Suites</h2>
-        <button 
-          onClick={() => handleAddSuite(null)}
-          className="p-1.5 bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] rounded-md hover:bg-blue-700 transition-colors"
-        >
-          <Plus size={16} />
-        </button>
+        {role !== 'VIEWER' && (
+          <button 
+            onClick={() => handleAddSuite(null)}
+            className="p-1.5 bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] rounded-md hover:bg-blue-700 transition-colors"
+          >
+            <Plus size={16} />
+          </button>
+        )}
       </div>
       <div className="flex-1 overflow-y-auto p-3 space-y-1">
         {suiteTree.map((suite) => (

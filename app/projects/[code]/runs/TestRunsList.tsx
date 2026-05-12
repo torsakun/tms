@@ -14,6 +14,7 @@ import {
   FileText,
   Edit
 } from "lucide-react";
+import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
 
 function timeAgo(dateString: string) {
   const date = new Date(dateString);
@@ -51,6 +52,7 @@ interface TestRunsListProps {
 
 export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
   const router = useRouter();
+  const { role } = useProjectRole();
   const [runs, setRuns] = useState(initialRuns);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -98,12 +100,14 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
   return (
     <div className="w-full flex flex-col h-full bg-background p-8 pt-0 transition-colors">
       <div className="flex items-center space-x-4 mb-6 pt-4">
-        <Link
-          href={`/projects/${code}/runs/create`}
-          className="bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
-        >
-          Start new test run
-        </Link>
+        {role !== 'VIEWER' && (
+          <Link
+            href={`/projects/${code}/runs/create`}
+            className="bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
+            Start new test run
+          </Link>
+        )}
         
         <div className="relative w-64">
           <Search className="absolute left-3 top-2.5 text-text-muted" size={16} />
@@ -143,14 +147,16 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
           </div>
           <h3 className="text-lg font-bold text-text-main mb-2">No test runs found</h3>
           <p className="text-text-muted text-center max-w-sm mb-6 text-sm">
-            Create a new test run to start executing tests and tracking quality.
+            {role !== 'VIEWER' ? "Create a new test run to start executing tests and tracking quality." : "There are currently no test runs for this project."}
           </p>
-          <Link
-            href={`/projects/${code}/runs/create`}
-            className="px-5 py-2.5 bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] rounded-md font-medium hover:bg-blue-700 transition-colors"
-          >
-            Start test run
-          </Link>
+          {role !== 'VIEWER' && (
+            <Link
+              href={`/projects/${code}/runs/create`}
+              className="px-5 py-2.5 bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] rounded-md font-medium hover:bg-blue-700 transition-colors"
+            >
+              Start test run
+            </Link>
+          )}
         </div>
       ) : (
         <div className="w-full bg-surface rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-none overflow-visible transition-colors">

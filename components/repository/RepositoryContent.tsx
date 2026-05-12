@@ -7,6 +7,7 @@ import { Search, Filter, PlayCircle, Settings, X, Edit3, Copy, Trash2, Cpu, File
 import { SuiteList } from "@/components/repository/SuiteList";
 import { AiGeneratorModal } from "@/components/repository/AiGeneratorModal";
 import { TestCaseAutomationPanel } from "@/components/repository/TestCaseAutomationPanel";
+import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
 
 interface RepositoryContentProps {
   projectCode: string;
@@ -17,6 +18,7 @@ interface RepositoryContentProps {
 
 export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }: RepositoryContentProps) {
   const router = useRouter();
+  const { role } = useProjectRole();
   const [activeTestCaseId, setActiveTestCaseId] = useState<string | null>(null);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -109,41 +111,51 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                   <ExternalLink size={14} className="mr-1" />
                   View PR #{lastSyncPr.number}
                 </a>
-                <button
-                  onClick={handleQuickMerge}
-                  disabled={isMerging}
-                  className="flex items-center bg-indigo-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
-                >
-                  {isMerging ? <Loader2 size={12} className="mr-1 animate-spin" /> : <GitMerge size={12} className="mr-1" />}
-                  Quick Merge
-                </button>
+                {role !== 'VIEWER' && (
+                  <button
+                    onClick={handleQuickMerge}
+                    disabled={isMerging}
+                    className="flex items-center bg-indigo-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                  >
+                    {isMerging ? <Loader2 size={12} className="mr-1 animate-spin" /> : <GitMerge size={12} className="mr-1" />}
+                    Quick Merge
+                  </button>
+                )}
               </div>
             )}
-            <button 
-              onClick={handleSyncAll}
-              disabled={isSyncing}
-              className="flex items-center bg-slate-800 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-slate-700 transition-colors disabled:opacity-50"
-            >
-              {isSyncing ? <Loader2 size={16} className="mr-2 animate-spin" /> : <CloudUpload size={16} className="mr-2" />}
-              Sync to GitHub
-            </button>
-            <Link href={`/projects/${projectCode}/runs`} className="flex items-center bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-4 py-1.5 rounded-md text-sm font-medium hover:bg-emerald-500/20 transition-colors">
-              <PlayCircle size={16} className="mr-2" />
-              Start Run
-            </Link>
-            <button 
-              onClick={() => setIsAiModalOpen(true)}
-              className="flex items-center bg-amber-500/10 text-amber-500 border border-amber-500/20 px-4 py-1.5 rounded-md text-sm font-medium hover:bg-amber-500/20 transition-colors"
-            >
-              <Sparkles size={16} className="mr-2" />
-              Generate with AI
-            </button>
-            <Link href={`/projects/${projectCode}/cases/create${activeSuiteId ? `?suite=${activeSuiteId}` : ''}`} className="bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] px-4 py-1.5 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
-              Create Case
-            </Link>
-            <Link href={`/projects/${projectCode}/settings/members`} className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-md transition-colors" title="Project Settings">
-              <Settings size={20} />
-            </Link>
+            
+            {role !== 'VIEWER' && (
+              <>
+                <button 
+                  onClick={handleSyncAll}
+                  disabled={isSyncing}
+                  className="flex items-center bg-slate-800 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-slate-700 transition-colors disabled:opacity-50"
+                >
+                  {isSyncing ? <Loader2 size={16} className="mr-2 animate-spin" /> : <CloudUpload size={16} className="mr-2" />}
+                  Sync to GitHub
+                </button>
+                <Link href={`/projects/${projectCode}/runs`} className="flex items-center bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-4 py-1.5 rounded-md text-sm font-medium hover:bg-emerald-500/20 transition-colors">
+                  <PlayCircle size={16} className="mr-2" />
+                  Start Run
+                </Link>
+                <button 
+                  onClick={() => setIsAiModalOpen(true)}
+                  className="flex items-center bg-amber-500/10 text-amber-500 border border-amber-500/20 px-4 py-1.5 rounded-md text-sm font-medium hover:bg-amber-500/20 transition-colors"
+                >
+                  <Sparkles size={16} className="mr-2" />
+                  Generate with AI
+                </button>
+                <Link href={`/projects/${projectCode}/cases/create${activeSuiteId ? `?suite=${activeSuiteId}` : ''}`} className="bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] px-4 py-1.5 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
+                  Create Case
+                </Link>
+              </>
+            )}
+            
+            {role === 'ADMIN' && (
+              <Link href={`/projects/${projectCode}/settings/members`} className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-md transition-colors" title="Project Settings">
+                <Settings size={20} />
+              </Link>
+            )}
           </div>
         </header>
 

@@ -3,6 +3,9 @@
 // app/api/projects/[code]/cases/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { requireProjectRole } from "@/lib/project-auth";
 import { z } from "zod";
 
 const testCaseSchema = z.object({
@@ -43,6 +46,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
           name: projectIdOrCode + " Project"
         }
       });
+    }
+
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const hasAccess = await requireProjectRole(project.code, (session.user as any).id, ['EDITOR', 'ADMIN']);
+    if (!hasAccess && (session.user as any).role !== 'ADMIN') {
+      return NextResponse.json({ error: "Forbidden: You do not have permission to create test cases in this project" }, { status: 403 });
     }
 
     const projectId = project.id;

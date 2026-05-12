@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { requireProjectRole } from "@/lib/project-auth";
 
 export async function POST(req: Request, { params }: { params: Promise<{ code: string }> }) {
   const { code: projectIdOrCode } = await params;
@@ -15,6 +18,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    }
+
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const hasAccess = await requireProjectRole(project.code, (session.user as any).id, ['EDITOR', 'ADMIN']);
+    if (!hasAccess && (session.user as any).role !== 'ADMIN') {
+      return NextResponse.json({ error: "Forbidden: You do not have permission to create test runs in this project" }, { status: 403 });
     }
 
     const body = await req.json();

@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { requireProjectRole } from "@/lib/project-auth";
 
 export async function GET(
   req: Request,
@@ -8,6 +11,16 @@ export async function GET(
   const { code } = await params;
 
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const hasAccess = await requireProjectRole(code, (session.user as any).id, ['ADMIN']);
+    if (!hasAccess && (session.user as any).role !== 'ADMIN') {
+      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+    }
+
     const project = await prisma.project.findUnique({
       where: { code },
       select: {
@@ -45,6 +58,16 @@ export async function PUT(
   const { code } = await params;
 
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const hasAccess = await requireProjectRole(code, (session.user as any).id, ['ADMIN']);
+    if (!hasAccess && (session.user as any).role !== 'ADMIN') {
+      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+    }
+
     const body = await req.json();
     const { githubOwner, githubRepo, githubWorkflowId, githubToken } = body;
 
