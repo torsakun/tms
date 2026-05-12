@@ -15,52 +15,110 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Admin user not found, please run setup first" }, { status: 400 });
     }
 
-    // Create a demo project
-    const project = await prisma.project.create({
-      data: {
-        name: "E-Commerce Platform",
-        code: "EC",
-        description: "Main e-commerce website testing",
-        testCases: {
-          create: [
-            {
-              title: "User can add item to cart",
-              priority: "HIGH",
-              severity: "MAJOR",
-              automationStatus: "AUTOMATED",
-              authorId: user.id
-            },
-            {
-              title: "Checkout process works with credit card",
-              priority: "MEDIUM",
-              severity: "CRITICAL",
-              automationStatus: "TO_BE_AUTOMATED",
-              authorId: user.id
-            },
-            {
-              title: "Search returns relevant results",
-              priority: "MEDIUM",
-              severity: "NORMAL",
-              automationStatus: "MANUAL",
-              authorId: user.id
-            }
-          ]
-        }
-      }
-    });
+    const projectsData = [
+      { name: "E-Commerce Web", code: "ECO", desc: "Main B2C e-commerce platform testing" },
+      { name: "Mobile Banking iOS", code: "MBI", desc: "Native iOS banking application" },
+      { name: "Mobile Banking Android", code: "MBA", desc: "Native Android banking application" },
+      { name: "Internal CRM", code: "CRM", desc: "Customer Relationship Management portal" },
+      { name: "Payment Gateway API", code: "PAY", desc: "Core payment processing microservices" },
+      { name: "HR Management System", code: "HRM", desc: "Employee onboarding and payroll" },
+      { name: "Inventory Backend", code: "INV", desc: "Warehouse and stock management" },
+      { name: "Analytics Dashboard", code: "ANA", desc: "Data visualization for executives" },
+      { name: "Flight Booking Engine", code: "FLI", desc: "B2B flight ticketing system" },
+      { name: "Customer Support Desk", code: "CSD", desc: "Ticketing and live chat system" }
+    ];
 
-    // Create a demo test run
-    const testRun = await prisma.testRun.create({
-      data: {
-        title: "Release 1.0 Regression",
-        projectId: project.id,
-        status: "ACTIVE",
-      }
-    });
+    let createdCount = 0;
+
+    for (const p of projectsData) {
+      // Check if project already exists
+      const existing = await prisma.project.findUnique({ where: { code: p.code } });
+      if (existing) continue;
+
+      const project = await prisma.project.create({
+        data: {
+          name: p.name,
+          code: p.code,
+          description: p.desc,
+        }
+      });
+
+      // Create a test suite for this project
+      const suite = await prisma.testSuite.create({
+        data: {
+          title: "Core Functionality Suite",
+          description: "Main end-to-end flows",
+          projectId: project.id
+        }
+      });
+
+      // Add members
+      await prisma.projectMember.create({
+        data: {
+          projectId: project.id,
+          userId: user.id,
+          role: "ADMIN"
+        }
+      });
+
+      // Create test cases
+      await prisma.testCase.createMany({
+        data: [
+          {
+            title: `Verify happy path for ${p.name}`,
+            severity: "CRITICAL",
+            priority: "HIGH",
+            automationStatus: "AUTOMATED",
+            projectId: project.id,
+            suiteId: suite.id,
+            authorId: user.id
+          },
+          {
+            title: `Handle invalid input errors gracefully in ${p.code}`,
+            severity: "MAJOR",
+            priority: "MEDIUM",
+            automationStatus: "TO_BE_AUTOMATED",
+            projectId: project.id,
+            suiteId: suite.id,
+            authorId: user.id
+          },
+          {
+            title: `Check performance under load for ${p.name}`,
+            severity: "NORMAL",
+            priority: "LOW",
+            automationStatus: "MANUAL",
+            projectId: project.id,
+            suiteId: suite.id,
+            authorId: user.id
+          },
+          {
+            title: `Security audit: SQL injection prevention in ${p.code}`,
+            severity: "BLOCKER",
+            priority: "HIGH",
+            automationStatus: "AUTOMATED",
+            projectId: project.id,
+            suiteId: suite.id,
+            authorId: user.id
+          }
+        ]
+      });
+
+      // Create a test run
+      await prisma.testRun.create({
+        data: {
+          title: `Regression Run v1.0 - ${p.code}`,
+          projectId: project.id,
+          status: "ACTIVE"
+        }
+      });
+
+      createdCount++;
+    }
 
     return NextResponse.json({ 
       success: true, 
-      message: "Mock data seeded successfully! You now have a project and test cases."
+      message: `Successfully seeded ${createdCount} new projects with suites and test cases!`,
+      totalProjectsSeeded: createdCount
     });
   } catch (error) {
     console.error("Seed error:", error);
