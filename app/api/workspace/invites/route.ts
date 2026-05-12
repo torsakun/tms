@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { email, firstName, lastName, roleTitle, roleId } = body;
 
-    if (!email || !firstName || !lastName || !roleTitle) {
+    if (!email || !firstName || !lastName || !roleTitle || !roleId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
         lastName,
         token,
         roleTitle,
-        roleId: roleId || null,
+        roleId,
         expiresAt,
         status: "PENDING"
       }
