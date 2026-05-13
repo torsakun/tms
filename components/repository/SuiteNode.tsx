@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Edit2, Copy, Trash2, ChevronRight, ChevronDown, GripVertical } from "lucide-react";
+import { Plus, Edit2, Copy, Trash2, ChevronRight, ChevronDown, GripVertical, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
@@ -159,13 +159,22 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                   <div className="w-24 shrink-0 text-[13px] text-text-muted font-mono">
                     {tc.code || `${projectCode}-${tc.id.substring(0,4)}`}
                   </div>
-                  <div className="flex-1 text-[13px] font-normal text-text-main group-hover:text-primary transition-colors">
-                    {tc.title}
+                  <div className="flex-1 flex items-center text-[13px] font-normal text-text-main group-hover:text-primary transition-colors min-w-0">
+                    {tc.tags?.some((t: any) => t.name === "AI-Generated") ? (
+                      <span title="AI Generated" className="shrink-0 flex items-center">
+                        <Sparkles size={14} className="text-amber-500 mr-2" />
+                      </span>
+                    ) : (
+                      <span title="Manually Created" className="shrink-0 flex items-center">
+                        <User size={14} className="text-blue-400 mr-2" />
+                      </span>
+                    )}
+                    <span className="truncate">{tc.title}</span>
                   </div>
                   <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {tc.tags && tc.tags.length > 0 && (
+                    {tc.tags && tc.tags.filter((t: any) => t.name !== "AI-Generated").length > 0 && (
                       <span className="px-2 py-0.5 text-[10px] font-medium bg-surface text-text-muted rounded border border-border/50">
-                        {tc.tags[0].name}
+                        {tc.tags.filter((t: any) => t.name !== "AI-Generated")[0].name}
                       </span>
                     )}
                     {role !== 'VIEWER' && (

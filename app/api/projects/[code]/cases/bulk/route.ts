@@ -29,6 +29,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
             automationStatus: "MANUAL",
             projectId: project.id,
             suiteId: suiteId || null,
+            tags: {
+              connectOrCreate: [{
+                where: { name_projectId: { name: "AI-Generated", projectId: project.id } },
+                create: { name: "AI-Generated", projectId: project.id }
+              }]
+            },
             steps: {
               create: (tc.steps || []).map((step: any, idx: number) => ({
                 action: step.action,
