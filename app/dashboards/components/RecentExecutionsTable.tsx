@@ -33,9 +33,8 @@ export function RecentExecutionsTable({ recentRuns }: RecentExecutionsTableProps
         sortPriority = 2;
       }
 
-      return { ...run, liveStatus, sortPriority, isCompleted };
+      return { ...run, liveStatus, isCompleted };
     }).sort((a, b) => {
-      if (a.sortPriority !== b.sortPriority) return a.sortPriority - b.sortPriority;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
   }, [recentRuns]);
