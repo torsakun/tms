@@ -168,6 +168,26 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                         {tc.tags[0].name}
                       </span>
                     )}
+                    {role !== 'VIEWER' && (
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (window.confirm("Are you sure you want to delete this test case?")) {
+                            try {
+                              const res = await fetch(`/api/projects/${projectCode}/cases/${tc.id}`, { method: 'DELETE' });
+                              if (res.ok) router.refresh();
+                              else alert("Failed to delete test case");
+                            } catch (err) {
+                              console.error(err);
+                            }
+                          }
+                        }}
+                        className="p-1.5 text-text-muted hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors"
+                        title="Delete test case"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
