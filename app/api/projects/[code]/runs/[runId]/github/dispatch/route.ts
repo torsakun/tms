@@ -49,7 +49,11 @@ export async function POST(
       .map((r: any) => `${code}-${r.testCase.id.substring(0, 4)}`)
       .join(" ");
 
-    // Assuming the workflow takes `run_id` and `case_ids` as inputs
+    const protocol = req.headers.get("x-forwarded-proto") || "http";
+    const host = req.headers.get("host");
+    const apiUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
+
+    // Assuming the workflow takes `run_id`, `case_ids`, and `api_url` as inputs
     const dispatchRes = await fetch(dispatchUrl, {
       method: 'POST',
       headers,
@@ -57,7 +61,8 @@ export async function POST(
         ref: "main",
         inputs: {
           run_id: runId,
-          case_ids: automatedShortIds
+          case_ids: automatedShortIds,
+          api_url: apiUrl
         }
       })
     });
