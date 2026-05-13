@@ -18,6 +18,7 @@ import { prisma } from "@/lib/prisma";
 import { ExecutionTrendChart, AutomationDonutChart } from "./components/DashboardCharts";
 import { ProjectQualityMatrix } from "./components/ProjectQualityMatrix";
 import { RecentExecutionsTable } from "./components/RecentExecutionsTable";
+import { UpcomingSchedules } from "./components/UpcomingSchedules";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,7 @@ export default async function GlobalDashboardPage() {
     automation: { automated: 0, manual: 0, toBeAutomated: 0 },
     projects: [] as any[],
     recentRuns: [] as any[],
+    schedules: [] as any[],
     trendData: [] as any[]
   };
 
@@ -62,6 +64,13 @@ export default async function GlobalDashboardPage() {
         results: { select: { status: true } },
         project: { select: { name: true, code: true } }
       }
+    });
+
+    // Pipeline Schedules
+    const schedules = await prisma.pipelineSchedule.findMany({
+      where: { isActive: true },
+      include: { project: { select: { name: true, code: true } } },
+      orderBy: { createdAt: "asc" }
     });
 
     // Fetch Trend Data for the last 14 days
@@ -153,6 +162,7 @@ export default async function GlobalDashboardPage() {
           metrics: { total, passed, failed, blocked, skipped, untested } 
         };
       }),
+      schedules,
       trendData: Array.from(trendMap.values())
     };
     
@@ -162,7 +172,7 @@ export default async function GlobalDashboardPage() {
     console.error("Failed to fetch QA dashboard data:", err);
   }
 
-  const { metrics, automation, projects, recentRuns, trendData } = dashboardData;
+  const { metrics, automation, projects, recentRuns, schedules, trendData } = dashboardData;
   const totalAutomationCases = automation.automated + automation.manual + automation.toBeAutomated;
   const automatedPercent = totalAutomationCases > 0 ? (automation.automated / totalAutomationCases) * 100 : 0;
 
@@ -320,7 +330,13 @@ export default async function GlobalDashboardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
             <ProjectQualityMatrix projects={projects} />
-            <RecentExecutionsTable recentRuns={recentRuns} />
+            
+            <div className="flex flex-col h-full">
+              <UpcomingSchedules schedules={schedules} />
+              <div className="flex-1">
+                <RecentExecutionsTable recentRuns={recentRuns} />
+              </div>
+            </div>
 
           </div>
 
