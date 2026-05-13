@@ -17,7 +17,9 @@ import {
   Eye,
   Save,
   X,
-  Trash2
+  Trash2,
+  DollarSign,
+  Clock
 } from "lucide-react";
 
 export default function TESSAAutomationPage({ params }: { params: Promise<{ code: string }> }) {
@@ -40,6 +42,9 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
   const [newPipelineTitle, setNewPipelineTitle] = useState("");
   const [newPipelineCron, setNewPipelineCron] = useState("0 0 * * *");
   const [isCreatingPipeline, setIsCreatingPipeline] = useState(false);
+
+  // Analytics State
+  const [analytics, setAnalytics] = useState<any>(null);
 
   const [stats, setStats] = useState({ total: 0, automated: 0, manual: 0 });
 
@@ -75,6 +80,12 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
         if (Array.isArray(data)) {
           setPipelines(data);
         }
+      });
+
+    fetch(`/api/projects/${code}/ai/analytics`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.error) setAnalytics(data);
       });
   };
 
@@ -279,15 +290,20 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-emerald-500/20 transition-all duration-500"></div>
             <div className="flex justify-between items-start mb-4 relative z-10">
               <div>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Flaky Tests Auto-Healed</p>
-                <h3 className="text-3xl font-bold text-slate-900 dark:text-white">47</h3>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">Executive ROI</p>
+                <h3 className="text-3xl font-bold text-slate-900 dark:text-white">${analytics?.roi?.estimatedValueUsd || "0"}</h3>
               </div>
               <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl flex items-center justify-center border border-emerald-200 dark:border-emerald-500/30">
-                <Wrench size={24} className="text-emerald-600 dark:text-emerald-400" />
+                <DollarSign size={24} className="text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
-            <div className="flex items-center text-xs text-emerald-600 dark:text-emerald-400 font-medium relative z-10">
-              <CheckCircle2 size={14} className="mr-1" /> Saved ~14 hours of manual debugging
+            <div className="flex items-center justify-between text-xs font-medium relative z-10">
+              <span className="text-emerald-600 dark:text-emerald-400 flex items-center">
+                 <Clock size={14} className="mr-1" /> {analytics?.roi?.totalHoursSaved || 0} hrs saved
+              </span>
+              <span className="text-slate-500 dark:text-slate-400">
+                 ≈ ฿{analytics?.roi?.estimatedValueThb || "0"}
+              </span>
             </div>
           </div>
 
@@ -454,25 +470,39 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
           {/* Healing Logs & Pipeline */}
           <div className="space-y-8 flex flex-col">
             
-            {/* Auto Healing Log */}
+            {/* Flakiness Radar */}
             <div className="bg-white dark:bg-[#111623] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex-1">
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50 rounded-t-2xl">
                 <h3 className="font-semibold text-slate-900 dark:text-white flex items-center">
-                  <Wrench size={18} className="mr-2 text-emerald-500" /> Recent Auto-Heals
+                  <Activity size={18} className="mr-2 text-rose-500" /> Flakiness Radar
                 </h3>
-                <span className="text-xs bg-emerald-500/10 text-emerald-500 px-2 py-1 rounded-full font-medium">Active</span>
+                <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-1 rounded-full font-medium">Top {analytics?.flakiness?.length || 0}</span>
               </div>
-              <div className="p-6 space-y-4">
-                <div className="flex items-start space-x-3 pb-4 border-b border-slate-100 dark:border-slate-800/50">
-                  <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500 shrink-0 mt-0.5">
-                    <CheckCircle2 size={16} />
+              <div className="p-0">
+                {(!analytics?.flakiness || analytics.flakiness.length === 0) ? (
+                   <div className="p-6 text-center text-slate-500 text-sm">
+                     No flaky tests detected yet. Everything is stable!
+                   </div>
+                ) : (
+                  <div className="divide-y divide-slate-100 dark:divide-slate-800/50">
+                    {analytics.flakiness.map((item: any) => (
+                      <div key={item.caseId} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors flex items-center justify-between group">
+                        <div className="flex-1 min-w-0 mr-4">
+                          <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-200 truncate">{item.title}</h4>
+                          <div className="flex items-center mt-1.5 space-x-1">
+                             {item.recentStatuses.map((s: string, i: number) => (
+                               <div key={i} className={`w-2 h-2 rounded-full ${s === 'PASSED' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'}`} title={s}></div>
+                             ))}
+                             <span className="text-[10px] text-slate-400 ml-2 font-medium">Score: {item.flakinessScore}%</span>
+                          </div>
+                        </div>
+                        <button className="opacity-0 group-hover:opacity-100 transition-opacity bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 px-3 py-1.5 rounded text-xs font-bold flex items-center shadow-sm">
+                          <Sparkles size={12} className="mr-1" /> Auto-Heal
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-200">Fixed broken selector in QA-55</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Button ID changed from <code className="bg-red-500/10 text-red-400 px-1 rounded">#submit-btn</code> to <code className="bg-emerald-500/10 text-emerald-400 px-1 rounded">#btn-primary</code>. AI updated the script and resumed execution.</p>
-                    <span className="text-[10px] text-slate-400 mt-2 block">2 hours ago</span>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
 
