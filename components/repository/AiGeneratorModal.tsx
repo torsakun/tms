@@ -23,6 +23,7 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [jiraTicketId, setJiraTicketId] = useState("");
   const [isFetchingJira, setIsFetchingJira] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   
   const [generatedCases, setGeneratedCases] = useState<any[]>([]);
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
@@ -143,6 +144,7 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
 
     const casesToSave = generatedCases.filter((_, i) => selectedIndices.has(i));
     setError("");
+    setIsSaving(true);
     
     try {
       const res = await fetch(`/api/projects/${projectCode}/cases/bulk`, {
@@ -158,6 +160,8 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
       onClose();
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -437,11 +441,20 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
           {step === "REVIEW" && (
             <button 
               onClick={handleSave}
-              disabled={selectedIndices.size === 0}
+              disabled={selectedIndices.size === 0 || isSaving}
               className="flex items-center px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md font-bold shadow-[0_0_10px_rgba(16,185,129,0.4)] transition-all disabled:opacity-50 disabled:shadow-none"
             >
-              <CheckCircle2 size={16} className="mr-2" />
-              Save Selected
+              {isSaving ? (
+                <>
+                  <Loader2 size={16} className="mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 size={16} className="mr-2" />
+                  Save Selected
+                </>
+              )}
             </button>
           )}
         </div>
