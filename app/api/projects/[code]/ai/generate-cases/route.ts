@@ -10,14 +10,14 @@ const testCaseSchema = z.object({
   testCases: z.array(
     z.object({
       title: z.string().describe("A concise, clear title for the test case"),
-      description: z.string().optional().describe("Detailed description of what is being tested"),
-      preconditions: z.string().optional().describe("State or conditions required before execution"),
-      severity: z.enum(["BLOCKER", "CRITICAL", "MAJOR", "NORMAL", "MINOR", "TRIVIAL"]).default("NORMAL"),
-      priority: z.enum(["HIGH", "MEDIUM", "LOW"]).default("MEDIUM"),
+      description: z.string().describe("Detailed description of what is being tested. Use empty string if none."),
+      preconditions: z.string().describe("State or conditions required before execution. Use empty string if none."),
+      severity: z.enum(["BLOCKER", "CRITICAL", "MAJOR", "NORMAL", "MINOR", "TRIVIAL"]).describe("Severity level of the test"),
+      priority: z.enum(["HIGH", "MEDIUM", "LOW"]).describe("Priority level of the test"),
       steps: z.array(
         z.object({
           action: z.string().describe("Action to perform"),
-          expectedResult: z.string().optional().describe("Expected outcome of the action")
+          expectedResult: z.string().describe("Expected outcome of the action. Use empty string if none.")
         })
       ).describe("Step-by-step instructions to execute the test")
     })
