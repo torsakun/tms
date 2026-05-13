@@ -20,7 +20,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ runId: 
     const buffer = Buffer.from(await file.arrayBuffer());
     
     // The directory where we will save the report
-    const reportsDir = path.join(process.cwd(), 'public', 'reports', runId);
+    const isVercel = process.env.VERCEL === "1";
+    const reportsDir = isVercel 
+      ? path.join('/tmp', 'reports', runId)
+      : path.join(process.cwd(), 'public', 'reports', runId);
     
     // Make sure the directory exists
     await fs.promises.mkdir(reportsDir, { recursive: true });
