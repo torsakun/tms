@@ -685,6 +685,94 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
   const activeResult = run.results.find((r: any) => r.id === activeResultId);
   const unassignedResults = resultsBySuiteId.get('unassigned') || [];
 
+  const exportToCSV = () => {
+    const headers = [
+      "Case Code",
+      "Test Case Title",
+      "Status",
+      "Severity",
+      "Priority",
+      "Expected Result",
+      "Actual Result",
+      "Evidence (URLs)",
+      "Error Message",
+      "Time Spent (s)",
+      "Executed Date"
+    ];
+
+    const escapeCSV = (str: string | null | undefined) => {
+      if (!str) return '""';
+      const escaped = String(str).replace(/"/g, '""');
+      return `"${escaped}"`;
+    };
+
+    const rows = run.results.map((res: any) => {
+      const tc = res.testCase;
+      const code = tc.code || `${projectCode}-${tc.id.substring(0, 4)}`;
+
+      const expected = (tc.steps || []).map((step: any, idx: number) => {
+        const stepNum = idx + 1;
+        let text = `${stepNum}. Action: ${step.action}`;
+        if (step.expectedResult) text += `\n   Expected: ${step.expectedResult}`;
+        return text;
+      }).join('\n\n');
+
+      const actual = (tc.steps || []).map((step: any, idx: number) => {
+        const stepNum = idx + 1;
+        const stepRes = (res.stepResults && res.stepResults[step.id]) || {};
+        const status = stepRes.status ? `[${stepRes.status}]` : '';
+        let text = `${stepNum}. ${status}`;
+        if (stepRes.actualResult) text += ` Actual: ${stepRes.actualResult}`;
+        return text;
+      }).join('\n\n');
+
+      const evidenceUrls: string[] = [];
+      if (res.attachments && Array.isArray(res.attachments)) {
+        evidenceUrls.push(...res.attachments.map((a: any) => a.url));
+      }
+      (tc.steps || []).forEach((step: any) => {
+        const stepRes = (res.stepResults && res.stepResults[step.id]) || {};
+        if (stepRes.attachments && Array.isArray(stepRes.attachments)) {
+          evidenceUrls.push(...stepRes.attachments.map((a: any) => a.url));
+        }
+      });
+      const evidence = evidenceUrls.join('\n');
+
+      const date = res.updatedAt ? new Date(res.updatedAt).toLocaleString() : '';
+      const timeSpent = res.timeSpent ? (res.timeSpent / 1000).toFixed(1) : '0';
+
+      return [
+        escapeCSV(code),
+        escapeCSV(tc.title),
+        escapeCSV(res.status),
+        escapeCSV(tc.severity),
+        escapeCSV(tc.priority),
+        escapeCSV(expected),
+        escapeCSV(actual),
+        escapeCSV(evidence),
+        escapeCSV(res.errorMessage || res.comment),
+        escapeCSV(timeSpent),
+        escapeCSV(date)
+      ].join(',');
+    });
+
+    const csvContent = [headers.map(escapeCSV).join(','), ...rows].join('\n');
+    
+    const blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    
+    const cleanTitle = run.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const dateStr = new Date().toISOString().split('T')[0];
+    a.download = `run_${cleanTitle}_${dateStr}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setIsExportModalOpen(false);
+  };
+
   return (
     <>
     {isReportModalOpen && run.reportUrl && (
@@ -1302,11 +1390,14 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                       <input type="text" placeholder="Type to search" className="w-full text-sm outline-none text-text-main bg-transparent placeholder:text-text-muted" />
                    </div>
                    <div className="py-1 bg-surface">
-                      <div className="px-3 py-2 text-sm text-primary font-medium bg-primary/10 flex items-center justify-between cursor-pointer transition-colors">
-                         CSV <Check size={14} />
+                      <div 
+                         className="px-3 py-2 text-sm text-text-main hover:bg-surface-hover cursor-pointer transition-colors flex items-center justify-between"
+                         onClick={exportToCSV}
+                      >
+                         CSV
                       </div>
-                      <div className="px-3 py-2 text-sm text-text-main hover:bg-surface-hover cursor-pointer transition-colors">
-                         PDF
+                      <div className="px-3 py-2 text-sm text-text-muted cursor-not-allowed transition-colors" title="Coming soon">
+                         PDF (Coming soon)
                       </div>
                    </div>
                 </div>
