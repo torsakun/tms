@@ -12,17 +12,20 @@ export function RecentExecutionsTable({ recentRuns }: RecentExecutionsTableProps
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  // Enhance runs with derived status and sort them: Running/Queued first, then Completed
   const enhancedRuns = useMemo(() => {
     return recentRuns.map(run => {
+      const isAutomatedAction = run.title?.startsWith('Scheduled Run:') || run.title?.startsWith('Trigger Run:');
       const isCompleted = run.status === 'COMPLETED' || (run.metrics.total > 0 && run.metrics.untested === 0);
-      const isQueued = run.status === 'ACTIVE' && run.metrics.total > 0 && run.metrics.untested === run.metrics.total;
-      const isRunning = run.status === 'ACTIVE' && !isQueued && !isCompleted;
+      const isQueued = isAutomatedAction && run.status === 'ACTIVE' && run.metrics.total > 0 && run.metrics.untested === run.metrics.total;
+      const isRunning = isAutomatedAction && run.status === 'ACTIVE' && !isQueued && !isCompleted;
       
       let liveStatus = 'COMPLETED';
-      let sortPriority = 3;
+      let sortPriority = 4;
       
-      if (isRunning) {
+      if (!isCompleted && !isAutomatedAction) {
+        liveStatus = 'MANUAL_ACTIVE';
+        sortPriority = 3;
+      } else if (isRunning) {
         liveStatus = 'RUNNING';
         sortPriority = 1;
       } else if (isQueued) {
@@ -91,6 +94,11 @@ export function RecentExecutionsTable({ recentRuns }: RecentExecutionsTableProps
                      {run.liveStatus === 'COMPLETED' && (
                        <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60">
                          <CheckCircle2 size={12} className="mr-1.5" /> Completed
+                       </span>
+                     )}
+                     {run.liveStatus === 'MANUAL_ACTIVE' && (
+                       <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200/60">
+                         <PlayCircle size={12} className="mr-1.5" /> Active (Manual)
                        </span>
                      )}
                      {run.liveStatus === 'RUNNING' && (
