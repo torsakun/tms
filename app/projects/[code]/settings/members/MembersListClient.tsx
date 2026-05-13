@@ -11,7 +11,6 @@ export function MembersListClient({ initialMembers, projectCode }: { initialMemb
   const [role, setRole] = useState("VIEWER");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string, type: "success" | "error" } | null>(null);
-  const [members, setMembers] = useState(initialMembers);
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,17 +18,16 @@ export function MembersListClient({ initialMembers, projectCode }: { initialMemb
     setMessage(null);
 
     try {
-      const res = await fetch(`/api/projects/${projectCode}/members`, {
+      const res = await fetch(`/api/projects/${projectCode}/invitations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, role })
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to add member");
+      if (!res.ok) throw new Error(data.error || "Failed to send invitation");
 
-      setMembers([...members, data.member]);
-      setMessage({ text: data.message || "User added successfully!", type: "success" });
+      setMessage({ text: "Invitation sent successfully!", type: "success" });
       setEmail("");
       // Hide modal after a brief delay
       setTimeout(() => {
@@ -73,7 +71,7 @@ export function MembersListClient({ initialMembers, projectCode }: { initialMemb
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {members.map(m => (
+            {initialMembers.map(m => (
               <tr key={m.id} className="hover:bg-slate-50 transition">
                 <td className="px-6 py-4">
                   <div className="font-semibold text-slate-800">{m.user.name || "Unknown"}</div>
@@ -94,10 +92,10 @@ export function MembersListClient({ initialMembers, projectCode }: { initialMemb
                 </td>
               </tr>
             ))}
-            {members.length === 0 && (
+            {initialMembers.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
-                  No members found. Add someone to collaborate!
+                  No members found. Invite someone to collaborate!
                 </td>
               </tr>
             )}
@@ -110,7 +108,7 @@ export function MembersListClient({ initialMembers, projectCode }: { initialMemb
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-              <h2 className="text-lg font-bold text-slate-800">Add Project Member</h2>
+              <h2 className="text-lg font-bold text-slate-800">Invite to Project</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">✕</button>
             </div>
             
@@ -162,8 +160,8 @@ export function MembersListClient({ initialMembers, projectCode }: { initialMemb
                   disabled={isLoading}
                   className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {isLoading ? <Loader2 size={16} className="animate-spin mr-2" /> : <UserPlus size={16} className="mr-2" />}
-                  Add User
+                  {isLoading ? <Loader2 size={16} className="animate-spin mr-2" /> : <Mail size={16} className="mr-2" />}
+                  Send Invite
                 </button>
               </div>
             </form>

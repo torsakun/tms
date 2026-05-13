@@ -18,7 +18,8 @@ export async function getProjectRole(projectCode: string, userId: string): Promi
     }
   });
 
-  return member ? member.role : null;
+  // If not explicitly added, default to EDITOR to simplify project access
+  return member ? member.role : 'EDITOR';
 }
 
 export async function requireProjectRole(projectCode: string, userId: string, allowedRoles: ProjectRole[]): Promise<boolean> {
