@@ -30,6 +30,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV TZ=Asia/Bangkok
 
 # Install Playwright dependencies and unzip in runner
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright

@@ -10,6 +10,7 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - TZ=Asia/Bangkok
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/inhouse_qase?schema=public
       - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-super-secret-dev-key}
@@ -29,6 +30,7 @@ services:
     ports:
       - "5432:5432"
     environment:
+      - TZ=Asia/Bangkok
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=inhouse_qase
