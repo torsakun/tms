@@ -158,6 +158,151 @@ export default function ProjectIntegrationsPage({ params }: { params: Promise<{ 
           </button>
         </div>
       </div>
+
+      {/* Setup Instructions Section */}
+      <div className="bg-surface rounded-xl shadow-sm border border-border p-6 mt-8 space-y-6">
+        <header>
+          <h2 className="text-xl font-bold text-text-main">Setup Instructions for GitHub Repository</h2>
+          <p className="text-sm text-text-muted mt-2">
+            To allow your GitHub repository to automatically report Playwright test results back to TESSA, add the following files to your repository.
+          </p>
+        </header>
+
+        <div className="space-y-6">
+          {/* Step 1 */}
+          <div>
+            <h3 className="text-sm font-bold text-text-main mb-2">1. Add Custom Reporter (<code>tessa-reporter.ts</code>)</h3>
+            <p className="text-xs text-text-muted mb-3">Save this file in the root of your Playwright project. It sends pass/fail logs back to our webhook.</p>
+            <div className="relative group">
+              <textarea 
+                readOnly
+                className="w-full h-64 p-4 bg-[#0d1117] border border-slate-800 rounded-lg text-xs font-mono leading-relaxed text-[#c9d1d9] resize-none focus:outline-none"
+                value={`import { Reporter, TestCase, TestResult } from '@playwright/test/reporter';
+
+class TessaReporter implements Reporter {
+  private apiUrl = process.env.TESSA_API_URL || '';
+  private runId = process.env.TESSA_RUN_ID;
+
+  async onTestEnd(test: TestCase, result: TestResult) {
+    if (!this.runId || !this.apiUrl) return;
+
+    // Extract Case ID from test title, assuming format: "TESSA-15: Login works"
+    const match = test.title.match(/([A-Z0-9]+-[A-Za-z0-9]{4})/i);
+    const caseId = match ? match[1] : null;
+
+    if (caseId) {
+      const status = result.status === 'passed' ? 'PASSED' : 
+                     result.status === 'skipped' ? 'SKIPPED' : 'FAILED';
+      
+      const logs = result.errors.map(e => e.message).join('\\n') || 'Test completed successfully.';
+
+      try {
+        await fetch(\`\${this.apiUrl}/api/webhooks/playwright/reporter\`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ runId: this.runId, caseId, status, logs })
+        });
+      } catch (err) {
+        console.error('Failed to report to TESSA:', err);
+      }
+    }
+  }
+}
+export default TessaReporter;`}
+              />
+              <button 
+                onClick={(e) => {
+                  const target = e.currentTarget;
+                  navigator.clipboard.writeText(target.previousElementSibling!.textContent || '');
+                  const originalText = target.innerHTML;
+                  target.innerHTML = 'Copied!';
+                  setTimeout(() => { target.innerHTML = originalText; }, 2000);
+                }}
+                className="absolute top-4 right-4 px-3 py-1 bg-slate-800 text-slate-300 rounded text-xs font-semibold hover:bg-slate-700 hover:text-white transition-colors"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div>
+            <h3 className="text-sm font-bold text-text-main mb-2">2. GitHub Actions Workflow (<code>.github/workflows/playwright.yml</code>)</h3>
+            <p className="text-xs text-text-muted mb-3">Create or update this workflow file to listen for API triggers from TESSA.</p>
+            <div className="relative group">
+              <textarea 
+                readOnly
+                className="w-full h-[400px] p-4 bg-[#0d1117] border border-slate-800 rounded-lg text-xs font-mono leading-relaxed text-[#c9d1d9] resize-none focus:outline-none"
+                value={`name: Playwright Tests
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'TESSA Run ID'
+        required: true
+      case_ids:
+        description: 'TESSA Case IDs (space separated)'
+        required: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Playwright tests
+        run: |
+          PATTERN=$(echo "\${{ github.event.inputs.case_ids }}" | tr ' ' '|')
+          npx playwright test -g "$PATTERN" --reporter="./tessa-reporter.ts,html"
+        env:
+          TESSA_RUN_ID: \${{ github.event.inputs.run_id }}
+          TESSA_API_URL: \${{ secrets.TESSA_API_URL }}
+
+      - name: Upload HTML Report to TESSA
+        if: always()
+        run: |
+          cd playwright-report
+          zip -r report.zip .
+          curl -X POST -F "file=@report.zip" \${{ secrets.TESSA_API_URL }}/api/webhooks/playwright/\${{ github.event.inputs.run_id }}/report`}
+              />
+              <button 
+                onClick={(e) => {
+                  const target = e.currentTarget;
+                  navigator.clipboard.writeText(target.previousElementSibling!.textContent || '');
+                  const originalText = target.innerHTML;
+                  target.innerHTML = 'Copied!';
+                  setTimeout(() => { target.innerHTML = originalText; }, 2000);
+                }}
+                className="absolute top-4 right-4 px-3 py-1 bg-slate-800 text-slate-300 rounded text-xs font-semibold hover:bg-slate-700 hover:text-white transition-colors"
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div>
+            <h3 className="text-sm font-bold text-text-main mb-2">3. Configure GitHub Secrets</h3>
+            <p className="text-xs text-text-muted">
+              In your GitHub repository, go to <strong>Settings &gt; Secrets and variables &gt; Actions</strong> and add a new repository secret:
+            </p>
+            <div className="mt-3 p-4 bg-slate-50 border border-border rounded-lg text-sm">
+              <div><strong className="text-slate-700">Name:</strong> <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-800">TESSA_API_URL</code></div>
+              <div className="mt-1"><strong className="text-slate-700">Value:</strong> (The URL where your TESSA instance is hosted, e.g., <code>https://tms.yourdomain.com</code>)</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   );
 }
