@@ -42,7 +42,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ runId: 
     // Update the TestRun with the report URL
     await prisma.testRun.update({
       where: { id: runId },
-      data: { reportUrl: `/reports/${runId}/playwright-report/index.html` }
+      data: { reportUrl: `/reports/${runId}/index.html` }
     });
 
     return NextResponse.json({ success: true, message: 'Report uploaded successfully' });
