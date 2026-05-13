@@ -72,7 +72,7 @@ export async function POST(req: Request) {
     const baseUrl = process.env.NEXTAUTH_URL || `${protocol}://${host}`;
     const inviteLink = `${baseUrl}/invite/accept?token=${token}`;
     
-    await sendEmail({
+    const emailResult = await sendEmail({
       to: email,
       subject: `You have been invited to join the TESSA workspace`,
       html: generateInviteEmailHtml({
@@ -83,6 +83,12 @@ export async function POST(req: Request) {
         projectName: "TESSA Workspace"
       })
     });
+
+    if (!emailResult.success) {
+      // Delete the invitation if email fails to prevent pending invitations that were never sent
+      await prisma.invitation.delete({ where: { id: invitation.id } });
+      return NextResponse.json({ error: `Failed to send email: ${emailResult.error}` }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true, invitation }, { status: 201 });
   } catch (error) {

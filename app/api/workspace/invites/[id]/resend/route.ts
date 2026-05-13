@@ -36,7 +36,7 @@ export async function POST(
     const baseUrl = process.env.NEXTAUTH_URL || `${protocol}://${host}`;
     const inviteLink = `${baseUrl}/invite/accept?token=${updatedInvite.token}`;
     
-    await sendEmail({
+    const emailResult = await sendEmail({
       to: updatedInvite.email,
       subject: `Reminder: You have been invited to join the TESSA workspace`,
       html: generateInviteEmailHtml({
@@ -47,6 +47,10 @@ export async function POST(
         projectName: "TESSA Workspace"
       })
     });
+
+    if (!emailResult.success) {
+      return NextResponse.json({ error: `Failed to send email: ${emailResult.error}` }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true, invitation: updatedInvite });
   } catch (error) {
