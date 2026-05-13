@@ -254,7 +254,7 @@ jobs:
           node-version: 18
       
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
@@ -270,9 +270,13 @@ jobs:
       - name: Upload HTML Report to TESSA
         if: always()
         run: |
-          cd playwright-report
-          zip -r report.zip .
-          curl -X POST -F "file=@report.zip" \${{ secrets.TESSA_API_URL }}/api/webhooks/playwright/\${{ github.event.inputs.run_id }}/report`}
+          if [ -d "playwright-report" ]; then
+            cd playwright-report
+            zip -r report.zip .
+            curl -X POST -F "file=@report.zip" \${{ secrets.TESSA_API_URL }}/api/webhooks/playwright/\${{ github.event.inputs.run_id }}/report
+          else
+            echo "No playwright-report directory found."
+          fi`}
               />
               <button 
                 onClick={(e) => {
