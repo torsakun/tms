@@ -73,7 +73,7 @@ export default function ProjectIntegrationsPage({ params }: { params: Promise<{ 
   }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-8">
+    <div className="p-8 max-w-4xl mx-auto space-y-8 overflow-y-auto h-full pb-20">
       <header>
         <h1 className="text-2xl font-bold text-text-main flex items-center">
           <GitBranch className="mr-3 text-slate-800" />
