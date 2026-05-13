@@ -17,11 +17,33 @@ function AcceptInviteContent() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isValidating, setIsValidating] = useState(true);
+  const [isValidToken, setIsValidToken] = useState(false);
 
   useEffect(() => {
-    if (!token) {
-      setError("Invalid or missing invitation token.");
+    async function checkToken() {
+      if (!token) {
+        setError("Invalid or missing invitation token.");
+        setIsValidating(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/auth/invite-status?token=${token}`);
+        if (res.ok) {
+          setIsValidToken(true);
+        } else {
+          const data = await res.json();
+          setError(data.error || "Invalid invitation token.");
+        }
+      } catch (err) {
+        setError("Failed to verify invitation status.");
+      } finally {
+        setIsValidating(false);
+      }
     }
+
+    checkToken();
   }, [token]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,6 +87,31 @@ function AcceptInviteContent() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
         <div className="max-w-md w-full bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center">
           <h2 className="text-xl font-bold text-slate-800 mb-2">Invalid Link</h2>
+          <p className="text-slate-600 mb-6">{error || "No invitation token was provided."}</p>
+          <button onClick={() => router.push("/login")} className="w-full bg-[#2563eb] hover:bg-blue-700 text-white font-medium py-2 rounded-md transition-colors">
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isValidating) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+        <Loader2 className="animate-spin text-blue-600" size={32} />
+      </div>
+    );
+  }
+
+  if (!isValidToken) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-sm border border-slate-200 p-8 text-center">
+          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+          </div>
+          <h2 className="text-xl font-bold text-slate-800 mb-2">Invitation Unavailable</h2>
           <p className="text-slate-600 mb-6">{error}</p>
           <button onClick={() => router.push("/login")} className="w-full bg-[#2563eb] hover:bg-blue-700 text-white font-medium py-2 rounded-md transition-colors">
             Go to Login
@@ -89,11 +136,7 @@ function AcceptInviteContent() {
           Please provide your details and set a password to join the workspace.
         </p>
 
-        {error && (
-          <div className="p-3 mb-6 text-sm text-red-600 bg-red-50 rounded-md border border-red-100">
-            {error}
-          </div>
-        )}
+        {/* Removed inline error block since errors block the whole page now */}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
