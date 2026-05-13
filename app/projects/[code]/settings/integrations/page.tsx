@@ -186,8 +186,9 @@ class TessaReporter implements Reporter {
   async onTestEnd(test: TestCase, result: TestResult) {
     if (!this.runId || !this.apiUrl) return;
 
-    // Extract Case ID from test title, assuming format: "TESSA-15: Login works"
-    const match = test.title.match(/([A-Z0-9]+-[A-Za-z0-9]{4})/i);
+    // Extract Case ID from test title or file name
+    const match = test.title.match(/([A-Z0-9]+-[A-Za-z0-9]{4})/i) || 
+                  test.location.file.match(/([A-Z0-9]+-[A-Za-z0-9]{4})/i);
     const caseId = match ? match[1] : null;
 
     if (caseId) {
