@@ -23,9 +23,17 @@ export async function DELETE(
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
+    const testCase = await prisma.testCase.findUnique({
+      where: { id: caseId }
+    });
+
+    if (!testCase || testCase.projectId !== project.id) {
+      return NextResponse.json({ error: "Test case not found" }, { status: 404 });
+    }
+
     // Delete the test case
     await prisma.testCase.delete({
-      where: { id: caseId, projectId: project.id }
+      where: { id: caseId }
     });
 
     return NextResponse.json({ success: true });

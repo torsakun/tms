@@ -175,10 +175,15 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                           if (window.confirm("Are you sure you want to delete this test case?")) {
                             try {
                               const res = await fetch(`/api/projects/${projectCode}/cases/${tc.id}`, { method: 'DELETE' });
-                              if (res.ok) router.refresh();
-                              else alert("Failed to delete test case");
-                            } catch (err) {
+                              if (res.ok) {
+                                router.refresh();
+                              } else {
+                                const data = await res.json();
+                                alert("Failed to delete test case: " + (data.error || res.statusText));
+                              }
+                            } catch (err: any) {
                               console.error(err);
+                              alert("Error: " + err.message);
                             }
                           }
                         }}
