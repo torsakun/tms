@@ -161,12 +161,12 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                   </div>
                   <div className="flex-1 flex items-center text-[13px] font-normal text-text-main group-hover:text-primary transition-colors min-w-0">
                     {tc.tags?.some((t: any) => t.name === "AI-Generated") ? (
-                      <span title="AI Generated" className="shrink-0 flex items-center">
-                        <Sparkles size={14} className="text-amber-500 mr-2" />
+                      <span title="AI Generated" className="shrink-0 flex items-center justify-center w-4 h-4 rounded bg-amber-100/80 text-amber-600 text-[9px] font-bold mr-2 border border-amber-200">
+                        AI
                       </span>
                     ) : (
-                      <span title="Manually Created" className="shrink-0 flex items-center">
-                        <User size={14} className="text-blue-400 mr-2" />
+                      <span title="Manually Created" className="shrink-0 flex items-center justify-center w-4 h-4 rounded bg-blue-50 text-blue-500 text-[10px] font-bold mr-2 border border-blue-100">
+                        M
                       </span>
                     )}
                     <span className="truncate">{tc.title}</span>
