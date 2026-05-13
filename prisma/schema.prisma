@@ -151,6 +151,7 @@ model Project {
   environments Environment[]
   milestones   Milestone[]
   sharedSteps  SharedStep[]
+  pipelines    PipelineSchedule[]
 
   @@index([code])
 }
@@ -452,4 +453,19 @@ model WorkspaceSetting {
   key       String   @unique
   value     String   @db.Text
   updatedAt DateTime @updatedAt
+}
+model PipelineSchedule {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  cron        String   // e.g. "0 0 * * *"
+  isActive    Boolean  @default(true)
+  
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([projectId])
 }

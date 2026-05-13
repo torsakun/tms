@@ -34,6 +34,13 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
   const [reviewScript, setReviewScript] = useState<string>("");
   const [isSavingScript, setIsSavingScript] = useState(false);
   
+  // Pipeline Orchestration State
+  const [pipelines, setPipelines] = useState<any[]>([]);
+  const [isPipelineModalOpen, setIsPipelineModalOpen] = useState(false);
+  const [newPipelineTitle, setNewPipelineTitle] = useState("");
+  const [newPipelineCron, setNewPipelineCron] = useState("0 0 * * *");
+  const [isCreatingPipeline, setIsCreatingPipeline] = useState(false);
+
   const [stats, setStats] = useState({ total: 0, automated: 0, manual: 0 });
 
   useEffect(() => {
@@ -59,6 +66,14 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
           setCases(combined);
           // Only auto-select manual ones
           setSelectedCaseIds(manualCases.map(c => c.id));
+        }
+      });
+
+    fetch(`/api/projects/${code}/pipelines`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setPipelines(data);
         }
       });
   };
@@ -159,6 +174,58 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
     }
   };
 
+  const handleCreatePipeline = async () => {
+    if (!newPipelineTitle) return;
+    setIsCreatingPipeline(true);
+    try {
+      const res = await fetch(`/api/projects/${code}/pipelines`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: newPipelineTitle, cron: newPipelineCron })
+      });
+      if (res.ok) {
+        setIsPipelineModalOpen(false);
+        setNewPipelineTitle("");
+        fetchData();
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsCreatingPipeline(false);
+    }
+  };
+
+  const handleTogglePipeline = async (id: string, isActive: boolean) => {
+    // Optimistic UI update
+    setPipelines(prev => prev.map(p => p.id === id ? { ...p, isActive } : p));
+    try {
+      await fetch(`/api/projects/${code}/pipelines/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive })
+      });
+    } catch (err) {
+      console.error(err);
+      fetchData(); // revert on failure
+    }
+  };
+
+  const handleTriggerPipeline = async (id: string) => {
+    try {
+      const res = await fetch(`/api/projects/${code}/pipelines/${id}/trigger`, {
+        method: "POST"
+      });
+      if (res.ok) {
+        alert("Pipeline triggered! A new Test Run has been created.");
+      } else {
+        const err = await res.json();
+        alert("Trigger failed: " + err.error);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const manualCasesCount = cases.filter(c => c.automationStatus === 'MANUAL').length;
   const pendingCasesCount = cases.filter(c => c.automationStatus === 'TO_BE_AUTOMATED').length;
   const showPushBtn = pendingCasesCount > 0;
@@ -182,8 +249,11 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
               Your autonomous AI assistant for writing scripts, healing flaky tests, and managing pipelines.
             </p>
           </div>
-          <button className="flex items-center px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg font-medium shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:shadow-[0_0_30px_rgba(99,102,241,0.6)] transition-all hover:-translate-y-0.5">
-            <Zap size={18} className="mr-2" /> Connect CI/CD Pipeline
+          <button 
+            onClick={() => setIsPipelineModalOpen(true)}
+            className="flex items-center px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg font-medium shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:shadow-[0_0_30px_rgba(99,102,241,0.6)] transition-all hover:-translate-y-0.5"
+          >
+            <Zap size={18} className="mr-2" /> Create Scheduled Pipeline
           </button>
         </div>
 
@@ -413,24 +483,52 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
                   <PlayCircle size={18} className="mr-2 text-blue-500" /> Pipeline Orchestration
                 </h3>
               </div>
-              <div className="p-6">
-                <div className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-[#24292F] flex items-center justify-center mr-4 shadow-sm">
-                      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="text-white"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+              <div className="p-6 space-y-4">
+                {pipelines.length === 0 ? (
+                  <div className="text-center py-6 text-slate-500 text-sm">
+                    No scheduled pipelines yet. Create one above!
+                  </div>
+                ) : pipelines.map((pipeline) => (
+                  <div key={pipeline.id} className="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 rounded-full bg-[#24292F] flex items-center justify-center mr-4 shadow-sm shrink-0">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="text-white"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-slate-900 dark:text-white text-sm">{pipeline.title}</h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Schedule: <code className="bg-slate-200 dark:bg-slate-800 px-1 rounded">{pipeline.cron}</code></p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-slate-900 dark:text-white text-sm">Nightly Regression (GitHub Actions)</h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Scheduled: Every day at 00:00 UTC</p>
+                    <div className="flex items-center space-x-3 w-full md:w-auto justify-end">
+                      <button 
+                        onClick={() => handleTriggerPipeline(pipeline.id)}
+                        className="text-xs font-bold px-3 py-1.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors flex items-center"
+                      >
+                        <PlayCircle size={14} className="mr-1" /> Run Now
+                      </button>
+                      
+                      <label className="flex items-center cursor-pointer group">
+                        <div className="relative">
+                          <input 
+                            type="checkbox" 
+                            className="sr-only" 
+                            checked={pipeline.isActive} 
+                            onChange={(e) => handleTogglePipeline(pipeline.id, e.target.checked)} 
+                          />
+                          <div className={`block w-10 h-6 rounded-full transition-colors ${pipeline.isActive ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`}></div>
+                          <div className={`absolute left-[2px] top-[2px] bg-white w-5 h-5 rounded-full transition-transform transform ${pipeline.isActive ? 'translate-x-4' : ''} shadow-sm`}></div>
+                        </div>
+                        <div className="ml-2 text-xs font-bold w-12 text-center">
+                           {pipeline.isActive ? (
+                             <span className="text-emerald-500">Active</span>
+                           ) : (
+                             <span className="text-slate-400">Standby</span>
+                           )}
+                        </div>
+                      </label>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#00875a]/10 text-[#00875a]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#00875a] mr-1.5 animate-pulse"></span>
-                      Standby
-                    </span>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
@@ -479,6 +577,63 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
               >
                 {isSavingScript ? <RefreshCw size={16} className="mr-2 animate-spin" /> : <Save size={16} className="mr-2" />}
                 {isSavingScript ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Pipeline Modal */}
+      {isPipelineModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#111623] w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
+              <h3 className="font-semibold text-slate-900 dark:text-white flex items-center">
+                <PlayCircle size={18} className="mr-2 text-indigo-500" /> Create Scheduled Pipeline
+              </h3>
+              <button onClick={() => setIsPipelineModalOpen(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pipeline Title</label>
+                <input 
+                  type="text" 
+                  value={newPipelineTitle}
+                  onChange={(e) => setNewPipelineTitle(e.target.value)}
+                  placeholder="e.g. Nightly Regression"
+                  className="w-full bg-white dark:bg-[#0d1117] border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cron Expression</label>
+                <input 
+                  type="text" 
+                  value={newPipelineCron}
+                  onChange={(e) => setNewPipelineCron(e.target.value)}
+                  placeholder="0 0 * * *"
+                  className="w-full bg-white dark:bg-[#0d1117] border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-indigo-500 outline-none"
+                />
+                <p className="text-xs text-slate-500 mt-2">Example: <code>0 0 * * *</code> (Runs every midnight UTC). TESSA will automatically configure GitHub Actions for you.</p>
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex justify-end space-x-3">
+              <button 
+                onClick={() => setIsPipelineModalOpen(false)}
+                className="px-4 py-2 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 font-medium rounded-lg transition-colors text-sm"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleCreatePipeline}
+                disabled={isCreatingPipeline || !newPipelineTitle || !newPipelineCron}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg flex items-center transition-colors disabled:opacity-50 text-sm shadow-[0_0_15px_rgba(79,70,229,0.3)]"
+              >
+                {isCreatingPipeline ? <RefreshCw size={16} className="mr-2 animate-spin" /> : <Save size={16} className="mr-2" />}
+                {isCreatingPipeline ? "Creating..." : "Save Pipeline"}
               </button>
             </div>
           </div>
