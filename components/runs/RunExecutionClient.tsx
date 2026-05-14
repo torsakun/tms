@@ -1330,7 +1330,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                         <FileText size={16} className="mr-2 text-text-muted" /> Artifacts
                       </div>
                       <button 
-                        onClick={() => setViewingAttachment({ url: "https://demo.playwright.dev/reports/todomvc/data/trace.zip", name: "Playwright Trace" })}
+                        onClick={() => setViewingAttachment({ url: "https://demo.playwright.dev/reports/todomvc/data/e6099cadf79aa753d5500aa9508f9d1dbd87b5ee.zip", name: "Playwright Trace" })}
                         className="flex items-center px-4 py-2 bg-slate-900 text-slate-300 border border-slate-700 rounded-md text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors"
                       >
                         <FileText size={16} className="mr-2 text-primary" />
