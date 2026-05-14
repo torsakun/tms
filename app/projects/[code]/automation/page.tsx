@@ -40,7 +40,10 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
   const [pipelines, setPipelines] = useState<any[]>([]);
   const [isPipelineModalOpen, setIsPipelineModalOpen] = useState(false);
   const [newPipelineTitle, setNewPipelineTitle] = useState("");
-  const [newPipelineCron, setNewPipelineCron] = useState("0 0 * * *");
+  const [scheduleType, setScheduleType] = useState('daily');
+  const [scheduleTime, setScheduleTime] = useState('00:00');
+  const [scheduleDay, setScheduleDay] = useState('1'); 
+  const [customCron, setCustomCron] = useState('0 0 * * *');
   const [isCreatingPipeline, setIsCreatingPipeline] = useState(false);
 
   // Analytics State
@@ -185,14 +188,31 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
     }
   };
 
+  const generateCron = () => {
+    if (scheduleType === 'custom') return customCron;
+    const [hours, minutes] = scheduleTime.split(':');
+    const h = parseInt(hours || '0', 10);
+    const m = parseInt(minutes || '0', 10);
+    
+    if (scheduleType === 'daily') {
+      return `${m} ${h} * * *`;
+    } else if (scheduleType === 'weekly') {
+      return `${m} ${h} * * ${scheduleDay}`;
+    } else if (scheduleType === 'monthly') {
+      return `${m} ${h} ${scheduleDay} * *`;
+    }
+    return '0 0 * * *';
+  };
+
   const handleCreatePipeline = async () => {
     if (!newPipelineTitle) return;
     setIsCreatingPipeline(true);
     try {
+      const computedCron = generateCron();
       const res = await fetch(`/api/projects/${code}/pipelines`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: newPipelineTitle, cron: newPipelineCron })
+        body: JSON.stringify({ title: newPipelineTitle, cron: computedCron })
       });
       if (res.ok) {
         setIsPipelineModalOpen(false);
@@ -638,15 +658,78 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cron Expression</label>
-                <input 
-                  type="text" 
-                  value={newPipelineCron}
-                  onChange={(e) => setNewPipelineCron(e.target.value)}
-                  placeholder="0 0 * * *"
-                  className="w-full bg-white dark:bg-[#0d1117] border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-indigo-500 outline-none"
-                />
-                <p className="text-xs text-slate-500 mt-2">Example: <code>0 0 * * *</code> (Runs every midnight UTC). TESSA will automatically configure GitHub Actions for you.</p>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Schedule Frequency</label>
+                <select
+                  value={scheduleType}
+                  onChange={(e) => setScheduleType(e.target.value)}
+                  className="w-full bg-white dark:bg-[#0d1117] border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none mb-3"
+                >
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="custom">Custom (Cron)</option>
+                </select>
+
+                {scheduleType !== 'custom' && (
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Time (UTC)</label>
+                      <input 
+                        type="time" 
+                        value={scheduleTime}
+                        onChange={(e) => setScheduleTime(e.target.value)}
+                        className="w-full bg-white dark:bg-[#0d1117] border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                      />
+                    </div>
+                    {scheduleType === 'weekly' && (
+                      <div className="flex-1">
+                        <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Day of Week</label>
+                        <select
+                          value={scheduleDay}
+                          onChange={(e) => setScheduleDay(e.target.value)}
+                          className="w-full bg-white dark:bg-[#0d1117] border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                        >
+                          <option value="1">Monday</option>
+                          <option value="2">Tuesday</option>
+                          <option value="3">Wednesday</option>
+                          <option value="4">Thursday</option>
+                          <option value="5">Friday</option>
+                          <option value="6">Saturday</option>
+                          <option value="0">Sunday</option>
+                        </select>
+                      </div>
+                    )}
+                    {scheduleType === 'monthly' && (
+                      <div className="flex-1">
+                        <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">Day of Month</label>
+                        <input 
+                          type="number" 
+                          min="1" max="31"
+                          value={scheduleDay}
+                          onChange={(e) => setScheduleDay(e.target.value)}
+                          className="w-full bg-white dark:bg-[#0d1117] border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {scheduleType === 'custom' && (
+                  <div>
+                    <input 
+                      type="text" 
+                      value={customCron}
+                      onChange={(e) => setCustomCron(e.target.value)}
+                      placeholder="0 0 * * *"
+                      className="w-full bg-white dark:bg-[#0d1117] border border-slate-300 dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-slate-900 dark:text-white font-mono focus:ring-2 focus:ring-indigo-500 outline-none"
+                    />
+                    <p className="text-xs text-slate-500 mt-2">Example: <code>0 0 * * *</code> (Runs every midnight UTC).</p>
+                  </div>
+                )}
+                
+                {scheduleType !== 'custom' && (
+                  <p className="text-xs text-slate-500 mt-3 font-mono bg-slate-100 dark:bg-slate-800 p-2 rounded">Generated Cron: {generateCron()}</p>
+                )}
               </div>
             </div>
 
@@ -659,7 +742,7 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
               </button>
               <button 
                 onClick={handleCreatePipeline}
-                disabled={isCreatingPipeline || !newPipelineTitle || !newPipelineCron}
+                disabled={isCreatingPipeline || !newPipelineTitle || (scheduleType === 'custom' && !customCron)}
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg flex items-center transition-colors disabled:opacity-50 text-sm shadow-[0_0_15px_rgba(79,70,229,0.3)]"
               >
                 {isCreatingPipeline ? <RefreshCw size={16} className="mr-2 animate-spin" /> : <Save size={16} className="mr-2" />}
