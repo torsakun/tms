@@ -780,41 +780,70 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
   const exportToPDF = async () => {
     setIsExportingPdf(true);
     try {
-      const html2pdf = (await import('html2pdf.js')).default;
+      const html2canvas = (await import('html2canvas')).default;
+      const { jsPDF } = await import('jspdf');
       
       const container = document.createElement('div');
-      // Hide the container off-screen
       container.style.position = 'absolute';
       container.style.left = '-9999px';
-      container.style.top = '-9999px';
+      container.style.top = '0';
+      container.style.width = '1000px';
+      container.style.backgroundColor = '#ffffff';
       document.body.appendChild(container);
 
       const root = createRoot(container);
       root.render(<PdfReportTemplate run={run} projectCode={projectCode} />);
 
-      // Wait a moment for React to render and images to start loading
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      const images = container.querySelectorAll('img');
+      await Promise.all(Array.from(images).map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+        });
+      }));
+
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      let heightLeft = pdfHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - pdfHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
+        heightLeft -= pageHeight;
+      }
 
       const cleanTitle = run.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
       const dateStr = new Date().toISOString().split('T')[0];
-      const filename = `run_${cleanTitle}_${dateStr}.pdf`;
-
-      const opt: any = {
-        margin:       10,
-        filename:     filename,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      await html2pdf().from(container).set(opt).save();
+      pdf.save(`run_${cleanTitle}_${dateStr}.pdf`);
       
-      setTimeout(() => {
-        root.unmount();
-        if (document.body.contains(container)) {
-          document.body.removeChild(container);
-        }
-      }, 1000);
+      root.unmount();
+      if (document.body.contains(container)) {
+        document.body.removeChild(container);
+      }
       
       setIsExportModalOpen(false);
     } catch (err) {
