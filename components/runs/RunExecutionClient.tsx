@@ -780,12 +780,8 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
   const exportToPDF = async () => {
     setIsExportingPdf(true);
     try {
-      const html2canvasModule = await import('html2canvas');
-      const html2canvas = html2canvasModule.default || html2canvasModule;
-      if (typeof html2canvas !== 'function') throw new Error('html2canvas is not a function');
-      
-      const jsPdfModule = await import('jspdf');
-      const jsPDF = jsPdfModule.jsPDF || jsPdfModule.default;
+      const html2pdfModule = await import('html2pdf.js');
+      const html2pdf = html2pdfModule.default || html2pdfModule;
       
       const container = document.createElement('div');
       container.style.position = 'absolute';
@@ -809,41 +805,20 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
         });
       }));
 
-      const canvas = await html2canvas(container, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff'
-      });
-
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      
-      let heightLeft = pdfHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - pdfHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
-        heightLeft -= pageHeight;
-      }
-
       const cleanTitle = run.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
       const dateStr = new Date().toISOString().split('T')[0];
-      pdf.save(`run_${cleanTitle}_${dateStr}.pdf`);
       
+      const opt: any = {
+        margin:       [10, 0, 10, 0],
+        filename:     `run_${cleanTitle}_${dateStr}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true, logging: false },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+
+      await html2pdf().set(opt).from(container).save();
+
       root.unmount();
       if (document.body.contains(container)) {
         document.body.removeChild(container);

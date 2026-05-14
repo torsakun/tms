@@ -23,7 +23,7 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
   const durationStr = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
 
   return (
-    <div className="pdf-report-container" style={{ backgroundColor: '#ffffff', color: '#1e293b', width: '210mm', minHeight: '297mm', fontFamily: '"Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
+    <div className="pdf-report-container" style={{ backgroundColor: '#ffffff', color: '#1e293b', width: '100%', minHeight: '100%', fontFamily: '"Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
       
       {/* Premium Dark Header */}
       <div style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '40px', borderBottom: '4px solid #3b82f6' }}>
