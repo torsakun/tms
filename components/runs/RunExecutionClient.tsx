@@ -156,7 +156,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
   const [activeResultId, setActiveResultId] = useState<string | null>(null);
   const [stepResults, setStepResults] = useState<Record<string, any>>({});
   const [uploadingStepId, setUploadingStepId] = useState<string | null>(null);
-  const [viewingAttachment, setViewingAttachment] = useState<{url: string, name: string} | null>(null);
+  const [viewingAttachment, setViewingAttachment] = useState<{url: string, name: string, isTrace?: boolean} | null>(null);
   const [expandedSuites, setExpandedSuites] = useState<Record<string, boolean>>({});
 
   const [isExecutingAutomated, setIsExecutingAutomated] = useState(false);
@@ -1330,7 +1330,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                         <FileText size={16} className="mr-2 text-text-muted" /> Artifacts
                       </div>
                       <button 
-                        onClick={() => setViewingAttachment({ url: "https://demo.playwright.dev/reports/todomvc/data/e6099cadf79aa753d5500aa9508f9d1dbd87b5ee.zip", name: "Playwright Trace" })}
+                        onClick={() => setViewingAttachment({ url: "https://demo.playwright.dev/reports/todomvc/data/e6099cadf79aa753d5500aa9508f9d1dbd87b5ee.zip", name: "Playwright Trace", isTrace: true })}
                         className="flex items-center px-4 py-2 bg-slate-900 text-slate-300 border border-slate-700 rounded-md text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors"
                       >
                         <FileText size={16} className="mr-2 text-primary" />
@@ -1433,10 +1433,10 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                                   >
                                     {att.url?.match(/\.(mp4|webm|ogg)$/i) ? (
                                       <video src={att.url} className="w-full h-full object-contain bg-black" />
-                                    ) : att.url?.match(/\.zip$/i) ? (
-                                      <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-400">
-                                        <FileText size={32} className="mb-2 text-primary" />
-                                        <span className="text-xs font-medium">Trace Viewer</span>
+                                    ) : att.url?.match(/\.(zip|pdf|csv|txt|doc|docx|xls|xlsx)$/i) ? (
+                                      <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50 text-slate-500">
+                                        <FileText size={32} className="mb-2" />
+                                        <span className="text-xs font-medium px-2 text-center truncate w-full">{att.name || "File"}</span>
                                       </div>
                                     ) : (
                                       <img src={att.url} alt={att.name || "Attachment"} className="w-full h-full object-contain" />
@@ -1512,7 +1512,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
           >
             {viewingAttachment.url?.match(/\.(mp4|webm|ogg)$/i) ? (
               <video src={viewingAttachment.url} controls autoPlay className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl bg-black" />
-            ) : viewingAttachment.url?.match(/\.zip$/i) ? (
+            ) : viewingAttachment.isTrace ? (
               <div className="w-full h-full bg-white rounded-lg overflow-hidden shadow-2xl flex flex-col">
                  <div className="bg-slate-100 border-b border-slate-200 px-4 py-3 flex items-center">
                     <span className="text-sm font-bold text-slate-800 flex items-center">
@@ -1525,6 +1525,20 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                    className="w-full flex-1 border-none"
                    title="Playwright Trace Viewer"
                  />
+              </div>
+            ) : viewingAttachment.url?.match(/\.(zip|pdf|csv|txt|doc|docx|xls|xlsx)$/i) ? (
+              <div className="bg-surface p-12 rounded-lg shadow-2xl flex flex-col items-center justify-center border border-border min-w-[300px]">
+                 <FileText size={48} className="text-slate-400 mb-4" />
+                 <h3 className="text-lg font-bold text-text-main mb-6 text-center break-all max-w-sm">{viewingAttachment.name}</h3>
+                 <a 
+                   href={viewingAttachment.url} 
+                   download 
+                   target="_blank" 
+                   rel="noreferrer"
+                   className="px-6 py-2.5 bg-primary text-white font-medium rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+                 >
+                   Download File
+                 </a>
               </div>
             ) : (
               <img src={viewingAttachment.url} alt={viewingAttachment.name} className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
