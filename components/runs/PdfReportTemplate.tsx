@@ -23,159 +23,183 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
   const durationStr = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
 
   return (
-    <div className="pdf-report-container p-8" style={{ backgroundColor: '#ffffff', color: '#1e293b', width: '210mm', minHeight: '297mm', fontFamily: 'Arial, sans-serif' }}>
-      {/* Header */}
-      <div className="border-b-2 pb-6 mb-6" style={{ borderColor: '#e2e8f0' }}>
-        <h1 className="text-3xl font-bold mb-2" style={{ color: '#0f172a' }}>Test Run Report</h1>
-        <h2 className="text-xl font-semibold" style={{ color: '#334155' }}>{run.title}</h2>
-        <div className="mt-4 flex justify-between text-sm" style={{ color: '#64748b' }}>
+    <div className="pdf-report-container" style={{ backgroundColor: '#ffffff', color: '#1e293b', width: '210mm', minHeight: '297mm', fontFamily: '"Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
+      
+      {/* Premium Dark Header */}
+      <div style={{ backgroundColor: '#0f172a', color: '#ffffff', padding: '40px', borderBottom: '4px solid #3b82f6' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <strong>Project:</strong> {projectCode}
+            <h1 style={{ fontSize: '32px', fontWeight: '800', margin: '0 0 8px 0', letterSpacing: '-0.5px' }}>TEST RUN REPORT</h1>
+            <h2 style={{ fontSize: '20px', fontWeight: '400', color: '#94a3b8', margin: 0 }}>{run.title}</h2>
           </div>
-          <div>
-            <strong>Date:</strong> {new Date().toLocaleDateString()}
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '14px', color: '#94a3b8', marginBottom: '4px' }}>PROJECT</div>
+            <div style={{ fontSize: '18px', fontWeight: '600' }}>{projectCode}</div>
           </div>
+        </div>
+        <div style={{ marginTop: '30px', fontSize: '14px', color: '#cbd5e1' }}>
+          <strong>Generated on:</strong> {new Date().toLocaleString()}
         </div>
       </div>
 
-      {/* Summary Dashboard */}
-      <div className="p-6 rounded-lg border mb-8 page-break-inside-avoid" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
-        <h3 className="text-lg font-bold mb-4" style={{ color: '#1e293b' }}>Execution Summary</h3>
-        <div className="flex justify-between items-center">
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-            <div>
-              <span className="block text-xs uppercase tracking-wider" style={{ color: '#64748b' }}>Total Cases</span>
-              <span className="text-xl font-bold" style={{ color: '#1e293b' }}>{total}</span>
+      <div style={{ padding: '40px' }}>
+        {/* Summary Dashboard */}
+        <div style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px', marginBottom: '40px', pageBreakInside: 'avoid' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#0f172a', margin: '0 0 20px 0' }}>Executive Summary</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', flex: 1 }}>
+              <div style={{ backgroundColor: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', borderLeft: '4px solid #64748b' }}>
+                <span style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#64748b', marginBottom: '4px' }}>Total Cases</span>
+                <span style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a' }}>{total}</span>
+              </div>
+              <div style={{ backgroundColor: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', borderLeft: '4px solid #16a34a' }}>
+                <span style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#16a34a', marginBottom: '4px', fontWeight: '700' }}>Passed</span>
+                <span style={{ fontSize: '24px', fontWeight: '800', color: '#15803d' }}>{passed}</span>
+              </div>
+              <div style={{ backgroundColor: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', borderLeft: '4px solid #dc2626' }}>
+                <span style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#ef4444', marginBottom: '4px', fontWeight: '700' }}>Failed</span>
+                <span style={{ fontSize: '24px', fontWeight: '800', color: '#b91c1c' }}>{failed}</span>
+              </div>
+              <div style={{ backgroundColor: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', borderLeft: '4px solid #3b82f6' }}>
+                <span style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#64748b', marginBottom: '4px' }}>Duration</span>
+                <span style={{ fontSize: '24px', fontWeight: '800', color: '#0f172a' }}>{durationStr}</span>
+              </div>
+              <div style={{ backgroundColor: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', borderLeft: '4px solid #f59e0b' }}>
+                <span style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#f59e0b', marginBottom: '4px', fontWeight: '700' }}>Blocked/Skipped</span>
+                <span style={{ fontSize: '24px', fontWeight: '800', color: '#b45309' }}>{blocked + skipped}</span>
+              </div>
+              <div style={{ backgroundColor: '#ffffff', padding: '16px', borderRadius: '8px', border: '1px solid #e2e8f0', borderLeft: '4px solid #94a3b8' }}>
+                <span style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '1px', color: '#94a3b8', marginBottom: '4px', fontWeight: '700' }}>Untested</span>
+                <span style={{ fontSize: '24px', fontWeight: '800', color: '#475569' }}>{untested}</span>
+              </div>
             </div>
-            <div>
-              <span className="block text-xs uppercase tracking-wider" style={{ color: '#64748b' }}>Duration</span>
-              <span className="text-xl font-bold" style={{ color: '#1e293b' }}>{durationStr}</span>
+            
+            {/* Circular Progress (Static Approximation) */}
+            <div style={{ width: '160px', textAlign: 'center', paddingLeft: '32px' }}>
+              <div style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto', borderRadius: '50%', background: `conic-gradient(#16a34a ${completionRate}%, #e2e8f0 0)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: '100px', height: '100px', backgroundColor: '#f8fafc', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '28px', fontWeight: '900', color: '#0f172a', lineHeight: '1' }}>{completionRate}%</span>
+                </div>
+              </div>
+              <div style={{ fontSize: '12px', fontWeight: '600', color: '#64748b', marginTop: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>Completion</div>
             </div>
-            <div>
-              <span className="block text-xs uppercase tracking-wider font-bold" style={{ color: '#16a34a' }}>Passed</span>
-              <span className="text-xl font-bold" style={{ color: '#15803d' }}>{passed}</span>
-            </div>
-            <div>
-              <span className="block text-xs uppercase tracking-wider font-bold" style={{ color: '#ef4444' }}>Failed</span>
-              <span className="text-xl font-bold" style={{ color: '#dc2626' }}>{failed}</span>
-            </div>
-            <div>
-              <span className="block text-xs uppercase tracking-wider font-bold" style={{ color: '#f59e0b' }}>Blocked / Skipped</span>
-              <span className="text-xl font-bold" style={{ color: '#d97706' }}>{blocked + skipped}</span>
-            </div>
-            <div>
-              <span className="block text-xs uppercase tracking-wider font-bold" style={{ color: '#94a3b8' }}>Untested</span>
-              <span className="text-xl font-bold" style={{ color: '#475569' }}>{untested}</span>
-            </div>
-          </div>
-          <div className="text-center pr-8">
-            <div className="text-[40px] font-black leading-none" style={{ color: '#1e293b' }}>{completionRate}%</div>
-            <div className="text-sm font-medium mt-2" style={{ color: '#64748b' }}>Completion Rate</div>
           </div>
         </div>
-      </div>
 
-      {/* Detailed Results Table */}
-      <div>
-        <h3 className="text-lg font-bold mb-4" style={{ color: '#1e293b' }}>Detailed Results</h3>
-        <table className="w-full text-left border-collapse border" style={{ borderColor: '#e2e8f0' }}>
-          <thead>
-            <tr className="text-sm" style={{ backgroundColor: '#f1f5f9', color: '#334155' }}>
-              <th className="border p-3 font-bold w-[12%]" style={{ borderColor: '#e2e8f0' }}>ID</th>
-              <th className="border p-3 font-bold w-[20%]" style={{ borderColor: '#e2e8f0' }}>Test Case</th>
-              <th className="border p-3 font-bold w-[10%]" style={{ borderColor: '#e2e8f0' }}>Status</th>
-              <th className="border p-3 font-bold w-[25%]" style={{ borderColor: '#e2e8f0' }}>Expected Result</th>
-              <th className="border p-3 font-bold w-[33%]" style={{ borderColor: '#e2e8f0' }}>Actual Result & Evidence</th>
-            </tr>
-          </thead>
-          <tbody>
-            {run.results?.map((res: any, index: number) => {
-              const tc = res.testCase;
-              const code = tc.code || `${projectCode}-${tc.id.substring(0, 4)}`;
+        {/* Detailed Results Table */}
+        <div>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#0f172a', margin: '0 0 16px 0' }}>Detailed Test Execution</h3>
+          <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#1e293b', color: '#ffffff' }}>
+                <th style={{ padding: '14px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600', width: '25%', border: '1px solid #334155' }}>Test Case</th>
+                <th style={{ padding: '14px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600', width: '40%', border: '1px solid #334155' }}>Test Steps & Expected Results</th>
+                <th style={{ padding: '14px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600', width: '35%', border: '1px solid #334155' }}>Actual Result & Evidence</th>
+              </tr>
+            </thead>
+            <tbody>
+              {run.results?.map((res: any, index: number) => {
+                const tc = res.testCase;
+                const code = tc.code || `${projectCode}-${tc.id.substring(0, 4)}`;
+                const rowBgColor = index % 2 === 0 ? '#ffffff' : '#f8fafc';
 
-              // Get Status styling
-              let statusStyle = { color: '#64748b', fontWeight: 'normal' };
-              let statusText = res.status;
-              if (res.status === 'PASSED') statusStyle = { color: '#16a34a', fontWeight: 'bold' };
-              if (res.status === 'FAILED') statusStyle = { color: '#dc2626', fontWeight: 'bold' };
-              if (res.status === 'BLOCKED') statusStyle = { color: '#f59e0b', fontWeight: 'bold' };
+                // Status Badge styling
+                let badgeBg = '#f1f5f9', badgeColor = '#64748b';
+                if (res.status === 'PASSED') { badgeBg = '#dcfce7'; badgeColor = '#16a34a'; }
+                if (res.status === 'FAILED') { badgeBg = '#fee2e2'; badgeColor = '#dc2626'; }
+                if (res.status === 'BLOCKED') { badgeBg = '#fef3c7'; badgeColor = '#d97706'; }
 
-              // Combine Expected Results
-              const expected = (tc.steps || []).map((step: any, idx: number) => {
-                const stepNum = idx + 1;
-                return (
-                  <div key={idx} className="mb-2 last:mb-0">
-                    <span className="font-semibold text-xs" style={{ color: '#475569' }}>Step {stepNum}:</span>
-                    <div className="text-sm">{step.expectedResult || step.action}</div>
-                  </div>
-                );
-              });
-
-              // Combine Actual Results & Evidence
-              const actualElements: React.ReactNode[] = [];
-              
-              (tc.steps || []).forEach((step: any, idx: number) => {
-                const stepNum = idx + 1;
-                const stepRes = (res.stepResults && res.stepResults[step.id]) || {};
-                
-                if (stepRes.actualResult || (stepRes.attachments && stepRes.attachments.length > 0)) {
-                  actualElements.push(
-                    <div key={`actual-${idx}`} className="mb-4 last:mb-0">
-                      <span className="font-semibold text-xs block mb-1" style={{ color: '#475569' }}>Step {stepNum} ({stepRes.status || 'N/A'}):</span>
-                      {stepRes.actualResult && <div className="text-sm mb-2" style={{ color: '#334155' }}>{stepRes.actualResult}</div>}
-                      
-                      {stepRes.attachments && stepRes.attachments.map((att: any, attIdx: number) => (
-                        <div key={`att-${idx}-${attIdx}`} className="mt-2">
-                          {att.url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-                            <img src={att.url} alt="Evidence" className="max-w-full max-h-[200px] border rounded object-contain" style={{ borderColor: '#e2e8f0' }} crossOrigin="anonymous" />
-                          ) : (
-                            <a href={att.url} className="text-xs underline" style={{ color: '#3b82f6' }}>Attachment: {att.name || 'File'}</a>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }
-              });
-
-              // Add global attachments and comments if any
-              if (res.errorMessage || res.comment) {
-                actualElements.push(
-                  <div key="global-msg" className="mb-2 text-sm" style={{ color: '#334155' }}>
-                    {res.errorMessage || res.comment}
-                  </div>
-                );
-              }
-              if (res.attachments && Array.isArray(res.attachments)) {
-                res.attachments.forEach((att: any, attIdx: number) => {
-                  actualElements.push(
-                    <div key={`global-att-${attIdx}`} className="mt-2">
-                      {att.url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-                        <img src={att.url} alt="Evidence" className="max-w-full max-h-[200px] border rounded object-contain" style={{ borderColor: '#e2e8f0' }} crossOrigin="anonymous" />
-                      ) : (
-                        <a href={att.url} className="text-xs underline" style={{ color: '#3b82f6' }}>Attachment: {att.name || 'File'}</a>
-                      )}
+                // Combine Steps & Expected
+                const stepsContent = (tc.steps || []).map((step: any, idx: number) => {
+                  const stepNum = idx + 1;
+                  return (
+                    <div key={idx} style={{ marginBottom: idx === (tc.steps.length - 1) ? '0' : '16px', paddingBottom: idx === (tc.steps.length - 1) ? '0' : '16px', borderBottom: idx === (tc.steps.length - 1) ? 'none' : '1px dashed #cbd5e1' }}>
+                      <div style={{ fontSize: '11px', fontWeight: '700', color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Step {stepNum}</div>
+                      <div style={{ fontSize: '13px', color: '#334155', marginBottom: '8px' }}>
+                        <span style={{ fontWeight: '600', color: '#0f172a' }}>Action:</span> {step.action}
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#475569', backgroundColor: '#f1f5f9', padding: '8px', borderRadius: '4px', borderLeft: '3px solid #94a3b8' }}>
+                        <span style={{ fontWeight: '600', color: '#0f172a' }}>Expected:</span> {step.expectedResult || <span style={{ fontStyle: 'italic', color: '#94a3b8' }}>None</span>}
+                      </div>
                     </div>
                   );
                 });
-              }
 
-              return (
-                <tr key={res.id} className="border-b" style={{ borderColor: '#e2e8f0', backgroundColor: '#ffffff', pageBreakInside: 'avoid' }}>
-                  <td className="border p-3 align-top text-sm font-mono" style={{ borderColor: '#e2e8f0', color: '#475569' }}>{code}</td>
-                  <td className="border p-3 align-top text-sm font-medium" style={{ borderColor: '#e2e8f0', color: '#1e293b' }}>{tc.title}</td>
-                  <td className={`border p-3 align-top text-xs tracking-wider`} style={{ borderColor: '#e2e8f0', ...statusStyle }}>{statusText}</td>
-                  <td className="border p-3 align-top" style={{ borderColor: '#e2e8f0' }}>
-                    {expected.length > 0 ? expected : <span className="italic text-xs" style={{ color: '#94a3b8' }}>No specific expected result</span>}
-                  </td>
-                  <td className="border p-3 align-top" style={{ borderColor: '#e2e8f0' }}>
-                    {actualElements.length > 0 ? actualElements : <span className="italic text-xs" style={{ color: '#94a3b8' }}>No actual result recorded</span>}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                // Combine Actual Results & Evidence
+                const actualElements: React.ReactNode[] = [];
+                (tc.steps || []).forEach((step: any, idx: number) => {
+                  const stepNum = idx + 1;
+                  const stepRes = (res.stepResults && res.stepResults[step.id]) || {};
+                  
+                  if (stepRes.actualResult || (stepRes.attachments && stepRes.attachments.length > 0)) {
+                    actualElements.push(
+                      <div key={`actual-${idx}`} style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px dashed #cbd5e1' }}>
+                        <div style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Step {stepNum} ({stepRes.status || 'N/A'})</div>
+                        {stepRes.actualResult && <div style={{ fontSize: '13px', color: '#334155', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{stepRes.actualResult}</div>}
+                        
+                        {stepRes.attachments && stepRes.attachments.map((att: any, attIdx: number) => (
+                          <div key={`att-${idx}-${attIdx}`} style={{ marginTop: '8px' }}>
+                            {att.url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                              <img src={att.url} alt="Evidence" style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #e2e8f0', borderRadius: '4px', display: 'block' }} crossOrigin="anonymous" />
+                            ) : (
+                              <a href={att.url} style={{ fontSize: '12px', color: '#3b82f6', textDecoration: 'none', borderBottom: '1px solid #3b82f6' }}>📄 Attachment: {att.name || 'File'}</a>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  }
+                });
+
+                // Add global attachments and comments if any
+                if (res.errorMessage || res.comment) {
+                  actualElements.push(
+                    <div key="global-msg" style={{ fontSize: '13px', color: '#dc2626', backgroundColor: '#fee2e2', padding: '8px', borderRadius: '4px', borderLeft: '3px solid #ef4444', marginBottom: '12px' }}>
+                      <strong style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', marginBottom: '4px' }}>Execution Note:</strong>
+                      {res.errorMessage || res.comment}
+                    </div>
+                  );
+                }
+                if (res.attachments && Array.isArray(res.attachments)) {
+                  res.attachments.forEach((att: any, attIdx: number) => {
+                    actualElements.push(
+                      <div key={`global-att-${attIdx}`} style={{ marginTop: '8px' }}>
+                        {att.url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                          <img src={att.url} alt="Evidence" style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #e2e8f0', borderRadius: '4px', display: 'block' }} crossOrigin="anonymous" />
+                        ) : (
+                          <a href={att.url} style={{ fontSize: '12px', color: '#3b82f6', textDecoration: 'none', borderBottom: '1px solid #3b82f6' }}>📄 Attachment: {att.name || 'File'}</a>
+                        )}
+                      </div>
+                    );
+                  });
+                }
+
+                return (
+                  <tr key={res.id} style={{ backgroundColor: rowBgColor, pageBreakInside: 'avoid' }}>
+                    <td style={{ border: '1px solid #e2e8f0', padding: '16px', verticalAlign: 'top' }}>
+                      <div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#64748b', marginBottom: '4px' }}>{code}</div>
+                      <div style={{ fontSize: '14px', fontWeight: '600', color: '#0f172a', marginBottom: '12px', lineHeight: '1.4' }}>{tc.title}</div>
+                      <span style={{ display: 'inline-block', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', backgroundColor: badgeBg, color: badgeColor }}>
+                        {res.status}
+                      </span>
+                    </td>
+                    <td style={{ border: '1px solid #e2e8f0', padding: '16px', verticalAlign: 'top' }}>
+                      {stepsContent.length > 0 ? stepsContent : <span style={{ fontStyle: 'italic', fontSize: '13px', color: '#94a3b8' }}>No test steps defined</span>}
+                    </td>
+                    <td style={{ border: '1px solid #e2e8f0', padding: '16px', verticalAlign: 'top' }}>
+                      {actualElements.length > 0 ? actualElements : <span style={{ fontStyle: 'italic', fontSize: '13px', color: '#94a3b8' }}>No actual results or evidence recorded</span>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Footer */}
+        <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '1px solid #e2e8f0', textAlign: 'center', fontSize: '12px', color: '#94a3b8' }}>
+          Confidential - Generated by QMaster Test Management System
+        </div>
       </div>
     </div>
   );
