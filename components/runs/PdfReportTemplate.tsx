@@ -23,12 +23,12 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
   const durationStr = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
 
   return (
-    <div className="pdf-report-container p-8 bg-white text-slate-800" style={{ width: '210mm', minHeight: '297mm', fontFamily: 'Arial, sans-serif' }}>
+    <div className="pdf-report-container p-8" style={{ backgroundColor: '#ffffff', color: '#1e293b', width: '210mm', minHeight: '297mm', fontFamily: 'Arial, sans-serif' }}>
       {/* Header */}
-      <div className="border-b-2 border-slate-200 pb-6 mb-6">
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">Test Run Report</h1>
-        <h2 className="text-xl font-semibold text-slate-700">{run.title}</h2>
-        <div className="mt-4 flex justify-between text-sm text-slate-500">
+      <div className="border-b-2 pb-6 mb-6" style={{ borderColor: '#e2e8f0' }}>
+        <h1 className="text-3xl font-bold mb-2" style={{ color: '#0f172a' }}>Test Run Report</h1>
+        <h2 className="text-xl font-semibold" style={{ color: '#334155' }}>{run.title}</h2>
+        <div className="mt-4 flex justify-between text-sm" style={{ color: '#64748b' }}>
           <div>
             <strong>Project:</strong> {projectCode}
           </div>
@@ -39,53 +39,53 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
       </div>
 
       {/* Summary Dashboard */}
-      <div className="bg-slate-50 p-6 rounded-lg border border-slate-200 mb-8 page-break-inside-avoid">
-        <h3 className="text-lg font-bold text-slate-800 mb-4">Execution Summary</h3>
+      <div className="p-6 rounded-lg border mb-8 page-break-inside-avoid" style={{ backgroundColor: '#f8fafc', borderColor: '#e2e8f0' }}>
+        <h3 className="text-lg font-bold mb-4" style={{ color: '#1e293b' }}>Execution Summary</h3>
         <div className="flex justify-between items-center">
           <div className="grid grid-cols-2 gap-x-8 gap-y-4">
             <div>
-              <span className="text-slate-500 block text-xs uppercase tracking-wider">Total Cases</span>
-              <span className="text-xl font-bold text-slate-800">{total}</span>
+              <span className="block text-xs uppercase tracking-wider" style={{ color: '#64748b' }}>Total Cases</span>
+              <span className="text-xl font-bold" style={{ color: '#1e293b' }}>{total}</span>
             </div>
             <div>
-              <span className="text-slate-500 block text-xs uppercase tracking-wider">Duration</span>
-              <span className="text-xl font-bold text-slate-800">{durationStr}</span>
+              <span className="block text-xs uppercase tracking-wider" style={{ color: '#64748b' }}>Duration</span>
+              <span className="text-xl font-bold" style={{ color: '#1e293b' }}>{durationStr}</span>
             </div>
             <div>
-              <span className="text-green-600 block text-xs uppercase tracking-wider font-bold">Passed</span>
-              <span className="text-xl font-bold text-green-700">{passed}</span>
+              <span className="block text-xs uppercase tracking-wider font-bold" style={{ color: '#16a34a' }}>Passed</span>
+              <span className="text-xl font-bold" style={{ color: '#15803d' }}>{passed}</span>
             </div>
             <div>
-              <span className="text-red-500 block text-xs uppercase tracking-wider font-bold">Failed</span>
-              <span className="text-xl font-bold text-red-600">{failed}</span>
+              <span className="block text-xs uppercase tracking-wider font-bold" style={{ color: '#ef4444' }}>Failed</span>
+              <span className="text-xl font-bold" style={{ color: '#dc2626' }}>{failed}</span>
             </div>
             <div>
-              <span className="text-amber-500 block text-xs uppercase tracking-wider font-bold">Blocked / Skipped</span>
-              <span className="text-xl font-bold text-amber-600">{blocked + skipped}</span>
+              <span className="block text-xs uppercase tracking-wider font-bold" style={{ color: '#f59e0b' }}>Blocked / Skipped</span>
+              <span className="text-xl font-bold" style={{ color: '#d97706' }}>{blocked + skipped}</span>
             </div>
             <div>
-              <span className="text-slate-400 block text-xs uppercase tracking-wider font-bold">Untested</span>
-              <span className="text-xl font-bold text-slate-600">{untested}</span>
+              <span className="block text-xs uppercase tracking-wider font-bold" style={{ color: '#94a3b8' }}>Untested</span>
+              <span className="text-xl font-bold" style={{ color: '#475569' }}>{untested}</span>
             </div>
           </div>
           <div className="text-center pr-8">
-            <div className="text-[40px] font-black text-slate-800 leading-none">{completionRate}%</div>
-            <div className="text-sm font-medium text-slate-500 mt-2">Completion Rate</div>
+            <div className="text-[40px] font-black leading-none" style={{ color: '#1e293b' }}>{completionRate}%</div>
+            <div className="text-sm font-medium mt-2" style={{ color: '#64748b' }}>Completion Rate</div>
           </div>
         </div>
       </div>
 
       {/* Detailed Results Table */}
       <div>
-        <h3 className="text-lg font-bold text-slate-800 mb-4">Detailed Results</h3>
-        <table className="w-full text-left border-collapse border border-slate-200">
+        <h3 className="text-lg font-bold mb-4" style={{ color: '#1e293b' }}>Detailed Results</h3>
+        <table className="w-full text-left border-collapse border" style={{ borderColor: '#e2e8f0' }}>
           <thead>
-            <tr className="bg-slate-100 text-slate-700 text-sm">
-              <th className="border border-slate-200 p-3 font-bold w-[12%]">ID</th>
-              <th className="border border-slate-200 p-3 font-bold w-[20%]">Test Case</th>
-              <th className="border border-slate-200 p-3 font-bold w-[10%]">Status</th>
-              <th className="border border-slate-200 p-3 font-bold w-[25%]">Expected Result</th>
-              <th className="border border-slate-200 p-3 font-bold w-[33%]">Actual Result & Evidence</th>
+            <tr className="text-sm" style={{ backgroundColor: '#f1f5f9', color: '#334155' }}>
+              <th className="border p-3 font-bold w-[12%]" style={{ borderColor: '#e2e8f0' }}>ID</th>
+              <th className="border p-3 font-bold w-[20%]" style={{ borderColor: '#e2e8f0' }}>Test Case</th>
+              <th className="border p-3 font-bold w-[10%]" style={{ borderColor: '#e2e8f0' }}>Status</th>
+              <th className="border p-3 font-bold w-[25%]" style={{ borderColor: '#e2e8f0' }}>Expected Result</th>
+              <th className="border p-3 font-bold w-[33%]" style={{ borderColor: '#e2e8f0' }}>Actual Result & Evidence</th>
             </tr>
           </thead>
           <tbody>
@@ -94,18 +94,18 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
               const code = tc.code || `${projectCode}-${tc.id.substring(0, 4)}`;
 
               // Get Status styling
-              let statusColor = "text-slate-500";
+              let statusStyle = { color: '#64748b', fontWeight: 'normal' };
               let statusText = res.status;
-              if (res.status === 'PASSED') statusColor = "text-green-600 font-bold";
-              if (res.status === 'FAILED') statusColor = "text-red-600 font-bold";
-              if (res.status === 'BLOCKED') statusColor = "text-amber-500 font-bold";
+              if (res.status === 'PASSED') statusStyle = { color: '#16a34a', fontWeight: 'bold' };
+              if (res.status === 'FAILED') statusStyle = { color: '#dc2626', fontWeight: 'bold' };
+              if (res.status === 'BLOCKED') statusStyle = { color: '#f59e0b', fontWeight: 'bold' };
 
               // Combine Expected Results
               const expected = (tc.steps || []).map((step: any, idx: number) => {
                 const stepNum = idx + 1;
                 return (
                   <div key={idx} className="mb-2 last:mb-0">
-                    <span className="font-semibold text-xs text-slate-600">Step {stepNum}:</span>
+                    <span className="font-semibold text-xs" style={{ color: '#475569' }}>Step {stepNum}:</span>
                     <div className="text-sm">{step.expectedResult || step.action}</div>
                   </div>
                 );
@@ -121,15 +121,15 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
                 if (stepRes.actualResult || (stepRes.attachments && stepRes.attachments.length > 0)) {
                   actualElements.push(
                     <div key={`actual-${idx}`} className="mb-4 last:mb-0">
-                      <span className="font-semibold text-xs text-slate-600 block mb-1">Step {stepNum} ({stepRes.status || 'N/A'}):</span>
-                      {stepRes.actualResult && <div className="text-sm mb-2 text-slate-700">{stepRes.actualResult}</div>}
+                      <span className="font-semibold text-xs block mb-1" style={{ color: '#475569' }}>Step {stepNum} ({stepRes.status || 'N/A'}):</span>
+                      {stepRes.actualResult && <div className="text-sm mb-2" style={{ color: '#334155' }}>{stepRes.actualResult}</div>}
                       
                       {stepRes.attachments && stepRes.attachments.map((att: any, attIdx: number) => (
                         <div key={`att-${idx}-${attIdx}`} className="mt-2">
                           {att.url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-                            <img src={att.url} alt="Evidence" className="max-w-full max-h-[200px] border border-slate-200 rounded object-contain" crossOrigin="anonymous" />
+                            <img src={att.url} alt="Evidence" className="max-w-full max-h-[200px] border rounded object-contain" style={{ borderColor: '#e2e8f0' }} crossOrigin="anonymous" />
                           ) : (
-                            <a href={att.url} className="text-blue-500 text-xs underline">Attachment: {att.name || 'File'}</a>
+                            <a href={att.url} className="text-xs underline" style={{ color: '#3b82f6' }}>Attachment: {att.name || 'File'}</a>
                           )}
                         </div>
                       ))}
@@ -141,7 +141,7 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
               // Add global attachments and comments if any
               if (res.errorMessage || res.comment) {
                 actualElements.push(
-                  <div key="global-msg" className="mb-2 text-sm text-slate-700">
+                  <div key="global-msg" className="mb-2 text-sm" style={{ color: '#334155' }}>
                     {res.errorMessage || res.comment}
                   </div>
                 );
@@ -151,9 +151,9 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
                   actualElements.push(
                     <div key={`global-att-${attIdx}`} className="mt-2">
                       {att.url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-                        <img src={att.url} alt="Evidence" className="max-w-full max-h-[200px] border border-slate-200 rounded object-contain" crossOrigin="anonymous" />
+                        <img src={att.url} alt="Evidence" className="max-w-full max-h-[200px] border rounded object-contain" style={{ borderColor: '#e2e8f0' }} crossOrigin="anonymous" />
                       ) : (
-                        <a href={att.url} className="text-blue-500 text-xs underline">Attachment: {att.name || 'File'}</a>
+                        <a href={att.url} className="text-xs underline" style={{ color: '#3b82f6' }}>Attachment: {att.name || 'File'}</a>
                       )}
                     </div>
                   );
@@ -161,15 +161,15 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
               }
 
               return (
-                <tr key={res.id} className="border-b border-slate-200 bg-white" style={{ pageBreakInside: 'avoid' }}>
-                  <td className="border border-slate-200 p-3 align-top text-sm font-mono text-slate-600">{code}</td>
-                  <td className="border border-slate-200 p-3 align-top text-sm text-slate-800 font-medium">{tc.title}</td>
-                  <td className={`border border-slate-200 p-3 align-top text-xs tracking-wider ${statusColor}`}>{statusText}</td>
-                  <td className="border border-slate-200 p-3 align-top">
-                    {expected.length > 0 ? expected : <span className="text-slate-400 italic text-xs">No specific expected result</span>}
+                <tr key={res.id} className="border-b" style={{ borderColor: '#e2e8f0', backgroundColor: '#ffffff', pageBreakInside: 'avoid' }}>
+                  <td className="border p-3 align-top text-sm font-mono" style={{ borderColor: '#e2e8f0', color: '#475569' }}>{code}</td>
+                  <td className="border p-3 align-top text-sm font-medium" style={{ borderColor: '#e2e8f0', color: '#1e293b' }}>{tc.title}</td>
+                  <td className={`border p-3 align-top text-xs tracking-wider`} style={{ borderColor: '#e2e8f0', ...statusStyle }}>{statusText}</td>
+                  <td className="border p-3 align-top" style={{ borderColor: '#e2e8f0' }}>
+                    {expected.length > 0 ? expected : <span className="italic text-xs" style={{ color: '#94a3b8' }}>No specific expected result</span>}
                   </td>
-                  <td className="border border-slate-200 p-3 align-top">
-                    {actualElements.length > 0 ? actualElements : <span className="text-slate-400 italic text-xs">No actual result recorded</span>}
+                  <td className="border p-3 align-top" style={{ borderColor: '#e2e8f0' }}>
+                    {actualElements.length > 0 ? actualElements : <span className="italic text-xs" style={{ color: '#94a3b8' }}>No actual result recorded</span>}
                   </td>
                 </tr>
               );
