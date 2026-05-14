@@ -21,7 +21,6 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
   const { role } = useProjectRole();
   const [activeTestCaseId, setActiveTestCaseId] = useState<string | null>(null);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
-  const [aiModalInitialTab, setAiModalInitialTab] = useState<"TEXT" | "IMAGE" | "JIRA">("TEXT");
   const [isSyncing, setIsSyncing] = useState(false);
   const [isMerging, setIsMerging] = useState(false);
   const [lastSyncPr, setLastSyncPr] = useState<{ url: string; number: number | null } | null>(null);
@@ -140,20 +139,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                   Start Run
                 </Link>
                 <button 
-                  onClick={() => {
-                    setAiModalInitialTab("JIRA");
-                    setIsAiModalOpen(true);
-                  }}
-                  className="flex items-center bg-[#0052CC]/10 text-[#0052CC] border border-[#0052CC]/20 px-4 py-1.5 rounded-md text-sm font-medium hover:bg-[#0052CC]/20 transition-colors"
-                >
-                  <Ticket size={16} className="mr-2" />
-                  Import from Jira
-                </button>
-                <button 
-                  onClick={() => {
-                    setAiModalInitialTab("TEXT");
-                    setIsAiModalOpen(true);
-                  }}
+                  onClick={() => setIsAiModalOpen(true)}
                   className="flex items-center bg-amber-500/10 text-amber-500 border border-amber-500/20 px-4 py-1.5 rounded-md text-sm font-medium hover:bg-amber-500/20 transition-colors"
                 >
                   <Sparkles size={16} className="mr-2" />
@@ -192,7 +178,6 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
         onClose={() => setIsAiModalOpen(false)}
         projectCode={projectCode}
         suites={suites}
-        initialTab={aiModalInitialTab}
         onSuccess={() => {
           router.refresh();
         }}
