@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { requireProjectRole } from "@/lib/project-auth";
+import { logAudit } from "@/lib/audit-logger";
 
 export async function POST(req: Request, { params }: { params: Promise<{ code: string }> }) {
   const { code: projectIdOrCode } = await params;
@@ -55,6 +56,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
       include: {
         results: true
       }
+    });
+
+    await logAudit({
+      projectId: project.id,
+      userId: (session.user as any).id,
+      action: "CREATED",
+      entity: "TEST_RUN",
+      entityId: run.id,
+      details: `Created Test Run: ${run.title}`
     });
 
     return NextResponse.json(run, { status: 201 });

@@ -90,6 +90,7 @@ model User {
   projects        ProjectMember[]
   testCases       TestCase[]
   assignedRunResults TestRunResult[]
+  auditLogs       AuditLog[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -145,6 +146,7 @@ model Project {
   testPlans  TestPlan[]
   members    ProjectMember[]
   projectInvitations ProjectInvitation[]
+  auditLogs  AuditLog[]
   tags       Tag[]
   attachments Attachment[]
   customFields CustomField[] @relation("ProjectToCustomField")
@@ -469,4 +471,19 @@ model PipelineSchedule {
   updatedAt   DateTime @updatedAt
   
   @@index([projectId])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action      String
+  entity      String
+  entityId    String?  
+  details     String?  @db.Text
+  createdAt   DateTime @default(now())
+
+  @@index([projectId, createdAt])
 }

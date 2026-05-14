@@ -7,6 +7,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { requireProjectRole } from "@/lib/project-auth";
 import { z } from "zod";
+import { logAudit } from "@/lib/audit-logger";
 
 const testCaseSchema = z.object({
   title: z.string().min(1),
@@ -82,6 +83,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
         }
       },
       include: { steps: true, tags: true, attachments: true }
+    });
+
+    await logAudit({
+      projectId,
+      userId: (session.user as any).id,
+      action: "CREATED",
+      entity: "TEST_CASE",
+      entityId: testCase.id,
+      details: `Created Test Case: ${testCase.title}`
     });
 
     return NextResponse.json(testCase, { status: 201 });

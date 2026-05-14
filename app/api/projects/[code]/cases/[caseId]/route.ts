@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
+import { logAudit } from "@/lib/audit-logger";
+
 export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ code: string; caseId: string }> }
@@ -34,6 +36,15 @@ export async function DELETE(
     // Delete the test case
     await prisma.testCase.delete({
       where: { id: caseId }
+    });
+
+    await logAudit({
+      projectId: project.id,
+      userId: (session.user as any).id,
+      action: "DELETED",
+      entity: "TEST_CASE",
+      entityId: caseId,
+      details: `Deleted Test Case: ${testCase.title}`
     });
 
     return NextResponse.json({ success: true });
