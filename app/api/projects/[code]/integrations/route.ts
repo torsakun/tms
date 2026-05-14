@@ -29,7 +29,8 @@ export async function GET(
         githubOwner: true,
         githubRepo: true,
         githubWorkflowId: true,
-        githubToken: true // Note: Returning token for simple prototype
+        githubToken: true, // Note: Returning token for simple prototype
+        msTeamsWebhookUrl: true
       }
     });
 
@@ -42,7 +43,8 @@ export async function GET(
         githubOwner: project.githubOwner || "",
         githubRepo: project.githubRepo || "",
         githubWorkflowId: project.githubWorkflowId || "",
-        githubToken: project.githubToken || ""
+        githubToken: project.githubToken || "",
+        msTeamsWebhookUrl: project.msTeamsWebhookUrl || ""
       }
     });
 
@@ -69,7 +71,7 @@ export async function PUT(
     }
 
     const body = await req.json();
-    const { githubOwner, githubRepo, githubWorkflowId, githubToken } = body;
+    const { githubOwner, githubRepo, githubWorkflowId, githubToken, msTeamsWebhookUrl } = body;
 
     const project = await prisma.project.update({
       where: { code },
@@ -78,6 +80,7 @@ export async function PUT(
         githubRepo: githubRepo || null,
         githubWorkflowId: githubWorkflowId || null,
         githubToken: githubToken || null,
+        msTeamsWebhookUrl: msTeamsWebhookUrl || null,
       }
     });
 

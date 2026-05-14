@@ -15,7 +15,8 @@ export default function ProjectIntegrationsPage({ params }: { params: Promise<{ 
     githubOwner: "",
     githubRepo: "",
     githubToken: "",
-    githubWorkflowId: ""
+    githubWorkflowId: "",
+    msTeamsWebhookUrl: ""
   });
 
   useEffect(() => {
@@ -28,7 +29,8 @@ export default function ProjectIntegrationsPage({ params }: { params: Promise<{ 
             githubOwner: data.integrations.githubOwner || "",
             githubRepo: data.integrations.githubRepo || "",
             githubToken: data.integrations.githubToken || "",
-            githubWorkflowId: data.integrations.githubWorkflowId || ""
+            githubWorkflowId: data.integrations.githubWorkflowId || "",
+            msTeamsWebhookUrl: data.integrations.msTeamsWebhookUrl || ""
           });
         }
       } catch (err) {
@@ -76,11 +78,11 @@ export default function ProjectIntegrationsPage({ params }: { params: Promise<{ 
     <div className="p-8 max-w-4xl mx-auto space-y-8 overflow-y-auto h-full pb-20">
       <header>
         <h1 className="text-2xl font-bold text-text-main flex items-center">
-          <GitBranch className="mr-3 text-slate-800" />
-          GitHub Integration
+          <GitBranch className="mr-3 text-slate-800 dark:text-slate-200" />
+          Integrations
         </h1>
         <p className="text-sm text-text-muted mt-2">
-          Configure the target GitHub repository for this specific project. If left blank, it will fallback to the global system settings.
+          Configure external services and tools for your project.
         </p>
       </header>
 
@@ -97,6 +99,7 @@ export default function ProjectIntegrationsPage({ params }: { params: Promise<{ 
       )}
 
       <div className="bg-surface rounded-xl shadow-sm border border-border p-6 space-y-6">
+        <h2 className="text-xl font-bold text-text-main mb-4 border-b border-border pb-2">GitHub Setup</h2>
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-text-main">GitHub Owner</label>
@@ -147,7 +150,20 @@ export default function ProjectIntegrationsPage({ params }: { params: Promise<{ 
           <p className="text-xs text-text-muted">Optional. Specify a custom workflow YAML file name. Defaults to playwright.yml</p>
         </div>
 
-        <div className="pt-4 border-t border-border flex justify-end">
+        <h2 className="text-xl font-bold text-text-main mt-8 mb-4 border-b border-border pb-2">Microsoft Teams Notifications</h2>
+        <div className="space-y-2">
+          <label className="text-sm font-semibold text-text-main">MS Teams Incoming Webhook URL</label>
+          <input 
+            type="text" 
+            value={settings.msTeamsWebhookUrl}
+            onChange={(e) => setSettings({...settings, msTeamsWebhookUrl: e.target.value})}
+            placeholder="https://your-company.webhook.office.com/..."
+            className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm text-text-main focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+          />
+          <p className="text-xs text-text-muted">When a Test Run completes, a summary card will be posted to this channel.</p>
+        </div>
+
+        <div className="pt-8 border-t border-border flex justify-end">
           <button 
             onClick={handleSave}
             disabled={isSaving}

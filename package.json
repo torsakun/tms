@@ -13,6 +13,7 @@
     "@ai-sdk/anthropic": "^3.0.76",
     "@ai-sdk/google": "^3.0.71",
     "@ai-sdk/openai": "^3.0.63",
+    "@google/generative-ai": "^0.24.1",
     "@playwright/test": "^1.59.1",
     "@prisma/adapter-pg": "^6.4.1",
     "@prisma/client": "^6.4.1",

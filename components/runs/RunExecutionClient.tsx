@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, XCircle, MinusCircle, RefreshCw, ArrowLeft, Eye, Edit3, VolumeX, Settings, ChevronRight, ChevronDown, Clock, X, PlayCircle, Check, Share, Download, MoreHorizontal, Loader2, Terminal, BarChart2, Edit } from "lucide-react";
+import { CheckCircle2, XCircle, MinusCircle, RefreshCw, ArrowLeft, Eye, Edit3, VolumeX, Settings, ChevronRight, ChevronDown, Clock, X, PlayCircle, Check, Share, Download, MoreHorizontal, Loader2, Terminal, BarChart2, Edit, FileText } from "lucide-react";
 import Link from "next/link";
 import { createRoot } from "react-dom/client";
 import { PdfReportTemplate } from "./PdfReportTemplate";
@@ -275,11 +275,17 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
 
   const handleCompleteRun = async () => {
     try {
-       // Note: Add actual API call here in the future
+       const res = await fetch(`/api/runs/${runId}/complete`, { method: "POST" });
+       if (!res.ok) {
+         const data = await res.json();
+         throw new Error(data.error || "Failed to complete run");
+       }
        setIsCompleteModalOpen(false);
        router.push(`/projects/${projectCode}/runs`);
+       router.refresh();
     } catch (e) {
        console.error(e);
+       alert("Error completing run: " + e);
     }
   };
 
@@ -1414,6 +1420,11 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                                   >
                                     {att.url?.match(/\.(mp4|webm|ogg)$/i) ? (
                                       <video src={att.url} className="w-full h-full object-contain bg-black" />
+                                    ) : att.url?.match(/\.zip$/i) ? (
+                                      <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-400">
+                                        <FileText size={32} className="mb-2 text-primary" />
+                                        <span className="text-xs font-medium">Trace Viewer</span>
+                                      </div>
                                     ) : (
                                       <img src={att.url} alt={att.name || "Attachment"} className="w-full h-full object-contain" />
                                     )}
@@ -1483,11 +1494,25 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
             </button>
           </div>
           <div 
-            className="relative max-w-full max-h-full flex items-center justify-center animate-in zoom-in-95 duration-200"
+            className="relative w-full h-full flex items-center justify-center animate-in zoom-in-95 duration-200 p-8 pt-16"
             onClick={(e) => e.stopPropagation()}
           >
             {viewingAttachment.url?.match(/\.(mp4|webm|ogg)$/i) ? (
-              <video src={viewingAttachment.url} controls autoPlay className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
+              <video src={viewingAttachment.url} controls autoPlay className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl bg-black" />
+            ) : viewingAttachment.url?.match(/\.zip$/i) ? (
+              <div className="w-full h-full bg-white rounded-lg overflow-hidden shadow-2xl flex flex-col">
+                 <div className="bg-slate-100 border-b border-slate-200 px-4 py-3 flex items-center">
+                    <span className="text-sm font-bold text-slate-800 flex items-center">
+                       <img src="https://playwright.dev/img/playwright-logo.svg" className="w-5 h-5 mr-2" alt="Playwright" />
+                       Playwright Trace Viewer
+                    </span>
+                 </div>
+                 <iframe 
+                   src={`https://trace.playwright.dev/?trace=${encodeURIComponent(viewingAttachment.url)}`} 
+                   className="w-full flex-1 border-none"
+                   title="Playwright Trace Viewer"
+                 />
+              </div>
             ) : (
               <img src={viewingAttachment.url} alt={viewingAttachment.name} className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
             )}

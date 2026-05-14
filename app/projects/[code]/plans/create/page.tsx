@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { X, AlertCircle } from "lucide-react";
+import { X, AlertCircle, Sparkles, Loader2 } from "lucide-react";
 import { TestCaseSelectionModal } from "@/components/runs/TestCaseSelectionModal";
 
 export default function CreatePlanPage() {
@@ -19,6 +19,9 @@ export default function CreatePlanPage() {
   const [error, setError] = useState("");
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [releaseNotes, setReleaseNotes] = useState("");
+  const [isAiLoading, setIsAiLoading] = useState(false);
 
   useEffect(() => {
     const fetchCases = async () => {
@@ -107,6 +110,33 @@ export default function CreatePlanPage() {
     setIsModalOpen(false);
   };
 
+  const handleAISmartSelect = async () => {
+    if (!releaseNotes.trim()) return;
+    setIsAiLoading(true);
+    setError("");
+    
+    try {
+      const res = await fetch(`/api/projects/${code}/ai/smart-plan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ releaseNotes })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to generate AI plan");
+      
+      if (data.selectedIds && Array.isArray(data.selectedIds)) {
+        setSelectedIds(new Set(data.selectedIds));
+        setIsAiModalOpen(false);
+        setReleaseNotes("");
+      }
+    } catch (err: any) {
+      setError("AI Generation Error: " + err.message);
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
+
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-background/50 items-center justify-center p-8">
       <div className="bg-surface rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none border border-border w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden transition-colors">
@@ -151,7 +181,16 @@ export default function CreatePlanPage() {
 
             {/* Modal Trigger */}
             <div className="pt-2">
-              <label className="block text-sm font-semibold text-text-main mb-2">Test Cases</label>
+              <div className="flex items-center justify-between mb-2">
+                 <label className="block text-sm font-semibold text-text-main">Test Cases</label>
+                 <button
+                   type="button"
+                   onClick={() => setIsAiModalOpen(true)}
+                   className="text-amber-500 hover:text-amber-600 font-medium text-xs flex items-center bg-amber-500/10 px-2 py-1 rounded transition-colors"
+                 >
+                   <Sparkles size={12} className="mr-1" /> Smart Select with AI
+                 </button>
+              </div>
               <button
                 type="button"
                 className="flex items-center justify-between w-full px-4 py-3 bg-surface border border-border rounded-lg hover:border-primary/50 hover:ring-1 hover:ring-primary/20 transition-all text-left group shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
@@ -160,7 +199,7 @@ export default function CreatePlanPage() {
                 <div>
                   <div className="text-sm font-medium text-text-main group-hover:text-primary transition-colors">Select test cases</div>
                   <div className="text-xs text-text-muted mt-1">
-                    {selectedIds.size === cases.length 
+                    {selectedIds.size === cases.length && cases.length > 0
                       ? "All test cases selected" 
                       : `${selectedIds.size} of ${cases.length} cases selected`}
                   </div>
@@ -199,6 +238,50 @@ export default function CreatePlanPage() {
         cases={cases}
         initialSelectedIds={selectedIds}
       />
+
+      {/* AI Smart Select Modal */}
+      {isAiModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-surface w-[600px] rounded-lg shadow-xl overflow-hidden border border-border animate-in zoom-in-95 duration-200 transition-colors">
+            <div className="px-6 py-4 border-b border-border/50 flex justify-between items-center bg-background">
+              <h3 className="text-lg font-bold text-text-main flex items-center">
+                <Sparkles size={20} className="mr-2 text-amber-500" /> AI Smart Selection
+              </h3>
+              <button onClick={() => setIsAiModalOpen(false)} className="text-text-muted hover:text-text-main"><X size={20}/></button>
+            </div>
+            <div className="p-6">
+              <p className="text-sm text-text-muted mb-4">
+                Paste your Release Notes, Changelog, or Jira Ticket descriptions here. The AI will analyze the changes and automatically select the most relevant test cases to execute.
+              </p>
+              <textarea 
+                rows={6}
+                value={releaseNotes}
+                onChange={(e) => setReleaseNotes(e.target.value)}
+                placeholder="e.g., Added new Stripe payment gateway, updated user profile layout, fixed bug in email notification..."
+                className="w-full px-4 py-3 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none placeholder:text-text-muted/50"
+              />
+            </div>
+            <div className="px-6 py-4 bg-background border-t border-border/50 flex justify-end space-x-3">
+              <button 
+                type="button"
+                onClick={() => setIsAiModalOpen(false)} 
+                className="px-4 py-2 rounded-md border border-border text-sm font-medium hover:bg-surface-hover text-text-main transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                type="button"
+                onClick={handleAISmartSelect} 
+                className="px-4 py-2 rounded-md bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold shadow-[0_0_10px_rgba(245,158,11,0.4)] transition-all flex items-center disabled:opacity-50" 
+                disabled={isAiLoading || !releaseNotes.trim()}
+              >
+                {isAiLoading ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Sparkles size={16} className="mr-2" />}
+                {isAiLoading ? "Analyzing..." : "Auto-Select Cases"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

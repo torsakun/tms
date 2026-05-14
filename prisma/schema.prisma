@@ -140,6 +140,7 @@ model Project {
   githubRepo       String?
   githubToken      String?
   githubWorkflowId String?
+  msTeamsWebhookUrl String?
 
   suites     TestSuite[]
   testCases  TestCase[]
