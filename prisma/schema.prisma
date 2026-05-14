@@ -85,6 +85,7 @@ model User {
   passwordHash    String
   name            String?
   role            SystemRole      @default(USER)
+  isActive        Boolean         @default(true)
   workspaceRoleId String?
   workspaceRole   WorkspaceRole?  @relation(fields: [workspaceRoleId], references: [id], onDelete: SetNull)
   projects        ProjectMember[]

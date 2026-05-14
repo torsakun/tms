@@ -1,5 +1,6 @@
-import { Check, MoreHorizontal, Search } from "lucide-react";
+import { Check, Search, Minus } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import UserActionMenu from "@/components/workspace/UserActionMenu";
 
 function getInitials(name: string | null) {
   if (!name) return "U";
@@ -27,15 +28,21 @@ export default async function WorkspaceUsersPage() {
     orderBy: { createdAt: "asc" }
   });
 
+  const roles = await prisma.workspaceRole.findMany({
+    select: { id: true, title: true },
+    orderBy: { title: "asc" }
+  });
+
   const users = dbUsers.map(user => ({
     id: user.id,
     name: user.name || user.email.split('@')[0],
     email: user.email,
     initials: getInitials(user.name || user.email.split('@')[0]),
     color: getColorForUser(user.name || user.email.split('@')[0]),
-    status: "Active",
+    isActive: user.isActive,
     type: user.role === "ADMIN" ? "Admin" : "Regular",
     role: user.workspaceRole?.title || "Member",
+    roleId: user.workspaceRoleId,
     roleTitle: user.workspaceRole?.title || "QA Engineer",
     lastAction: new Date(user.updatedAt).toLocaleDateString()
   }));
@@ -75,20 +82,24 @@ export default async function WorkspaceUsersPage() {
           </thead>
           <tbody className="divide-y divide-slate-100">
             {users.map((user) => (
-              <tr key={user.id} className="hover:bg-slate-50 transition-colors">
+              <tr key={user.id} className={`transition-colors ${user.isActive ? "hover:bg-slate-50" : "bg-slate-50/50 opacity-60"}`}>
                 <td className="px-4 py-3">
                   <div className="flex items-center space-x-3">
-                    <div className={`w-9 h-9 ${user.color} rounded flex items-center justify-center text-white font-semibold text-sm shrink-0`}>
+                    <div className={`w-9 h-9 ${user.isActive ? user.color : 'bg-slate-300'} rounded flex items-center justify-center text-white font-semibold text-sm shrink-0`}>
                       {user.initials}
                     </div>
                     <div className="flex flex-col">
-                      <span className="font-bold text-slate-800 text-sm">{user.name}</span>
+                      <span className={`font-bold text-sm ${user.isActive ? 'text-slate-800' : 'text-slate-500 line-through'}`}>{user.name}</span>
                       <span className="text-xs text-slate-500">{user.email}</span>
                     </div>
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <Check size={16} className="text-emerald-500" />
+                  {user.isActive ? (
+                    <Check size={16} className="text-emerald-500" />
+                  ) : (
+                    <Minus size={16} className="text-slate-400" />
+                  )}
                 </td>
                 <td className="px-4 py-3 text-sm text-slate-600">
                   {user.type}
@@ -103,9 +114,12 @@ export default async function WorkspaceUsersPage() {
                   {user.lastAction}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <button className="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-200">
-                    <MoreHorizontal size={16} />
-                  </button>
+                  <UserActionMenu 
+                    userId={user.id} 
+                    isActive={user.isActive} 
+                    currentRoleId={user.roleId} 
+                    roles={roles} 
+                  />
                 </td>
               </tr>
             ))}
