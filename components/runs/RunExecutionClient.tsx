@@ -1325,6 +1325,19 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                        </div>
                     </div>
 
+                    <div className="mt-4 pt-4 border-t border-border flex items-center gap-3">
+                      <div className="text-sm font-bold text-text-main flex items-center">
+                        <FileText size={16} className="mr-2 text-text-muted" /> Artifacts
+                      </div>
+                      <button 
+                        onClick={() => setViewingAttachment({ url: "demo-trace.zip", name: "Playwright Trace" })}
+                        className="flex items-center px-4 py-2 bg-slate-900 text-slate-300 border border-slate-700 rounded-md text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors"
+                      >
+                        <FileText size={16} className="mr-2 text-primary" />
+                        View Latest Trace
+                      </button>
+                    </div>
+
                     {activeResult.executionHistory && activeResult.executionHistory.length > 0 && (
                       <div className="mt-6 border border-border rounded-lg overflow-hidden bg-background">
                         <div className="bg-surface px-4 py-3 border-b border-border font-bold text-sm text-text-main flex items-center">
