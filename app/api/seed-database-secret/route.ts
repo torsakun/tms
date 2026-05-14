@@ -18,7 +18,7 @@ export async function GET(req: Request) {
         data: {
           email: "supat.tor@gmail.com",
           name: "Supat T",
-          password: "hashedpassword123", // mock
+          passwordHash: "hashedpassword123", // mock
         }
       });
     }
