@@ -780,8 +780,12 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
   const exportToPDF = async () => {
     setIsExportingPdf(true);
     try {
-      const html2canvas = (await import('html2canvas')).default;
-      const { jsPDF } = await import('jspdf');
+      const html2canvasModule = await import('html2canvas');
+      const html2canvas = html2canvasModule.default || html2canvasModule;
+      if (typeof html2canvas !== 'function') throw new Error('html2canvas is not a function');
+      
+      const jsPdfModule = await import('jspdf');
+      const jsPDF = jsPdfModule.jsPDF || jsPdfModule.default;
       
       const container = document.createElement('div');
       container.style.position = 'absolute';
@@ -846,9 +850,9 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
       }
       
       setIsExportModalOpen(false);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to generate PDF:", err);
-      alert("Failed to generate PDF. Please try again.");
+      alert(`Failed to generate PDF: ${err.message || String(err)}`);
     } finally {
       setIsExportingPdf(false);
     }
