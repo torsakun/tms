@@ -9,11 +9,19 @@ interface AiGeneratorModalProps {
   projectCode: string;
   suites: any[];
   onSuccess: () => void;
+  initialTab?: "TEXT" | "IMAGE" | "JIRA";
 }
 
-export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSuccess }: AiGeneratorModalProps) {
+export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSuccess, initialTab = "TEXT" }: AiGeneratorModalProps) {
   const [step, setStep] = useState<"INPUT" | "LOADING" | "REVIEW">("INPUT");
-  const [activeTab, setActiveTab] = useState<"TEXT" | "IMAGE" | "JIRA">("TEXT");
+  const [activeTab, setActiveTab] = useState<"TEXT" | "IMAGE" | "JIRA">(initialTab);
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab);
+      setStep("INPUT");
+    }
+  }, [isOpen, initialTab]);
   
   const [modelProvider, setModelProvider] = useState("openai");
   const [targetSuiteId, setTargetSuiteId] = useState("");
