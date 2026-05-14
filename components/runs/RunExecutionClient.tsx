@@ -4,6 +4,8 @@ import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, XCircle, MinusCircle, RefreshCw, ArrowLeft, Eye, Edit3, VolumeX, Settings, ChevronRight, ChevronDown, Clock, X, PlayCircle, Check, Share, Download, MoreHorizontal, Loader2, Terminal, BarChart2, Edit } from "lucide-react";
 import Link from "next/link";
+import { createRoot } from "react-dom/client";
+import { PdfReportTemplate } from "./PdfReportTemplate";
 
 interface RunExecutionClientProps {
   run: any;
@@ -773,6 +775,56 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
     setIsExportModalOpen(false);
   };
 
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+
+  const exportToPDF = async () => {
+    setIsExportingPdf(true);
+    try {
+      const html2pdf = (await import('html2pdf.js')).default;
+      
+      const container = document.createElement('div');
+      // Hide the container off-screen
+      container.style.position = 'absolute';
+      container.style.left = '-9999px';
+      container.style.top = '-9999px';
+      document.body.appendChild(container);
+
+      const root = createRoot(container);
+      root.render(<PdfReportTemplate run={run} projectCode={projectCode} />);
+
+      // Wait a moment for React to render and images to start loading
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      const cleanTitle = run.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const dateStr = new Date().toISOString().split('T')[0];
+      const filename = `run_${cleanTitle}_${dateStr}.pdf`;
+
+      const opt: any = {
+        margin:       10,
+        filename:     filename,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      await html2pdf().from(container).set(opt).save();
+      
+      setTimeout(() => {
+        root.unmount();
+        if (document.body.contains(container)) {
+          document.body.removeChild(container);
+        }
+      }, 1000);
+      
+      setIsExportModalOpen(false);
+    } catch (err) {
+      console.error("Failed to generate PDF:", err);
+      alert("Failed to generate PDF. Please try again.");
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
+
   return (
     <>
     {isReportModalOpen && run.reportUrl && (
@@ -1396,8 +1448,13 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                       >
                          CSV
                       </div>
-                      <div className="px-3 py-2 text-sm text-text-muted cursor-not-allowed transition-colors" title="Coming soon">
-                         PDF (Coming soon)
+                      <div 
+                         className="px-3 py-2 text-sm text-text-main hover:bg-surface-hover cursor-pointer transition-colors flex items-center justify-between"
+                         onClick={isExportingPdf ? undefined : exportToPDF}
+                      >
+                         {isExportingPdf ? (
+                           <span className="flex items-center text-text-muted"><Loader2 size={14} className="animate-spin mr-2"/> Generating PDF...</span>
+                         ) : "PDF"}
                       </div>
                    </div>
                 </div>
