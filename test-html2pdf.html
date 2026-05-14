@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+  <div id="capture" style="width: 1000px; position: absolute; left: -9999px; top: 0;">
+    <h1>Hello World</h1>
+    <p>This is a test.</p>
+  </div>
+  <button onclick="test()">Test PDF</button>
+  <script>
+    function test() {
+      const el = document.getElementById('capture');
+      html2pdf().set({
+        margin: 10,
+        filename: 'test.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      }).from(el).save();
+    }
+  </script>
+</body>
+</html>

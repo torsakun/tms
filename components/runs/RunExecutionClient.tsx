@@ -780,8 +780,12 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
   const exportToPDF = async () => {
     setIsExportingPdf(true);
     try {
-      const html2pdfModule = await import('html2pdf.js');
-      const html2pdf = html2pdfModule.default || html2pdfModule;
+      const html2canvasModule = await import('html2canvas');
+      const html2canvas = html2canvasModule.default || html2canvasModule;
+      if (typeof html2canvas !== 'function') throw new Error('html2canvas is not a function');
+      
+      const jsPdfModule = await import('jspdf');
+      const jsPDF = jsPdfModule.jsPDF || jsPdfModule.default;
       
       const container = document.createElement('div');
       container.style.position = 'absolute';
@@ -805,20 +809,70 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
         });
       }));
 
+      // Find all rows to calculate page breaks
+      const trs = container.querySelectorAll('.page-break-avoid, tr');
+      const pageHeightPx = (297 / 210) * 1000; // ~1414px
+      let currentLimit = pageHeightPx;
+      const sliceOffsets = [0];
+
+      trs.forEach(tr => {
+        const rect = tr.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        const yTop = rect.top - containerRect.top;
+        const yBottom = rect.bottom - containerRect.top;
+
+        if (yBottom > currentLimit && yTop < currentLimit) {
+          // This element crosses the page boundary
+          // We break just before this element, so we push its top coordinate
+          // But only if it's not the very top of the page to avoid infinite loops
+          const lastBreak = sliceOffsets[sliceOffsets.length - 1];
+          if (yTop > lastBreak + 100) { 
+            sliceOffsets.push(yTop);
+            currentLimit = yTop + pageHeightPx;
+          }
+        }
+      });
+
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth(); // 210
+      const pdfHeight = pdf.internal.pageSize.getHeight(); // 297
+      const ratio = pdfWidth / canvas.width;
+
+      for (let i = 0; i < sliceOffsets.length; i++) {
+        if (i > 0) pdf.addPage();
+        
+        const sourceY = sliceOffsets[i] * 2; // scale is 2
+        const pdfY = -(sourceY * ratio);
+        
+        pdf.addImage(imgData, 'JPEG', 0, pdfY, pdfWidth, canvas.height * ratio);
+        
+        // Hide the overflow at the bottom to avoid showing cut rows
+        const nextSourceY = (i < sliceOffsets.length - 1) ? sliceOffsets[i+1] * 2 : canvas.height;
+        const contentPdfHeight = (nextSourceY - sourceY) * ratio;
+        
+        if (contentPdfHeight < pdfHeight) {
+          pdf.setFillColor(255, 255, 255);
+          pdf.rect(0, contentPdfHeight, pdfWidth, pdfHeight - contentPdfHeight, 'F');
+        }
+      }
+
       const cleanTitle = run.title.replace(/[^a-z0-9]/gi, '_').toLowerCase();
       const dateStr = new Date().toISOString().split('T')[0];
+      pdf.save(`run_${cleanTitle}_${dateStr}.pdf`);
       
-      const opt: any = {
-        margin:       [10, 0, 10, 0],
-        filename:     `run_${cleanTitle}_${dateStr}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, logging: false },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
-      };
-
-      await html2pdf().set(opt).from(container).save();
-
       root.unmount();
       if (document.body.contains(container)) {
         document.body.removeChild(container);
