@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ code: string }> }
@@ -15,6 +13,16 @@ export async function POST(
     if (!releaseNotes) {
       return NextResponse.json({ error: "Release notes are required" }, { status: 400 });
     }
+
+    const settings = await prisma.workspaceSetting.findUnique({
+      where: { key: 'GEMINI_API_KEY' }
+    });
+    
+    if (!settings || !settings.value) {
+      return NextResponse.json({ error: "Gemini API Key is not configured in Workspace Settings." }, { status: 500 });
+    }
+    
+    const genAI = new GoogleGenerativeAI(settings.value);
 
     // Fetch all test cases for the project to feed into the AI context
     const project = await prisma.project.findUnique({
