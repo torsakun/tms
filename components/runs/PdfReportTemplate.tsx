@@ -92,9 +92,10 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
           <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
             <thead>
               <tr style={{ backgroundColor: '#1e293b', color: '#ffffff' }}>
-                <th style={{ padding: '14px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600', width: '25%', border: '1px solid #334155' }}>Test Case</th>
-                <th style={{ padding: '14px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600', width: '40%', border: '1px solid #334155' }}>Test Steps & Expected Results</th>
-                <th style={{ padding: '14px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600', width: '35%', border: '1px solid #334155' }}>Actual Result & Evidence</th>
+                <th style={{ padding: '14px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600', width: '20%', border: '1px solid #334155' }}>Test Case</th>
+                <th style={{ padding: '14px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600', width: '25%', border: '1px solid #334155' }}>Test Step</th>
+                <th style={{ padding: '14px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600', width: '25%', border: '1px solid #334155' }}>Expected Result</th>
+                <th style={{ padding: '14px', fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600', width: '30%', border: '1px solid #334155' }}>Actual Result & Evidence</th>
               </tr>
             </thead>
             <tbody>
@@ -109,60 +110,27 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
                 if (res.status === 'FAILED') { badgeBg = '#fee2e2'; badgeColor = '#dc2626'; }
                 if (res.status === 'BLOCKED') { badgeBg = '#fef3c7'; badgeColor = '#d97706'; }
 
-                // Combine Steps & Expected
-                const stepsContent = (tc.steps || []).map((step: any, idx: number) => {
-                  const stepNum = idx + 1;
-                  return (
-                    <div key={idx} style={{ marginBottom: idx === (tc.steps.length - 1) ? '0' : '16px', paddingBottom: idx === (tc.steps.length - 1) ? '0' : '16px', borderBottom: idx === (tc.steps.length - 1) ? 'none' : '1px dashed #cbd5e1' }}>
-                      <div style={{ fontSize: '11px', fontWeight: '700', color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Step {stepNum}</div>
-                      <div style={{ fontSize: '13px', color: '#334155', marginBottom: '8px' }}>
-                        <span style={{ fontWeight: '600', color: '#0f172a' }}>Action:</span> {step.action}
-                      </div>
-                      <div style={{ fontSize: '13px', color: '#475569', backgroundColor: '#f1f5f9', padding: '8px', borderRadius: '4px', borderLeft: '3px solid #94a3b8' }}>
-                        <span style={{ fontWeight: '600', color: '#0f172a' }}>Expected:</span> {step.expectedResult || <span style={{ fontStyle: 'italic', color: '#94a3b8' }}>None</span>}
-                      </div>
+                // Global attachments and comments
+                const globalElements: React.ReactNode[] = [];
+                if (res.errorMessage) {
+                  globalElements.push(
+                    <div key="global-err" style={{ fontSize: '13px', color: '#dc2626', backgroundColor: '#fee2e2', padding: '8px', borderRadius: '4px', borderLeft: '3px solid #ef4444', marginBottom: '8px' }}>
+                      <strong style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', marginBottom: '4px' }}>Error Message:</strong>
+                      {res.errorMessage}
                     </div>
                   );
-                });
-
-                // Combine Actual Results & Evidence
-                const actualElements: React.ReactNode[] = [];
-                (tc.steps || []).forEach((step: any, idx: number) => {
-                  const stepNum = idx + 1;
-                  const stepRes = (res.stepResults && res.stepResults[step.id]) || {};
-                  
-                  if (stepRes.actualResult || (stepRes.attachments && stepRes.attachments.length > 0)) {
-                    actualElements.push(
-                      <div key={`actual-${idx}`} style={{ marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px dashed #cbd5e1' }}>
-                        <div style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Step {stepNum} ({stepRes.status || 'N/A'})</div>
-                        {stepRes.actualResult && <div style={{ fontSize: '13px', color: '#334155', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{stepRes.actualResult}</div>}
-                        
-                        {stepRes.attachments && stepRes.attachments.map((att: any, attIdx: number) => (
-                          <div key={`att-${idx}-${attIdx}`} style={{ marginTop: '8px' }}>
-                            {att.url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-                              <img src={att.url} alt="Evidence" style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #e2e8f0', borderRadius: '4px', display: 'block' }} crossOrigin="anonymous" />
-                            ) : (
-                              <a href={att.url} style={{ fontSize: '12px', color: '#3b82f6', textDecoration: 'none', borderBottom: '1px solid #3b82f6' }}>📄 Attachment: {att.name || 'File'}</a>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  }
-                });
-
-                // Add global attachments and comments if any
-                if (res.errorMessage || res.comment) {
-                  actualElements.push(
-                    <div key="global-msg" style={{ fontSize: '13px', color: '#dc2626', backgroundColor: '#fee2e2', padding: '8px', borderRadius: '4px', borderLeft: '3px solid #ef4444', marginBottom: '12px' }}>
-                      <strong style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', marginBottom: '4px' }}>Execution Note:</strong>
-                      {res.errorMessage || res.comment}
+                }
+                if (res.comment) {
+                  globalElements.push(
+                    <div key="global-comment" style={{ fontSize: '13px', color: '#334155', backgroundColor: '#f1f5f9', padding: '8px', borderRadius: '4px', borderLeft: '3px solid #94a3b8', marginBottom: '8px' }}>
+                      <strong style={{ display: 'block', fontSize: '11px', textTransform: 'uppercase', marginBottom: '4px' }}>Comment:</strong>
+                      {res.comment}
                     </div>
                   );
                 }
                 if (res.attachments && Array.isArray(res.attachments)) {
                   res.attachments.forEach((att: any, attIdx: number) => {
-                    actualElements.push(
+                    globalElements.push(
                       <div key={`global-att-${attIdx}`} style={{ marginTop: '8px' }}>
                         {att.url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
                           <img src={att.url} alt="Evidence" style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #e2e8f0', borderRadius: '4px', display: 'block' }} crossOrigin="anonymous" />
@@ -176,18 +144,77 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
 
                 return (
                   <tr key={res.id} style={{ backgroundColor: rowBgColor, pageBreakInside: 'avoid' }}>
-                    <td style={{ border: '1px solid #e2e8f0', padding: '16px', verticalAlign: 'top' }}>
+                    {/* Column 1: Test Case */}
+                    <td style={{ border: '1px solid #e2e8f0', padding: '16px', verticalAlign: 'top', width: '20%' }}>
                       <div style={{ fontSize: '12px', fontFamily: 'monospace', color: '#64748b', marginBottom: '4px' }}>{code}</div>
                       <div style={{ fontSize: '14px', fontWeight: '600', color: '#0f172a', marginBottom: '12px', lineHeight: '1.4' }}>{tc.title}</div>
                       <span style={{ display: 'inline-block', padding: '4px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px', backgroundColor: badgeBg, color: badgeColor }}>
                         {res.status}
                       </span>
                     </td>
-                    <td style={{ border: '1px solid #e2e8f0', padding: '16px', verticalAlign: 'top' }}>
-                      {stepsContent.length > 0 ? stepsContent : <span style={{ fontStyle: 'italic', fontSize: '13px', color: '#94a3b8' }}>No test steps defined</span>}
-                    </td>
-                    <td style={{ border: '1px solid #e2e8f0', padding: '16px', verticalAlign: 'top' }}>
-                      {actualElements.length > 0 ? actualElements : <span style={{ fontStyle: 'italic', fontSize: '13px', color: '#94a3b8' }}>No actual results or evidence recorded</span>}
+                    
+                    {/* Columns 2, 3, 4: Inner table for Steps */}
+                    <td colSpan={3} style={{ border: '1px solid #e2e8f0', padding: '0', verticalAlign: 'top', width: '80%' }}>
+                      {(tc.steps && tc.steps.length > 0) ? (
+                        <table style={{ width: '100%', borderCollapse: 'collapse', height: '100%' }}>
+                          <tbody>
+                            {tc.steps.map((step: any, idx: number) => {
+                              const stepNum = idx + 1;
+                              const stepRes = (res.stepResults && res.stepResults[step.id]) || {};
+                              const isLastStep = idx === tc.steps.length - 1;
+                              const stepBorderBottom = (isLastStep && globalElements.length === 0) ? 'none' : '1px solid #e2e8f0';
+
+                              return (
+                                <tr key={idx}>
+                                  {/* Step Action */}
+                                  <td style={{ borderBottom: stepBorderBottom, borderRight: '1px solid #e2e8f0', padding: '16px', verticalAlign: 'top', width: '31.25%' }}>
+                                    <div style={{ fontSize: '11px', fontWeight: '700', color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Step {stepNum}</div>
+                                    <div style={{ fontSize: '13px', color: '#334155' }}>{step.action}</div>
+                                  </td>
+                                  
+                                  {/* Step Expected */}
+                                  <td style={{ borderBottom: stepBorderBottom, borderRight: '1px solid #e2e8f0', padding: '16px', verticalAlign: 'top', width: '31.25%' }}>
+                                    <div style={{ fontSize: '13px', color: '#475569' }}>{step.expectedResult || <span style={{ fontStyle: 'italic', color: '#94a3b8' }}>None</span>}</div>
+                                  </td>
+                                  
+                                  {/* Step Actual */}
+                                  <td style={{ borderBottom: stepBorderBottom, padding: '16px', verticalAlign: 'top', width: '37.5%' }}>
+                                    <div style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Status: {stepRes.status || 'N/A'}</div>
+                                    {stepRes.actualResult && <div style={{ fontSize: '13px', color: '#334155', marginBottom: '8px', whiteSpace: 'pre-wrap' }}>{stepRes.actualResult}</div>}
+                                    {stepRes.attachments && stepRes.attachments.map((att: any, attIdx: number) => (
+                                      <div key={`att-${idx}-${attIdx}`} style={{ marginTop: '8px' }}>
+                                        {att.url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
+                                          <img src={att.url} alt="Evidence" style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #e2e8f0', borderRadius: '4px', display: 'block' }} crossOrigin="anonymous" />
+                                        ) : (
+                                          <a href={att.url} style={{ fontSize: '12px', color: '#3b82f6', textDecoration: 'none', borderBottom: '1px solid #3b82f6' }}>📄 Attachment: {att.name || 'File'}</a>
+                                        )}
+                                      </div>
+                                    ))}
+                                    {!stepRes.actualResult && (!stepRes.attachments || stepRes.attachments.length === 0) && (
+                                      <span style={{ fontStyle: 'italic', fontSize: '13px', color: '#cbd5e1' }}>No actual result</span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                            
+                            {/* Render Global Elements if any */}
+                            {globalElements.length > 0 && (
+                              <tr>
+                                <td colSpan={3} style={{ padding: '16px', verticalAlign: 'top', backgroundColor: 'rgba(241, 245, 249, 0.5)' }}>
+                                  <div style={{ fontSize: '11px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', marginBottom: '8px' }}>Global Notes & Evidence</div>
+                                  {globalElements}
+                                </td>
+                              </tr>
+                            )}
+                          </tbody>
+                        </table>
+                      ) : (
+                        <div style={{ padding: '16px' }}>
+                          <span style={{ fontStyle: 'italic', fontSize: '13px', color: '#94a3b8', display: 'block', marginBottom: globalElements.length > 0 ? '16px' : '0' }}>No test steps defined</span>
+                          {globalElements.length > 0 && globalElements}
+                        </div>
+                      )}
                     </td>
                   </tr>
                 );
