@@ -165,7 +165,34 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-  const [isPublicLinkOn, setIsPublicLinkOn] = useState(false);
+  const [isPublicLinkOn, setIsPublicLinkOn] = useState(initialRun.isPublic || false);
+  const [isTogglingLink, setIsTogglingLink] = useState(false);
+
+  const togglePublicLink = async () => {
+    setIsTogglingLink(true);
+    try {
+      const newState = !isPublicLinkOn;
+      const res = await fetch(`/api/projects/${projectCode}/runs/${runId}/share`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPublic: newState }),
+      });
+      if (!res.ok) throw new Error("Failed to update public link status");
+      setIsPublicLinkOn(newState);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to toggle public link");
+    } finally {
+      setIsTogglingLink(false);
+    }
+  };
+
+  const handleCopyPublicLink = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(`${window.location.origin}/report/${runId}`);
+      alert("Public link copied to clipboard!");
+    }
+  };
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [mainMenuOpen, setMainMenuOpen] = useState(false);
   const mainMenuRef = React.useRef<HTMLDivElement>(null);
@@ -809,8 +836,27 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
         });
       }));
 
+      // Find the table header to repeat on every page
+      const thead = container.querySelector('thead');
+      let headerHeightPx = 0;
+      let headerImgData: string | null = null;
+      let headerPdfHeight = 0;
+
+      if (thead) {
+        const theadRect = thead.getBoundingClientRect();
+        headerHeightPx = theadRect.height;
+        
+        const headerCanvas = await html2canvas(thead as HTMLElement, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#1e293b' // Matches thead background
+        });
+        headerImgData = headerCanvas.toDataURL('image/jpeg', 0.95);
+      }
+
       // Find all rows to calculate page breaks
-      const trs = container.querySelectorAll('.page-break-avoid, tr');
+      const trs = container.querySelectorAll('.page-break-avoid, tbody tr');
       const pageHeightPx = (297 / 210) * 1000; // ~1414px
       let currentLimit = pageHeightPx;
       const sliceOffsets = [0];
@@ -824,11 +870,12 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
         if (yBottom > currentLimit && yTop < currentLimit) {
           // This element crosses the page boundary
           // We break just before this element, so we push its top coordinate
-          // But only if it's not the very top of the page to avoid infinite loops
           const lastBreak = sliceOffsets[sliceOffsets.length - 1];
           if (yTop > lastBreak + 100) { 
             sliceOffsets.push(yTop);
-            currentLimit = yTop + pageHeightPx;
+            // Next page will have a header injected at the top, so we subtract its height
+            // from the available content area limit.
+            currentLimit = yTop + (pageHeightPx - headerHeightPx);
           }
         }
       });
@@ -850,18 +897,41 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
       const pdfWidth = pdf.internal.pageSize.getWidth(); // 210
       const pdfHeight = pdf.internal.pageSize.getHeight(); // 297
       const ratio = pdfWidth / canvas.width;
+      
+      if (headerImgData && thead) {
+        // The header canvas width is scaled, so its height ratio is the same
+        headerPdfHeight = (headerHeightPx * 2) * ratio;
+      }
 
       for (let i = 0; i < sliceOffsets.length; i++) {
         if (i > 0) pdf.addPage();
         
         const sourceY = sliceOffsets[i] * 2; // scale is 2
-        const pdfY = -(sourceY * ratio);
+        let pdfY = -(sourceY * ratio);
+        
+        if (i > 0 && headerImgData) {
+          // Shift content down by the header height
+          pdfY += headerPdfHeight;
+        }
         
         pdf.addImage(imgData, 'JPEG', 0, pdfY, pdfWidth, canvas.height * ratio);
         
+        if (i > 0 && headerImgData) {
+          // Hide the bleed-over content at the top
+          pdf.setFillColor(255, 255, 255);
+          pdf.rect(0, 0, pdfWidth, headerPdfHeight, 'F');
+          
+          // Draw the repeating header
+          pdf.addImage(headerImgData, 'JPEG', 0, 0, pdfWidth, headerPdfHeight);
+        }
+        
         // Hide the overflow at the bottom to avoid showing cut rows
         const nextSourceY = (i < sliceOffsets.length - 1) ? sliceOffsets[i+1] * 2 : canvas.height;
-        const contentPdfHeight = (nextSourceY - sourceY) * ratio;
+        let contentPdfHeight = (nextSourceY - sourceY) * ratio;
+        
+        if (i > 0 && headerImgData) {
+          contentPdfHeight += headerPdfHeight;
+        }
         
         if (contentPdfHeight < pdfHeight) {
           pdf.setFillColor(255, 255, 255);
@@ -1463,8 +1533,8 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
              <div className="px-6 py-6 space-y-6">
                 <label className="flex items-center cursor-pointer group">
                   <div className="relative">
-                    <input type="checkbox" className="sr-only" checked={isPublicLinkOn} onChange={() => setIsPublicLinkOn(!isPublicLinkOn)} />
-                    <div className={`block w-11 h-6 rounded-full transition-colors ${isPublicLinkOn ? 'bg-primary' : 'bg-surface-hover border border-border'}`}></div>
+                    <input type="checkbox" className="sr-only" checked={isPublicLinkOn} onChange={togglePublicLink} disabled={isTogglingLink} />
+                    <div className={`block w-11 h-6 rounded-full transition-colors ${isPublicLinkOn ? 'bg-primary' : 'bg-surface-hover border border-border'} ${isTogglingLink ? 'opacity-50' : ''}`}></div>
                     <div className={`absolute left-[2px] top-[2px] bg-white w-5 h-5 rounded-full transition-transform transform ${isPublicLinkOn ? 'translate-x-5' : ''} shadow-sm`}></div>
                   </div>
                   <div className="ml-3 text-[15px] font-medium text-text-main group-hover:text-primary transition-colors">
@@ -1474,12 +1544,12 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                 
                 {isPublicLinkOn ? (
                   <div className="relative">
-                    <input type="text" readOnly value={`https://app.qase.clone/public/report/${runId}`} className="w-full border border-border rounded-md py-2.5 pl-3 pr-20 text-[15px] text-text-main bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors" />
-                    <button className="absolute right-2 top-2 text-primary font-bold text-sm bg-primary/10 px-3 py-1 rounded hover:bg-primary/20 transition-colors">Copy</button>
+                    <input type="text" readOnly value={typeof window !== 'undefined' ? `${window.location.origin}/report/${runId}` : ''} className="w-full border border-border rounded-md py-2.5 pl-3 pr-20 text-[15px] text-text-main bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors" />
+                    <button onClick={handleCopyPublicLink} className="absolute right-2 top-2 text-primary font-bold text-sm bg-primary/10 px-3 py-1 rounded hover:bg-primary/20 transition-colors">Copy</button>
                   </div>
                 ) : (
-                  <div className="w-full border border-border rounded-md py-2.5 px-3 text-[15px] text-text-muted bg-background cursor-not-allowed transition-colors">
-                    https://app.qase.clone/public/report/...
+                  <div className="text-sm text-text-muted">
+                    Turn on the public link to allow anyone with the link to view the real-time execution report.
                   </div>
                 )}
              </div>
