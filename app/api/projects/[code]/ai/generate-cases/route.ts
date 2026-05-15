@@ -74,10 +74,15 @@ export async function POST(req: Request) {
           content: [
             { 
               type: 'text', 
-              text: `You are an expert QA Engineer. Your task is to analyze the following requirement/user story or UI mockup and generate a comprehensive set of test cases.
-Include both positive and negative scenarios.
-Ensure each test case has clear step-by-step actions and expected results.
-IMPORTANT: Generate the test cases entirely in Thai language (ภาษาไทย).
+              text: `You are an expert Senior QA Engineer. Your task is to analyze the following requirement/user story or UI mockup and generate a highly professional, comprehensive set of test cases following software testing best practices (e.g., Boundary Value Analysis, Equivalence Partitioning, Negative Testing).
+Include both positive and negative/edge-case scenarios.
+Ensure each test case has clear, concise, and professional step-by-step actions and expected results.
+
+LANGUAGE & TONE GUIDELINES:
+- Generate the test cases entirely in the Thai language (ภาษาไทย) but maintain a highly professional, corporate QA tone.
+- DO NOT translate technical IT or QA terms into Thai. Always use the English terms as loanwords (ทับศัพท์) for technical vocabulary. 
+- Examples of terms to keep in English: Email, Password, Input, Button, Dropdown, Checkbox, Validation, Error message, API, UI, Database, Request, Response, Timeout, User, Admin, Dashboard, Login, Submit, Click, Scroll.
+- DO NOT write "อีเมล" or "รหัสผ่าน" or "ปุ่มกด". Use "Email", "Password", "Button" instead.
 
 Requirement:
 ${requirementText}` 
