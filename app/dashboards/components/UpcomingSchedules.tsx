@@ -31,7 +31,15 @@ export function UpcomingSchedules({ schedules }: UpcomingSchedulesProps) {
               <div className="flex items-center mt-1 text-[11px] font-medium text-slate-500">
                 <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 mr-2">{schedule.project.code}</span>
                 <Clock size={12} className="mr-1" />
-                Cron: <code className="ml-1 text-indigo-600 font-mono bg-indigo-50 px-1 rounded">{schedule.cron}</code>
+                <span className="text-slate-600 font-medium">
+                  {(() => {
+                    try {
+                      return require('cronstrue').toString(schedule.cron);
+                    } catch (e) {
+                      return `Cron: ${schedule.cron}`;
+                    }
+                  })()}
+                </span>
               </div>
             </div>
             <div className="text-right flex flex-col items-end">
