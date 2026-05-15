@@ -37,10 +37,26 @@ export async function POST(req: Request, { params }: { params: Promise<{ runId: 
     // Clean up the zip file
     await fs.promises.unlink(zipPath);
 
-    // Update the TestRun with the report URL
+    // Update the TestRun with the report URL and mark as COMPLETED
     await prisma.testRun.update({
       where: { id: runId },
-      data: { reportUrl: `/reports/${runId}/index.html` }
+      data: { 
+        reportUrl: `/reports/${runId}/index.html`,
+        status: 'COMPLETED'
+      }
+    });
+
+    // Any tests that are still IN_PROGRESS should be marked as FAILED
+    // because the test runner finished/crashed before reporting them.
+    await prisma.testRunResult.updateMany({
+      where: {
+        runId,
+        status: 'IN_PROGRESS'
+      },
+      data: {
+        status: 'FAILED',
+        comment: 'Test execution aborted, crashed, or timed out before completion.'
+      }
     });
 
     return NextResponse.json({ success: true, message: 'Report uploaded successfully' });
