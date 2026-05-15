@@ -2,10 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import fs from 'fs';
 import path from 'path';
-import { exec } from 'child_process';
-import util from 'util';
-
-const execPromise = util.promisify(exec);
+import AdmZip from 'adm-zip';
 
 export async function POST(req: Request, { params }: { params: Promise<{ runId: string }> }) {
   const { runId } = await params;
@@ -34,7 +31,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ runId: 
     await fs.promises.writeFile(zipPath, buffer);
 
     // Unzip the file and overwrite any existing files
-    await execPromise(`unzip -o ${zipPath} -d ${reportsDir}`);
+    const zip = new AdmZip(zipPath);
+    zip.extractAllTo(reportsDir, true);
     
     // Clean up the zip file
     await fs.promises.unlink(zipPath);
