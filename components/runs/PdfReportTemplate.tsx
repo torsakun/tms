@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatThaiTime } from '@/lib/utils';
 
 interface PdfReportTemplateProps {
   run: any;
@@ -38,7 +39,7 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
           </div>
         </div>
         <div style={{ marginTop: '30px', fontSize: '14px', color: '#cbd5e1' }}>
-          <strong>Generated on:</strong> {new Date().toLocaleString()}
+          <strong>Generated on:</strong> {formatThaiTime(new Date())}
         </div>
       </div>
 

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, use } from "react";
 import { Activity, PlusCircle, Trash2, Edit2, PlayCircle, Share2, FileText, Loader2, Settings } from "lucide-react";
 import { format } from "date-fns";
+import { formatThaiTime } from "@/lib/utils";
 
 type AuditLog = {
   id: string;
@@ -109,7 +110,7 @@ export default function AuditLogsPage({ params }: { params: Promise<{ code: stri
                     </p>
                   )}
                   <p className="text-xs text-slate-400 mt-2">
-                    {format(new Date(log.createdAt), "MMM d, yyyy 'at' h:mm a")}
+                    {formatThaiTime(log.createdAt)}
                   </p>
                 </div>
               </div>

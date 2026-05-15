@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { PlayCircle, ChevronRight, ChevronLeft, Clock, Activity, Loader2, CheckCircle2 } from "lucide-react";
+import { formatThaiTime } from "@/lib/utils";
 
 interface RecentExecutionsTableProps {
   recentRuns: any[];
@@ -81,10 +82,7 @@ export function RecentExecutionsTable({ recentRuns }: RecentExecutionsTableProps
                         <span className="mx-2 text-slate-300">•</span>
                         <span className="text-[11px] font-medium text-slate-400 flex items-center">
                           <Clock size={10} className="mr-1 opacity-70" />
-                          {new Date(run.createdAt).toLocaleString('en-GB', { 
-                            day: 'numeric', month: 'short', year: 'numeric', 
-                            hour: '2-digit', minute: '2-digit' 
-                          })}
+                          {formatThaiTime(run.createdAt)}
                         </span>
                       </div>
                     </Link>

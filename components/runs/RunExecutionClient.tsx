@@ -6,6 +6,7 @@ import { CheckCircle2, XCircle, MinusCircle, RefreshCw, ArrowLeft, Eye, Edit3, V
 import Link from "next/link";
 import { createRoot } from "react-dom/client";
 import { PdfReportTemplate } from "./PdfReportTemplate";
+import { formatThaiTime } from "@/lib/utils";
 
 interface RunExecutionClientProps {
   run: any;
@@ -773,7 +774,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
       });
       const evidence = evidenceUrls.join('\n');
 
-      const date = res.updatedAt ? new Date(res.updatedAt).toLocaleString() : '';
+      const date = res.updatedAt ? formatThaiTime(res.updatedAt) : '';
       const timeSpent = res.timeSpent ? (res.timeSpent / 1000).toFixed(1) : '0';
 
       return [
@@ -1135,7 +1136,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
             <div className="font-bold text-text-main mb-1">Started at</div>
             <div className="flex items-center text-text-muted">
                <Clock size={14} className="mr-2 opacity-70" />
-               {new Date(run.createdAt).toLocaleString()}
+               {formatThaiTime(run.createdAt)}
             </div>
           </div>
           <div>
@@ -1273,7 +1274,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                     </div>
                     <div>
                       <div className="font-bold text-text-main mb-1">Started at</div>
-                      <div className="text-text-muted">{new Date(activeResult.createdAt).toLocaleString()}</div>
+                      <div className="text-text-muted">{formatThaiTime(activeResult.createdAt)}</div>
                     </div>
                     <div>
                       <div className="font-bold text-text-main mb-1">Environment</div>
@@ -1351,7 +1352,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                                  <div className="flex items-center space-x-3">
                                    <div className={`w-2 h-2 rounded-full ${historyItem.status === 'PASSED' ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
                                    <span className="text-sm font-medium text-text-main">
-                                     {new Date(historyItem.timestamp).toLocaleString()}
+                                     {formatThaiTime(historyItem.timestamp)}
                                    </span>
                                  </div>
                                  <span className="text-xs text-text-muted group-open:hidden">View Logs</span>
