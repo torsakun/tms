@@ -69,9 +69,12 @@ export async function POST(
       const shortId = tc.id.substring(0, 4);
       const filePath = `tests/${suiteName}/${code}-${shortId}-${slugTitle}.spec.ts`;
       const isWrapped = tc.automationScript!.includes("test(");
-      const finalScript = isWrapped 
-        ? tc.automationScript 
-        : `import { test, expect } from '@playwright/test';\n\ntest('${tc.title.replace(/'/g, "\\'")}', async ({ page }) => {\n${tc.automationScript}\n});`;
+      let finalScript = tc.automationScript!;
+      if (!isWrapped) {
+        finalScript = `import { test, expect } from '@playwright/test';\n\ntest('[${code}-${shortId}] ${tc.title.replace(/'/g, "\\'")}', async ({ page }) => {\n${tc.automationScript}\n});`;
+      } else if (!finalScript.includes(`[${code}-${shortId}]`)) {
+        finalScript = finalScript.replace(/(test\(['"`])/, `$1[${code}-${shortId}] `);
+      }
 
       return {
         path: filePath,

@@ -71,9 +71,12 @@ export async function POST(
     const filePath = `tests/${suiteName}/${code}-${shortId}-${slugTitle}.spec.ts`;
     
     const isWrapped = testCase.automationScript.includes("test(");
-    const finalScript = isWrapped 
-      ? testCase.automationScript 
-      : `import { test, expect } from '@playwright/test';\n\ntest('${testCase.title.replace(/'/g, "\\'")}', async ({ page }) => {\n${testCase.automationScript}\n});`;
+    let finalScript = testCase.automationScript;
+    if (!isWrapped) {
+      finalScript = `import { test, expect } from '@playwright/test';\n\ntest('[${code}-${shortId}] ${testCase.title.replace(/'/g, "\\'")}', async ({ page }) => {\n${testCase.automationScript}\n});`;
+    } else if (!finalScript.includes(`[${code}-${shortId}]`)) {
+      finalScript = finalScript.replace(/(test\(['"`])/, `$1[${code}-${shortId}] `);
+    }
 
     const contentEncoded = Buffer.from(finalScript).toString("base64");
 
