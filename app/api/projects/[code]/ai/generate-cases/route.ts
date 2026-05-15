@@ -9,15 +9,15 @@ import { prisma } from "@/lib/prisma";
 const testCaseSchema = z.object({
   testCases: z.array(
     z.object({
-      title: z.string().describe("A concise, clear title for the test case"),
-      description: z.string().describe("Detailed description of what is being tested. Use empty string if none."),
-      preconditions: z.string().describe("State or conditions required before execution. Use empty string if none."),
+      title: z.string().describe("A concise, clear title for the test case (MUST BE IN THAI LANGUAGE)"),
+      description: z.string().describe("Detailed description of what is being tested. Use empty string if none. (MUST BE IN THAI LANGUAGE)"),
+      preconditions: z.string().describe("State or conditions required before execution. Use empty string if none. (MUST BE IN THAI LANGUAGE)"),
       severity: z.enum(["BLOCKER", "CRITICAL", "MAJOR", "NORMAL", "MINOR", "TRIVIAL"]).describe("Severity level of the test"),
       priority: z.enum(["HIGH", "MEDIUM", "LOW"]).describe("Priority level of the test"),
       steps: z.array(
         z.object({
-          action: z.string().describe("Action to perform"),
-          expectedResult: z.string().describe("Expected outcome of the action. Use empty string if none.")
+          action: z.string().describe("Action to perform (MUST BE IN THAI LANGUAGE)"),
+          expectedResult: z.string().describe("Expected outcome of the action. Use empty string if none. (MUST BE IN THAI LANGUAGE)")
         })
       ).describe("Step-by-step instructions to execute the test")
     })
