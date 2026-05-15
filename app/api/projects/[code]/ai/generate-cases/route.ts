@@ -77,6 +77,7 @@ export async function POST(req: Request) {
               text: `You are an expert QA Engineer. Your task is to analyze the following requirement/user story or UI mockup and generate a comprehensive set of test cases.
 Include both positive and negative scenarios.
 Ensure each test case has clear step-by-step actions and expected results.
+IMPORTANT: Generate the test cases entirely in Thai language (ภาษาไทย).
 
 Requirement:
 ${requirementText}` 
