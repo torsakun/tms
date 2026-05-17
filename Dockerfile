@@ -5,7 +5,7 @@ FROM base AS deps
 WORKDIR /app
 
 # Install Playwright OS dependencies
-RUN npx -y playwright@1.44.0 install --with-deps chromium
+RUN npx -y playwright@1.59.1 install --with-deps chromium chromium-headless-shell
 
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
@@ -36,8 +36,8 @@ ENV TZ=Asia/Bangkok
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 RUN apt-get update && apt-get install -y unzip && rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /ms-playwright
-RUN npm install -g @playwright/test playwright
-RUN playwright install --with-deps chromium
+RUN npm install -g @playwright/test@1.59.1 playwright@1.59.1
+RUN playwright install --with-deps chromium chromium-headless-shell
 
 RUN addgroup --system --gid 1001 nodejs
 # Create user with a real home directory to fix npm EACCES /nonexistent
