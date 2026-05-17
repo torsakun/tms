@@ -174,7 +174,7 @@ export default function TestCaseEditor() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="min-h-screen bg-slate-50 pb-20">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto bg-slate-50 pb-20">
       {/* Sticky Header */}
       <header className="sticky top-0 z-10 bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
         <div className="flex items-center space-x-4">
