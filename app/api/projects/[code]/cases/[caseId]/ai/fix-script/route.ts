@@ -84,7 +84,6 @@ CRITICAL RULES:
 5. If the script seems stuck on the wrong page (e.g., trying to search before logging in), you are allowed to inject necessary prerequisite steps (like filling username/password and waiting for navigation).
 6. Compare the current script against the ORIGINAL MANUAL TEST STEPS. If the script is missing actions (e.g., missing a click on a menu item before typing in a search box), you MUST rewrite the script to explicitly include every manual step. Do not skip steps!
 7. If the error is a "strict mode violation" (resolved to multiple elements), you MUST fix it by either adding \`{ exact: true }\` to the locator (e.g., \`getByRole('link', { name: 'Projects', exact: true })\`) or by appending \`.first()\` / \`.nth(0)\` to the locator.
-8. ALWAYS use 'http://localhost:3000' as the base URL for page.goto() (e.g. \`page.goto('http://localhost:3000/login')\`). Do NOT use production or vercel URLs.
 `;
 
     const { text } = await generateText({

@@ -62,8 +62,7 @@ Guidelines:
 2. Prioritize Semantic Locators. If the DOM context is provided, carefully examine the HTML to find the exact \`placeholder\`, \`aria-label\`, or \`class\` to target.
 3. If specific locators are unknown, use creative fallbacks like \`getByPlaceholder\`, \`getByText\`, or \`locator('input[type="text"]')\` rather than rigid \`getByRole\` names that might not exist.
 4. Include assertions (expect) based on the "Expected Results".
-5. ALWAYS use 'http://localhost:3000' as the base URL for page.goto() (e.g. \`page.goto('http://localhost:3000/login')\`). Do NOT use production or vercel URLs.
-6. Return ONLY the TypeScript code block. Do not include markdown formatting like \`\`\`typescript, just the raw code.
+5. Return ONLY the TypeScript code block. Do not include markdown formatting like \`\`\`typescript, just the raw code.
 
 Test Case Title: ${testCase.title}
 Preconditions: ${testCase.preconditions || "None"}
