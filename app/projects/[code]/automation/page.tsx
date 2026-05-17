@@ -557,13 +557,12 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
                         <PlayCircle size={14} className="mr-1" /> Run Now
                       </button>
                       
-                      <label className={`flex items-center cursor-pointer group ${!pipeline.isActive ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      <label className="flex items-center cursor-pointer group">
                         <div className="relative">
                           <input 
                             type="checkbox" 
                             className="sr-only" 
                             checked={pipeline.isActive} 
-                            disabled={!pipeline.isActive}
                             onChange={(e) => handleTogglePipeline(pipeline.id, e.target.checked)} 
                           />
                           <div className={`block w-10 h-6 rounded-full transition-colors ${pipeline.isActive ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'}`}></div>
@@ -573,7 +572,7 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
                            {pipeline.isActive ? (
                              <span className="text-emerald-500">Active</span>
                            ) : (
-                             <span className="text-slate-500">Completed</span>
+                             <span className="text-slate-400">Standby</span>
                            )}
                         </div>
                       </label>

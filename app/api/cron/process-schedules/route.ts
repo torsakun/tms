@@ -107,11 +107,6 @@ export async function POST(req: Request) {
             console.error(`[CRON] Failed to trigger GitHub Action for schedule ${schedule.id}`, await ghRes.text());
           } else {
             triggeredRunIds.push(run.id);
-            // Deactivate the schedule so it doesn't run again (treating it as a one-off run)
-            await prisma.pipelineSchedule.update({
-              where: { id: schedule.id },
-              data: { isActive: false }
-            });
           }
         }
       } catch (err) {
