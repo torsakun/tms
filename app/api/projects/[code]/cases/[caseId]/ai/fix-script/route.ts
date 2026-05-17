@@ -5,6 +5,8 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { prisma } from "@/lib/prisma";
 
+export const maxDuration = 60;
+
 export async function POST(req: Request, { params }: { params: Promise<{ code: string, caseId: string }> }) {
   const { code, caseId } = await params;
   try {

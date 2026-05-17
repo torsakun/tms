@@ -338,9 +338,23 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
             value={script}
             onChange={(e) => setScript(e.target.value)}
             spellCheck={false}
-            className="w-full min-h-[400px] p-4 bg-[#0d1117] border border-slate-800 rounded-lg text-[13px] font-mono leading-relaxed text-[#c9d1d9] resize-y focus:outline-none focus:ring-1 focus:ring-primary/50"
+            disabled={isFixing}
+            className="w-full min-h-[400px] p-4 bg-[#0d1117] border border-slate-800 rounded-lg text-[13px] font-mono leading-relaxed text-[#c9d1d9] resize-y focus:outline-none focus:ring-1 focus:ring-primary/50 disabled:opacity-50"
             style={{ tabSize: 2 }}
           />
+          
+          {isFixing && (
+            <div className="absolute inset-0 bg-[#0d1117]/80 backdrop-blur-[2px] flex flex-col items-center justify-center rounded-lg z-10 border border-slate-800">
+              <div className="relative w-12 h-12 mb-4">
+                <div className="absolute inset-0 bg-amber-500/20 rounded-full animate-ping"></div>
+                <div className="absolute inset-2 bg-amber-500 flex items-center justify-center rounded-full shadow-[0_0_15px_rgba(245,158,11,0.5)]">
+                  <Sparkles size={16} className="text-white" />
+                </div>
+              </div>
+              <p className="text-sm font-bold text-white">AI is fixing the script...</p>
+              <p className="text-xs text-slate-400 mt-1">Analyzing Playwright logs and correcting errors</p>
+            </div>
+          )}
           
           <div className="absolute bottom-6 right-6 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button 
