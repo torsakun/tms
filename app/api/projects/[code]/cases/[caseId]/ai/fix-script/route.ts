@@ -68,8 +68,9 @@ Analyze the error log, identify why the script failed (e.g. wrong locator, timeo
 CRITICAL RULES:
 1. ONLY return the fully corrected TypeScript code block. Do not provide explanations or markdown \`\`\` wrappers.
 2. In Playwright, ALWAYS use page.getByLabel() instead of getByLabelText().
-3. Do not modify the overall test structure, only fix the specific lines that caused the error.
-4. If a locator timeout occurs immediately after page.goto(), the URL might be redirecting to a page without that element (e.g., navigating to '/' and redirecting to '/dashboards' instead of a login page). Adjust the page.goto() URL (e.g., add '/login' or '/api/auth/signin') if necessary.
+3. If the DOM context is provided, carefully examine the HTML to find the exact \`placeholder\`, \`aria-label\`, or \`class\` to target.
+4. If a locator fails, DO NOT stubbornly try the exact same locator. Be creative: try \`getByPlaceholder\`, \`locator('input[type="text"]')\`, or use exact text matching.
+5. If the script seems stuck on the wrong page (e.g., trying to search before logging in), you are allowed to inject necessary prerequisite steps (like filling username/password and waiting for navigation).
 `;
 
     const { text } = await generateText({

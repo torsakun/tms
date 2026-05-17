@@ -74,6 +74,7 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
             <Search className="absolute left-3 top-2.5 text-text-muted" size={16} />
             <input 
               type="text" 
+              aria-label="Search projects"
               placeholder="Search for projects"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
