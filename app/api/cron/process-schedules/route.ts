@@ -79,7 +79,7 @@ export async function POST(req: Request) {
           
           const protocol = req.headers.get("x-forwarded-proto") || "http";
           const host = req.headers.get("host");
-          const apiUrl = process.env.NEXT_PUBLIC_APP_URL || `${protocol}://${host}`;
+          const apiUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || `${protocol}://${host}`;
 
           const automatedShortIds = testCases.map(tc => {
             const shortId = tc.id.substring(0, 4);
