@@ -257,6 +257,19 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
     }
   };
 
+  const handleDeletePipeline = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this pipeline schedule?")) return;
+    try {
+      setPipelines(prev => prev.filter(p => p.id !== id));
+      await fetch(`/api/projects/${code}/pipelines/${id}`, {
+        method: "DELETE"
+      });
+    } catch (err) {
+      console.error(err);
+      fetchData();
+    }
+  };
+
   const manualCasesCount = cases.filter(c => c.automationStatus === 'MANUAL').length;
   const pendingCasesCount = cases.filter(c => c.automationStatus === 'TO_BE_AUTOMATED').length;
   const showPushBtn = pendingCasesCount > 0;
@@ -576,6 +589,13 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
                            )}
                         </div>
                       </label>
+                      <button 
+                        onClick={() => handleDeletePipeline(pipeline.id)}
+                        className="text-xs font-bold px-2 py-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors flex items-center"
+                        title="Delete Schedule"
+                      >
+                        <Trash2 size={16} />
+                      </button>
                     </div>
                   </div>
                 ))}
