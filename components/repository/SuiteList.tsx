@@ -49,7 +49,9 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
     return grouped;
   }, [cases]);
 
-  if (suites.length === 0) {
+  const unassignedCases = casesBySuiteId.get('unassigned') || [];
+
+  if (suites.length === 0 && unassignedCases.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 bg-surface rounded-xl border border-border border-dashed transition-colors">
         <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4 transition-colors">
@@ -76,6 +78,18 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
           onSelectCase={onSelectCase}
         />
       ))}
+      
+      {unassignedCases.length > 0 && !activeSuiteId && (
+        <SuiteNode 
+          suite={{ id: 'unassigned', title: 'Unassigned Test Cases' }} 
+          depth={0} 
+          childrenMap={childrenMap} 
+          casesBySuiteId={casesBySuiteId} 
+          projectCode={projectCode}
+          onSelectCase={onSelectCase}
+          isUnassigned={true}
+        />
+      )}
     </div>
   );
 }

@@ -13,9 +13,10 @@ interface SuiteNodeProps {
   casesBySuiteId: Map<string, any[]>;
   projectCode: string;
   onSelectCase?: (testCase: any) => void;
+  isUnassigned?: boolean;
 }
 
-export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCode, onSelectCase }: SuiteNodeProps) {
+export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCode, onSelectCase, isUnassigned }: SuiteNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showQuickTest, setShowQuickTest] = useState(false);
   const [quickTestTitle, setQuickTestTitle] = useState("");
@@ -40,7 +41,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             title: quickTestTitle.trim(),
-            suiteId: suite.id,
+            suiteId: suite.id === 'unassigned' ? undefined : suite.id,
             priority: "Medium",
             status: "Active"
           })
@@ -84,7 +85,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
         </div>
 
         {/* Hover Actions */}
-        {role !== 'VIEWER' && (
+        {role !== 'VIEWER' && !isUnassigned && (
           <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <button 
               onClick={() => setShowQuickTest(true)}
