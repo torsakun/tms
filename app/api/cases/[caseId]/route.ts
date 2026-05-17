@@ -33,7 +33,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ caseId
         where: { id: caseId },
         data: {
           ...caseData,
-          steps: steps ? { create: steps } : undefined
+          steps: steps ? { 
+            create: steps.map((s: any) => ({
+              action: s.action,
+              expectedResult: s.expectedResult,
+              position: s.position
+            })) 
+          } : undefined
         },
         include: { steps: true }
       });
@@ -41,6 +47,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ caseId
 
     return NextResponse.json(updatedCase);
   } catch (error) {
+    console.error("Test Case Update Error:", error);
     return NextResponse.json({ error: "Update failed" }, { status: 400 });
   }
 }
