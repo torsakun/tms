@@ -14,6 +14,7 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
   const [domContext, setDomContext] = useState("");
   const [script, setScript] = useState(testCase.automationScript || "");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isFixing, setIsFixing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -46,6 +47,32 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
       setError(err.message);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleAutoFix = async () => {
+    if (!verificationLog) return;
+    setIsFixing(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const res = await fetch(`/api/projects/${projectCode}/cases/${testCase.id}/ai/fix-script`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ script, errorLog: verificationLog })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to fix script");
+
+      setScript(data.script);
+      setSuccess("Script fixed by AI! You can verify it again.");
+      setTimeout(() => setSuccess(""), 4000);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsFixing(false);
     }
   };
 
@@ -215,16 +242,28 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
       {/* Verification Log Console */}
       {verificationLog && (
         <div className="mb-6 border border-border rounded-lg overflow-hidden bg-[#0d1117]">
-          <button 
+          <div 
             onClick={() => setIsVerificationExpanded(!isVerificationExpanded)}
-            className="w-full px-4 py-2 flex items-center justify-between bg-slate-900 border-b border-slate-800 transition-colors"
+            className="w-full px-4 py-2 flex items-center justify-between bg-slate-900 border-b border-slate-800 transition-colors cursor-pointer"
           >
             <div className="flex items-center text-xs font-bold text-slate-300">
               <Terminal size={14} className="mr-2 text-slate-400" />
               Verification Console Output
             </div>
-            {isVerificationExpanded ? <ChevronUp size={14} className="text-slate-400" /> : <ChevronDown size={14} className="text-slate-400" />}
-          </button>
+            <div className="flex items-center space-x-3">
+              {(verificationLog.includes('failed') || verificationLog.includes('Error') || verificationLog.includes('timeout')) && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleAutoFix(); }}
+                  disabled={isFixing}
+                  className="px-2 py-1 bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 rounded border border-amber-500/30 text-[10px] font-bold flex items-center transition-colors disabled:opacity-50"
+                >
+                  {isFixing ? <Loader2 size={12} className="mr-1 animate-spin" /> : <Sparkles size={12} className="mr-1" />}
+                  {isFixing ? "Fixing..." : "Auto-fix with AI"}
+                </button>
+              )}
+              {isVerificationExpanded ? <ChevronUp size={14} className="text-slate-400" /> : <ChevronDown size={14} className="text-slate-400" />}
+            </div>
+          </div>
           
           {isVerificationExpanded && (
             <div className="p-4 max-h-[300px] overflow-y-auto">
