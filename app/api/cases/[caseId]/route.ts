@@ -25,15 +25,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ caseId
     const { steps, ...caseData } = body;
 
     const updatedCase = await prisma.$transaction(async (tx) => {
-      if (steps) {
-        await tx.testStep.deleteMany({ where: { caseId: caseId } });
-      }
-
       return tx.testCase.update({
         where: { id: caseId },
         data: {
           ...caseData,
           steps: steps ? { 
+            deleteMany: {},
             create: steps.map((s: any) => ({
               action: s.action,
               expectedResult: s.expectedResult,
