@@ -63,10 +63,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
     const stepsText = testCase.steps.map((s, i) => `Step ${i + 1}: ${s.action} (Expected: ${s.expectedResult || "N/A"})`).join("\n");
 
     // Launch Playwright
-    // Use the PLAYWRIGHT_BROWSERS_PATH if available
     const launchOptions: any = { headless: true };
+    // Playwright automatically uses PLAYWRIGHT_BROWSERS_PATH if it is set in the environment.
+    // If we are in the VPS Docker container, we can optionally specify args to avoid sandbox issues.
     if (process.env.PLAYWRIGHT_BROWSERS_PATH) {
-      launchOptions.executablePath = '/ms-playwright/chromium-1117/chrome-linux/chrome'; // A generic fallback might be needed or just let playwright resolve it
+      launchOptions.args = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'];
     }
     
     browser = await chromium.launch(launchOptions);
