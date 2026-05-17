@@ -256,7 +256,7 @@ Instructions:
         }),
         finish: tool({
           description: 'Call this when you have successfully executed all test steps.',
-          parameters: jsonSchema({ type: 'object', properties: { dummy: { type: 'string' } }, additionalProperties: false }),
+          inputSchema: z.object({}),
           execute: async () => "Finished generating script"
         })
       }
