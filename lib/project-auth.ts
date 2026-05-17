@@ -2,6 +2,16 @@ import { prisma } from "@/lib/prisma";
 import { ProjectRole } from "@prisma/client";
 
 export async function getProjectRole(projectCode: string, userId: string): Promise<ProjectRole | null> {
+  // Check if user is a system admin
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true }
+  });
+
+  if (user?.role === 'ADMIN') {
+    return 'ADMIN';
+  }
+
   const project = await prisma.project.findUnique({
     where: { code: projectCode },
     select: { id: true }

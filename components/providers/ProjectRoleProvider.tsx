@@ -19,8 +19,10 @@ export function ProjectRoleProvider({
   role: ProjectRole | null;
   isSystemAdmin?: boolean;
 }) {
+  const effectiveRole = isSystemAdmin ? 'ADMIN' : role;
+
   return (
-    <ProjectRoleContext.Provider value={{ role, isSystemAdmin }}>
+    <ProjectRoleContext.Provider value={{ role: effectiveRole, isSystemAdmin }}>
       {children}
     </ProjectRoleContext.Provider>
   );
