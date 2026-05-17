@@ -112,26 +112,32 @@ Instructions:
           }
         }),
         get_dom: tool({
-          description: 'Get a simplified version of the current page DOM to find locators. Returns a list of interactive elements (buttons, inputs, links).',
+          description: 'Get a simplified, highly compressed list of VISIBLE interactive elements on the screen to find locators. Use this sparingly to save tokens.',
           parameters: z.object({}),
           execute: async () => {
             const dom = await page.evaluate(() => {
               const elements = document.querySelectorAll('button, a, input, select, textarea, [role="button"], [role="link"], [role="textbox"], [role="menuitem"]');
-              return Array.from(elements).map(el => {
+              const visibleElements = Array.from(elements).filter((el) => {
                 const e = el as HTMLElement;
-                const tagName = e.tagName.toLowerCase();
-                const id = e.id ? \` id="\${e.id}"\` : '';
-                const cls = e.className && typeof e.className === 'string' ? \` class="\${e.className.split(' ').slice(0,3).join(' ')}"\` : '';
-                const type = e.getAttribute('type') ? \` type="\${e.getAttribute('type')}"\` : '';
-                const name = e.getAttribute('name') ? \` name="\${e.getAttribute('name')}"\` : '';
-                const placeholder = e.getAttribute('placeholder') ? \` placeholder="\${e.getAttribute('placeholder')}"\` : '';
-                const aria = e.getAttribute('aria-label') ? \` aria-label="\${e.getAttribute('aria-label')}"\` : '';
-                const text = (e.innerText || e.getAttribute('value') || '').trim().substring(0, 50).replace(/\\n/g, ' ');
+                return e.offsetWidth > 0 && e.offsetHeight > 0 && window.getComputedStyle(e).visibility !== 'hidden' && window.getComputedStyle(e).display !== 'none';
+              });
+              
+              return visibleElements.map(el => {
+                const e = el as HTMLElement;
+                const tag = e.tagName.toLowerCase();
+                const props = [];
+                if (e.id) props.push(\`id=\${e.id}\`);
+                if (e.getAttribute('type')) props.push(\`type=\${e.getAttribute('type')}\`);
+                if (e.getAttribute('name')) props.push(\`name=\${e.getAttribute('name')}\`);
+                if (e.getAttribute('placeholder')) props.push(\`placeholder="\${e.getAttribute('placeholder')}"\`);
+                if (e.getAttribute('aria-label')) props.push(\`aria="\${e.getAttribute('aria-label')}"\`);
                 
-                return \`<\${tagName}\${id}\${cls}\${type}\${name}\${placeholder}\${aria}>\${text}</\${tagName}>\`;
+                const text = (e.innerText || e.getAttribute('value') || '').trim().substring(0, 30).replace(/\\n/g, ' ');
+                return \`[\${tag}] \${text} {\${props.join(',')}}\`;
               }).join('\\n');
             });
-            return dom || "No interactive elements found.";
+            // Truncate to avoid massive token usage
+            return dom.substring(0, 4000) || "No visible interactive elements.";
           }
         }),
         click: tool({
