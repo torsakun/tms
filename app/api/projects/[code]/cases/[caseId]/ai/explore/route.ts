@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { NextResponse } from "next/server";
-import { generateText, tool, jsonSchema } from "ai";
+import { generateText, tool } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createAnthropic } from "@ai-sdk/anthropic";
@@ -107,7 +107,7 @@ Instructions:
       tools: {
         goto: tool({
           description: 'Navigate to a URL',
-          parameters: jsonSchema({ type: 'object', properties: { url: { type: 'string' } }, required: ['url'], additionalProperties: false }),
+          inputSchema: z.object({ url: z.string() }),
           execute: async ({ url }) => {
             await page.goto(url);
             generatedScriptLines.push(`  await page.goto('${url}');`);
@@ -116,7 +116,7 @@ Instructions:
         }),
         get_dom: tool({
           description: 'Get a simplified, highly compressed list of VISIBLE interactive elements on the screen to find locators. Use this sparingly to save tokens.',
-          parameters: jsonSchema({ type: 'object', properties: { dummy: { type: 'string' } }, additionalProperties: false }),
+          inputSchema: z.object({}),
           execute: async () => {
             const dom = await page.evaluate(() => {
               const elements = document.querySelectorAll('button, a, input, select, textarea, [role="button"], [role="link"], [role="textbox"], [role="menuitem"]');
@@ -145,7 +145,10 @@ Instructions:
         }),
         click: tool({
           description: 'Click an element using a Playwright locator string (e.g. "page.getByRole(\'button\', { name: \'Login\' })" or "page.locator(\'input[name=email]\')")',
-          parameters: jsonSchema({ type: 'object', properties: { locatorStr: { type: 'string' }, description: { type: 'string', description: "A comment describing this step" } }, required: ['locatorStr', 'description'], additionalProperties: false }),
+          inputSchema: z.object({ 
+            locatorStr: z.string(),
+            description: z.string().describe("A comment describing this step")
+          }),
           execute: async ({ locatorStr, description }) => {
             try {
               // We evaluate the locator in the browser context via playwright's evaluate Handle or just using page.locator directly if it's a standard selector.
@@ -160,7 +163,7 @@ Instructions:
         }),
         click_css: tool({
            description: 'Click an element by CSS selector (e.g. "button.login-btn")',
-           parameters: jsonSchema({ type: 'object', properties: { selector: { type: 'string' }, description: { type: 'string' } }, required: ['selector', 'description'], additionalProperties: false }),
+           inputSchema: z.object({ selector: z.string(), description: z.string() }),
            execute: async ({ selector, description }) => {
              try {
                await page.locator(selector).first().click({ timeout: 5000 });
@@ -174,7 +177,7 @@ Instructions:
         }),
         click_text: tool({
            description: 'Click an element by its exact or partial text (e.g. "Sign in")',
-           parameters: jsonSchema({ type: 'object', properties: { text: { type: 'string' }, exact: { type: 'boolean' }, description: { type: 'string' } }, required: ['text', 'description'], additionalProperties: false }),
+           inputSchema: z.object({ text: z.string(), exact: z.boolean().optional(), description: z.string() }),
            execute: async ({ text, exact = false, description }) => {
              try {
                await page.getByText(text, { exact }).first().click({ timeout: 5000 });
@@ -188,7 +191,7 @@ Instructions:
         }),
         click_role: tool({
            description: 'Click an element by its Aria Role and Name (e.g. role "button", name "Login")',
-           parameters: jsonSchema({ type: 'object', properties: { role: { type: 'string' }, name: { type: 'string' }, exact: { type: 'boolean' }, description: { type: 'string' } }, required: ['role', 'name', 'description'], additionalProperties: false }),
+           inputSchema: z.object({ role: z.string(), name: z.string(), exact: z.boolean().optional(), description: z.string() }),
            execute: async ({ role, name, exact = false, description }) => {
              try {
                await page.getByRole(role as any, { name, exact }).first().click({ timeout: 5000 });
@@ -202,7 +205,7 @@ Instructions:
         }),
         fill_css: tool({
           description: 'Fill an input field identified by a CSS selector',
-          parameters: jsonSchema({ type: 'object', properties: { selector: { type: 'string' }, value: { type: 'string' }, description: { type: 'string' } }, required: ['selector', 'value', 'description'], additionalProperties: false }),
+          inputSchema: z.object({ selector: z.string(), value: z.string(), description: z.string() }),
           execute: async ({ selector, value, description }) => {
             try {
               await page.locator(selector).first().fill(value, { timeout: 5000 });
@@ -216,7 +219,7 @@ Instructions:
         }),
         fill_placeholder: tool({
           description: 'Fill an input field identified by its placeholder text',
-          parameters: jsonSchema({ type: 'object', properties: { placeholder: { type: 'string' }, value: { type: 'string' }, description: { type: 'string' } }, required: ['placeholder', 'value', 'description'], additionalProperties: false }),
+          inputSchema: z.object({ placeholder: z.string(), value: z.string(), description: z.string() }),
           execute: async ({ placeholder, value, description }) => {
             try {
               await page.getByPlaceholder(placeholder).first().fill(value, { timeout: 5000 });
@@ -230,7 +233,7 @@ Instructions:
         }),
         press_key: tool({
           description: 'Press a keyboard key (e.g. "Enter", "Tab")',
-          parameters: jsonSchema({ type: 'object', properties: { key: { type: 'string' }, description: { type: 'string' } }, required: ['key', 'description'], additionalProperties: false }),
+          inputSchema: z.object({ key: z.string(), description: z.string() }),
           execute: async ({ key, description }) => {
             try {
               await page.keyboard.press(key);
@@ -244,7 +247,7 @@ Instructions:
         }),
         wait_for_timeout: tool({
           description: 'Wait for a specified amount of time (in milliseconds) for the page to load or stabilize',
-          parameters: jsonSchema({ type: 'object', properties: { ms: { type: 'number' } }, required: ['ms'], additionalProperties: false }),
+          inputSchema: z.object({ ms: z.number() }),
           execute: async ({ ms }) => {
             await page.waitForTimeout(ms);
             generatedScriptLines.push(`  await page.waitForTimeout(${ms});`);
