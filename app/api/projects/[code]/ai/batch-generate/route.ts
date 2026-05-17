@@ -69,7 +69,7 @@ Your task is to write a Playwright TypeScript automation script for the provided
 
 Guidelines:
 1. Write cleanly structured Playwright code using the @playwright/test framework.
-2. Prioritize Semantic Locators (e.g. getByRole, getByLabel, getByText).
+2. Prioritize Semantic Locators (e.g. getByRole, getByLabel, getByText). IMPORTANT: In Playwright, use page.getByLabel(), NEVER page.getByLabelText().
 3. If specific locators are unknown, use clear placeholder variables (e.g. \`const emailInput = 'TODO_LOCATOR';\`).
 4. Include assertions (expect) based on the "Expected Results".
 5. Return ONLY the TypeScript code block. Do not include markdown formatting like \`\`\`typescript, just the raw code.
