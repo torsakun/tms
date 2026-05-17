@@ -15,6 +15,7 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
   const [autoCapturedDom, setAutoCapturedDom] = useState<string | null>(null);
   const [script, setScript] = useState(testCase.automationScript || "");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isExploring, setIsExploring] = useState(false);
   const [isFixing, setIsFixing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
@@ -48,6 +49,39 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
       setError(err.message);
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleExplore = async () => {
+    setIsExploring(true);
+    setError("");
+    setSuccess("");
+    setScript("");
+
+    try {
+      // Extract URL from DOM context if provided
+      let startUrl = "";
+      const urlMatch = domContext.match(/url\s*:\s*(https?:\/\/[^\s]+)/i);
+      if (urlMatch) {
+        startUrl = urlMatch[1];
+      }
+
+      const res = await fetch(`/api/projects/${projectCode}/cases/${testCase.id}/ai/explore`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ startUrl })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to explore and generate script");
+
+      setScript(data.script);
+      setSuccess("Agent successfully explored the app and generated the script!");
+      setTimeout(() => setSuccess(""), 6000);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsExploring(false);
     }
   };
 
@@ -318,17 +352,29 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
       </div>
 
       {/* Generate Button */}
-      {!script && !isGenerating && (
+      {!script && !isGenerating && !isExploring && (
         <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-border rounded-lg bg-background/50">
           <Terminal size={32} className="text-text-muted/50 mb-3" />
           <p className="text-sm font-medium text-text-main mb-4">No automation script found</p>
-          <button 
-            onClick={handleGenerate}
-            className="flex items-center px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-md font-bold shadow-[0_0_10px_rgba(93,135,255,0.3)] transition-all"
-          >
-            <Sparkles size={16} className="mr-2" />
-            Generate Playwright Script
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button 
+              onClick={handleGenerate}
+              className="flex items-center justify-center px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-md font-bold shadow-sm transition-all"
+            >
+              <Code size={16} className="mr-2" />
+              Generate (Zero-shot)
+            </button>
+            <button 
+              onClick={handleExplore}
+              className="flex items-center justify-center px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-md font-bold shadow-[0_0_10px_rgba(93,135,255,0.3)] transition-all"
+            >
+              <Sparkles size={16} className="mr-2" />
+              Explore & Automate (Agentic)
+            </button>
+          </div>
+          <p className="text-xs text-text-muted mt-4 text-center max-w-md">
+            <b>Agentic Mode:</b> The AI will autonomously open a browser, navigate, and build the script. (Takes 30-60s)
+          </p>
         </div>
       )}
 
@@ -345,8 +391,24 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
         </div>
       )}
 
+      {isExploring && (
+        <div className="flex flex-col items-center justify-center py-12 border border-border rounded-lg bg-background/50">
+          <div className="relative w-12 h-12 mb-4">
+            <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" style={{ animationDuration: '2s' }}></div>
+            <div className="absolute inset-0 bg-primary/40 rounded-full animate-ping" style={{ animationDuration: '3s', animationDelay: '0.5s' }}></div>
+            <div className="absolute inset-2 bg-primary flex items-center justify-center rounded-full shadow-[0_0_20px_rgba(93,135,255,0.6)]">
+              <Sparkles size={16} className="text-white animate-pulse" />
+            </div>
+          </div>
+          <p className="text-sm font-bold text-text-main">AI is exploring the app...</p>
+          <p className="text-xs text-text-muted mt-1 text-center max-w-xs">
+            Opening headless browser, analyzing DOM, clicking elements, and writing code. Please wait up to 60 seconds.
+          </p>
+        </div>
+      )}
+
       {/* Code Editor Preview */}
-      {script && !isGenerating && (
+      {script && !isGenerating && !isExploring && (
         <div className="relative group mt-4">
           <textarea
             value={script}
