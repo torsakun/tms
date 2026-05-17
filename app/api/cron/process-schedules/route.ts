@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import cronParser from "cron-parser";
+import { CronExpressionParser } from "cron-parser";
 
 export async function POST(req: Request) {
   try {
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     // 3. Evaluate each schedule
     for (const schedule of schedules) {
       try {
-        const interval = cronParser.parseExpression(schedule.cron);
+        const interval = CronExpressionParser.parse(schedule.cron);
         const prev = interval.prev().toDate();
         
         // If the previous scheduled time is within the last 60 seconds, trigger it
