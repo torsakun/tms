@@ -23,9 +23,34 @@ export async function POST(
 
     // Wrap the script in a test block if it isn't already
     const isWrapped = script.includes('test(');
-    const finalScript = isWrapped 
+    let finalScript = isWrapped 
       ? script 
       : `import { test, expect } from '@playwright/test';\n\ntest('Automated Test Case', async ({ page }) => {\n${script}\n});`;
+
+    // Inject global test.afterEach to capture DOM on failure
+    const afterEachHook = `
+test.afterEach(async ({ page }, testInfo) => {
+  if (testInfo.status !== testInfo.expectedStatus) {
+    console.log("=== AUTOCAPTURE_DOM_START ===");
+    try {
+      const html = await page.content();
+      console.log(html);
+    } catch (e: any) {
+      console.log("Could not capture DOM: " + e.message);
+    }
+    console.log("=== AUTOCAPTURE_DOM_END ===");
+  }
+});
+`;
+
+    // Make sure we only inject it once and import test if needed
+    if (!finalScript.includes('=== AUTOCAPTURE_DOM_START ===')) {
+      if (!finalScript.includes("import { test")) {
+        finalScript = `import { test, expect } from '@playwright/test';\n` + finalScript;
+      }
+      // Insert hook right after imports
+      finalScript = finalScript.replace(/(import.*['"]@playwright\/test['"];?)/, `$1\n${afterEachHook}`);
+    }
 
     // Write to a temporary file
     const tmpDir = os.tmpdir();
@@ -61,6 +86,15 @@ export async function POST(
       console.error("Failed to delete tmp file:", e);
     }
 
+    // Extract failed DOM context if present
+    let failedDomContext = null;
+    const domStartMatch = stdout.match(/=== AUTOCAPTURE_DOM_START ===\n([\s\S]*?)\n=== AUTOCAPTURE_DOM_END ===/);
+    if (domStartMatch && domStartMatch[1]) {
+      failedDomContext = domStartMatch[1];
+      // Clean up stdout so we don't bloat the logs UI
+      stdout = stdout.replace(/=== AUTOCAPTURE_DOM_START ===\n[\s\S]*?\n=== AUTOCAPTURE_DOM_END ===\n?/, '');
+    }
+
     // Prepare logs
     const logs = `--- PLAYWRIGHT VERIFICATION LOGS ---\n\nSTDOUT:\n${stdout}\n\nSTDERR:\n${stderr}`;
     
@@ -75,7 +109,8 @@ export async function POST(
     return NextResponse.json({ 
       success: true, 
       passed, 
-      logs 
+      logs,
+      failedDomContext
     });
 
   } catch (error: any) {

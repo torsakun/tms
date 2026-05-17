@@ -12,6 +12,7 @@ interface TestCaseAutomationPanelProps {
 export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: TestCaseAutomationPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [domContext, setDomContext] = useState("");
+  const [autoCapturedDom, setAutoCapturedDom] = useState<string | null>(null);
   const [script, setScript] = useState(testCase.automationScript || "");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isFixing, setIsFixing] = useState(false);
@@ -60,7 +61,7 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
       const res = await fetch(`/api/projects/${projectCode}/cases/${testCase.id}/ai/fix-script`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ script, errorLog: verificationLog, domContext })
+        body: JSON.stringify({ script, errorLog: verificationLog, domContext: autoCapturedDom || domContext })
       });
 
       const data = await res.json();
@@ -85,6 +86,7 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
     setError("");
     setSuccess("");
     setIsVerificationExpanded(true);
+    setAutoCapturedDom(null);
     setVerificationLog("Executing script in background...\nWaiting for Playwright logs...");
 
     try {
@@ -98,6 +100,9 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
       if (!res.ok) throw new Error(data.error || "Verification failed");
 
       setVerificationLog(data.logs);
+      if (data.failedDomContext) {
+        setAutoCapturedDom(data.failedDomContext);
+      }
       if (data.passed) {
         setSuccess("Script verification passed! You can now save it to the case.");
       } else {
@@ -255,6 +260,11 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
               Verification Console Output
             </div>
             <div className="flex items-center space-x-3">
+              {autoCapturedDom && (
+                <div className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded border border-emerald-500/30 text-[10px] font-bold flex items-center">
+                  <CheckCircle2 size={10} className="mr-1" /> DOM Captured
+                </div>
+              )}
               {(verificationLog.includes('failed') || verificationLog.includes('Error') || verificationLog.includes('timeout')) && (
                 <button 
                   onClick={(e) => { e.stopPropagation(); handleAutoFix(); }}
