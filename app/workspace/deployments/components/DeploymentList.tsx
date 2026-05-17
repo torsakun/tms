@@ -6,7 +6,7 @@ import DeploymentLogsModal from "./DeploymentLogsModal";
 import { useRouter } from "next/navigation";
 
 export default function DeploymentList({ initialDeployments }: { initialDeployments: any[] }) {
-  const [deployments, setDeployments]] = useState(initialDeployments);
+  const [deployments, setDeployments] = useState(initialDeployments);
   const [isTriggering, setIsTriggering] = useState(false);
   const [selectedLogId, setSelectedLogId] = useState<string | null>(null);
   const router = useRouter();
