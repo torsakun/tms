@@ -77,6 +77,13 @@ enum FieldType {
   DATE_PICKER
 }
 
+enum DeploymentStatus {
+  PENDING
+  BUILDING
+  SUCCESS
+  FAILED
+}
+
 // --- Auth & User Models ---
 
 model User {
@@ -488,4 +495,17 @@ model AuditLog {
   createdAt   DateTime @default(now())
 
   @@index([projectId, createdAt])
+}
+
+model DeploymentLog {
+  id            String           @id @default(uuid())
+  status        DeploymentStatus @default(PENDING)
+  trigger       String           // e.g., 'GitHub Webhook', 'Manual'
+  logs          String?          @db.Text
+  commitHash    String?
+  commitMessage String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([createdAt])
 }

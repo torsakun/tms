@@ -13,7 +13,8 @@ import {
   List, 
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Terminal
 } from "lucide-react";
 
 export function WorkspaceSidebar() {
@@ -31,6 +32,12 @@ export function WorkspaceSidebar() {
         { name: "Fields", href: `/workspace/fields`, icon: List },
       ]
     },
+    {
+      title: "SYSTEM",
+      items: [
+        { name: "Deployments", href: `/workspace/deployments`, icon: Terminal },
+      ]
+    }
   ];
 
   return (
