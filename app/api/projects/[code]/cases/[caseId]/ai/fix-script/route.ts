@@ -11,7 +11,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
   const { code, caseId } = await params;
   try {
     const body = await req.json();
-    const { script, errorLog, modelProvider = "openai" } = body;
+    const { script, errorLog, domContext, modelProvider = "openai" } = body;
 
     if (!script || !errorLog) {
       return NextResponse.json({ error: "Script and error log are required" }, { status: 400 });
