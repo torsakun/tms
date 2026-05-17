@@ -82,6 +82,7 @@ CRITICAL RULES:
 3. If the DOM context is provided, carefully examine the HTML to find the exact \`placeholder\`, \`aria-label\`, or \`class\` to target.
 4. If a locator fails, DO NOT stubbornly try the exact same locator. Be creative: try \`getByPlaceholder\`, \`locator('input[type="text"]')\`, or use exact text matching.
 5. If the script seems stuck on the wrong page (e.g., trying to search before logging in), you are allowed to inject necessary prerequisite steps (like filling username/password and waiting for navigation).
+6. Compare the current script against the ORIGINAL MANUAL TEST STEPS. If the script is missing actions (e.g., missing a click on a menu item before typing in a search box), you MUST rewrite the script to explicitly include every manual step. Do not skip steps!
 `;
 
     const { text } = await generateText({
