@@ -17,6 +17,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
       return NextResponse.json({ error: "Script and error log are required" }, { status: 400 });
     }
 
+    // Fetch test case steps to provide context to the AI
+    const testCase = await prisma.testCase.findUnique({
+      where: { id: caseId },
+      include: { steps: { orderBy: { position: 'asc' } } }
+    });
+
+    const stepsText = testCase?.steps.map((s, i) => `Step ${i + 1}: ${s.action} (Expected: ${s.expectedResult || "N/A"})`).join("\n") || "No steps available.";
+
     // Fetch API keys from DB
     const settings = await prisma.workspaceSetting.findMany({
       where: {
@@ -51,6 +59,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
 
     const systemPrompt = `You are an expert QA Automation Engineer.
 You are tasked with fixing a broken Playwright script. The script failed during execution with the provided error log.
+
+Here are the ORIGINAL MANUAL TEST STEPS for context on what the script is trying to achieve:
+${stepsText}
 
 Here is the CURRENT BROKEN SCRIPT:
 \`\`\`typescript
