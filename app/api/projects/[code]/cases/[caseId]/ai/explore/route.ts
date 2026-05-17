@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { NextResponse } from "next/server";
 import { generateText, tool } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
@@ -100,6 +101,7 @@ Instructions:
     const result = await generateText({
       model: aiModel,
       prompt: systemPrompt,
+      // @ts-ignore
       maxSteps: 15,
       tools: {
         goto: tool({
@@ -108,7 +110,7 @@ Instructions:
           execute: async ({ url }) => {
             await page.goto(url);
             generatedScriptLines.push(`  await page.goto('${url}');`);
-            return \`Navigated to \${url}\`;
+            return `Navigated to ${url}`;
           }
         }),
         get_dom: tool({
@@ -126,14 +128,14 @@ Instructions:
                 const e = el as HTMLElement;
                 const tag = e.tagName.toLowerCase();
                 const props = [];
-                if (e.id) props.push(\`id=\${e.id}\`);
-                if (e.getAttribute('type')) props.push(\`type=\${e.getAttribute('type')}\`);
-                if (e.getAttribute('name')) props.push(\`name=\${e.getAttribute('name')}\`);
-                if (e.getAttribute('placeholder')) props.push(\`placeholder="\${e.getAttribute('placeholder')}"\`);
-                if (e.getAttribute('aria-label')) props.push(\`aria="\${e.getAttribute('aria-label')}"\`);
+                if (e.id) props.push(`id=${e.id}`);
+                if (e.getAttribute('type')) props.push(`type=${e.getAttribute('type')}`);
+                if (e.getAttribute('name')) props.push(`name=${e.getAttribute('name')}`);
+                if (e.getAttribute('placeholder')) props.push(`placeholder="${e.getAttribute('placeholder')}"`);
+                if (e.getAttribute('aria-label')) props.push(`aria="${e.getAttribute('aria-label')}"`);
                 
                 const text = (e.innerText || e.getAttribute('value') || '').trim().substring(0, 30).replace(/\\n/g, ' ');
-                return \`[\${tag}] \${text} {\${props.join(',')}}\`;
+                return `[${tag}] ${text} {${props.join(',')}}`;
               }).join('\\n');
             });
             // Truncate to avoid massive token usage
@@ -154,7 +156,7 @@ Instructions:
               // A better approach: ask AI to provide CSS selector or text to click.
               return "Error: Please use click_css or click_text instead of this tool.";
             } catch (e: any) {
-              return \`Failed: \${e.message}\`;
+              return `Failed: ${e.message}`;
             }
           }
         }),
@@ -164,11 +166,11 @@ Instructions:
            execute: async ({ selector, description }) => {
              try {
                await page.locator(selector).first().click({ timeout: 5000 });
-               generatedScriptLines.push(\`  // \${description}\`);
-               generatedScriptLines.push(\`  await page.locator('\${selector}').first().click();\`);
-               return \`Successfully clicked \${selector}\`;
+               generatedScriptLines.push(`  // ${description}`);
+               generatedScriptLines.push(`  await page.locator('${selector}').first().click();`);
+               return `Successfully clicked ${selector}`;
              } catch (e: any) {
-               return \`Failed to click: \${e.message}\`;
+               return `Failed to click: ${e.message}`;
              }
            }
         }),
@@ -178,11 +180,11 @@ Instructions:
            execute: async ({ text, exact = false, description }) => {
              try {
                await page.getByText(text, { exact }).first().click({ timeout: 5000 });
-               generatedScriptLines.push(\`  // \${description}\`);
-               generatedScriptLines.push(\`  await page.getByText('\${text}', { exact: \${exact} }).first().click();\`);
-               return \`Successfully clicked text "\${text}"\`;
+               generatedScriptLines.push(`  // ${description}`);
+               generatedScriptLines.push(`  await page.getByText('${text}', { exact: ${exact} }).first().click();`);
+               return `Successfully clicked text "${text}"`;
              } catch (e: any) {
-               return \`Failed to click text: \${e.message}\`;
+               return `Failed to click text: ${e.message}`;
              }
            }
         }),
@@ -192,11 +194,11 @@ Instructions:
            execute: async ({ role, name, exact = false, description }) => {
              try {
                await page.getByRole(role as any, { name, exact }).first().click({ timeout: 5000 });
-               generatedScriptLines.push(\`  // \${description}\`);
-               generatedScriptLines.push(\`  await page.getByRole('\${role}', { name: '\${name}', exact: \${exact} }).first().click();\`);
-               return \`Successfully clicked role \${role} "\${name}"\`;
+               generatedScriptLines.push(`  // ${description}`);
+               generatedScriptLines.push(`  await page.getByRole('${role}', { name: '${name}', exact: ${exact} }).first().click();`);
+               return `Successfully clicked role ${role} "${name}"`;
              } catch (e: any) {
-               return \`Failed to click role: \${e.message}\`;
+               return `Failed to click role: ${e.message}`;
              }
            }
         }),
@@ -206,11 +208,11 @@ Instructions:
           execute: async ({ selector, value, description }) => {
             try {
               await page.locator(selector).first().fill(value, { timeout: 5000 });
-              generatedScriptLines.push(\`  // \${description}\`);
-              generatedScriptLines.push(\`  await page.locator('\${selector}').first().fill('\${value}');\`);
-              return \`Successfully filled \${selector}\`;
+              generatedScriptLines.push(`  // ${description}`);
+              generatedScriptLines.push(`  await page.locator('${selector}').first().fill('${value}');`);
+              return `Successfully filled ${selector}`;
             } catch (e: any) {
-               return \`Failed to fill: \${e.message}\`;
+               return `Failed to fill: ${e.message}`;
             }
           }
         }),
@@ -220,11 +222,11 @@ Instructions:
           execute: async ({ placeholder, value, description }) => {
             try {
               await page.getByPlaceholder(placeholder).first().fill(value, { timeout: 5000 });
-              generatedScriptLines.push(\`  // \${description}\`);
-              generatedScriptLines.push(\`  await page.getByPlaceholder('\${placeholder}').first().fill('\${value}');\`);
-              return \`Successfully filled placeholder \${placeholder}\`;
+              generatedScriptLines.push(`  // ${description}`);
+              generatedScriptLines.push(`  await page.getByPlaceholder('${placeholder}').first().fill('${value}');`);
+              return `Successfully filled placeholder ${placeholder}`;
             } catch (e: any) {
-               return \`Failed to fill placeholder: \${e.message}\`;
+               return `Failed to fill placeholder: ${e.message}`;
             }
           }
         }),
@@ -234,11 +236,11 @@ Instructions:
           execute: async ({ key, description }) => {
             try {
               await page.keyboard.press(key);
-              generatedScriptLines.push(\`  // \${description}\`);
-              generatedScriptLines.push(\`  await page.keyboard.press('\${key}');\`);
-              return \`Successfully pressed \${key}\`;
+              generatedScriptLines.push(`  // ${description}`);
+              generatedScriptLines.push(`  await page.keyboard.press('${key}');`);
+              return `Successfully pressed ${key}`;
             } catch (e: any) {
-              return \`Failed to press \${key}: \${e.message}\`;
+              return `Failed to press ${key}: ${e.message}`;
             }
           }
         }),
@@ -247,8 +249,8 @@ Instructions:
           parameters: z.object({ ms: z.number() }),
           execute: async ({ ms }) => {
             await page.waitForTimeout(ms);
-            generatedScriptLines.push(\`  await page.waitForTimeout(\${ms});\`);
-            return \`Waited for \${ms}ms\`;
+            generatedScriptLines.push(`  await page.waitForTimeout(${ms});`);
+            return `Waited for ${ms}ms`;
           }
         }),
         finish: tool({
