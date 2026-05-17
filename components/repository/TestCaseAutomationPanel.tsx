@@ -60,15 +60,19 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
       const res = await fetch(`/api/projects/${projectCode}/cases/${testCase.id}/ai/fix-script`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ script, errorLog: verificationLog })
+        body: JSON.stringify({ script, errorLog: verificationLog, domContext })
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to fix script");
 
-      setScript(data.script);
-      setSuccess("Script fixed by AI! You can verify it again.");
-      setTimeout(() => setSuccess(""), 4000);
+      if (data.script.trim() === script.trim()) {
+        setSuccess("AI could not find a fix. Try pasting the page HTML into the 'DOM Snippet' field first!");
+      } else {
+        setScript(data.script);
+        setSuccess("Script fixed by AI! You can verify it again.");
+      }
+      setTimeout(() => setSuccess(""), 6000);
     } catch (err: any) {
       setError(err.message);
     } finally {

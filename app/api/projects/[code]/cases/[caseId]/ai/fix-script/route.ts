@@ -62,6 +62,8 @@ Here is the PLAYWRIGHT ERROR LOG:
 ${errorLog}
 \`\`\`
 
+${domContext ? `Here is the PAGE HTML / DOM SNIPPET:\n\`\`\`html\n${domContext}\n\`\`\`\nUse this to find the correct locators for the failing element.` : `Note: No DOM context was provided. If the error is a locator timeout (e.g., getByLabel failed), you MUST try an alternative semantic locator such as page.getByPlaceholder(), page.getByRole(), or a fallback CSS selector like page.locator('input[type="email"]'). Do not just return the exact same script.`}
+
 Analyze the error log, identify why the script failed (e.g. wrong locator, timeout, syntax error), and provide the FIXED script.
 CRITICAL RULES:
 1. ONLY return the fully corrected TypeScript code block. Do not provide explanations or markdown \`\`\` wrappers.
