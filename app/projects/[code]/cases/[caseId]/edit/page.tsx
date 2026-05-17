@@ -16,6 +16,9 @@ import {
   Zap
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 // --- Types matching our Prisma Schema ---
 
@@ -26,6 +29,72 @@ type AutomationStatus = "MANUAL" | "TO_BE_AUTOMATED" | "AUTOMATED";
 interface TestStepInput {
   action: string;
   expectedResult: string;
+}
+
+function SortableStepItem({ field, index, register, remove }: { field: any, index: number, register: any, remove: any }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: field.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="group bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex z-10 relative"
+    >
+      {/* Drag Handle & Number */}
+      <div 
+        {...attributes} 
+        {...listeners}
+        className="w-12 bg-slate-50 border-r border-slate-100 flex flex-col items-center py-4 space-y-2 cursor-grab active:cursor-grabbing hover:bg-slate-100 transition-colors"
+      >
+        <GripVertical size={16} className="text-slate-400" />
+        <span className="text-xs font-bold text-slate-400">{index + 1}</span>
+      </div>
+
+      {/* Step Inputs */}
+      <div className="flex-1 p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Action</label>
+          <textarea
+            {...register(`steps.${index}.action` as const, { required: true })}
+            rows={2}
+            placeholder="Step description..."
+            className="w-full px-3 py-2 text-sm bg-transparent border border-transparent hover:border-slate-200 focus:border-blue-500 focus:bg-slate-50 rounded-md outline-none transition-all resize-none"
+          />
+        </div>
+        <div>
+          <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Expected Result</label>
+          <textarea
+            {...register(`steps.${index}.expectedResult` as const)}
+            rows={2}
+            placeholder="What should happen?"
+            className="w-full px-3 py-2 text-sm bg-transparent border border-transparent hover:border-slate-200 focus:border-blue-500 focus:bg-slate-50 rounded-md outline-none transition-all resize-none"
+          />
+        </div>
+      </div>
+
+      {/* Delete Action */}
+      <div className="w-12 flex items-center justify-center pr-2">
+        <button
+          type="button"
+          onClick={() => remove(index)}
+          className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+        >
+          <Trash2 size={18} />
+        </button>
+      </div>
+    </div>
+  );
 }
 
 interface TestCaseFormValues {
@@ -62,6 +131,22 @@ export default function TestCaseEditor() {
     control,
     name: "steps",
   });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event;
+    if (active && over && active.id !== over.id) {
+      const oldIndex = fields.findIndex((item) => item.id === active.id);
+      const newIndex = fields.findIndex((item) => item.id === over.id);
+      move(oldIndex, newIndex);
+    }
+  };
 
   const [isSharedStepsModalOpen, setIsSharedStepsModalOpen] = React.useState(false);
   const [sharedStepsList, setSharedStepsList] = React.useState<any[]>([]);
@@ -339,51 +424,26 @@ export default function TestCaseEditor() {
           </div>
 
           <div className="space-y-3">
-            {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="group bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex"
+            <DndContext 
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext 
+                items={fields.map(f => f.id)}
+                strategy={verticalListSortingStrategy}
               >
-                {/* Drag Handle & Number */}
-                <div className="w-12 bg-slate-50 border-r border-slate-100 flex flex-col items-center py-4 space-y-2">
-                  <GripVertical size={16} className="text-slate-300 cursor-grab active:cursor-grabbing" />
-                  <span className="text-xs font-bold text-slate-400">{index + 1}</span>
-                </div>
-
-                {/* Step Inputs */}
-                <div className="flex-1 p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Action</label>
-                    <textarea
-                      {...register(`steps.${index}.action` as const, { required: true })}
-                      rows={2}
-                      placeholder="Step description..."
-                      className="w-full px-3 py-2 text-sm bg-transparent border border-transparent hover:border-slate-200 focus:border-blue-500 focus:bg-slate-50 rounded-md outline-none transition-all resize-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Expected Result</label>
-                    <textarea
-                      {...register(`steps.${index}.expectedResult` as const)}
-                      rows={2}
-                      placeholder="What should happen?"
-                      className="w-full px-3 py-2 text-sm bg-transparent border border-transparent hover:border-slate-200 focus:border-blue-500 focus:bg-slate-50 rounded-md outline-none transition-all resize-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Delete Action */}
-                <div className="w-12 flex items-center justify-center pr-2">
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              </div>
-            ))}
+                {fields.map((field, index) => (
+                  <SortableStepItem 
+                    key={field.id} 
+                    field={field} 
+                    index={index} 
+                    register={register} 
+                    remove={remove} 
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
           </div>
 
           <div className="flex space-x-4 mt-6">
