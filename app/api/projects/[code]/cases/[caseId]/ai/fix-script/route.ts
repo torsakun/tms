@@ -69,6 +69,7 @@ CRITICAL RULES:
 1. ONLY return the fully corrected TypeScript code block. Do not provide explanations or markdown \`\`\` wrappers.
 2. In Playwright, ALWAYS use page.getByLabel() instead of getByLabelText().
 3. Do not modify the overall test structure, only fix the specific lines that caused the error.
+4. If a locator timeout occurs immediately after page.goto(), the URL might be redirecting to a page without that element (e.g., navigating to '/' and redirecting to '/dashboards' instead of a login page). Adjust the page.goto() URL (e.g., add '/login' or '/api/auth/signin') if necessary.
 `;
 
     const { text } = await generateText({
