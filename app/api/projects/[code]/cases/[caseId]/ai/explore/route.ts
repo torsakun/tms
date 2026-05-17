@@ -88,20 +88,21 @@ ${stepsText}
 
 Instructions:
 1. You have a real browser attached. Use your tools to navigate to the target app and perform the actions.
-2. START by using the 'goto' tool to navigate to the starting URL. (If one was provided, use it. Otherwise, figure it out or ask for one).
-3. To find out what to click or fill, use the 'get_dom' tool. It will return a simplified list of interactive elements on the screen.
-4. When you know what to do, use 'click', 'fill', or 'press'.
-5. Every time you use a tool successfully, the corresponding Playwright code is automatically saved to the final script.
-6. When all test steps have been executed successfully, call the 'finish' tool. Do NOT return markdown code blocks, just use the tools!`;
+2. If you are already at the starting URL, DO NOT use 'goto' again. START by using the 'get_dom' tool to find out what to click or fill.
+3. When you know what to do, use 'click_css', 'click_text', 'fill_css', etc.
+4. Every time you use a tool successfully, the corresponding Playwright code is automatically saved to the final script.
+5. You MUST act using tools. DO NOT just output text.
+6. When ALL test steps have been executed successfully, call the 'finish' tool.`;
 
     if (startUrl) {
-      await page.goto(startUrl);
+      await page.goto(startUrl, { waitUntil: 'networkidle' }).catch(() => {});
       generatedScriptLines.push(`  await page.goto('${startUrl}');`);
     }
 
     const result = await generateText({
       model: aiModel,
-      prompt: systemPrompt,
+      system: systemPrompt,
+      prompt: startUrl ? `I have already navigated to ${startUrl}. Please begin execution by examining the DOM.` : `Please begin execution.`,
       // @ts-ignore
       maxSteps: 15,
       tools: {
