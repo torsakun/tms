@@ -16,7 +16,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
 
   try {
     const body = await req.json();
-    const { startUrl, modelProvider = "openai" } = body;
+    const { startUrl, additionalContext, modelProvider = "openai" } = body;
 
     // Fetch API keys from DB
     const settings = await prisma.workspaceSetting.findMany({
@@ -86,6 +86,7 @@ Your goal is to write a Playwright script that executes the following manual tes
 
 ${stepsText}
 
+${additionalContext ? `Here is additional context or credentials provided by the user:\n${additionalContext}\n` : ''}
 Instructions:
 1. You have a real browser attached. Use your tools to navigate to the target app and perform the actions.
 2. If you are already at the starting URL, DO NOT use 'goto' again. START by using the 'get_dom' tool to find out what to click or fill.

@@ -61,7 +61,7 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
     try {
       // Extract URL from DOM context if provided
       let startUrl = "";
-      const urlMatch = domContext.match(/url\s*:\s*(https?:\/\/[^\s]+)/i);
+      const urlMatch = domContext.match(/url\s*[:=]?\s*(https?:\/\/[^\s]+)/i);
       if (urlMatch) {
         startUrl = urlMatch[1];
       }
@@ -69,7 +69,7 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
       const res = await fetch(`/api/projects/${projectCode}/cases/${testCase.id}/ai/explore`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ startUrl })
+        body: JSON.stringify({ startUrl, additionalContext: domContext })
       });
 
       const data = await res.json();
