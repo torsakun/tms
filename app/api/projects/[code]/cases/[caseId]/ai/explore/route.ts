@@ -103,6 +103,7 @@ Instructions:
       model: aiModel,
       system: systemPrompt,
       prompt: startUrl ? `I have already navigated to ${startUrl}. Please begin execution by examining the DOM.` : `Please begin execution.`,
+      toolChoice: "required",
       // @ts-ignore
       maxSteps: 15,
       tools: {
