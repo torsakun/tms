@@ -57,6 +57,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
         break;
     }
 
+    // Truncate domContext if it's too large to avoid token limit errors (30k TPM limit for gpt-4o in some orgs)
+    const MAX_DOM_LENGTH = 50000;
+    const truncatedDom = domContext && domContext.length > MAX_DOM_LENGTH 
+      ? domContext.substring(0, MAX_DOM_LENGTH) + "\n...[DOM TRUNCATED DUE TO SIZE]..." 
+      : domContext;
+
     const systemPrompt = `You are an expert QA Automation Engineer.
 You are tasked with fixing a broken Playwright script. The script failed during execution with the provided error log.
 
@@ -73,7 +79,7 @@ Here is the PLAYWRIGHT ERROR LOG:
 ${errorLog}
 \`\`\`
 
-${domContext ? `Here is the PAGE HTML / DOM SNIPPET:\n\`\`\`html\n${domContext}\n\`\`\`\nUse this to find the correct locators for the failing element.` : `Note: No DOM context was provided. If the error is a locator timeout (e.g., getByLabel failed), you MUST try an alternative semantic locator such as page.getByPlaceholder(), page.getByRole(), or a fallback CSS selector like page.locator('input[type="email"]'). Do not just return the exact same script.`}
+${truncatedDom ? `Here is the PAGE HTML / DOM SNIPPET:\n\`\`\`html\n${truncatedDom}\n\`\`\`\nUse this to find the correct locators for the failing element.` : `Note: No DOM context was provided. If the error is a locator timeout (e.g., getByLabel failed), you MUST try an alternative semantic locator such as page.getByPlaceholder(), page.getByRole(), or a fallback CSS selector like page.locator('input[type="email"]'). Do not just return the exact same script.`}
 
 Analyze the error log, identify why the script failed (e.g. wrong locator, timeout, syntax error), and provide the FIXED script.
 CRITICAL RULES:
