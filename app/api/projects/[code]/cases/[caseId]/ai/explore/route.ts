@@ -110,6 +110,7 @@ Instructions:
 
     while (!isFinished && stepCount < MAX_STEPS) {
       stepCount++;
+      console.log(`[AI Explorer] Step ${stepCount} starting...`);
       const result = await generateText({
         model: aiModel,
         system: systemPrompt,
@@ -178,6 +179,7 @@ Instructions:
            execute: async ({ selector, description }) => {
              try {
                await page.locator(selector).first().click({ timeout: 5000 });
+               await page.waitForLoadState('networkidle').catch(() => {});
                generatedScriptLines.push(`  // ${description}`);
                generatedScriptLines.push(`  await page.locator('${selector}').first().click();`);
                return `Successfully clicked ${selector}`;
@@ -192,6 +194,7 @@ Instructions:
            execute: async ({ text, exact = false, description }) => {
              try {
                await page.getByText(text, { exact }).first().click({ timeout: 5000 });
+               await page.waitForLoadState('networkidle').catch(() => {});
                generatedScriptLines.push(`  // ${description}`);
                generatedScriptLines.push(`  await page.getByText('${text}', { exact: ${exact} }).first().click();`);
                return `Successfully clicked text "${text}"`;
@@ -206,6 +209,7 @@ Instructions:
            execute: async ({ role, name, exact = false, description }) => {
              try {
                await page.getByRole(role as any, { name, exact }).first().click({ timeout: 5000 });
+               await page.waitForLoadState('networkidle').catch(() => {});
                generatedScriptLines.push(`  // ${description}`);
                generatedScriptLines.push(`  await page.getByRole('${role}', { name: '${name}', exact: ${exact} }).first().click();`);
                return `Successfully clicked role ${role} "${name}"`;
@@ -273,6 +277,8 @@ Instructions:
       }
     });
 
+      console.log(`[AI Explorer] Step ${stepCount} result:`, { text: result.text, toolCalls: result.toolCalls?.map((tc: any) => tc.toolName) });
+      
       // Append assistant's response to history
       if (result.response && result.response.messages) {
         messages = messages.concat(result.response.messages);
