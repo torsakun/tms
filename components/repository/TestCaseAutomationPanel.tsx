@@ -435,9 +435,17 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
           <div className="absolute bottom-6 right-6 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
             <button 
               onClick={handleGenerate}
-              className="px-3 py-1.5 bg-surface border border-border rounded-md text-xs font-semibold text-text-main hover:bg-surface-hover flex items-center shadow-sm"
+              className="px-3 py-1.5 bg-surface border border-border rounded-md text-xs font-semibold text-text-main hover:bg-surface-hover flex items-center shadow-sm disabled:opacity-50"
+              disabled={isGenerating || isExploring}
             >
-              <Sparkles size={12} className="mr-1.5 text-amber-500" /> Re-generate
+              {isGenerating ? <Loader2 size={12} className="mr-1.5 animate-spin" /> : <Code size={12} className="mr-1.5" />} Zero-shot
+            </button>
+            <button 
+              onClick={handleExplore}
+              className="px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-md text-xs font-semibold text-primary hover:bg-primary/20 flex items-center shadow-sm disabled:opacity-50"
+              disabled={isGenerating || isExploring}
+            >
+              {isExploring ? <Loader2 size={12} className="mr-1.5 animate-spin" /> : <Sparkles size={12} className="mr-1.5" />} Re-explore (Agentic)
             </button>
           </div>
         </div>
