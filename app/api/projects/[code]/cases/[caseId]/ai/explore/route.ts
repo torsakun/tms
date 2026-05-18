@@ -140,6 +140,10 @@ Identify the EXACT action type and locator needed.
 
 Respond strictly in JSON.`;
 
+          if (lastError) {
+            prompt += `\n\nWARNING: Your previous attempt failed with error: ${lastError}. Do NOT repeat the exact same action. Try a different selector (e.g. use fill_css instead of fill_placeholder, or use a more specific css selector).`;
+          }
+
         try {
           const result = await generateObject({
             model: aiModel,
@@ -200,14 +204,23 @@ Respond strictly in JSON.`;
           success = true;
         } catch (e: any) {
           console.error(`[AI Explorer] Failed to execute step ${i + 1} (Attempt ${attempt}):`, e.message);
+          lastError = e.message;
           if (attempt < maxAttempts) {
             await page.waitForTimeout(3000);
           } else {
             const safeErrorMessage = e.message.replace(/\n/g, '\n  // ');
-            generatedScriptLines.push(`  // FAILED to execute: ${safeErrorMessage}`);
+            generatedScriptLines.push(`  // FAILED to execute step: ${safeErrorMessage}`);
+            break; // Break the attempt loop
           }
         }
       }
+      
+      // If we failed to execute this step after all attempts, abort the rest of the test case
+      if (!success) {
+        generatedScriptLines.push(`  // ABORTING test generation because step ${i + 1} failed.`);
+        break;
+      }
+
       
       // Add explicit delay in generated script to mimic Explorer's wait behavior for SPA transitions
       if (success) {
@@ -266,6 +279,10 @@ Generate Playwright assertions to verify this expected result is met on the curr
 
 Respond strictly in JSON.`;
 
+          if (lastAssertionError) {
+            assertionPrompt += `\n\nWARNING: Your previous attempt failed with error: ${lastAssertionError}. Do NOT repeat the exact same assertion.`;
+          }
+
           try {
             const assertionResult = await generateObject({
               model: aiModel,
@@ -307,11 +324,13 @@ Respond strictly in JSON.`;
             assertionSuccess = true;
           } catch (e: any) {
             console.error(`[AI Explorer] Failed to generate assertion for step ${i + 1}:`, e.message);
+            lastAssertionError = e.message;
             if (assertionAttempt < maxAttempts) {
               await page.waitForTimeout(3000);
             } else {
               const safeErrorMessage = e.message.replace(/\n/g, '\n  // ');
               generatedScriptLines.push(`  // FAILED to generate assertion: ${safeErrorMessage}`);
+              break;
             }
           }
         }
