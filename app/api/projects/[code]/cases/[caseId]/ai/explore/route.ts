@@ -138,8 +138,8 @@ Respond strictly in JSON.`;
           model: aiModel,
           schema: z.object({
             action: z.enum(['click_css', 'click_text', 'fill_css', 'fill_placeholder', 'press_key', 'goto', 'none']),
-            selector_or_text: z.string().optional().describe("CSS selector, exact text, placeholder, or URL depending on action"),
-            value: z.string().optional().describe("Value to fill if action is fill_css or fill_placeholder"),
+            selector_or_text: z.string().describe("CSS selector, exact text, placeholder, or URL depending on action. Use empty string if not needed."),
+            value: z.string().describe("Value to fill if action is fill_css or fill_placeholder. Use empty string if not needed."),
             reason: z.string().describe("Brief explanation of why this locator was chosen")
           }),
           prompt
