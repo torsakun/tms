@@ -145,7 +145,7 @@ Respond strictly in JSON.`;
             model: aiModel,
             schema: z.object({
               actions: z.array(z.object({
-                type: z.enum(['click_css', 'click_text', 'fill_css', 'fill_placeholder', 'press_key', 'goto', 'none']),
+                type: z.enum(['click_css', 'click_text', 'fill_css', 'fill_placeholder', 'press_key', 'none']),
                 selector_or_text: z.string().describe("CSS selector, exact text, placeholder, or URL depending on action. Use empty string if not needed."),
                 value: z.string().describe("Value to fill if action is fill_css or fill_placeholder. Use empty string if not needed.")
               })).describe("A list of sequential Playwright actions needed to fully accomplish this test step."),
