@@ -208,6 +208,108 @@ Respond strictly in JSON.`;
           }
         }
       }
+
+      // --- PHASE 2: Assertion Generation ---
+      if (success && step.expectedResult) {
+        console.log(`[AI Explorer] Processing Phase 2 (Assertions) for Step ${i + 1}: ${step.expectedResult}`);
+        generatedScriptLines.push(`  // Verify Expected: ${step.expectedResult}`);
+        
+        let assertionAttempt = 0;
+        let assertionSuccess = false;
+
+        while (assertionAttempt < maxAttempts && !assertionSuccess) {
+          assertionAttempt++;
+          
+          // 1. Capture NEW DOM
+          const newDom = await page.evaluate(() => {
+            const elements = document.querySelectorAll('button, a, input, select, textarea, [role="button"], [role="link"], [role="textbox"], [role="menuitem"], h1, h2, h3, h4, p, span, div');
+            const visibleElements = Array.from(elements).filter((el) => {
+              const e = el as HTMLElement;
+              // Ignore very large wrapper divs to save tokens, focus on content
+              if (e.tagName.toLowerCase() === 'div' && e.children.length > 3) return false;
+              return e.offsetWidth > 0 && e.offsetHeight > 0 && window.getComputedStyle(e).visibility !== 'hidden' && window.getComputedStyle(e).display !== 'none';
+            });
+            
+            return visibleElements.map(el => {
+              const e = el as HTMLElement;
+              const tag = e.tagName.toLowerCase();
+              const text = (e.innerText || e.getAttribute('value') || '').trim().substring(0, 50).replace(/\n/g, ' ');
+              if (!text) return null; // Skip empty elements for assertions
+              
+              const props = [];
+              if (e.id) props.push(`id=${e.id}`);
+              if (e.className && typeof e.className === 'string') props.push(`class=${e.className.split(' ')[0]}`); // Only take first class to save space
+              if (e.getAttribute('placeholder')) props.push(`placeholder="${e.getAttribute('placeholder')}"`);
+              
+              return `[${tag}] ${text} {${props.join(',')}}`;
+            }).filter(Boolean).join('\n');
+          });
+          
+          const simplifiedNewDom = newDom.substring(0, 8000) || "No visible text elements.";
+
+          // 2. Query AI for Assertions
+          const assertionPrompt = `You are a QA Expert. The previous action was executed.
+Here is the NEW HTML/DOM of the current page (visible elements):
+${simplifiedNewDom}
+
+The user's EXPECTED RESULT for this step is: "${step.expectedResult}"
+Generate Playwright assertions to verify this expected result is met on the current page.
+- Use 'assert_text' if you expect certain text to appear. The selector_or_text MUST be the exact text.
+- Use 'assert_css' if you expect a specific CSS selector to be visible.
+- Use 'assert_placeholder' if you expect an input with a specific placeholder.
+
+Respond strictly in JSON.`;
+
+          try {
+            const assertionResult = await generateObject({
+              model: aiModel,
+              schema: z.object({
+                assertions: z.array(z.object({
+                  type: z.enum(['assert_text', 'assert_css', 'assert_placeholder', 'none']),
+                  selector_or_text: z.string().describe("CSS selector, exact text, or placeholder to assert. Use empty string if not needed.")
+                })).describe("A list of Playwright assertions to verify the expected result."),
+                reason: z.string().describe("Brief explanation")
+              }),
+              prompt: assertionPrompt
+            });
+
+            const { assertions, reason } = assertionResult.object;
+            console.log(`[AI Explorer] AI Assertion Decision for Step ${i + 1} (Attempt ${assertionAttempt}):`, assertionResult.object);
+
+            if (assertions.length === 0 || assertions.every(a => a.type === 'none')) {
+              if (assertionAttempt < maxAttempts) {
+                console.log(`[AI Explorer] AI returned 'none' for assertions. Waiting 3s...`);
+                await page.waitForTimeout(3000);
+                continue;
+              } else {
+                generatedScriptLines.push(`  // AI could not determine assertion: ${reason}`);
+                break;
+              }
+            }
+
+            for (const ast of assertions) {
+              if (ast.type === 'none') continue;
+              
+              if (ast.type === 'assert_text' && ast.selector_or_text) {
+                generatedScriptLines.push(`  await expect(page.getByText('${ast.selector_or_text.replace(/'/g, "\\'")}').first()).toBeVisible();`);
+              } else if (ast.type === 'assert_css' && ast.selector_or_text) {
+                generatedScriptLines.push(`  await expect(page.locator('${ast.selector_or_text.replace(/'/g, "\\'")}').first()).toBeVisible();`);
+              } else if (ast.type === 'assert_placeholder' && ast.selector_or_text) {
+                generatedScriptLines.push(`  await expect(page.getByPlaceholder('${ast.selector_or_text.replace(/'/g, "\\'")}').first()).toBeVisible();`);
+              }
+            }
+            assertionSuccess = true;
+          } catch (e: any) {
+            console.error(`[AI Explorer] Failed to generate assertion for step ${i + 1}:`, e.message);
+            if (assertionAttempt < maxAttempts) {
+              await page.waitForTimeout(3000);
+            } else {
+              const safeErrorMessage = e.message.replace(/\n/g, '\n  // ');
+              generatedScriptLines.push(`  // FAILED to generate assertion: ${safeErrorMessage}`);
+            }
+          }
+        }
+      }
     }
 
     generatedScriptLines.push(`});\n`);
