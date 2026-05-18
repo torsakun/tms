@@ -9,6 +9,7 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "test": "vitest run",
+    "test:report": "vitest run --reporter=default --reporter=junit --outputFile.junit=reports/vitest/junit.xml",
     "test:watch": "vitest"
   },
   "dependencies": {
