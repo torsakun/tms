@@ -134,7 +134,7 @@ ${additionalContext || 'None'}
 The user wants to perform this test step: "${step.action}"
 Identify the EXACT action type and locator needed.
 - If the step requires clicking a button/link, use 'click_css' or 'click_text'.
-- If the step requires filling a text field, use 'fill_css' or 'fill_placeholder' and provide the 'value'.
+- If the step requires filling a text field, use 'fill_css' or 'fill_placeholder' and provide the 'value'. ONLY use a placeholder if it exactly matches the text inside {placeholder="..."} in the provided HTML/DOM. Do not hallucinate placeholders.
 - If the step requires pressing a keyboard key, use 'press_key'.
 - If the step requires navigating, use 'goto'.
 
@@ -203,7 +203,8 @@ Respond strictly in JSON.`;
           if (attempt < maxAttempts) {
             await page.waitForTimeout(3000);
           } else {
-            generatedScriptLines.push(`  // FAILED to execute: ${e.message}`);
+            const safeErrorMessage = e.message.replace(/\n/g, '\n  // ');
+            generatedScriptLines.push(`  // FAILED to execute: ${safeErrorMessage}`);
           }
         }
       }
