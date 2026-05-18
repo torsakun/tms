@@ -1,5 +1,9 @@
 import { withAuth } from "next-auth/middleware";
-export default withAuth;
+export default withAuth({
+  pages: {
+    signIn: "/login",
+  },
+});
 
 export const config = {
   // Prevent unauthenticated access to system and data APIs
