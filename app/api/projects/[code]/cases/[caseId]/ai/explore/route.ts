@@ -124,7 +124,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
         const simplifiedDom = dom.substring(0, 8000) || "No visible interactive elements.";
 
         // 2. Query AI
-        const prompt = `You are a QA Expert building a Playwright script.
+        let prompt = `You are a QA Expert building a Playwright script.
 Here is the highly compressed HTML/DOM of the current page (visible interactive elements only):
 ${simplifiedDom}
 
@@ -267,7 +267,7 @@ Respond strictly in JSON.`;
           const simplifiedNewDom = newDom.substring(0, 8000) || "No visible text elements.";
 
           // 2. Query AI for Assertions
-          const assertionPrompt = `You are a QA Expert. The previous action was executed.
+          let assertionPrompt = `You are a QA Expert. The previous action was executed.
 Here is the NEW HTML/DOM of the current page (visible elements):
 ${simplifiedNewDom}
 
