@@ -137,40 +137,45 @@ Respond strictly in JSON.`;
         const result = await generateObject({
           model: aiModel,
           schema: z.object({
-            action: z.enum(['click_css', 'click_text', 'fill_css', 'fill_placeholder', 'press_key', 'goto', 'none']),
-            selector_or_text: z.string().describe("CSS selector, exact text, placeholder, or URL depending on action. Use empty string if not needed."),
-            value: z.string().describe("Value to fill if action is fill_css or fill_placeholder. Use empty string if not needed."),
-            reason: z.string().describe("Brief explanation of why this locator was chosen")
+            actions: z.array(z.object({
+              type: z.enum(['click_css', 'click_text', 'fill_css', 'fill_placeholder', 'press_key', 'goto', 'none']),
+              selector_or_text: z.string().describe("CSS selector, exact text, placeholder, or URL depending on action. Use empty string if not needed."),
+              value: z.string().describe("Value to fill if action is fill_css or fill_placeholder. Use empty string if not needed.")
+            })).describe("A list of sequential Playwright actions needed to fully accomplish this test step."),
+            reason: z.string().describe("Brief explanation of why these actions were chosen")
           }),
           prompt
         });
 
-        const { action, selector_or_text, value, reason } = result.object;
+        const { actions, reason } = result.object;
         console.log(`[AI Explorer] AI Decision for Step ${i + 1}:`, result.object);
 
-        // 3. Execute
-        if (action === 'click_css' && selector_or_text) {
-          await page.locator(selector_or_text).first().click({ timeout: 5000 });
-          await page.waitForLoadState('networkidle').catch(() => {});
-          generatedScriptLines.push(`  await page.locator('${selector_or_text.replace(/'/g, "\\'")}').first().click();`);
-        } else if (action === 'click_text' && selector_or_text) {
-          await page.getByText(selector_or_text).first().click({ timeout: 5000 });
-          await page.waitForLoadState('networkidle').catch(() => {});
-          generatedScriptLines.push(`  await page.getByText('${selector_or_text.replace(/'/g, "\\'")}').first().click();`);
-        } else if (action === 'fill_css' && selector_or_text && value !== undefined) {
-          await page.locator(selector_or_text).first().fill(value, { timeout: 5000 });
-          generatedScriptLines.push(`  await page.locator('${selector_or_text.replace(/'/g, "\\'")}').first().fill('${value.replace(/'/g, "\\'")}');`);
-        } else if (action === 'fill_placeholder' && selector_or_text && value !== undefined) {
-          await page.getByPlaceholder(selector_or_text).first().fill(value, { timeout: 5000 });
-          generatedScriptLines.push(`  await page.getByPlaceholder('${selector_or_text.replace(/'/g, "\\'")}').first().fill('${value.replace(/'/g, "\\'")}');`);
-        } else if (action === 'press_key' && selector_or_text) {
-          await page.keyboard.press(selector_or_text);
-          generatedScriptLines.push(`  await page.keyboard.press('${selector_or_text}');`);
-        } else if (action === 'goto' && selector_or_text) {
-          await page.goto(selector_or_text, { waitUntil: 'networkidle' }).catch(() => {});
-          generatedScriptLines.push(`  await page.goto('${selector_or_text}');`);
-        } else {
-          generatedScriptLines.push(`  // AI could not determine action: ${reason}`);
+        // 3. Execute Actions Sequentially
+        for (const act of actions) {
+          const { type: action, selector_or_text, value } = act;
+          if (action === 'none') continue;
+          
+          if (action === 'click_css' && selector_or_text) {
+            await page.locator(selector_or_text).first().click({ timeout: 5000 });
+            await page.waitForLoadState('networkidle').catch(() => {});
+            generatedScriptLines.push(`  await page.locator('${selector_or_text.replace(/'/g, "\\'")}').first().click();`);
+          } else if (action === 'click_text' && selector_or_text) {
+            await page.getByText(selector_or_text).first().click({ timeout: 5000 });
+            await page.waitForLoadState('networkidle').catch(() => {});
+            generatedScriptLines.push(`  await page.getByText('${selector_or_text.replace(/'/g, "\\'")}').first().click();`);
+          } else if (action === 'fill_css' && selector_or_text && value !== undefined) {
+            await page.locator(selector_or_text).first().fill(value, { timeout: 5000 });
+            generatedScriptLines.push(`  await page.locator('${selector_or_text.replace(/'/g, "\\'")}').first().fill('${value.replace(/'/g, "\\'")}');`);
+          } else if (action === 'fill_placeholder' && selector_or_text && value !== undefined) {
+            await page.getByPlaceholder(selector_or_text).first().fill(value, { timeout: 5000 });
+            generatedScriptLines.push(`  await page.getByPlaceholder('${selector_or_text.replace(/'/g, "\\'")}').first().fill('${value.replace(/'/g, "\\'")}');`);
+          } else if (action === 'press_key' && selector_or_text) {
+            await page.keyboard.press(selector_or_text);
+            generatedScriptLines.push(`  await page.keyboard.press('${selector_or_text}');`);
+          } else if (action === 'goto' && selector_or_text) {
+            await page.goto(selector_or_text, { waitUntil: 'networkidle' }).catch(() => {});
+            generatedScriptLines.push(`  await page.goto('${selector_or_text}');`);
+          }
         }
       } catch (e: any) {
         console.error(`[AI Explorer] Failed to execute step ${i + 1}:`, e.message);

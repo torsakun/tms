@@ -4,6 +4,8 @@ export default withAuth;
 export const config = {
   // Prevent unauthenticated access to system and data APIs
   matcher: [
+    "/",
+    "/dashboards/:path*",
     "/projects/:path*", 
     "/workspace/:path*",
     "/settings/:path*",
