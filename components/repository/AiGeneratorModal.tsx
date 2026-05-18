@@ -86,7 +86,15 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
     setError("");
 
     try {
-      const cleanTicketId = jiraTicketId.trim();
+      let cleanTicketId = jiraTicketId.trim();
+      
+      // Auto-extract ticket ID if user pastes a full Jira URL
+      const urlMatch = cleanTicketId.match(/\/browse\/([A-Z0-9]+-\d+)/i);
+      if (urlMatch && urlMatch[1]) {
+        cleanTicketId = urlMatch[1];
+        setJiraTicketId(cleanTicketId); // update UI
+      }
+      
       const res = await fetch(`/api/integrations/jira/issue?ticketId=${encodeURIComponent(cleanTicketId)}`);
       const data = await res.json();
       
