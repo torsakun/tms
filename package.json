@@ -9,6 +9,7 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "test": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:report": "vitest run --reporter=default --reporter=junit --outputFile.junit=reports/vitest/junit.xml",
     "test:report:html": "node scripts/vitest-html-report.mjs",
     "test:system": "playwright test",
