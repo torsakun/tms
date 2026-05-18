@@ -27,7 +27,7 @@ const testCaseSchema = z.object({
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { requirementText, modelProvider, imageBase64 } = body;
+    const { requirementText, modelProvider, imagesBase64 } = body;
 
     if (!requirementText) {
       return NextResponse.json({ error: "requirementText is required" }, { status: 400 });
@@ -65,6 +65,11 @@ export async function POST(req: Request) {
         break;
     }
 
+    // Prepare image content parts
+    const imageParts = (imagesBase64 && Array.isArray(imagesBase64))
+      ? imagesBase64.map((img: string) => ({ type: 'image', image: img }))
+      : [];
+
     const { object } = await generateObject({
       model: aiModel,
       schema: testCaseSchema,
@@ -87,7 +92,7 @@ LANGUAGE & TONE GUIDELINES:
 Requirement:
 ${requirementText}` 
             },
-            ...(imageBase64 ? [{ type: 'image', image: imageBase64 }] : [])
+            ...imageParts
           ] as any // Use 'any' cast to avoid complex type checking issues across different model SDK versions
         }
       ]

@@ -35,6 +35,7 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
   
   const [generatedCases, setGeneratedCases] = useState<any[]>([]);
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
+  const [fetchedJiraImages, setFetchedJiraImages] = useState<string[]>([]);
   
   const [error, setError] = useState("");
 
@@ -101,6 +102,11 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
       if (!res.ok) throw new Error(data.error || "Failed to fetch Jira ticket");
       
       setRequirementText(data.requirementText);
+      if (data.imagesBase64 && Array.isArray(data.imagesBase64)) {
+        setFetchedJiraImages(data.imagesBase64);
+      } else {
+        setFetchedJiraImages([]);
+      }
       setActiveTab("TEXT"); // Switch back to text to show the fetched content
     } catch (err: any) {
       setError(err.message);
@@ -127,13 +133,20 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
     setStep("LOADING");
 
     try {
+      let imagesPayload: string[] = [];
+      if (activeTab === "IMAGE" && imageBase64) {
+        imagesPayload = [imageBase64];
+      } else if (activeTab === "TEXT" && fetchedJiraImages.length > 0) {
+        imagesPayload = fetchedJiraImages;
+      }
+
       const res = await fetch(`/api/projects/${projectCode}/ai/generate-cases`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           requirementText: activeTab === "IMAGE" ? "Analyze the provided UI mockup/image." : requirementText, 
           modelProvider,
-          imageBase64: activeTab === "IMAGE" ? imageBase64 : undefined
+          imagesBase64: imagesPayload.length > 0 ? imagesPayload : undefined
         })
       });
 
@@ -290,6 +303,16 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
                       placeholder="Paste your acceptance criteria, or import a file..."
                       className="w-full flex-1 min-h-[200px] px-4 py-3 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none shadow-sm placeholder:text-text-muted/50"
                     />
+                    {fetchedJiraImages.length > 0 && (
+                      <div className="mt-3">
+                        <label className="block text-xs font-semibold text-text-muted mb-2">Attachments from Jira</label>
+                        <div className="flex space-x-2 overflow-x-auto pb-2">
+                          {fetchedJiraImages.map((img, idx) => (
+                            <img key={idx} src={img} alt={`Attachment ${idx+1}`} className="h-16 w-16 object-cover rounded border border-border shrink-0" />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

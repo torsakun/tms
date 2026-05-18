@@ -91,7 +91,38 @@ export async function GET(req: Request) {
 
     const fullRequirement = `[Jira Ticket: ${ticketId}]\nTitle: ${summary}\n\nDescription:\n${descriptionText.trim()}`;
 
-    return NextResponse.json({ requirementText: fullRequirement });
+    // Fetch and process image attachments
+    const attachments = data.fields?.attachment || [];
+    const imageAttachments = attachments.filter((att: any) => att.mimeType && att.mimeType.startsWith('image/'));
+    
+    const imagesBase64: string[] = [];
+    
+    for (const att of imageAttachments) {
+      if (!att.content) continue;
+      try {
+        const attResponse = await fetch(att.content, {
+          method: 'GET',
+          headers: {
+            'Authorization': authHeader
+          }
+        });
+        
+        if (attResponse.ok) {
+          const buffer = await attResponse.arrayBuffer();
+          const base64Data = Buffer.from(buffer).toString('base64');
+          imagesBase64.push(`data:${att.mimeType};base64,${base64Data}`);
+        } else {
+          console.error(`Failed to fetch attachment ${att.id} (${att.filename}): Status ${attResponse.status}`);
+        }
+      } catch (err) {
+        console.error(`Error fetching attachment ${att.id}:`, err);
+      }
+    }
+
+    return NextResponse.json({ 
+      requirementText: fullRequirement,
+      imagesBase64: imagesBase64 
+    });
 
   } catch (error: any) {
     console.error("Jira fetch error:", error);
