@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { NextResponse } from "next/server";
-import { generateText, tool } from "ai";
+import { generateObject } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createAnthropic } from "@ai-sdk/anthropic";
@@ -81,242 +81,100 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
     generatedScriptLines.push(``);
     generatedScriptLines.push(`test('${testCase.title.replace(/'/g, "\\'")}', async ({ page }) => {`);
 
-    const systemPrompt = `You are an Autonomous Testing Agent. 
-Your goal is to write a Playwright script that executes the following manual test steps:
-
-${stepsText}
-
-${additionalContext ? `Here is additional context or credentials provided by the user:\n${additionalContext}\n` : ''}
-Instructions:
-1. You have a real browser attached. Use your tools to navigate to the target app and perform the actions.
-2. If you are already at the starting URL, DO NOT use 'goto' again. START by using the 'get_dom' tool to find out what to click or fill.
-3. When you know what to do, use 'click_css', 'click_text', 'fill_css', etc.
-4. Every time you use a tool successfully, the corresponding Playwright code is automatically saved to the final script.
-5. You MUST act using tools. DO NOT just output text.
-6. When ALL test steps have been executed successfully, call the 'finish' tool.`;
-
-    if (startUrl) {
+        if (startUrl) {
       await page.goto(startUrl, { waitUntil: 'networkidle' }).catch(() => {});
       generatedScriptLines.push(`  await page.goto('${startUrl}');`);
     }
 
-    let messages: any[] = [
-      { role: "user", content: startUrl ? `I have already navigated to ${startUrl}. Please begin execution by examining the DOM.` : `Please begin execution.` }
-    ];
+    for (let i = 0; i < testCase.steps.length; i++) {
+      const step = testCase.steps[i];
+      console.log(`[AI Explorer] Processing Step ${i + 1}: ${step.action}`);
+      generatedScriptLines.push(`  // Step ${i + 1}: ${step.action}`);
 
-    let isFinished = false;
-    let stepCount = 0;
-    const MAX_STEPS = 15;
-
-    while (!isFinished && stepCount < MAX_STEPS) {
-      stepCount++;
-      console.log(`[AI Explorer] Step ${stepCount} starting...`);
-      const result = await generateText({
-        model: aiModel,
-        system: systemPrompt,
-        messages,
-        toolChoice: "required",
-        tools: {
-        goto: tool({
-          description: 'Navigate to a URL',
-          inputSchema: z.object({ url: z.string() }),
-          execute: async ({ url }) => {
-            await page.goto(url);
-            generatedScriptLines.push(`  await page.goto('${url}');`);
-            return `Navigated to ${url}`;
-          }
-        }),
-        get_dom: tool({
-          description: 'Get a simplified, highly compressed list of VISIBLE interactive elements on the screen to find locators. Use this sparingly to save tokens.',
-          inputSchema: z.object({}),
-          execute: async () => {
-            const dom = await page.evaluate(() => {
-              const elements = document.querySelectorAll('button, a, input, select, textarea, [role="button"], [role="link"], [role="textbox"], [role="menuitem"]');
-              const visibleElements = Array.from(elements).filter((el) => {
-                const e = el as HTMLElement;
-                return e.offsetWidth > 0 && e.offsetHeight > 0 && window.getComputedStyle(e).visibility !== 'hidden' && window.getComputedStyle(e).display !== 'none';
-              });
-              
-              return visibleElements.map(el => {
-                const e = el as HTMLElement;
-                const tag = e.tagName.toLowerCase();
-                const props = [];
-                if (e.id) props.push(`id=${e.id}`);
-                if (e.getAttribute('type')) props.push(`type=${e.getAttribute('type')}`);
-                if (e.getAttribute('name')) props.push(`name=${e.getAttribute('name')}`);
-                if (e.getAttribute('placeholder')) props.push(`placeholder="${e.getAttribute('placeholder')}"`);
-                if (e.getAttribute('aria-label')) props.push(`aria="${e.getAttribute('aria-label')}"`);
-                
-                const text = (e.innerText || e.getAttribute('value') || '').trim().substring(0, 30).replace(/\\n/g, ' ');
-                return `[${tag}] ${text} {${props.join(',')}}`;
-              }).join('\\n');
-            });
-            // Truncate to avoid massive token usage
-            return dom.substring(0, 4000) || "No visible interactive elements.";
-          }
-        }),
-        click: tool({
-          description: 'Click an element using a Playwright locator string (e.g. "page.getByRole(\'button\', { name: \'Login\' })" or "page.locator(\'input[name=email]\')")',
-          inputSchema: z.object({ 
-            locatorStr: z.string(),
-            description: z.string().describe("A comment describing this step")
-          }),
-          execute: async ({ locatorStr, description }) => {
-            try {
-              // We evaluate the locator in the browser context via playwright's evaluate Handle or just using page.locator directly if it's a standard selector.
-              // Since the AI provides Playwright code like "page.getByRole('button')", we need to translate that.
-              // To make it safe and easy, let's ask the AI to provide standard CSS or Text selectors, OR we just eval it.
-              // A better approach: ask AI to provide CSS selector or text to click.
-              return "Error: Please use click_css or click_text instead of this tool.";
-            } catch (e: any) {
-              return `Failed: ${e.message}`;
-            }
-          }
-        }),
-        click_css: tool({
-           description: 'Click an element by CSS selector (e.g. "button.login-btn")',
-           inputSchema: z.object({ selector: z.string(), description: z.string() }),
-           execute: async ({ selector, description }) => {
-             try {
-               await page.locator(selector).first().click({ timeout: 5000 });
-               await page.waitForLoadState('networkidle').catch(() => {});
-               generatedScriptLines.push(`  // ${description}`);
-               generatedScriptLines.push(`  await page.locator('${selector}').first().click();`);
-               return `Successfully clicked ${selector}`;
-             } catch (e: any) {
-               return `Failed to click: ${e.message}`;
-             }
-           }
-        }),
-        click_text: tool({
-           description: 'Click an element by its exact or partial text (e.g. "Sign in")',
-           inputSchema: z.object({ text: z.string(), exact: z.boolean().optional(), description: z.string() }),
-           execute: async ({ text, exact = false, description }) => {
-             try {
-               await page.getByText(text, { exact }).first().click({ timeout: 5000 });
-               await page.waitForLoadState('networkidle').catch(() => {});
-               generatedScriptLines.push(`  // ${description}`);
-               generatedScriptLines.push(`  await page.getByText('${text}', { exact: ${exact} }).first().click();`);
-               return `Successfully clicked text "${text}"`;
-             } catch (e: any) {
-               return `Failed to click text: ${e.message}`;
-             }
-           }
-        }),
-        click_role: tool({
-           description: 'Click an element by its Aria Role and Name (e.g. role "button", name "Login")',
-           inputSchema: z.object({ role: z.string(), name: z.string(), exact: z.boolean().optional(), description: z.string() }),
-           execute: async ({ role, name, exact = false, description }) => {
-             try {
-               await page.getByRole(role as any, { name, exact }).first().click({ timeout: 5000 });
-               await page.waitForLoadState('networkidle').catch(() => {});
-               generatedScriptLines.push(`  // ${description}`);
-               generatedScriptLines.push(`  await page.getByRole('${role}', { name: '${name}', exact: ${exact} }).first().click();`);
-               return `Successfully clicked role ${role} "${name}"`;
-             } catch (e: any) {
-               return `Failed to click role: ${e.message}`;
-             }
-           }
-        }),
-        fill_css: tool({
-          description: 'Fill an input field identified by a CSS selector',
-          inputSchema: z.object({ selector: z.string(), value: z.string(), description: z.string() }),
-          execute: async ({ selector, value, description }) => {
-            try {
-              await page.locator(selector).first().fill(value, { timeout: 5000 });
-              generatedScriptLines.push(`  // ${description}`);
-              generatedScriptLines.push(`  await page.locator('${selector}').first().fill('${value}');`);
-              return `Successfully filled ${selector}`;
-            } catch (e: any) {
-               return `Failed to fill: ${e.message}`;
-            }
-          }
-        }),
-        fill_placeholder: tool({
-          description: 'Fill an input field identified by its placeholder text',
-          inputSchema: z.object({ placeholder: z.string(), value: z.string(), description: z.string() }),
-          execute: async ({ placeholder, value, description }) => {
-            try {
-              await page.getByPlaceholder(placeholder).first().fill(value, { timeout: 5000 });
-              generatedScriptLines.push(`  // ${description}`);
-              generatedScriptLines.push(`  await page.getByPlaceholder('${placeholder}').first().fill('${value}');`);
-              return `Successfully filled placeholder ${placeholder}`;
-            } catch (e: any) {
-               return `Failed to fill placeholder: ${e.message}`;
-            }
-          }
-        }),
-        press_key: tool({
-          description: 'Press a keyboard key (e.g. "Enter", "Tab")',
-          inputSchema: z.object({ key: z.string(), description: z.string() }),
-          execute: async ({ key, description }) => {
-            try {
-              await page.keyboard.press(key);
-              generatedScriptLines.push(`  // ${description}`);
-              generatedScriptLines.push(`  await page.keyboard.press('${key}');`);
-              return `Successfully pressed ${key}`;
-            } catch (e: any) {
-              return `Failed to press ${key}: ${e.message}`;
-            }
-          }
-        }),
-        wait_for_timeout: tool({
-          description: 'Wait for a specified amount of time (in milliseconds) for the page to load or stabilize',
-          inputSchema: z.object({ ms: z.number() }),
-          execute: async ({ ms }) => {
-            await page.waitForTimeout(ms);
-            generatedScriptLines.push(`  await page.waitForTimeout(${ms});`);
-            return `Waited for ${ms}ms`;
-          }
-        }),
-        finish: tool({
-          description: 'Call this when you have successfully executed all test steps.',
-          inputSchema: z.object({}),
-          execute: async () => "Finished generating script"
-        })
-      }
-    });
-
-      console.log(`[AI Explorer] Step ${stepCount} result:`, { text: result.text, toolCalls: result.toolCalls?.map((tc: any) => tc.toolName) });
-      
-      // Append assistant's response to history
-      if (result.response && result.response.messages) {
-        messages = messages.concat(result.response.messages);
-      } else {
-        // Fallback if response.messages is not available
-        let content: any[] = [];
-        if (result.text) content.push({ type: 'text', text: result.text });
-        if (result.toolCalls && result.toolCalls.length > 0) {
-          content.push(...result.toolCalls.map((tc: any) => ({
-            type: 'tool-call',
-            toolCallId: tc.toolCallId,
-            toolName: tc.toolName,
-            args: tc.args
-          })));
-        }
+      // 1. Capture DOM
+      const dom = await page.evaluate(() => {
+        const elements = document.querySelectorAll('button, a, input, select, textarea, [role="button"], [role="link"], [role="textbox"], [role="menuitem"]');
+        const visibleElements = Array.from(elements).filter((el) => {
+          const e = el as HTMLElement;
+          return e.offsetWidth > 0 && e.offsetHeight > 0 && window.getComputedStyle(e).visibility !== 'hidden' && window.getComputedStyle(e).display !== 'none';
+        });
         
-        messages.push({
-          role: "assistant",
-          content: content.length > 0 ? content : ""
+        return visibleElements.map(el => {
+          const e = el as HTMLElement;
+          const tag = e.tagName.toLowerCase();
+          const props = [];
+          if (e.id) props.push(`id=${e.id}`);
+          if (e.getAttribute('type')) props.push(`type=${e.getAttribute('type')}`);
+          if (e.getAttribute('name')) props.push(`name=${e.getAttribute('name')}`);
+          if (e.getAttribute('placeholder')) props.push(`placeholder="${e.getAttribute('placeholder')}"`);
+          if (e.getAttribute('aria-label')) props.push(`aria="${e.getAttribute('aria-label')}"`);
+          
+          const text = (e.innerText || e.getAttribute('value') || '').trim().substring(0, 30).replace(/\n/g, ' ');
+          return `[${tag}] ${text} {${props.join(',')}}`;
+        }).join('\n');
+      });
+      
+      const simplifiedDom = dom.substring(0, 8000) || "No visible interactive elements.";
+
+      // 2. Query AI
+      const prompt = `You are a QA Expert building a Playwright script.
+Here is the highly compressed HTML/DOM of the current page (visible interactive elements only):
+${simplifiedDom}
+
+Additional Context / Credentials provided by user:
+${additionalContext || 'None'}
+
+The user wants to perform this test step: "${step.action}"
+Identify the EXACT action type and locator needed.
+- If the step requires clicking a button/link, use 'click_css' or 'click_text'.
+- If the step requires filling a text field, use 'fill_css' or 'fill_placeholder' and provide the 'value'.
+- If the step requires pressing a keyboard key, use 'press_key'.
+- If the step requires navigating, use 'goto'.
+
+Respond strictly in JSON.`;
+
+      try {
+        const result = await generateObject({
+          model: aiModel,
+          schema: z.object({
+            action: z.enum(['click_css', 'click_text', 'fill_css', 'fill_placeholder', 'press_key', 'goto', 'none']),
+            selector_or_text: z.string().optional().describe("CSS selector, exact text, placeholder, or URL depending on action"),
+            value: z.string().optional().describe("Value to fill if action is fill_css or fill_placeholder"),
+            reason: z.string().describe("Brief explanation of why this locator was chosen")
+          }),
+          prompt
         });
 
-        if (result.toolResults && result.toolResults.length > 0) {
-          messages.push({
-            role: "tool",
-            content: result.toolResults.map((tr: any) => ({
-              type: "tool-result",
-              toolCallId: tr.toolCallId,
-              toolName: tr.toolName,
-              result: tr.result
-            }))
-          });
-        }
-      }
+        const { action, selector_or_text, value, reason } = result.object;
+        console.log(`[AI Explorer] AI Decision for Step ${i + 1}:`, result.object);
 
-      if (result.toolCalls && result.toolCalls.some((tc: any) => tc.toolName === 'finish')) {
-        isFinished = true;
-      } else if (!result.toolCalls || result.toolCalls.length === 0) {
-        isFinished = true;
+        // 3. Execute
+        if (action === 'click_css' && selector_or_text) {
+          await page.locator(selector_or_text).first().click({ timeout: 5000 });
+          await page.waitForLoadState('networkidle').catch(() => {});
+          generatedScriptLines.push(`  await page.locator('${selector_or_text.replace(/'/g, "\\'")}').first().click();`);
+        } else if (action === 'click_text' && selector_or_text) {
+          await page.getByText(selector_or_text).first().click({ timeout: 5000 });
+          await page.waitForLoadState('networkidle').catch(() => {});
+          generatedScriptLines.push(`  await page.getByText('${selector_or_text.replace(/'/g, "\\'")}').first().click();`);
+        } else if (action === 'fill_css' && selector_or_text && value !== undefined) {
+          await page.locator(selector_or_text).first().fill(value, { timeout: 5000 });
+          generatedScriptLines.push(`  await page.locator('${selector_or_text.replace(/'/g, "\\'")}').first().fill('${value.replace(/'/g, "\\'")}');`);
+        } else if (action === 'fill_placeholder' && selector_or_text && value !== undefined) {
+          await page.getByPlaceholder(selector_or_text).first().fill(value, { timeout: 5000 });
+          generatedScriptLines.push(`  await page.getByPlaceholder('${selector_or_text.replace(/'/g, "\\'")}').first().fill('${value.replace(/'/g, "\\'")}');`);
+        } else if (action === 'press_key' && selector_or_text) {
+          await page.keyboard.press(selector_or_text);
+          generatedScriptLines.push(`  await page.keyboard.press('${selector_or_text}');`);
+        } else if (action === 'goto' && selector_or_text) {
+          await page.goto(selector_or_text, { waitUntil: 'networkidle' }).catch(() => {});
+          generatedScriptLines.push(`  await page.goto('${selector_or_text}');`);
+        } else {
+          generatedScriptLines.push(`  // AI could not determine action: ${reason}`);
+        }
+      } catch (e: any) {
+        console.error(`[AI Explorer] Failed to execute step ${i + 1}:`, e.message);
+        generatedScriptLines.push(`  // FAILED to execute: ${e.message}`);
       }
     }
 
