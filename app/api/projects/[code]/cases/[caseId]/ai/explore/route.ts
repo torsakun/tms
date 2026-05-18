@@ -208,6 +208,12 @@ Respond strictly in JSON.`;
           }
         }
       }
+      
+      // Add explicit delay in generated script to mimic Explorer's wait behavior for SPA transitions
+      if (success) {
+        generatedScriptLines.push(`  try { await page.waitForLoadState('networkidle', { timeout: 3000 }); } catch(e) {}`);
+        generatedScriptLines.push(`  await page.waitForTimeout(1000);`);
+      }
 
       // --- PHASE 2: Assertion Generation ---
       if (success && step.expectedResult) {
