@@ -38,9 +38,27 @@ export async function GET(req: Request) {
     });
 
     if (!response.ok) {
-      if (response.status === 404) return NextResponse.json({ error: `Jira ticket ${ticketId} not found.` }, { status: 404 });
-      if (response.status === 401) return NextResponse.json({ error: "Jira Authentication failed. Check your API token." }, { status: 401 });
-      throw new Error(`Jira API returned status: ${response.status}`);
+      let jiraErrorText = "";
+      try {
+        const errorData = await response.json();
+        jiraErrorText = JSON.stringify(errorData);
+      } catch (e) {
+        jiraErrorText = await response.text();
+      }
+      
+      console.error(`Jira API failed (${response.status}):`, jiraErrorText);
+      
+      if (response.status === 404) {
+        return NextResponse.json({ 
+          error: `Jira ticket ${ticketId} not found. Ensure the ticket exists, your domain is correct, and your token has permission to view it.` 
+        }, { status: 404 });
+      }
+      if (response.status === 401) {
+        return NextResponse.json({ 
+          error: "Jira Authentication failed. Check your API token and email." 
+        }, { status: 401 });
+      }
+      throw new Error(`Jira API returned status: ${response.status} - ${jiraErrorText}`);
     }
 
     const data = await response.json();

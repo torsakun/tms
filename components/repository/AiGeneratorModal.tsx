@@ -86,7 +86,8 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
     setError("");
 
     try {
-      const res = await fetch(`/api/integrations/jira/issue?ticketId=${encodeURIComponent(jiraTicketId)}`);
+      const cleanTicketId = jiraTicketId.trim();
+      const res = await fetch(`/api/integrations/jira/issue?ticketId=${encodeURIComponent(cleanTicketId)}`);
       const data = await res.json();
       
       if (!res.ok) throw new Error(data.error || "Failed to fetch Jira ticket");
