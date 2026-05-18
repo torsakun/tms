@@ -48,15 +48,17 @@ export async function GET(req: Request) {
       
       console.error(`Jira API failed (${response.status}):`, jiraErrorText);
       
+      const loginReason = response.headers.get('x-seraph-loginreason');
+      if (loginReason === 'AUTHENTICATED_FAILED' || response.status === 401) {
+        return NextResponse.json({ 
+          error: "Jira Authentication failed. Please check if your Jira Email and API Token are correct." 
+        }, { status: 401 });
+      }
+
       if (response.status === 404) {
         return NextResponse.json({ 
-          error: `Jira ticket ${ticketId} not found. Ensure the ticket exists, your domain is correct, and your token has permission to view it.` 
+          error: `Jira ticket ${ticketId} not found. If the ticket exists, your Jira token might not have permission to view it.` 
         }, { status: 404 });
-      }
-      if (response.status === 401) {
-        return NextResponse.json({ 
-          error: "Jira Authentication failed. Check your API token and email." 
-        }, { status: 401 });
       }
       throw new Error(`Jira API returned status: ${response.status} - ${jiraErrorText}`);
     }
