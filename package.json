@@ -10,6 +10,11 @@
     "postinstall": "prisma generate",
     "test": "vitest run",
     "test:report": "vitest run --reporter=default --reporter=junit --outputFile.junit=reports/vitest/junit.xml",
+    "test:report:html": "node scripts/vitest-html-report.mjs",
+    "test:system": "playwright test",
+    "test:system:headed": "playwright test --headed",
+    "test:system:slow": "PLAYWRIGHT_SLOW_MO=750 playwright test --headed --workers=1",
+    "test:system:report": "playwright show-report reports/playwright",
     "test:watch": "vitest"
   },
   "dependencies": {
