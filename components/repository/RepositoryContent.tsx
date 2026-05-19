@@ -8,7 +8,7 @@ import { SuiteList } from "@/components/repository/SuiteList";
 import { AiGeneratorModal } from "@/components/repository/AiGeneratorModal";
 import { TestCaseAutomationPanel } from "@/components/repository/TestCaseAutomationPanel";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
-import { CloneCasesModal } from "@/components/repository/CloneCasesModal";
+import { CloneSuiteModal } from "@/components/repository/CloneSuiteModal";
 import { useSuiteSelection } from "@/components/providers/SuiteSelectionProvider";
 
 interface RepositoryContentProps {
@@ -62,7 +62,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
     setIsCloneCasesModalOpen(true);
   };
 
-  const executeBulkClone = async (payload: { destinationId: string | null }) => {
+  const executeBulkClone = async (payload: { destinationId: string | null; prefix?: string }) => {
     setIsCloningCases(true);
     try {
       const res = await fetch(`/api/projects/${projectCode}/cases/bulk-clone`, {
@@ -70,7 +70,8 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           caseIds: Array.from(selectedCases),
-          destinationId: payload.destinationId 
+          destinationId: payload.destinationId,
+          prefix: payload.prefix || ""
         })
       });
       
@@ -295,13 +296,14 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
         }}
       />
 
-      <CloneCasesModal
+      <CloneSuiteModal
         isOpen={isCloneCasesModalOpen}
         onClose={() => setIsCloneCasesModalOpen(false)}
+        mode="cases"
         caseCount={selectedCases.size}
         allSuites={suites}
         projectCode={projectCode}
-        onClone={executeBulkClone}
+        onClone={executeBulkClone as any}
         isCloning={isCloningCases}
       />
 
