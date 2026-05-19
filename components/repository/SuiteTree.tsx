@@ -176,7 +176,7 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
       </div>
       <div className="flex-1 overflow-y-auto py-2 space-y-0.5">
         {suiteTree.map((suite) => (
-          <SuiteItem key={suite.id} suite={suite} level={0} projectCode={projectCode} selectedSuiteId={selectedSuiteId} onAddChild={handleAddSuite} expandTrigger={expandTrigger} collapseTrigger={collapseTrigger} />
+          <SuiteItem key={suite.id} suite={suite} level={0} projectCode={projectCode} selectedSuiteId={selectedSuiteId} onAddChild={handleAddSuite} />
         ))}
       </div>
     </div>
