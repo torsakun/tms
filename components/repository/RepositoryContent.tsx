@@ -8,6 +8,7 @@ import { SuiteList } from "@/components/repository/SuiteList";
 import { AiGeneratorModal } from "@/components/repository/AiGeneratorModal";
 import { TestCaseAutomationPanel } from "@/components/repository/TestCaseAutomationPanel";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
+import { SuiteSelectionProvider } from "@/components/providers/SuiteSelectionProvider";
 
 interface RepositoryContentProps {
   projectCode: string;
@@ -80,7 +81,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
   const activeTestCase = cases.find(c => c.id === activeTestCaseId);
 
   return (
-    <>
+    <SuiteSelectionProvider>
       <div className="flex-1 flex flex-col min-w-0 relative h-full overflow-hidden bg-background transition-colors">
         {/* Toolbar (Qase-style Filter Bar) */}
         <header className="h-14 border-b border-border/50 flex items-center justify-between px-6 bg-white shrink-0 transition-colors">
@@ -342,6 +343,6 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
           onClick={() => setActiveTestCaseId(null)}
         />
       )}
-    </>
+    </SuiteSelectionProvider>
   );
 }

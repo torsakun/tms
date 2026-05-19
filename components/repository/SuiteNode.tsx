@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Edit2, Copy, Trash2, ChevronRight, ChevronDown, GripVertical, Sparkles, User } from "lucide-react";
+import { Plus, Edit2, Copy, Trash2, CheckSquare, Square, Sparkles, User, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
 import { useSuiteExpansion } from "@/components/providers/SuiteExpansionProvider";
+import { useSuiteSelection } from "@/components/providers/SuiteSelectionProvider";
 
 interface SuiteNodeProps {
   suite: any;
@@ -21,15 +22,24 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   const [showQuickTest, setShowQuickTest] = useState(false);
   const [quickTestTitle, setQuickTestTitle] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  
+  // Edit State
+  const [isEditingSuite, setIsEditingSuite] = useState(false);
+  const [editTitle, setEditTitle] = useState(suite.title);
+  const [editDescription, setEditDescription] = useState(suite.description || "");
+  const [isSavingSuite, setIsSavingSuite] = useState(false);
+
   const router = useRouter();
   const { role } = useProjectRole();
   const { isExpanded, toggleSuite } = useSuiteExpansion();
   const isOpen = isExpanded(suite.id);
+  
+  // Selection Context
+  const { toggleCase, toggleSuiteCases, isCaseSelected, areAllCasesSelected } = useSuiteSelection();
 
   const children = childrenMap.get(suite.id) || [];
   const cases = casesBySuiteId.get(suite.id) || [];
 
-  // Use white background with subtle border, like Qase.
   const headerBgClass = "bg-white border-b border-border/50";
   
   const titleClass = depth === 0 
@@ -68,41 +78,172 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
     }
   };
 
+  const handleUpdateSuite = async () => {
+    if (!editTitle.trim()) return;
+    setIsSavingSuite(true);
+    try {
+      const res = await fetch(`/api/projects/${projectCode}/suites/${suite.id}`, {
+        method: 'PATCH',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: editTitle, description: editDescription })
+      });
+      if (res.ok) {
+        setIsEditingSuite(false);
+        router.refresh();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to update suite");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error updating suite");
+    } finally {
+      setIsSavingSuite(false);
+    }
+  };
+
+  const handleCloneSuite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm(`Are you sure you want to clone "${suite.title}"?`)) {
+      try {
+        const res = await fetch(`/api/projects/${projectCode}/suites/${suite.id}/clone`, { method: 'POST' });
+        if (res.ok) {
+          router.refresh();
+        } else {
+          alert("Failed to clone suite");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  const handleDeleteSuite = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (window.confirm(`Are you sure you want to delete "${suite.title}"? This will delete all child suites and test cases.`)) {
+      try {
+        const res = await fetch(`/api/projects/${projectCode}/suites/${suite.id}`, { method: 'DELETE' });
+        if (res.ok) {
+          router.refresh();
+        } else {
+          alert("Failed to delete suite");
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
+
+  const allCasesInSuite = cases.map(c => c.id);
+  const isAllSelected = areAllCasesSelected(allCasesInSuite);
+
   return (
     <div id={`suite-${suite.id}`} className={cn("flex flex-col", depth > 0 && "ml-4 mt-2")}>
       <div 
-        className={cn("group flex items-center justify-between px-4 py-2 transition-colors", headerBgClass)}
+        className={cn("group px-4 py-2 transition-colors", headerBgClass)}
       >
-        <div 
-          className="flex items-center cursor-pointer flex-1"
-          onClick={() => toggleSuite(suite.id)}
-        >
-          <span className={titleClass}>
-            {suite.title}
-          </span>
-          
-          {/* Action Icons right next to title */}
-          {role !== 'VIEWER' && !isUnassigned && (
-            <div className="flex items-center space-x-0.5 ml-3 opacity-0 group-hover:opacity-100 transition-opacity">
+        {isEditingSuite ? (
+          <div className="flex flex-col space-y-2 py-1">
+            <input
+              type="text"
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              className="w-full px-2 py-1 text-sm border border-primary/30 rounded focus:outline-none focus:ring-1 focus:ring-primary/20"
+              placeholder="Suite Name"
+            />
+            <textarea
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
+              className="w-full px-2 py-1 text-sm border border-primary/30 rounded focus:outline-none focus:ring-1 focus:ring-primary/20 min-h-[60px]"
+              placeholder="Description (Optional)"
+            />
+            <div className="flex items-center space-x-2">
               <button 
-                onClick={(e) => { e.stopPropagation(); setShowQuickTest(true); }}
-                className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                title="Create quick test"
+                onClick={handleUpdateSuite} 
+                disabled={isSavingSuite}
+                className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-blue-700"
               >
-                <Plus size={15} strokeWidth={2.5} />
+                {isSavingSuite ? 'Saving...' : 'Save'}
               </button>
-              <button className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors">
-                <Edit2 size={14} />
-              </button>
-              <button className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors">
-                <Copy size={14} />
-              </button>
-              <button className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors">
-                <Trash2 size={14} />
+              <button 
+                onClick={() => setIsEditingSuite(false)} 
+                className="text-slate-500 hover:bg-slate-100 px-3 py-1 rounded text-xs font-medium"
+              >
+                Cancel
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center flex-1 min-w-0">
+              {/* Suite Checkbox */}
+              {!isUnassigned && cases.length > 0 && (
+                <button 
+                  onClick={(e) => { e.stopPropagation(); toggleSuiteCases(allCasesInSuite); }}
+                  className="mr-3 text-slate-400 hover:text-blue-500 transition-colors focus:outline-none"
+                >
+                  {isAllSelected ? (
+                    <div className="w-4 h-4 rounded bg-blue-600 flex items-center justify-center text-white">
+                      <Check size={12} strokeWidth={3} />
+                    </div>
+                  ) : (
+                    <div className="w-4 h-4 rounded border border-slate-300 hover:border-blue-400" />
+                  )}
+                </button>
+              )}
+              
+              <div 
+                className="flex items-center cursor-pointer flex-1 min-w-0"
+                onClick={() => toggleSuite(suite.id)}
+              >
+                <div className="flex flex-col truncate">
+                  <span className={cn("truncate", titleClass)}>
+                    {suite.title}
+                  </span>
+                  {suite.description && (
+                    <span className="text-[13px] text-slate-500 mt-0.5 truncate">
+                      {suite.description}
+                    </span>
+                  )}
+                </div>
+                
+                {/* Action Icons right next to title */}
+                {role !== 'VIEWER' && !isUnassigned && (
+                  <div className="flex items-center space-x-0.5 ml-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setShowQuickTest(true); }}
+                      className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                      title="Create quick test"
+                    >
+                      <Plus size={15} strokeWidth={2.5} />
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setIsEditingSuite(true); }}
+                      className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors"
+                      title="Edit suite"
+                    >
+                      <Edit2 size={14} />
+                    </button>
+                    <button 
+                      onClick={handleCloneSuite}
+                      className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors"
+                      title="Clone suite"
+                    >
+                      <Copy size={14} />
+                    </button>
+                    <button 
+                      onClick={handleDeleteSuite}
+                      className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                      title="Delete suite"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Suite Content (Cases and Child Suites) with Accordion Transition */}
@@ -141,10 +282,12 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
           {/* Test Cases */}
           {cases.length > 0 && (
             <div className="flex flex-col mt-2">
-              {cases.map((tc: any) => (
+              {cases.map((tc: any) => {
+                const isSelected = isCaseSelected(tc.id);
+                return (
                 <div 
                   key={tc.id} 
-                  className="group flex items-center px-4 py-1.5 border-b border-transparent hover:border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
+                  className={cn("group flex items-center px-4 py-1.5 border-b border-transparent hover:border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer", isSelected && "bg-blue-50/50 hover:bg-blue-50")}
                   onClick={() => {
                     if (onSelectCase) {
                       onSelectCase(tc);
@@ -153,6 +296,22 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                     }
                   }}
                 >
+                  {/* Case Checkbox */}
+                  {!isUnassigned && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); toggleCase(tc.id); }}
+                      className="mr-3 text-slate-400 hover:text-blue-500 transition-colors focus:outline-none shrink-0"
+                    >
+                      {isSelected ? (
+                        <div className="w-4 h-4 rounded bg-blue-600 flex items-center justify-center text-white">
+                          <Check size={12} strokeWidth={3} />
+                        </div>
+                      ) : (
+                        <div className="w-4 h-4 rounded border border-slate-300 hover:border-blue-400" />
+                      )}
+                    </button>
+                  )}
+
                   <div className="flex items-center space-x-3 shrink-0 mr-3">
                     {/* Priority Icon */}
                     <div className="w-4 flex justify-center">
@@ -214,11 +373,11 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                     )}
                   </div>
                 </div>
-              ))}
+              )})}
               
               {/* Create Quick Test button below cases if there are cases */}
               {role !== 'VIEWER' && !showQuickTest && (
-                <div className="px-4 py-1.5 mt-1">
+                <div className="px-4 py-1.5 mt-1 ml-6">
                   <button 
                     onClick={() => setShowQuickTest(true)}
                     className="text-[13px] font-medium text-slate-400 hover:text-blue-600 flex items-center transition-colors"
