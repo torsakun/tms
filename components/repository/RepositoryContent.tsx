@@ -82,26 +82,36 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
   return (
     <>
       <div className="flex-1 flex flex-col min-w-0 relative h-full overflow-hidden bg-background transition-colors">
-        {/* Toolbar */}
-        <header className="h-14 border-b border-border/50 flex items-center justify-between px-6 bg-surface shrink-0 transition-colors">
-          <div className="flex items-center space-x-4 flex-1">
-            <div className="relative w-64">
-              <Search className="absolute left-2.5 top-2.5 text-text-muted" size={16} />
+        {/* Toolbar (Qase-style Filter Bar) */}
+        <header className="h-14 border-b border-border/50 flex items-center justify-between px-6 bg-white shrink-0 transition-colors">
+          <div className="flex items-center space-x-3 flex-1">
+            <div className="relative w-48">
               <input 
                 type="text" 
-                placeholder="Search cases..." 
-                className="w-full pl-9 pr-4 py-1.5 text-sm bg-background border-none text-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-colors"
+                placeholder="Search" 
+                className="w-full px-3 py-1.5 text-[13px] bg-white border border-slate-300 text-slate-700 rounded focus:outline-none focus:border-blue-500 transition-colors"
               />
             </div>
-            <button className="flex items-center text-sm text-text-muted hover:text-text-main bg-background border border-border px-3 py-1.5 rounded-md shadow-sm transition-colors hover:bg-surface-hover">
-              <Filter size={14} className="mr-2" />
-              Filters
+            
+            <div className="relative w-36">
+              <select className="w-full px-3 py-1.5 text-[13px] bg-white border border-slate-300 text-slate-700 rounded focus:outline-none focus:border-blue-500 appearance-none cursor-pointer">
+                <option>By all fields</option>
+                <option>By title</option>
+                <option>By description</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-500">
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path></svg>
+              </div>
+            </div>
+
+            <button className="text-[13px] text-blue-600 font-medium hover:underline px-2">
+              Add filter
             </button>
           </div>
           
           <div className="flex items-center space-x-3">
             {lastSyncPr && (
-              <div className="flex items-center space-x-2 bg-indigo-50/50 border border-indigo-100 px-2 py-1 rounded-md mr-2">
+              <div className="flex items-center space-x-2 bg-indigo-50/50 border border-indigo-100 px-2 py-1 rounded mr-2">
                 <a 
                   href={lastSyncPr.url} 
                   target="_blank" 
@@ -129,31 +139,31 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                 <button 
                   onClick={handleSyncAll}
                   disabled={isSyncing}
-                  className="flex items-center bg-slate-800 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-slate-700 transition-colors disabled:opacity-50"
+                  className="flex items-center bg-slate-800 text-white px-3 py-1.5 rounded text-[13px] font-medium hover:bg-slate-700 transition-colors disabled:opacity-50"
                 >
-                  {isSyncing ? <Loader2 size={16} className="mr-2 animate-spin" /> : <CloudUpload size={16} className="mr-2" />}
+                  {isSyncing ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <CloudUpload size={14} className="mr-1.5" />}
                   Sync to GitHub
                 </button>
-                <Link href={`/projects/${projectCode}/runs`} className="flex items-center bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 px-4 py-1.5 rounded-md text-sm font-medium hover:bg-emerald-500/20 transition-colors">
-                  <PlayCircle size={16} className="mr-2" />
+                <Link href={`/projects/${projectCode}/runs`} className="flex items-center bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-3 py-1.5 rounded text-[13px] font-medium hover:bg-emerald-500/20 transition-colors">
+                  <PlayCircle size={14} className="mr-1.5" />
                   Start Run
                 </Link>
                 <button 
                   onClick={() => setIsAiModalOpen(true)}
-                  className="flex items-center bg-amber-500/10 text-amber-500 border border-amber-500/20 px-4 py-1.5 rounded-md text-sm font-medium hover:bg-amber-500/20 transition-colors"
+                  className="flex items-center bg-amber-50 text-amber-600 border border-amber-200 px-3 py-1.5 rounded text-[13px] font-medium hover:bg-amber-100 transition-colors"
                 >
-                  <Sparkles size={16} className="mr-2" />
+                  <Sparkles size={14} className="mr-1.5" />
                   Generate with AI
                 </button>
-                <Link href={`/projects/${projectCode}/cases/create${activeSuiteId ? `?suite=${activeSuiteId}` : ''}`} className="bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] px-4 py-1.5 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
+                <Link href={`/projects/${projectCode}/cases/create${activeSuiteId ? `?suite=${activeSuiteId}` : ''}`} className="bg-blue-600 text-white px-3 py-1.5 rounded text-[13px] font-medium hover:bg-blue-700 transition-colors">
                   Create Case
                 </Link>
               </>
             )}
             
             {role === 'ADMIN' && (
-              <Link href={`/projects/${projectCode}/settings/members`} className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-md transition-colors" title="Project Settings">
-                <Settings size={20} />
+              <Link href={`/projects/${projectCode}/settings/members`} className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors" title="Project Settings">
+                <Settings size={18} />
               </Link>
             )}
           </div>

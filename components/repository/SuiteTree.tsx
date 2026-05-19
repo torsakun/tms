@@ -22,54 +22,58 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild }: S
   const hasChildren = suite.children && suite.children.length > 0;
 
   return (
-    <div className="select-none">
+    <div className="select-none group/item">
       <div
         onClick={() => router.push(`/projects/${projectCode}/repository?suite=${suite.id}`)}
         className={cn(
-          "flex items-center py-1.5 px-2 rounded-md cursor-pointer group transition-colors",
-          level === 0 ? "font-medium text-text-main" : "text-text-muted text-sm",
-          selectedSuiteId === suite.id ? "bg-primary/10 text-primary" : "hover:bg-surface-hover"
+          "flex items-center py-1.5 pr-2 rounded-none cursor-pointer transition-colors relative",
+          level === 0 ? "font-bold text-slate-800 text-[13px]" : "font-medium text-slate-700 text-[13px]",
+          selectedSuiteId === suite.id ? "bg-slate-100" : "hover:bg-slate-50"
         )}
-        style={{ paddingLeft: `${level * 12 + 8}px` }}
+        style={{ paddingLeft: `${level * 16 + 8}px` }}
       >
         <button
           onClick={(e) => {
             e.stopPropagation();
             setIsOpen(!isOpen);
           }}
-          className="p-0.5 hover:bg-surface-hover rounded mr-1 transition-colors"
+          className="p-0.5 text-slate-500 hover:text-slate-700 rounded mr-1 transition-colors"
         >
           {hasChildren ? (
-            isOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />
+            isOpen ? <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg> : <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M10 7l5 5-5 5z"/></svg>
           ) : (
-            <div className="w-[14px]" />
+            <div className="w-3 h-3" />
           )}
         </button>
 
-        {isOpen ? (
-          <FolderOpen size={16} className="mr-2 text-primary" />
-        ) : (
-          <Folder size={16} className="mr-2 text-text-muted opacity-50" />
-        )}
+        <span className="truncate">{suite.title}</span>
 
-        <span className="flex-1 truncate">{suite.title}</span>
+        <div className="ml-auto flex items-center pl-2">
+          {suite.caseCount !== undefined && (
+            <span className="text-[12px] text-slate-500 font-medium w-6 text-right group-hover/item:hidden">
+              {suite.caseCount}
+            </span>
+          )}
 
-        {suite.caseCount !== undefined && suite.caseCount > 0 && (
-          <span className="text-xs text-text-muted/50 ml-2 group-hover:hidden">{suite.caseCount}</span>
-        )}
-
-        {role !== 'VIEWER' && (
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsOpen(true);
-              onAddChild(suite.id);
-            }}
-            className="opacity-0 group-hover:opacity-100 p-1 hover:text-primary transition-opacity ml-auto"
-          >
-            <Plus size={14} />
-          </button>
-        )}
+          {role !== 'VIEWER' && (
+            <div className="hidden group-hover/item:flex items-center text-slate-400">
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsOpen(true);
+                  onAddChild(suite.id);
+                }}
+                className="p-0.5 hover:text-slate-800 transition-colors mx-1"
+                title="Add child suite"
+              >
+                <Plus size={14} />
+              </button>
+              <button className="p-0.5 hover:text-slate-800 transition-colors">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {isOpen && hasChildren && (
@@ -155,19 +159,23 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
   };
 
   return (
-    <div className="flex flex-col h-full bg-surface transition-colors">
-      <div className="p-4 border-b border-border/50 bg-surface flex justify-between items-center shrink-0 transition-colors">
-        <h2 className="font-semibold text-text-main">Suites</h2>
-        {role !== 'VIEWER' && (
-          <button 
-            onClick={() => handleAddSuite(null)}
-            className="p-1.5 bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] rounded-md hover:bg-blue-700 transition-colors"
-          >
-            <Plus size={16} />
-          </button>
-        )}
+    <div className="flex flex-col h-full bg-white transition-colors">
+      <div className="px-4 py-3 border-b border-border/50 bg-white flex justify-between items-center shrink-0 transition-colors">
+        <div className="flex items-center space-x-2 text-slate-800">
+          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <h2 className="font-semibold text-[15px]">Suites</h2>
+          {role !== 'VIEWER' && (
+            <button onClick={() => handleAddSuite(null)} className="text-slate-400 hover:text-slate-700 ml-1">
+              <Plus size={16} />
+            </button>
+          )}
+        </div>
+        <div className="flex items-center space-x-1 text-slate-400">
+          <button className="hover:text-slate-700 p-1"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
+          <button className="hover:text-slate-700 p-1"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        </div>
       </div>
-      <div className="flex-1 overflow-y-auto p-3 space-y-1">
+      <div className="flex-1 overflow-y-auto py-2 space-y-0.5">
         {suiteTree.map((suite) => (
           <SuiteItem key={suite.id} suite={suite} level={0} projectCode={projectCode} selectedSuiteId={selectedSuiteId} onAddChild={handleAddSuite} />
         ))}

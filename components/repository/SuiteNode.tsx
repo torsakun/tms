@@ -27,10 +27,14 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   const children = childrenMap.get(suite.id) || [];
   const cases = casesBySuiteId.get(suite.id) || [];
 
-  // Root has bg-surface-hover, children have bg-background or bg-surface
-  const headerBgClass = depth === 0 ? "bg-surface-hover text-text-main shadow-sm" 
-                      : depth === 1 ? "bg-surface text-text-muted" 
-                      : "bg-background text-text-muted";
+  // Root has bold blueish text and bg-slate-50.
+  const headerBgClass = depth === 0 
+    ? "bg-slate-50 border border-slate-100 rounded-md" 
+    : "bg-transparent";
+  
+  const titleClass = depth === 0 
+    ? "font-bold text-[15px] text-slate-800" 
+    : "font-semibold text-[14px] text-slate-700";
                       
   const handleCreateQuickTest = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && quickTestTitle.trim() && !isCreating) {
@@ -66,45 +70,39 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
 
   return (
     <div className={cn("flex flex-col", depth > 0 && "ml-4 mt-2")}>
-      {/* Suite Header */}
       <div 
-        className={cn("group flex items-center justify-between px-4 py-2.5 rounded-md transition-colors", headerBgClass)}
+        className={cn("group flex items-center justify-between px-4 py-2 transition-colors", headerBgClass)}
       >
         <div 
           className="flex items-center cursor-pointer flex-1"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          {isExpanded ? (
-            <ChevronDown size={18} className="mr-2 text-text-muted" />
-          ) : (
-            <ChevronRight size={18} className="mr-2 text-text-muted" />
-          )}
-          <span className={cn("font-bold", depth === 0 ? "text-base" : "text-sm")}>
+          <span className={titleClass}>
             {suite.title}
           </span>
+          
+          {/* Action Icons right next to title */}
+          {role !== 'VIEWER' && !isUnassigned && (
+            <div className="flex items-center space-x-0.5 ml-3 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button 
+                onClick={(e) => { e.stopPropagation(); setShowQuickTest(true); }}
+                className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                title="Create quick test"
+              >
+                <Plus size={15} strokeWidth={2.5} />
+              </button>
+              <button className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors">
+                <Edit2 size={14} />
+              </button>
+              <button className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors">
+                <Copy size={14} />
+              </button>
+              <button className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors">
+                <Trash2 size={14} />
+              </button>
+            </div>
+          )}
         </div>
-
-        {/* Hover Actions */}
-        {role !== 'VIEWER' && !isUnassigned && (
-          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button 
-              onClick={() => setShowQuickTest(true)}
-              className="p-1.5 text-primary hover:bg-primary/10 rounded-md transition-colors"
-              title="Create quick test"
-            >
-              <Plus size={16} />
-            </button>
-            <button className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-md transition-colors">
-              <Edit2 size={16} />
-            </button>
-            <button className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-md transition-colors">
-              <Copy size={16} />
-            </button>
-            <button className="p-1.5 text-text-muted hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors">
-              <Trash2 size={16} />
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Suite Content (Cases and Child Suites) */}
@@ -139,11 +137,11 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
 
           {/* Test Cases */}
           {cases.length > 0 && (
-            <div className="flex flex-col mt-1 bg-background rounded-md overflow-hidden border border-border/50 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-colors">
+            <div className="flex flex-col mt-2">
               {cases.map((tc: any) => (
                 <div 
                   key={tc.id} 
-                  className="group flex items-center px-4 py-2 border-b border-border/50 last:border-0 hover:bg-surface-hover transition-colors cursor-pointer"
+                  className="group flex items-center px-4 py-1.5 border-b border-transparent hover:border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
                   onClick={() => {
                     if (onSelectCase) {
                       onSelectCase(tc);
@@ -152,32 +150,32 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                     }
                   }}
                 >
-                  {role !== 'VIEWER' ? (
-                    <GripVertical size={14} className="text-text-muted/50 mr-3 opacity-0 group-hover:opacity-100 cursor-grab transition-opacity" />
-                  ) : (
-                    <div className="w-[14px] mr-3"></div>
-                  )}
-                  <div className="w-24 shrink-0 text-[13px] text-text-muted font-mono">
-                    {tc.code || `${projectCode}-${tc.id.substring(0,4)}`}
+                  <div className="flex items-center space-x-3 shrink-0 mr-3">
+                    {/* Priority Icon */}
+                    <div className="w-4 flex justify-center">
+                      {(tc.priority === 'High' || tc.priority === 'Critical') ? (
+                        <svg className="w-3.5 h-3.5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                      ) : (tc.priority === 'Low' || tc.priority === 'Trivial') ? (
+                        <svg className="w-3.5 h-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                      ) : (
+                        <svg className="w-2 h-2 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><circle cx="12" cy="12" r="10"></circle></svg>
+                      )}
+                    </div>
+                    {/* Manual Hand Icon */}
+                    <div className="w-4 flex justify-center text-slate-400">
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M6 14v-1a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M18 11a4 4 0 0 1 4 4v2a5 5 0 0 1-5 5H9.5a5.5 5.5 0 0 1-3.89-1.61L3 18l4.47-5.59A2 2 0 0 1 9 12.5V14"></path></svg>
+                    </div>
                   </div>
-                  <div className="flex-1 flex items-center text-[13px] font-normal text-text-main group-hover:text-primary transition-colors min-w-0">
-                    {tc.tags?.some((t: any) => t.name === "AI-Generated") ? (
-                      <span title="AI Generated" className="shrink-0 flex items-center justify-center w-4 h-4 rounded bg-amber-100/80 text-amber-600 text-[9px] font-bold mr-2 border border-amber-200">
-                        AI
-                      </span>
-                    ) : (
-                      <span title="Manually Created" className="shrink-0 flex items-center justify-center w-4 h-4 rounded bg-blue-50 text-blue-500 text-[10px] font-bold mr-2 border border-blue-100">
-                        M
-                      </span>
-                    )}
+                  
+                  <div className="w-16 shrink-0 text-[13px] text-slate-400 font-medium">
+                    {tc.code || `${projectCode}-${tc.id.substring(0,2)}`}
+                  </div>
+                  
+                  <div className="flex-1 flex items-center text-[13px] font-normal text-slate-700 min-w-0">
                     <span className="truncate">{tc.title}</span>
                   </div>
+                  
                   <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {tc.tags && tc.tags.filter((t: any) => t.name !== "AI-Generated").length > 0 && (
-                      <span className="px-2 py-0.5 text-[10px] font-medium bg-surface text-text-muted rounded border border-border/50">
-                        {tc.tags.filter((t: any) => t.name !== "AI-Generated")[0].name}
-                      </span>
-                    )}
                     {role !== 'VIEWER' && (
                       <button
                         onClick={async (e) => {
@@ -197,7 +195,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                             }
                           }
                         }}
-                        className="p-1.5 text-text-muted hover:text-red-500 hover:bg-red-500/10 rounded-md transition-colors"
+                        className="p-1 text-slate-400 hover:text-red-500 rounded transition-colors"
                         title="Delete test case"
                       >
                         <Trash2 size={14} />
@@ -209,12 +207,12 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
               
               {/* Create Quick Test button below cases if there are cases */}
               {role !== 'VIEWER' && !showQuickTest && (
-                <div className="px-6 py-2 bg-surface-hover/30 border-t border-border/50 transition-colors">
+                <div className="px-4 py-1.5 mt-1">
                   <button 
                     onClick={() => setShowQuickTest(true)}
-                    className="text-xs font-medium text-text-muted hover:text-primary flex items-center transition-colors"
+                    className="text-[13px] font-medium text-slate-400 hover:text-blue-600 flex items-center transition-colors"
                   >
-                    <Plus size={14} className="mr-1" /> Create quick test
+                    + Create quick test
                   </button>
                 </div>
               )}

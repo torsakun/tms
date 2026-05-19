@@ -40,19 +40,32 @@ export default async function RepositoryPage({
   }
 
   return (
-    <div className="flex flex-1 w-full bg-white overflow-hidden">
-      {/* Left Pane: Suite Tree */}
-      <aside className="w-72 border-r border-slate-200 bg-slate-50/50 flex flex-col">
-        <SuiteTree initialSuites={suites} cases={cases} projectCode={code} />
-      </aside>
+    <div className="flex flex-col flex-1 w-full bg-white overflow-hidden">
+      
+      {/* Top Header matching Qase layout */}
+      <div className="flex-none px-6 py-4 border-b border-border/50">
+        <div className="flex items-baseline space-x-3">
+          <h1 className="text-[22px] font-bold text-slate-800">{code} repository</h1>
+          <span className="text-[13px] text-slate-500 font-medium">
+            {cases.length} cases ({cases.length}) | {suites.length} suites ({suites.length})
+          </span>
+        </div>
+      </div>
 
-      {/* Middle Pane: Case List and Slide-over */}
-      <RepositoryContent 
-        projectCode={code} 
-        suites={suites} 
-        cases={cases} 
-        activeSuiteId={activeSuiteId} 
-      />
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left Pane: Suite Tree */}
+        <aside className="w-72 border-r border-slate-200 bg-white flex flex-col shrink-0">
+          <SuiteTree initialSuites={suites} cases={cases} projectCode={code} />
+        </aside>
+
+        {/* Middle Pane: Case List and Slide-over */}
+        <RepositoryContent 
+          projectCode={code} 
+          suites={suites} 
+          cases={cases} 
+          activeSuiteId={activeSuiteId} 
+        />
+      </div>
     </div>
   );
 }
