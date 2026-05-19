@@ -119,7 +119,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
     setIsCloneModalOpen(true);
   };
 
-  const executeCloneSuite = async (payload: { destinationId: string | null; strategy: "cases_and_suites" | "only_suites"; prefix: string; withChildren: boolean }) => {
+  const executeCloneSuite = async (payload: { destinationId: string | null; strategy: "cases_and_suites" | "only_suites"; withChildren: boolean }) => {
     setIsCloning(true);
     try {
       const res = await fetch(`/api/projects/${projectCode}/suites/${suite.id}/clone`, {

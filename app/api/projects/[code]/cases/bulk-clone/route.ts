@@ -56,10 +56,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
     // Duplicate logic
     let clonedCount = 0;
     for (const originalCase of originalCases) {
-      const prefixStr = body.prefix ? `${body.prefix} ` : '';
       const clonedCase = await prisma.testCase.create({
         data: {
-          title: `${prefixStr}${originalCase.title}`,
+          title: originalCase.title,
           description: originalCase.description,
           preconditions: originalCase.preconditions,
           postconditions: originalCase.postconditions,

@@ -62,7 +62,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
     setIsCloneCasesModalOpen(true);
   };
 
-  const executeBulkClone = async (payload: { destinationId: string | null; prefix?: string }) => {
+  const executeBulkClone = async (payload: { destinationId: string | null }) => {
     setIsCloningCases(true);
     try {
       const res = await fetch(`/api/projects/${projectCode}/cases/bulk-clone`, {
@@ -70,8 +70,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           caseIds: Array.from(selectedCases),
-          destinationId: payload.destinationId,
-          prefix: payload.prefix || ""
+          destinationId: payload.destinationId
         })
       });
       

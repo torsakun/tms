@@ -13,7 +13,6 @@ interface CloneSuiteModalProps {
   onClone: (payload: {
     destinationId: string | null;
     strategy: "cases_and_suites" | "only_suites";
-    prefix: string;
     withChildren: boolean;
   }) => void;
   isCloning: boolean;
@@ -32,7 +31,6 @@ export function CloneSuiteModal({
 }: CloneSuiteModalProps) {
   const [destinationId, setDestinationId] = useState<string | null>(null);
   const [strategy, setStrategy] = useState<"cases_and_suites" | "only_suites">("cases_and_suites");
-  const [prefix, setPrefix] = useState("");
   const [withChildren, setWithChildren] = useState(false);
   
   // Custom dropdown states
@@ -42,7 +40,7 @@ export function CloneSuiteModal({
   if (!isOpen) return null;
 
   const handleClone = () => {
-    onClone({ destinationId, strategy, prefix, withChildren });
+    onClone({ destinationId, strategy, withChildren });
   };
 
   const getSuiteName = (id: string | null) => {
@@ -124,66 +122,51 @@ export function CloneSuiteModal({
             </div>
 
             {/* Clone strategy */}
-            {mode === "suite" && (
-              <div className="relative">
-                <label className="block text-[13px] font-medium text-slate-700 mb-1.5">Clone strategy</label>
-                <div 
-                  className="flex items-center px-3 py-2 border border-blue-500 rounded cursor-pointer shadow-[0_0_0_2px_rgba(59,130,246,0.1)] transition-colors"
-                  onClick={() => setIsStrategyOpen(!isStrategyOpen)}
-                >
-                  <span className="text-sm text-slate-700">
-                    {strategy === "cases_and_suites" ? "Cases and suites" : "Only suites"}
-                  </span>
-                  <ChevronDown size={16} className="ml-auto text-slate-400" />
-                </div>
-
-                {isStrategyOpen && (
-                  <div className="absolute top-full left-0 w-full mt-1 bg-white border border-slate-200 rounded shadow-lg z-10 py-1">
-                    <div 
-                      className={cn("px-4 py-2 text-sm cursor-pointer flex items-center justify-between", strategy === "cases_and_suites" ? "bg-blue-50 text-blue-600" : "hover:bg-slate-50 text-slate-700")}
-                      onClick={() => { setStrategy("cases_and_suites"); setIsStrategyOpen(false); }}
-                    >
-                      <span>Cases and suites</span>
-                      {strategy === "cases_and_suites" && <Check size={16} />}
-                    </div>
-                    <div 
-                      className={cn("px-4 py-2 text-sm cursor-pointer flex items-center justify-between", strategy === "only_suites" ? "bg-blue-50 text-blue-600" : "hover:bg-slate-50 text-slate-700")}
-                      onClick={() => { setStrategy("only_suites"); setIsStrategyOpen(false); }}
-                    >
-                      <span>Only suites</span>
-                      {strategy === "only_suites" && <Check size={16} />}
-                    </div>
-                  </div>
-                )}
+            <div className="relative">
+              <label className="block text-[13px] font-medium text-slate-700 mb-1.5">Clone strategy</label>
+              <div 
+                className="flex items-center px-3 py-2 border border-blue-500 rounded cursor-pointer shadow-[0_0_0_2px_rgba(59,130,246,0.1)] transition-colors"
+                onClick={() => setIsStrategyOpen(!isStrategyOpen)}
+              >
+                <span className="text-sm text-slate-700">
+                  {strategy === "cases_and_suites" ? "Cases and suites" : "Only suites"}
+                </span>
+                <ChevronDown size={16} className="ml-auto text-slate-400" />
               </div>
-            )}
 
-            {/* Prefix */}
-            <div>
-              <label className="block text-[13px] font-medium text-slate-700 mb-1.5">Prefix</label>
-              <input 
-                type="text" 
-                value={prefix}
-                onChange={(e) => setPrefix(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded text-sm text-slate-700 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-              />
+              {isStrategyOpen && (
+                <div className="absolute top-full left-0 w-full mt-1 bg-white border border-slate-200 rounded shadow-lg z-10 py-1">
+                  <div 
+                    className={cn("px-4 py-2 text-sm cursor-pointer flex items-center justify-between", strategy === "cases_and_suites" ? "bg-blue-50 text-blue-600" : "hover:bg-slate-50 text-slate-700")}
+                    onClick={() => { setStrategy("cases_and_suites"); setIsStrategyOpen(false); }}
+                  >
+                    <span>Cases and suites</span>
+                    {strategy === "cases_and_suites" && <Check size={16} />}
+                  </div>
+                  <div 
+                    className={cn("px-4 py-2 text-sm cursor-pointer flex items-center justify-between", strategy === "only_suites" ? "bg-blue-50 text-blue-600" : "hover:bg-slate-50 text-slate-700")}
+                    onClick={() => { setStrategy("only_suites"); setIsStrategyOpen(false); }}
+                  >
+                    <span>Only suites</span>
+                    {strategy === "only_suites" && <Check size={16} />}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Clone with children */}
-            {mode === "suite" && (
-              <div className="flex items-center space-x-2 pt-2 cursor-pointer" onClick={() => setWithChildren(!withChildren)}>
-                <div className="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors">
-                  {withChildren ? (
-                    <div className="w-full h-full bg-blue-600 border-blue-600 text-white rounded flex items-center justify-center">
-                      <Check size={12} strokeWidth={3} />
-                    </div>
-                  ) : (
-                    <div className="w-full h-full border-slate-300 bg-white rounded" />
-                  )}
-                </div>
-                <span className="text-[14px] text-slate-700 select-none">Clone with children</span>
+            <div className="flex items-center space-x-2 pt-2 cursor-pointer" onClick={() => setWithChildren(!withChildren)}>
+              <div className="w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors">
+                {withChildren ? (
+                  <div className="w-full h-full bg-blue-600 border-blue-600 text-white rounded flex items-center justify-center">
+                    <Check size={12} strokeWidth={3} />
+                  </div>
+                ) : (
+                  <div className="w-full h-full border-slate-300 bg-white rounded" />
+                )}
               </div>
-            )}
+              <span className="text-[14px] text-slate-700 select-none">Clone with children</span>
+            </div>
           </div>
         </div>
 

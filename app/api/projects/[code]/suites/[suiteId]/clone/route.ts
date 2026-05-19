@@ -31,7 +31,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
     }
 
     const body = await req.json().catch(() => ({}));
-    const { destinationId = null, strategy = "cases_and_suites", prefix = "", withChildren = false } = body;
+    const { destinationId = null, strategy = "cases_and_suites", withChildren = false } = body;
 
     // Recursive function to clone suite, its cases, and its children
     async function cloneSuite(sourceSuiteId: string, newParentId: string | null, isTopLevel: boolean = false) {
@@ -45,9 +45,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
 
       if (!sourceSuite) throw new Error(`Suite ${sourceSuiteId} not found`);
 
-      const baseTitle = isTopLevel && prefix ? `${prefix} ${sourceSuite.title}` : sourceSuite.title;
-      // For top level, if no prefix, append " - Clone" to avoid identical names at the same level if they share the same parent, but it's optional.
-      // Qase uses the prefix or just copies it. We will use prefix or fallback to original if prefix is empty.
+      const baseTitle = sourceSuite.title;
+      // Qase uses the prefix or just copies it. We will just copy it.
 
       // Create new suite
       const newSuite = await prisma.testSuite.create({
