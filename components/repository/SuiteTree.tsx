@@ -175,7 +175,7 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
         </div>
         <div className="flex items-center space-x-1 text-slate-400">
           <button onClick={() => expandAll(suites.map(s => s.id))} className="hover:text-slate-700 p-1" title="Expand all"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
-          <button onClick={() => collapseAll()} className="hover:text-slate-700 p-1" title="Collapse all"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+          <button onClick={() => collapseAll(suites.map(s => s.id))} className="hover:text-slate-700 p-1" title="Collapse all"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto py-2 space-y-0.5">

@@ -6,7 +6,7 @@ interface SuiteExpansionContextType {
   expandedSuites: Set<string>;
   toggleSuite: (id: string) => void;
   expandAll: (suiteIds: string[]) => void;
-  collapseAll: () => void;
+  collapseAll: (suiteIds: string[]) => void;
   isExpanded: (id: string) => boolean;
 }
 
@@ -14,15 +14,14 @@ const SuiteExpansionContext = createContext<SuiteExpansionContextType | null>(nu
 
 export function SuiteExpansionProvider({ 
   children,
-  initialExpandedIds = [],
   projectCode = "default"
 }: { 
   children: React.ReactNode,
-  initialExpandedIds?: string[],
+  initialExpandedIds?: string[], // Kept for backwards compatibility but ignored
   projectCode?: string
 }) {
-  const storageKey = `tms_suite_expansion_${projectCode}`;
-  const [expandedSuites, setExpandedSuites] = useState<Set<string>>(new Set(initialExpandedIds));
+  const storageKey = `tms_suite_collapse_${projectCode}`;
+  const [collapsedSuites, setCollapsedSuites] = useState<Set<string>>(new Set());
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from local storage on mount
@@ -30,10 +29,10 @@ export function SuiteExpansionProvider({
     try {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
-        setExpandedSuites(new Set(JSON.parse(saved)));
+        setCollapsedSuites(new Set(JSON.parse(saved)));
       }
     } catch (e) {
-      console.error("Failed to load suite expansion state", e);
+      console.error("Failed to load suite collapse state", e);
     }
     setIsLoaded(true);
   }, [storageKey]);
@@ -41,36 +40,48 @@ export function SuiteExpansionProvider({
   // Save to local storage whenever it changes (only after initial load)
   useEffect(() => {
     if (isLoaded) {
-      localStorage.setItem(storageKey, JSON.stringify(Array.from(expandedSuites)));
+      localStorage.setItem(storageKey, JSON.stringify(Array.from(collapsedSuites)));
     }
-  }, [expandedSuites, isLoaded, storageKey]);
+  }, [collapsedSuites, isLoaded, storageKey]);
 
   const toggleSuite = useCallback((id: string) => {
-    setExpandedSuites(prev => {
+    setCollapsedSuites(prev => {
       const next = new Set(prev);
       if (next.has(id)) {
-        next.delete(id);
+        next.delete(id); // expanding
       } else {
-        next.add(id);
+        next.add(id); // collapsing
       }
       return next;
     });
   }, []);
 
   const expandAll = useCallback((suiteIds: string[]) => {
-    setExpandedSuites(new Set(suiteIds));
+    // To expand all, we clear the collapsed set
+    setCollapsedSuites(new Set());
   }, []);
 
-  const collapseAll = useCallback(() => {
-    setExpandedSuites(new Set());
+  const collapseAll = useCallback((suiteIds: string[]) => {
+    // To collapse all, we add all known suite ids to the collapsed set
+    setCollapsedSuites(new Set(suiteIds));
   }, []);
 
   const isExpanded = useCallback((id: string) => {
-    return expandedSuites.has(id);
-  }, [expandedSuites]);
+    return !collapsedSuites.has(id);
+  }, [collapsedSuites]);
+
+  // We return expandedSuites as an empty set to satisfy the context type if it was used directly, 
+  // but clients should use `isExpanded`
+  const dummyExpandedSuites = new Set<string>();
 
   return (
-    <SuiteExpansionContext.Provider value={{ expandedSuites, toggleSuite, expandAll, collapseAll, isExpanded }}>
+    <SuiteExpansionContext.Provider value={{ 
+      expandedSuites: dummyExpandedSuites, 
+      toggleSuite, 
+      expandAll, 
+      collapseAll,
+      isExpanded 
+    }}>
       {children}
     </SuiteExpansionContext.Provider>
   );
