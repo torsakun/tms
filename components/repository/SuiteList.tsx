@@ -89,7 +89,7 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
         </div>
       ))}
       
-      {unassignedCases.length > 0 && !activeSuiteId && (
+      {unassignedCases.length > 0 && (
         <SuiteNode 
           suite={{ id: 'unassigned', title: 'Unassigned Test Cases' }} 
           depth={0} 
