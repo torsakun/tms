@@ -246,20 +246,20 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                     <button 
                       onClick={handleSyncAll}
                       disabled={isSyncing}
-                      className="flex items-center bg-slate-800 text-white px-3 py-1.5 rounded text-[13px] font-medium hover:bg-slate-700 transition-colors disabled:opacity-50"
+                      className="flex items-center bg-slate-800 hover:bg-slate-700 text-white px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
                     >
                       {isSyncing ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <CloudUpload size={14} className="mr-1.5" />}
                       Sync to GitHub
                     </button>
                     <button 
                       onClick={() => setIsAiModalOpen(true)}
-                      className="flex items-center px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 text-[13px] font-medium rounded border border-amber-200 transition-colors shadow-sm"
+                      className="flex items-center bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm hover:shadow-md active:scale-95"
                     >
                       <Sparkles size={14} className="mr-1.5" />
                       Generate Tests
                     </button>
                     
-                    <Link href={`/projects/${projectCode}/cases/create`} className="flex items-center px-3 py-1.5 bg-[#4834d4] hover:bg-blue-700 text-white text-[13px] font-medium rounded shadow-sm transition-colors">
+                    <Link href={`/projects/${projectCode}/cases/create`} className="flex items-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm hover:shadow-md active:scale-95">
                       <Plus size={14} className="mr-1.5" />
                       Test case
                     </Link>

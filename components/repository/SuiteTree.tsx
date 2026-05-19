@@ -139,6 +139,7 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
   };
 
   const suiteTree = React.useMemo(() => buildTree(suites, cases), [suites, cases]);
+  const unassignedCount = React.useMemo(() => cases.filter(tc => !tc.suiteId).length, [cases]);
 
   const handleAddSuite = async (parentId: string | null) => {
     const title = window.prompt("Enter Suite Name:");
@@ -181,6 +182,16 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
         {suiteTree.map((suite) => (
           <SuiteItem key={suite.id} suite={suite} level={0} projectCode={projectCode} selectedSuiteId={selectedSuiteId} onAddChild={handleAddSuite} />
         ))}
+        {unassignedCount > 0 && (
+          <SuiteItem 
+            key="unassigned"
+            suite={{ id: 'unassigned', title: 'Unassigned Test Cases', caseCount: unassignedCount, children: [] }}
+            level={0}
+            projectCode={projectCode}
+            selectedSuiteId={selectedSuiteId}
+            onAddChild={() => {}}
+          />
+        )}
       </div>
     </div>
   );
