@@ -30,6 +30,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
       return NextResponse.json({ error: "Forbidden: You do not have permission to clone suites in this project" }, { status: 403 });
     }
 
+    const body = await req.json().catch(() => ({}));
+    const { destinationId = null, strategy = "cases_and_suites", prefix = "", withChildren = false } = body;
+
     // Recursive function to clone suite, its cases, and its children
     async function cloneSuite(sourceSuiteId: string, newParentId: string | null, isTopLevel: boolean = false) {
       const sourceSuite = await prisma.testSuite.findUnique({
@@ -42,10 +45,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
 
       if (!sourceSuite) throw new Error(`Suite ${sourceSuiteId} not found`);
 
+      const baseTitle = isTopLevel && prefix ? `${prefix} ${sourceSuite.title}` : sourceSuite.title;
+      // For top level, if no prefix, append " - Clone" to avoid identical names at the same level if they share the same parent, but it's optional.
+      // Qase uses the prefix or just copies it. We will use prefix or fallback to original if prefix is empty.
+
       // Create new suite
       const newSuite = await prisma.testSuite.create({
         data: {
-          title: isTopLevel ? `${sourceSuite.title} - Clone` : sourceSuite.title,
+          title: baseTitle,
           description: sourceSuite.description,
           position: sourceSuite.position,
           projectId: project!.id,
@@ -53,44 +60,51 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
         }
       });
 
-      // Clone Test Cases
-      for (const tc of sourceSuite.testCases) {
-        await prisma.testCase.create({
-          data: {
-            title: tc.title,
-            description: tc.description,
-            preconditions: tc.preconditions,
-            postconditions: tc.postconditions,
-            priority: tc.priority,
-            severity: tc.severity,
-            automationStatus: tc.automationStatus,
-            projectId: project!.id,
-            suiteId: newSuite.id,
-            authorId: (session!.user as any).id,
-            steps: {
-              create: tc.steps.map(step => ({
-                action: step.action,
-                expectedResult: step.expectedResult,
-                position: step.position,
-                sharedStepId: step.sharedStepId
-              }))
-            },
-            tags: {
-              connect: tc.tags.map(tag => ({ id: tag.id }))
+      // Clone Test Cases if strategy is cases_and_suites
+      if (strategy === "cases_and_suites") {
+        for (const tc of sourceSuite.testCases) {
+          await prisma.testCase.create({
+            data: {
+              title: tc.title,
+              description: tc.description,
+              preconditions: tc.preconditions,
+              postconditions: tc.postconditions,
+              priority: tc.priority,
+              severity: tc.severity,
+              automationStatus: tc.automationStatus,
+              projectId: project!.id,
+              suiteId: newSuite.id,
+              authorId: (session!.user as any).id,
+              steps: {
+                create: tc.steps.map(step => ({
+                  action: step.action,
+                  expectedResult: step.expectedResult,
+                  position: step.position,
+                  sharedStepId: step.sharedStepId
+                }))
+              },
+              tags: {
+                connect: tc.tags.map(tag => ({ id: tag.id }))
+              }
             }
-          }
-        });
+          });
+        }
       }
 
-      // Recursively clone children
-      for (const child of sourceSuite.children) {
-        await cloneSuite(child.id, newSuite.id, false);
+      // Recursively clone children if withChildren is true OR if it's NOT top level (meaning we are already cloning children)
+      if (isTopLevel && !withChildren) {
+        // Do nothing, don't clone children
+      } else {
+        for (const child of sourceSuite.children) {
+          await cloneSuite(child.id, newSuite.id, false);
+        }
       }
       
       return newSuite;
     }
 
-    const newSuite = await cloneSuite(suiteId, null, true);
+    // Pass destinationId as the parent of the top-level cloned suite
+    const newSuite = await cloneSuite(suiteId, destinationId, true);
 
     return NextResponse.json(newSuite, { status: 201 });
   } catch (error) {

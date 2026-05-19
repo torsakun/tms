@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
 import { useSuiteExpansion } from "@/components/providers/SuiteExpansionProvider";
 import { useSuiteSelection } from "@/components/providers/SuiteSelectionProvider";
+import { CloneSuiteModal } from "./CloneSuiteModal";
 
 interface SuiteNodeProps {
   suite: any;
@@ -16,9 +17,10 @@ interface SuiteNodeProps {
   projectCode: string;
   onSelectCase?: (testCase: any) => void;
   isUnassigned?: boolean;
+  allSuites: any[];
 }
 
-export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCode, onSelectCase, isUnassigned }: SuiteNodeProps) {
+export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCode, onSelectCase, isUnassigned, allSuites }: SuiteNodeProps) {
   const [showQuickTest, setShowQuickTest] = useState(false);
   const [quickTestTitle, setQuickTestTitle] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -28,6 +30,10 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   const [editTitle, setEditTitle] = useState(suite.title);
   const [editDescription, setEditDescription] = useState(suite.description || "");
   const [isSavingSuite, setIsSavingSuite] = useState(false);
+  
+  // Clone Modal State
+  const [isCloneModalOpen, setIsCloneModalOpen] = useState(false);
+  const [isCloning, setIsCloning] = useState(false);
 
   const router = useRouter();
   const { role } = useProjectRole();
@@ -102,19 +108,31 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
     }
   };
 
-  const handleCloneSuite = async (e: React.MouseEvent) => {
+  const handleCloneSuiteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm(`Are you sure you want to clone "${suite.title}"?`)) {
-      try {
-        const res = await fetch(`/api/projects/${projectCode}/suites/${suite.id}/clone`, { method: 'POST' });
-        if (res.ok) {
-          router.refresh();
-        } else {
-          alert("Failed to clone suite");
-        }
-      } catch (err) {
-        console.error(err);
+    setIsCloneModalOpen(true);
+  };
+
+  const executeCloneSuite = async (payload: { destinationId: string | null; strategy: "cases_and_suites" | "only_suites"; prefix: string; withChildren: boolean }) => {
+    setIsCloning(true);
+    try {
+      const res = await fetch(`/api/projects/${projectCode}/suites/${suite.id}/clone`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        setIsCloneModalOpen(false);
+        router.refresh();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to clone suite");
       }
+    } catch (err) {
+      console.error(err);
+      alert("Error cloning suite");
+    } finally {
+      setIsCloning(false);
     }
   };
 
@@ -225,7 +243,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                       <Edit2 size={14} />
                     </button>
                     <button 
-                      onClick={handleCloneSuite}
+                      onClick={handleCloneSuiteClick}
                       className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors"
                       title="Clone suite"
                     >
@@ -401,12 +419,23 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                   casesBySuiteId={casesBySuiteId} 
                   projectCode={projectCode} 
                   onSelectCase={onSelectCase}
+                  allSuites={allSuites}
                 />
               ))}
             </div>
           )}
         </div>
       </div>
+
+      <CloneSuiteModal 
+        isOpen={isCloneModalOpen}
+        onClose={() => setIsCloneModalOpen(false)}
+        suite={suite}
+        allSuites={allSuites}
+        projectCode={projectCode}
+        onClone={executeCloneSuite}
+        isCloning={isCloning}
+      />
     </div>
   );
 }

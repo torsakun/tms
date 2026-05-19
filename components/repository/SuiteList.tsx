@@ -84,6 +84,7 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
           casesBySuiteId={casesBySuiteId} 
           projectCode={projectCode}
           onSelectCase={onSelectCase}
+          allSuites={suites}
         />
       ))}
       
@@ -96,6 +97,7 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
           projectCode={projectCode}
           onSelectCase={onSelectCase}
           isUnassigned={true}
+          allSuites={suites}
         />
       )}
     </div>
