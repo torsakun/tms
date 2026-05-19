@@ -76,16 +76,17 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
   return (
     <div className="space-y-6">
       {roots.map(suite => (
-        <SuiteNode 
-          key={suite.id} 
-          suite={suite} 
-          depth={0} 
-          childrenMap={childrenMap} 
-          casesBySuiteId={casesBySuiteId} 
-          projectCode={projectCode}
-          onSelectCase={onSelectCase}
-          allSuites={suites}
-        />
+        <div key={suite.id} className="flex flex-col">
+          <SuiteNode 
+            suite={suite} 
+            depth={0} 
+            childrenMap={childrenMap} 
+            casesBySuiteId={casesBySuiteId} 
+            projectCode={projectCode}
+            onSelectCase={onSelectCase}
+            allSuites={suites}
+          />
+        </div>
       ))}
       
       {unassignedCases.length > 0 && !activeSuiteId && (

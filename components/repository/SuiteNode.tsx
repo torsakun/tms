@@ -52,7 +52,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   const children = childrenMap.get(suite.id) || [];
   const cases = casesBySuiteId.get(suite.id) || [];
 
-  const headerBgClass = "bg-white border-b border-border/50";
+  const headerBgClass = "bg-[#f4f6f8] rounded-md";
   
   const titleClass = depth === 0 
     ? "font-bold text-[15px] text-slate-800" 
@@ -176,7 +176,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   return (
     <div id={`suite-${suite.id}`} className={cn("flex flex-col", depth > 0 && "ml-4 mt-2")}>
       <div 
-        className={cn("group px-4 py-2 transition-colors", headerBgClass)}
+        className={cn("group px-4 py-3 transition-colors mb-2", headerBgClass)}
       >
         {isEditingSuite ? (
           <div className="flex flex-col space-y-2 py-1">
@@ -210,72 +210,73 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
             </div>
           </div>
         ) : (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center flex-1 min-w-0">
-              {/* Suite Checkbox */}
+          <div className="flex items-start justify-between">
+            <div className="flex items-start flex-1 min-w-0">
+              {/* Suite Checkbox (optional/hidden by default in Qase, but we keep it small) */}
               {!isUnassigned && cases.length > 0 && (
                 <button 
                   onClick={(e) => { e.stopPropagation(); toggleSuiteCases(allCasesInSuite); }}
-                  className="mr-3 text-slate-400 hover:text-blue-500 transition-colors focus:outline-none"
+                  className="mt-0.5 mr-3 text-slate-300 hover:text-blue-500 transition-colors focus:outline-none"
                 >
                   {isAllSelected ? (
-                    <div className="w-4 h-4 rounded bg-blue-600 flex items-center justify-center text-white">
-                      <Check size={12} strokeWidth={3} />
+                    <div className="w-3.5 h-3.5 rounded bg-blue-600 flex items-center justify-center text-white">
+                      <Check size={10} strokeWidth={3} />
                     </div>
                   ) : (
-                    <div className="w-4 h-4 rounded border border-slate-300 hover:border-blue-400" />
+                    <div className="w-3.5 h-3.5 rounded border border-slate-300 hover:border-blue-400" />
                   )}
                 </button>
               )}
               
               <div 
-                className="flex items-center cursor-pointer flex-1 min-w-0"
+                className="flex items-start cursor-pointer flex-1 min-w-0"
                 onClick={() => toggleSuite(suite.id)}
               >
                 <div className="flex flex-col truncate">
-                  <span className={cn("truncate", titleClass)}>
-                    {suite.title}
-                  </span>
+                  <div className="flex items-center">
+                    <span className={cn("truncate", titleClass)}>
+                      {suite.title}
+                    </span>
+                    {/* Action Icons right next to title */}
+                    {role !== 'VIEWER' && !isUnassigned && !hasSelection && (
+                      <div className="opacity-0 group-hover:opacity-100 flex items-center space-x-1 ml-3 transition-opacity">
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setShowQuickTest(true); }}
+                          className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                          title="Create quick test"
+                        >
+                          <Plus size={14} strokeWidth={2.5} />
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); setIsEditingSuite(true); }}
+                          className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded transition-colors"
+                          title="Edit suite"
+                        >
+                          <Edit2 size={13} />
+                        </button>
+                        <button 
+                          onClick={handleCloneSuiteClick}
+                          className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded transition-colors"
+                          title="Clone suite"
+                        >
+                          <Copy size={13} />
+                        </button>
+                        <button 
+                          onClick={handleDeleteSuiteClick}
+                          className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                          title="Delete suite"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                   {suite.description && (
-                    <span className="text-[13px] text-slate-500 mt-0.5 truncate">
+                    <span className="text-[13px] text-slate-500 mt-1 truncate">
                       {suite.description}
                     </span>
                   )}
                 </div>
-                
-                {/* Action Icons right next to title */}
-                {role !== 'VIEWER' && !isUnassigned && !hasSelection && (
-                  <div className="flex items-center space-x-0.5 ml-3">
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); setShowQuickTest(true); }}
-                      className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                      title="Create quick test"
-                    >
-                      <Plus size={15} strokeWidth={2.5} />
-                    </button>
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); setIsEditingSuite(true); }}
-                      className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors"
-                      title="Edit suite"
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button 
-                      onClick={handleCloneSuiteClick}
-                      className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded transition-colors"
-                      title="Clone suite"
-                    >
-                      <Copy size={14} />
-                    </button>
-                    <button 
-                      onClick={handleDeleteSuiteClick}
-                      className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-                      title="Delete suite"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -336,39 +337,35 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                   {!isUnassigned && (
                     <button 
                       onClick={(e) => { e.stopPropagation(); toggleCase(tc.id); }}
-                      className="mr-3 text-slate-400 hover:text-blue-500 transition-colors focus:outline-none shrink-0"
+                      className="mr-3 text-slate-300 hover:text-blue-500 transition-colors focus:outline-none shrink-0"
                     >
                       {isSelected ? (
-                        <div className="w-4 h-4 rounded bg-blue-600 flex items-center justify-center text-white">
-                          <Check size={12} strokeWidth={3} />
+                        <div className="w-3.5 h-3.5 rounded bg-blue-600 flex items-center justify-center text-white">
+                          <Check size={10} strokeWidth={3} />
                         </div>
                       ) : (
-                        <div className="w-4 h-4 rounded border border-slate-300 hover:border-blue-400" />
+                        <div className="w-3.5 h-3.5 rounded border border-slate-300 hover:border-blue-400" />
                       )}
                     </button>
                   )}
 
                   <div className="flex items-center space-x-3 shrink-0 mr-3">
                     {/* Priority Icon */}
-                    <div className="w-4 flex justify-center">
+                    <div className="w-3.5 flex justify-center">
                       {(tc.priority === 'High' || tc.priority === 'Critical') ? (
-                        <svg className="w-3.5 h-3.5 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                        <svg className="w-3 h-3 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
                       ) : (tc.priority === 'Low' || tc.priority === 'Trivial') ? (
-                        <svg className="w-3.5 h-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                        <svg className="w-3 h-3 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
                       ) : (
-                        <svg className="w-2 h-2 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><circle cx="12" cy="12" r="10"></circle></svg>
+                        <svg className="w-2.5 h-2.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><circle cx="12" cy="12" r="10"></circle></svg>
                       )}
                     </div>
                     {/* Type Badge (M or AI) */}
-                    <div className="w-5 flex justify-center shrink-0">
+                    <div className="w-4 flex justify-center shrink-0 text-slate-400">
                       {tc.tags?.some((t: any) => t.name === "AI-Generated") ? (
-                        <span title="AI Generated" className="flex items-center justify-center w-[18px] h-[18px] rounded bg-amber-100/80 text-amber-600 text-[9px] font-bold border border-amber-200">
-                          AI
-                        </span>
+                        <span title="AI Generated"><Sparkles size={12} className="text-amber-500" /></span>
                       ) : (
-                        <span title="Manually Created" className="flex items-center justify-center w-[18px] h-[18px] rounded bg-blue-50 text-blue-500 text-[10px] font-bold border border-blue-100">
-                          M
-                        </span>
+                        <span title="Manual"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
                       )}
                     </div>
                   </div>
