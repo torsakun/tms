@@ -59,6 +59,9 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(50);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -96,6 +99,13 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
     const matchesStatus = statusFilter === "ALL" || run.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredRuns.length / rowsPerPage));
+  const paginatedRuns = filteredRuns.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   return (
     <div className="w-full flex flex-col h-full bg-background p-8 pt-0 transition-colors">
@@ -174,7 +184,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-border/50">
-              {filteredRuns.map((run) => {
+              {paginatedRuns.map((run) => {
                 const passed = run.results.filter((r: any) => r.status === "PASSED").length;
                 const failed = run.results.filter((r: any) => r.status === "FAILED").length;
                 const blocked = run.results.filter((r: any) => r.status === "BLOCKED").length;
@@ -352,6 +362,48 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
               })}
             </tbody>
           </table>
+
+          {filteredRuns.length > 0 && (
+            <div className="flex items-center justify-end px-6 py-4 border-t border-border/50 text-sm text-text-main space-x-6">
+              <div className="flex items-center space-x-2">
+                <span className="text-text-muted">Rows per page:</span>
+                <div className="relative">
+                  <select 
+                    value={rowsPerPage} 
+                    onChange={(e) => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+                    className="appearance-none bg-transparent border border-border rounded-md pl-3 pr-8 py-1.5 text-sm outline-none focus:border-primary cursor-pointer hover:bg-surface-hover transition-colors"
+                  >
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                    <option value={100}>100</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-muted">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-1 rounded-md text-text-muted hover:bg-surface-hover hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <div className="min-w-[32px] h-8 flex items-center justify-center bg-primary shadow-[0_0_10px_rgba(93,135,255,0.3)] text-white rounded-md font-medium text-sm">
+                  {currentPage}
+                </div>
+                <button 
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="p-1 rounded-md text-text-muted hover:bg-surface-hover hover:text-text-main disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
