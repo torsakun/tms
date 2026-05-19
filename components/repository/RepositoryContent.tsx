@@ -55,6 +55,38 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
     }
   };
 
+  const handleBulkClone = async () => {
+    try {
+      const res = await fetch(`/api/projects/${projectCode}/cases/bulk-clone`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caseIds: Array.from(selectedCases) })
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        alert(`Successfully cloned ${data.count} test case(s)`);
+        clearSelection();
+        router.refresh();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to clone test cases");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error cloning test cases");
+    }
+  };
+
+  const handleBulkRun = () => {
+    const caseIds = Array.from(selectedCases).join(',');
+    router.push(`/projects/${projectCode}/runs/create?cases=${caseIds}`);
+  };
+
+  const handleBulkEdit = () => {
+    alert("Bulk Edit is coming soon!");
+  };
+
   React.useEffect(() => {
     fetch("/api/workspace/fields")
       .then(res => res.json())
@@ -116,15 +148,15 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
           {hasSelection ? (
             <div className="flex items-center space-x-4 w-full">
               <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded px-1 py-1 h-9">
-                <button className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors" title="Edit">
+                <button onClick={handleBulkEdit} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors" title="Edit">
                   <Edit3 size={16} />
                 </button>
                 <div className="w-px h-4 bg-slate-300 mx-1"></div>
-                <button className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors" title="Clone">
+                <button onClick={handleBulkClone} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors" title="Clone">
                   <Copy size={16} />
                 </button>
                 <div className="w-px h-4 bg-slate-300 mx-1"></div>
-                <button className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors" title="Run">
+                <button onClick={handleBulkRun} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors" title="Run">
                   <PlayCircle size={16} />
                 </button>
                 <div className="w-px h-4 bg-slate-300 mx-1"></div>

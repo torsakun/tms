@@ -13,9 +13,9 @@ interface ResizableLayoutProps {
 export function ResizableLayout({
   leftPane,
   rightPane,
-  initialWidth = 288,
+  initialWidth = 350,
   minWidth = 200,
-  maxWidth = 600,
+  maxWidth = 800,
 }: ResizableLayoutProps) {
   const [sidebarWidth, setSidebarWidth] = useState(initialWidth);
   const isDragging = useRef(false);
