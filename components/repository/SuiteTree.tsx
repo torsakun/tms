@@ -1,11 +1,12 @@
 // components/repository/SuiteTree.tsx
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ChevronRight, ChevronDown, Folder, FolderOpen, Plus } from 'lucide-react';
 import { Suite } from '@/types/repository';
 import { cn } from '@/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useProjectRole } from '@/components/providers/ProjectRoleProvider';
+import { useSuiteExpansion } from '@/components/providers/SuiteExpansionProvider';
 
 interface SuiteItemProps {
   suite: any;
@@ -13,23 +14,14 @@ interface SuiteItemProps {
   projectCode: string;
   selectedSuiteId: string | null;
   onAddChild: (parentId: string) => void;
-  expandTrigger: number;
-  collapseTrigger: number;
 }
 
-const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild, expandTrigger, collapseTrigger }: SuiteItemProps) => {
+const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild }: SuiteItemProps) => {
   const router = useRouter();
   const { role } = useProjectRole();
-  const [isOpen, setIsOpen] = useState(true);
+  const { isExpanded, toggleSuite } = useSuiteExpansion();
+  const isOpen = isExpanded(suite.id);
   const hasChildren = suite.children && suite.children.length > 0;
-
-  useEffect(() => {
-    if (expandTrigger > 0) setIsOpen(true);
-  }, [expandTrigger]);
-
-  useEffect(() => {
-    if (collapseTrigger > 0) setIsOpen(false);
-  }, [collapseTrigger]);
 
   return (
     <div className="select-none group/item">
@@ -45,15 +37,11 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild, exp
         <button
           onClick={(e) => {
             e.stopPropagation();
-            setIsOpen(!isOpen);
+            toggleSuite(suite.id);
           }}
           className={cn("p-0.5 rounded mr-1 transition-colors", selectedSuiteId === suite.id ? "text-blue-500 hover:text-blue-700" : "text-slate-500 hover:text-slate-700")}
         >
-          {hasChildren ? (
-            isOpen ? <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg> : <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M10 7l5 5-5 5z"/></svg>
-          ) : (
-            <div className="w-3.5 h-3.5" />
-          )}
+          {isOpen ? <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg> : <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M10 7l5 5-5 5z"/></svg>}
         </button>
 
         <span className="truncate">{suite.title}</span>
@@ -70,7 +58,7 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild, exp
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
-                  setIsOpen(true);
+                  if (!isOpen) toggleSuite(suite.id);
                   onAddChild(suite.id);
                 }}
                 className="p-0.5 hover:text-slate-800 transition-colors mx-1"
@@ -89,7 +77,7 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild, exp
       {isOpen && hasChildren && (
         <div className="mt-0.5">
           {suite.children!.map((child: any) => (
-            <SuiteItem key={child.id} suite={child} level={level + 1} projectCode={projectCode} selectedSuiteId={selectedSuiteId} onAddChild={onAddChild} expandTrigger={expandTrigger} collapseTrigger={collapseTrigger} />
+            <SuiteItem key={child.id} suite={child} level={level + 1} projectCode={projectCode} selectedSuiteId={selectedSuiteId} onAddChild={onAddChild} />
           ))}
         </div>
       )}
@@ -99,11 +87,10 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild, exp
 
 export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialSuites: any[], cases?: any[], projectCode: string }) => {
   const [suites, setSuites] = useState<any[]>(initialSuites);
-  const [expandTrigger, setExpandTrigger] = useState(0);
-  const [collapseTrigger, setCollapseTrigger] = useState(0);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { role } = useProjectRole();
+  const { expandAll, collapseAll } = useSuiteExpansion();
   const selectedSuiteId = searchParams.get('suite');
 
   // Build tree from flat array and calculate case counts
@@ -183,8 +170,8 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
           )}
         </div>
         <div className="flex items-center space-x-1 text-slate-400">
-          <button onClick={() => setExpandTrigger(prev => prev + 1)} className="hover:text-slate-700 p-1" title="Expand all"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
-          <button onClick={() => setCollapseTrigger(prev => prev + 1)} className="hover:text-slate-700 p-1" title="Collapse all"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+          <button onClick={() => expandAll(suites.map(s => s.id))} className="hover:text-slate-700 p-1" title="Expand all"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
+          <button onClick={() => collapseAll()} className="hover:text-slate-700 p-1" title="Collapse all"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto py-2 space-y-0.5">

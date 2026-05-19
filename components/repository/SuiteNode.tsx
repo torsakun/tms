@@ -5,6 +5,7 @@ import { Plus, Edit2, Copy, Trash2, ChevronRight, ChevronDown, GripVertical, Spa
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
+import { useSuiteExpansion } from "@/components/providers/SuiteExpansionProvider";
 
 interface SuiteNodeProps {
   suite: any;
@@ -17,12 +18,13 @@ interface SuiteNodeProps {
 }
 
 export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCode, onSelectCase, isUnassigned }: SuiteNodeProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
   const [showQuickTest, setShowQuickTest] = useState(false);
   const [quickTestTitle, setQuickTestTitle] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const router = useRouter();
   const { role } = useProjectRole();
+  const { isExpanded, toggleSuite } = useSuiteExpansion();
+  const isOpen = isExpanded(suite.id);
 
   const children = childrenMap.get(suite.id) || [];
   const cases = casesBySuiteId.get(suite.id) || [];
@@ -75,7 +77,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
       >
         <div 
           className="flex items-center cursor-pointer flex-1"
-          onClick={() => setIsExpanded(!isExpanded)}
+          onClick={() => toggleSuite(suite.id)}
         >
           <span className={titleClass}>
             {suite.title}
@@ -106,7 +108,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
       </div>
 
       {/* Suite Content (Cases and Child Suites) */}
-      {isExpanded && (
+      {isOpen && (
         <div className={cn("flex flex-col", depth === 0 && "pl-2")}>
           
           {/* Quick Test Input */}
