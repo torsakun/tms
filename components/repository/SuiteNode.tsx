@@ -52,7 +52,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   const children = childrenMap.get(suite.id) || [];
   const cases = casesBySuiteId.get(suite.id) || [];
 
-  const headerBgClass = "bg-[#f4f6f8] rounded-md";
+  const headerBgClass = "bg-slate-50 border border-slate-200/60 rounded-md";
   
   const titleClass = depth === 0 
     ? "font-bold text-[15px] text-slate-800" 

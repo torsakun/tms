@@ -272,7 +272,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
 
 
         {/* Hierarchical Content */}
-        <div className="flex-1 overflow-y-auto bg-background relative transition-colors">
+        <div className="flex-1 overflow-y-auto bg-white relative transition-colors">
           <div className="p-8 pb-32">
             <SuiteList 
               suites={suites} 
