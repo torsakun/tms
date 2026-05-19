@@ -3,12 +3,12 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Filter, PlayCircle, Settings, X, Edit3, Copy, Trash2, Cpu, FileText, Sparkles, CloudUpload, Loader2, GitMerge, ExternalLink, Ticket } from "lucide-react";
+import { Search, Filter, PlayCircle, Settings, X, Edit3, Copy, Trash2, Cpu, FileText, Sparkles, CloudUpload, Loader2, GitMerge, ExternalLink, Ticket, Plus } from "lucide-react";
 import { SuiteList } from "@/components/repository/SuiteList";
 import { AiGeneratorModal } from "@/components/repository/AiGeneratorModal";
 import { TestCaseAutomationPanel } from "@/components/repository/TestCaseAutomationPanel";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
-import { SuiteSelectionProvider } from "@/components/providers/SuiteSelectionProvider";
+import { useSuiteSelection } from "@/components/providers/SuiteSelectionProvider";
 
 interface RepositoryContentProps {
   projectCode: string;
@@ -26,6 +26,34 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
   const [isMerging, setIsMerging] = useState(false);
   const [lastSyncPr, setLastSyncPr] = useState<{ url: string; number: number | null } | null>(null);
   const [customFieldsDef, setCustomFieldsDef] = useState<any[]>([]);
+
+  const { selectedCases, clearSelection } = useSuiteSelection();
+  const hasSelection = selectedCases.size > 0;
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Are you sure you want to delete ${selectedCases.size} selected test case(s)?`)) {
+      return;
+    }
+    
+    try {
+      const res = await fetch(`/api/projects/${projectCode}/cases/bulk`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caseIds: Array.from(selectedCases) })
+      });
+      
+      if (res.ok) {
+        clearSelection();
+        router.refresh();
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to delete test cases");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting test cases");
+    }
+  };
 
   React.useEffect(() => {
     fetch("/api/workspace/fields")
@@ -81,94 +109,122 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
   const activeTestCase = cases.find(c => c.id === activeTestCaseId);
 
   return (
-    <SuiteSelectionProvider>
+    <>
       <div className="flex-1 flex flex-col min-w-0 relative h-full overflow-hidden bg-background transition-colors">
-        {/* Toolbar (Qase-style Filter Bar) */}
+        {/* Toolbar (Qase-style Filter Bar or Bulk Action Toolbar) */}
         <header className="h-14 border-b border-border/50 flex items-center justify-between px-6 bg-white shrink-0 transition-colors">
-          <div className="flex items-center space-x-3 flex-1">
-            <div className="relative w-48">
-              <input 
-                type="text" 
-                placeholder="Search" 
-                className="w-full px-3 py-1.5 text-[13px] bg-white border border-slate-300 text-slate-700 rounded focus:outline-none focus:border-blue-500 transition-colors"
-              />
-            </div>
-            
-            <div className="relative w-36">
-              <select className="w-full px-3 py-1.5 text-[13px] bg-white border border-slate-300 text-slate-700 rounded focus:outline-none focus:border-blue-500 appearance-none cursor-pointer">
-                <option>By all fields</option>
-                <option>By title</option>
-                <option>By description</option>
-              </select>
-              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-slate-500">
-                <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path></svg>
+          {hasSelection ? (
+            <div className="flex items-center space-x-4 w-full">
+              <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded px-1 py-1 h-9">
+                <button className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors" title="Edit">
+                  <Edit3 size={16} />
+                </button>
+                <div className="w-px h-4 bg-slate-300 mx-1"></div>
+                <button className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors" title="Clone">
+                  <Copy size={16} />
+                </button>
+                <div className="w-px h-4 bg-slate-300 mx-1"></div>
+                <button className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors" title="Run">
+                  <PlayCircle size={16} />
+                </button>
+                <div className="w-px h-4 bg-slate-300 mx-1"></div>
+                <button 
+                  onClick={handleBulkDelete}
+                  className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors" 
+                  title="Delete"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <button className="flex items-center px-3 py-1.5 h-9 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-[13px] font-medium rounded transition-colors shadow-sm">
+                  <Sparkles size={14} className="mr-1.5 text-blue-500" />
+                  Run advisor
+                </button>
+                <button className="flex items-center px-3 py-1.5 h-9 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-[13px] font-medium rounded transition-colors shadow-sm">
+                  <Cpu size={14} className="mr-1.5 text-indigo-500" />
+                  Automate
+                </button>
               </div>
             </div>
-
-            <button className="text-[13px] text-blue-600 font-medium hover:underline px-2">
-              Add filter
-            </button>
-          </div>
-          
-          <div className="flex items-center space-x-3">
-            {lastSyncPr && (
-              <div className="flex items-center space-x-2 bg-indigo-50/50 border border-indigo-100 px-2 py-1 rounded mr-2">
-                <a 
-                  href={lastSyncPr.url} 
-                  target="_blank" 
-                  rel="noreferrer"
-                  className="flex items-center text-xs font-medium text-indigo-600 hover:text-indigo-800 transition-colors px-2 py-1"
-                >
-                  <ExternalLink size={14} className="mr-1" />
-                  View PR #{lastSyncPr.number}
-                </a>
+          ) : (
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center space-x-3">
+                <div className="relative w-48">
+                  <input 
+                    type="text" 
+                    placeholder="Search" 
+                    className="w-full px-3 py-1.5 text-[13px] bg-white border border-slate-300 text-slate-700 rounded focus:outline-none focus:border-blue-500 transition-colors"
+                  />
+                </div>
+                
+                <div className="relative w-36">
+                  <select className="w-full px-3 py-1.5 text-[13px] bg-white border border-slate-300 text-slate-700 rounded focus:outline-none focus:border-blue-500 appearance-none cursor-pointer">
+                    <option>By all fields</option>
+                    <option>By title</option>
+                  </select>
+                </div>
+                
+                <button className="text-[13px] text-blue-600 font-medium hover:underline">
+                  Add filter
+                </button>
+              </div>
+              
+              <div className="flex items-center space-x-3">
+                {lastSyncPr && (
+                  <div className="flex items-center space-x-2 bg-indigo-50/50 border border-indigo-100 px-2 py-1 rounded mr-2">
+                    <a 
+                      href={lastSyncPr.url} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="flex items-center text-xs font-medium text-indigo-600 hover:text-indigo-800 transition-colors px-2 py-1"
+                    >
+                      <ExternalLink size={14} className="mr-1" />
+                      View PR #{lastSyncPr.number}
+                    </a>
+                    {role !== 'VIEWER' && (
+                      <button
+                        onClick={handleQuickMerge}
+                        disabled={isMerging}
+                        className="flex items-center bg-indigo-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                      >
+                        {isMerging ? <Loader2 size={12} className="mr-1 animate-spin" /> : <GitMerge size={12} className="mr-1" />}
+                        Quick Merge
+                      </button>
+                    )}
+                  </div>
+                )}
+                
                 {role !== 'VIEWER' && (
-                  <button
-                    onClick={handleQuickMerge}
-                    disabled={isMerging}
-                    className="flex items-center bg-indigo-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
-                  >
-                    {isMerging ? <Loader2 size={12} className="mr-1 animate-spin" /> : <GitMerge size={12} className="mr-1" />}
-                    Quick Merge
-                  </button>
+                  <>
+                    <button 
+                      onClick={handleSyncAll}
+                      disabled={isSyncing}
+                      className="flex items-center bg-slate-800 text-white px-3 py-1.5 rounded text-[13px] font-medium hover:bg-slate-700 transition-colors disabled:opacity-50"
+                    >
+                      {isSyncing ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <CloudUpload size={14} className="mr-1.5" />}
+                      Sync to GitHub
+                    </button>
+                    <button 
+                      onClick={() => setIsAiModalOpen(true)}
+                      className="flex items-center px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 text-[13px] font-medium rounded border border-amber-200 transition-colors shadow-sm"
+                    >
+                      <Sparkles size={14} className="mr-1.5" />
+                      Generate Tests
+                    </button>
+                    
+                    <Link href={`/projects/${projectCode}/cases/create`} className="flex items-center px-3 py-1.5 bg-[#4834d4] hover:bg-blue-700 text-white text-[13px] font-medium rounded shadow-sm transition-colors">
+                      <Plus size={14} className="mr-1.5" />
+                      Test case
+                    </Link>
+                  </>
                 )}
               </div>
-            )}
-            
-            {role !== 'VIEWER' && (
-              <>
-                <button 
-                  onClick={handleSyncAll}
-                  disabled={isSyncing}
-                  className="flex items-center bg-slate-800 text-white px-3 py-1.5 rounded text-[13px] font-medium hover:bg-slate-700 transition-colors disabled:opacity-50"
-                >
-                  {isSyncing ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <CloudUpload size={14} className="mr-1.5" />}
-                  Sync to GitHub
-                </button>
-                <Link href={`/projects/${projectCode}/runs`} className="flex items-center bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-3 py-1.5 rounded text-[13px] font-medium hover:bg-emerald-500/20 transition-colors">
-                  <PlayCircle size={14} className="mr-1.5" />
-                  Start Run
-                </Link>
-                <button 
-                  onClick={() => setIsAiModalOpen(true)}
-                  className="flex items-center bg-amber-50 text-amber-600 border border-amber-200 px-3 py-1.5 rounded text-[13px] font-medium hover:bg-amber-100 transition-colors"
-                >
-                  <Sparkles size={14} className="mr-1.5" />
-                  Generate with AI
-                </button>
-                <Link href={`/projects/${projectCode}/cases/create${activeSuiteId ? `?suite=${activeSuiteId}` : ''}`} className="bg-blue-600 text-white px-3 py-1.5 rounded text-[13px] font-medium hover:bg-blue-700 transition-colors">
-                  Create Case
-                </Link>
-              </>
-            )}
-            
-            {role === 'ADMIN' && (
-              <Link href={`/projects/${projectCode}/settings/members`} className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors" title="Project Settings">
-                <Settings size={18} />
-              </Link>
-            )}
-          </div>
+            </div>
+          )}
         </header>
+
 
         {/* Hierarchical Content */}
         <div className="flex-1 overflow-y-auto bg-background relative transition-colors">
@@ -343,6 +399,6 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
           onClick={() => setActiveTestCaseId(null)}
         />
       )}
-    </SuiteSelectionProvider>
+    </>
   );
 }

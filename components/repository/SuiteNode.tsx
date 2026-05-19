@@ -46,7 +46,8 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   const isOpen = isExpanded(suite.id);
   
   // Selection Context
-  const { toggleCase, toggleSuiteCases, isCaseSelected, areAllCasesSelected } = useSuiteSelection();
+  const { toggleCase, toggleSuiteCases, isCaseSelected, areAllCasesSelected, selectedCases } = useSuiteSelection();
+  const hasSelection = selectedCases.size > 0;
 
   const children = childrenMap.get(suite.id) || [];
   const cases = casesBySuiteId.get(suite.id) || [];
@@ -243,7 +244,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                 </div>
                 
                 {/* Action Icons right next to title */}
-                {role !== 'VIEWER' && !isUnassigned && (
+                {role !== 'VIEWER' && !isUnassigned && !hasSelection && (
                   <div className="flex items-center space-x-0.5 ml-3">
                     <button 
                       onClick={(e) => { e.stopPropagation(); setShowQuickTest(true); }}
