@@ -60,7 +60,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(50);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
