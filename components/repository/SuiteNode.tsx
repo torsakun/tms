@@ -69,7 +69,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   };
 
   return (
-    <div className={cn("flex flex-col", depth > 0 && "ml-4 mt-2")}>
+    <div id={`suite-${suite.id}`} className={cn("flex flex-col", depth > 0 && "ml-4 mt-2")}>
       <div 
         className={cn("group flex items-center justify-between px-4 py-2 transition-colors", headerBgClass)}
       >

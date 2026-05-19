@@ -19,12 +19,13 @@ export function ResizableLayout({
 }: ResizableLayoutProps) {
   const [sidebarWidth, setSidebarWidth] = useState(initialWidth);
   const isDragging = useRef(false);
+  const dragStart = useRef({ x: 0, width: 0 });
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging.current) return;
       
-      let newWidth = e.clientX;
+      let newWidth = dragStart.current.width + (e.clientX - dragStart.current.x);
       if (newWidth < minWidth) newWidth = minWidth;
       if (newWidth > maxWidth) newWidth = maxWidth;
       
@@ -50,6 +51,7 @@ export function ResizableLayout({
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     isDragging.current = true;
+    dragStart.current = { x: e.clientX, width: sidebarWidth };
     document.body.style.cursor = "col-resize";
   };
 

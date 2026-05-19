@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { SuiteNode } from "./SuiteNode";
 import { Folder } from "lucide-react";
 
@@ -13,6 +13,19 @@ interface SuiteListProps {
 }
 
 export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectCase }: SuiteListProps) {
+  // Scroll to active suite when activeSuiteId changes
+  useEffect(() => {
+    if (activeSuiteId) {
+      const el = document.getElementById(`suite-${activeSuiteId}`);
+      if (el) {
+        // slight delay to ensure it's rendered and expanded
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+    }
+  }, [activeSuiteId]);
+
   // Build tree from flat array
   const { roots, childrenMap } = useMemo(() => {
     const cMap = new Map<string, any[]>();
@@ -30,13 +43,8 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
       }
     });
 
-    // If activeSuiteId is provided, we only want to display that suite as the root
-    const finalRoots = activeSuiteId 
-      ? suites.filter(s => s.id === activeSuiteId) 
-      : rootList;
-
-    return { roots: finalRoots, childrenMap: cMap };
-  }, [suites, activeSuiteId]);
+    return { roots: rootList, childrenMap: cMap };
+  }, [suites]);
 
   // Group cases by suiteId
   const casesBySuiteId = useMemo(() => {
