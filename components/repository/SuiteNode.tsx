@@ -33,8 +33,8 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
     : "bg-transparent";
   
   const titleClass = depth === 0 
-    ? "font-bold text-[15px] text-slate-800" 
-    : "font-semibold text-[14px] text-slate-700";
+    ? "font-bold text-base text-slate-800" 
+    : "font-semibold text-[15px] text-slate-700";
                       
   const handleCreateQuickTest = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && quickTestTitle.trim() && !isCreating) {
@@ -171,7 +171,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                     {tc.code || `${projectCode}-${tc.id.substring(0,2)}`}
                   </div>
                   
-                  <div className="flex-1 flex items-center text-[13px] font-normal text-slate-700 min-w-0">
+                  <div className="flex-1 flex items-center text-sm font-normal text-slate-700 min-w-0">
                     <span className="truncate">{tc.title}</span>
                   </div>
                   

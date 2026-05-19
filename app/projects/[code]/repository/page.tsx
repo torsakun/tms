@@ -45,7 +45,7 @@ export default async function RepositoryPage({
       {/* Top Header matching Qase layout */}
       <div className="flex-none px-6 py-4 border-b border-border/50">
         <div className="flex items-baseline space-x-3">
-          <h1 className="text-[22px] font-bold text-slate-800">{code} repository</h1>
+          <h1 className="text-2xl font-bold text-slate-800">{code} repository</h1>
           <span className="text-[13px] text-slate-500 font-medium">
             {cases.length} cases ({cases.length}) | {suites.length} suites ({suites.length})
           </span>
