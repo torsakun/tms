@@ -31,7 +31,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
     }
 
     const body = await req.json();
-    const { caseIds } = body;
+    const { caseIds, destinationId } = body;
 
     if (!Array.isArray(caseIds) || caseIds.length === 0) {
       return NextResponse.json({ error: "No case IDs provided" }, { status: 400 });
@@ -58,7 +58,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
     for (const originalCase of originalCases) {
       const clonedCase = await prisma.testCase.create({
         data: {
-          title: `Copy of ${originalCase.title}`,
+          title: originalCase.title,
           description: originalCase.description,
           preconditions: originalCase.preconditions,
           postconditions: originalCase.postconditions,
@@ -68,7 +68,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
           automationScript: originalCase.automationScript,
           customFields: originalCase.customFields || undefined,
           projectId: project.id,
-          suiteId: originalCase.suiteId,
+          suiteId: destinationId !== undefined ? destinationId : originalCase.suiteId,
           authorId: (session.user as any).id,
           tags: {
             connect: originalCase.tags.map(tag => ({ id: tag.id }))

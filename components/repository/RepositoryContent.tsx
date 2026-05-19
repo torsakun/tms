@@ -8,6 +8,7 @@ import { SuiteList } from "@/components/repository/SuiteList";
 import { AiGeneratorModal } from "@/components/repository/AiGeneratorModal";
 import { TestCaseAutomationPanel } from "@/components/repository/TestCaseAutomationPanel";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
+import { CloneCasesModal } from "@/components/repository/CloneCasesModal";
 import { useSuiteSelection } from "@/components/providers/SuiteSelectionProvider";
 
 interface RepositoryContentProps {
@@ -22,6 +23,8 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
   const { role } = useProjectRole();
   const [activeTestCaseId, setActiveTestCaseId] = useState<string | null>(null);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [isCloneCasesModalOpen, setIsCloneCasesModalOpen] = useState(false);
+  const [isCloningCases, setIsCloningCases] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isMerging, setIsMerging] = useState(false);
   const [lastSyncPr, setLastSyncPr] = useState<{ url: string; number: number | null } | null>(null);
@@ -55,17 +58,25 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
     }
   };
 
-  const handleBulkClone = async () => {
+  const handleBulkClone = () => {
+    setIsCloneCasesModalOpen(true);
+  };
+
+  const executeBulkClone = async (payload: { destinationId: string | null }) => {
+    setIsCloningCases(true);
     try {
       const res = await fetch(`/api/projects/${projectCode}/cases/bulk-clone`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ caseIds: Array.from(selectedCases) })
+        body: JSON.stringify({ 
+          caseIds: Array.from(selectedCases),
+          destinationId: payload.destinationId 
+        })
       });
       
       if (res.ok) {
         const data = await res.json();
-        alert(`Successfully cloned ${data.count} test case(s)`);
+        setIsCloneCasesModalOpen(false);
         clearSelection();
         router.refresh();
       } else {
@@ -75,6 +86,8 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
     } catch (err) {
       console.error(err);
       alert("Error cloning test cases");
+    } finally {
+      setIsCloningCases(false);
     }
   };
 
@@ -280,6 +293,16 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
         onSuccess={() => {
           router.refresh();
         }}
+      />
+
+      <CloneCasesModal
+        isOpen={isCloneCasesModalOpen}
+        onClose={() => setIsCloneCasesModalOpen(false)}
+        caseCount={selectedCases.size}
+        allSuites={suites}
+        projectCode={projectCode}
+        onClone={executeBulkClone}
+        isCloning={isCloningCases}
       />
 
       {/* Slide-over Detail Panel */}
