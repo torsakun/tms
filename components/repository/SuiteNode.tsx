@@ -29,14 +29,12 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   const children = childrenMap.get(suite.id) || [];
   const cases = casesBySuiteId.get(suite.id) || [];
 
-  // Root has bold blueish text and bg-slate-50.
-  const headerBgClass = depth === 0 
-    ? "bg-slate-50 border border-slate-100 rounded-md" 
-    : "bg-transparent";
+  // Use white background with subtle border, like Qase.
+  const headerBgClass = "bg-white border-b border-border/50";
   
   const titleClass = depth === 0 
-    ? "font-bold text-base text-slate-800" 
-    : "font-semibold text-[15px] text-slate-700";
+    ? "font-bold text-[16px] text-slate-800" 
+    : "font-semibold text-[15px] text-slate-800";
                       
   const handleCreateQuickTest = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && quickTestTitle.trim() && !isCreating) {
@@ -107,9 +105,12 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
         </div>
       </div>
 
-      {/* Suite Content (Cases and Child Suites) */}
-      {isOpen && (
-        <div className={cn("flex flex-col", depth === 0 && "pl-2")}>
+      {/* Suite Content (Cases and Child Suites) with Accordion Transition */}
+      <div 
+        className="grid transition-all duration-300 ease-in-out"
+        style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
+      >
+        <div className={cn("overflow-hidden flex flex-col", depth === 0 && "pl-2")}>
           
           {/* Quick Test Input */}
           {role !== 'VIEWER' && (showQuickTest || cases.length === 0 && children.length === 0) && (
@@ -224,7 +225,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
           {/* Child Suites */}
           {children.length > 0 && (
             <div className="mt-1">
-              {children.map(childSuite => (
+              {children.map((childSuite: any) => (
                 <SuiteNode 
                   key={childSuite.id} 
                   suite={childSuite} 
@@ -238,7 +239,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
             </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

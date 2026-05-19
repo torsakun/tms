@@ -74,13 +74,16 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild }: S
         </div>
       </div>
 
-      {isOpen && hasChildren && (
-        <div className="mt-0.5">
-          {suite.children!.map((child: any) => (
+      <div 
+        className="grid transition-all duration-300 ease-in-out"
+        style={{ gridTemplateRows: isOpen && hasChildren ? "1fr" : "0fr" }}
+      >
+        <div className="overflow-hidden mt-0.5">
+          {hasChildren && suite.children!.map((child: any) => (
             <SuiteItem key={child.id} suite={child} level={level + 1} projectCode={projectCode} selectedSuiteId={selectedSuiteId} onAddChild={onAddChild} />
           ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };
