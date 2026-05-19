@@ -33,8 +33,8 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   const headerBgClass = "bg-white border-b border-border/50";
   
   const titleClass = depth === 0 
-    ? "font-bold text-[16px] text-slate-800" 
-    : "font-semibold text-[15px] text-slate-800";
+    ? "font-bold text-[15px] text-slate-800" 
+    : "font-semibold text-[14px] text-slate-800";
                       
   const handleCreateQuickTest = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && quickTestTitle.trim() && !isCreating) {
@@ -164,9 +164,17 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                         <svg className="w-2 h-2 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><circle cx="12" cy="12" r="10"></circle></svg>
                       )}
                     </div>
-                    {/* Manual Hand Icon */}
-                    <div className="w-4 flex justify-center text-slate-400">
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M6 14v-1a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"></path><path d="M18 11a4 4 0 0 1 4 4v2a5 5 0 0 1-5 5H9.5a5.5 5.5 0 0 1-3.89-1.61L3 18l4.47-5.59A2 2 0 0 1 9 12.5V14"></path></svg>
+                    {/* Type Badge (M or AI) */}
+                    <div className="w-5 flex justify-center shrink-0">
+                      {tc.tags?.some((t: any) => t.name === "AI-Generated") ? (
+                        <span title="AI Generated" className="flex items-center justify-center w-[18px] h-[18px] rounded bg-amber-100/80 text-amber-600 text-[9px] font-bold border border-amber-200">
+                          AI
+                        </span>
+                      ) : (
+                        <span title="Manually Created" className="flex items-center justify-center w-[18px] h-[18px] rounded bg-blue-50 text-blue-500 text-[10px] font-bold border border-blue-100">
+                          M
+                        </span>
+                      )}
                     </div>
                   </div>
                   

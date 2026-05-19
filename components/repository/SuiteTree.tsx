@@ -29,7 +29,7 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild }: S
         onClick={() => router.push(`/projects/${projectCode}/repository?suite=${suite.id}`)}
         className={cn(
           "flex items-center py-1.5 pr-2 rounded-none cursor-pointer transition-colors relative",
-          level === 0 ? "font-bold text-[14px]" : "font-medium text-sm",
+          level === 0 ? "font-bold text-[15px]" : "font-semibold text-[14px]",
           selectedSuiteId === suite.id ? "bg-blue-50 text-blue-600" : "text-slate-700 hover:bg-slate-50"
         )}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
