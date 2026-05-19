@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 
 interface SuiteExpansionContextType {
   expandedSuites: Set<string>;
@@ -14,12 +14,36 @@ const SuiteExpansionContext = createContext<SuiteExpansionContextType | null>(nu
 
 export function SuiteExpansionProvider({ 
   children,
-  initialExpandedIds = []
+  initialExpandedIds = [],
+  projectCode = "default"
 }: { 
   children: React.ReactNode,
-  initialExpandedIds?: string[]
+  initialExpandedIds?: string[],
+  projectCode?: string
 }) {
+  const storageKey = `tms_suite_expansion_${projectCode}`;
   const [expandedSuites, setExpandedSuites] = useState<Set<string>>(new Set(initialExpandedIds));
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load from local storage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        setExpandedSuites(new Set(JSON.parse(saved)));
+      }
+    } catch (e) {
+      console.error("Failed to load suite expansion state", e);
+    }
+    setIsLoaded(true);
+  }, [storageKey]);
+
+  // Save to local storage whenever it changes (only after initial load)
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem(storageKey, JSON.stringify(Array.from(expandedSuites)));
+    }
+  }, [expandedSuites, isLoaded, storageKey]);
 
   const toggleSuite = useCallback((id: string) => {
     setExpandedSuites(prev => {

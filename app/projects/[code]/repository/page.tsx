@@ -46,7 +46,7 @@ export default async function RepositoryPage({
   const allSuiteIds = suites.map(s => s.id);
 
   return (
-    <SuiteExpansionProvider initialExpandedIds={allSuiteIds}>
+    <SuiteExpansionProvider initialExpandedIds={allSuiteIds} projectCode={code}>
       <SuiteSelectionProvider>
         <div className="flex flex-col flex-1 w-full bg-white overflow-hidden h-full">
           
