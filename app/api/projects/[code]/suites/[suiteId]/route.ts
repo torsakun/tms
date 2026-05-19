@@ -71,6 +71,49 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ code:
       return NextResponse.json({ error: "Forbidden: You do not have permission to delete suites in this project" }, { status: 403 });
     }
 
+    const body = await req.json().catch(() => ({}));
+    const retainCases = body.retainCases === true;
+
+    // Fetch the suite to be deleted to know its parent
+    const suiteToDelete = await prisma.testSuite.findUnique({
+      where: { id: suiteId },
+      select: { id: true, parentId: true }
+    });
+
+    if (!suiteToDelete) {
+      return NextResponse.json({ error: "Suite not found" }, { status: 404 });
+    }
+
+    // Function to recursively get all descendant suite IDs
+    async function getDescendantIds(parentId: string): Promise<string[]> {
+      const children = await prisma.testSuite.findMany({
+        where: { parentId },
+        select: { id: true }
+      });
+      let ids = children.map(c => c.id);
+      for (const child of children) {
+        const desc = await getDescendantIds(child.id);
+        ids = ids.concat(desc);
+      }
+      return ids;
+    }
+
+    const allSuiteIds = [suiteId, ...(await getDescendantIds(suiteId))];
+
+    if (retainCases) {
+      // Move all cases in these suites to the parent suite (or unassigned if null)
+      await prisma.testCase.updateMany({
+        where: { suiteId: { in: allSuiteIds } },
+        data: { suiteId: suiteToDelete.parentId }
+      });
+    } else {
+      // Delete all cases in these suites
+      await prisma.testCase.deleteMany({
+        where: { suiteId: { in: allSuiteIds } }
+      });
+    }
+
+    // Finally delete the suite itself (Prisma Cascade will delete the child suites folders)
     await prisma.testSuite.delete({
       where: { id: suiteId }
     });

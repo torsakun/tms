@@ -8,6 +8,7 @@ import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
 import { useSuiteExpansion } from "@/components/providers/SuiteExpansionProvider";
 import { useSuiteSelection } from "@/components/providers/SuiteSelectionProvider";
 import { CloneSuiteModal } from "./CloneSuiteModal";
+import { DeleteSuiteModal } from "./DeleteSuiteModal";
 
 interface SuiteNodeProps {
   suite: any;
@@ -34,6 +35,10 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   // Clone Modal State
   const [isCloneModalOpen, setIsCloneModalOpen] = useState(false);
   const [isCloning, setIsCloning] = useState(false);
+
+  // Delete Modal State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeletingSuite, setIsDeletingSuite] = useState(false);
 
   const router = useRouter();
   const { role } = useProjectRole();
@@ -136,19 +141,31 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
     }
   };
 
-  const handleDeleteSuite = async (e: React.MouseEvent) => {
+  const handleDeleteSuiteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm(`Are you sure you want to delete "${suite.title}"? This will delete all child suites and test cases.`)) {
-      try {
-        const res = await fetch(`/api/projects/${projectCode}/suites/${suite.id}`, { method: 'DELETE' });
-        if (res.ok) {
-          router.refresh();
-        } else {
-          alert("Failed to delete suite");
-        }
-      } catch (err) {
-        console.error(err);
+    setIsDeleteModalOpen(true);
+  };
+
+  const executeDeleteSuite = async (retainCases: boolean) => {
+    setIsDeletingSuite(true);
+    try {
+      const res = await fetch(`/api/projects/${projectCode}/suites/${suite.id}`, { 
+        method: 'DELETE',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ retainCases })
+      });
+      if (res.ok) {
+        setIsDeleteModalOpen(false);
+        router.refresh();
+      } else {
+        const data = await res.json();
+        alert("Failed to delete suite: " + (data.error || res.statusText));
       }
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting suite");
+    } finally {
+      setIsDeletingSuite(false);
     }
   };
 
@@ -250,7 +267,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                       <Copy size={14} />
                     </button>
                     <button 
-                      onClick={handleDeleteSuite}
+                      onClick={handleDeleteSuiteClick}
                       className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
                       title="Delete suite"
                     >
@@ -435,6 +452,16 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
         projectCode={projectCode}
         onClone={executeCloneSuite}
         isCloning={isCloning}
+      />
+
+      <DeleteSuiteModal 
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        suite={suite}
+        casesBySuiteId={casesBySuiteId}
+        childrenMap={childrenMap}
+        onDelete={executeDeleteSuite}
+        isDeleting={isDeletingSuite}
       />
     </div>
   );
