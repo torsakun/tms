@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     const filePath = path.join(uploadDir, uniqueFilename);
     await writeFile(filePath, buffer);
 
-    const fileUrl = `/uploads/${uniqueFilename}`;
+    const fileUrl = `/api/uploads/${uniqueFilename}`;
 
     const attachment = await prisma.attachment.create({
       data: {
