@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { writeFile } from "fs/promises";
+import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 
 export async function POST(req: NextRequest) {
@@ -44,6 +44,8 @@ export async function POST(req: NextRequest) {
     
     // Save to public/uploads
     const uploadDir = path.join(process.cwd(), "public", "uploads");
+    await mkdir(uploadDir, { recursive: true });
+    
     const filePath = path.join(uploadDir, uniqueFilename);
     await writeFile(filePath, buffer);
 
