@@ -15,12 +15,9 @@
 /reports
 /test-results
 
-# generated QA/demo artifacts
+# generated local artifacts
 /outputs/
-Racket/outputs/
-Racket/demo-slide/
-Racket/test-case-document/
-Racket/*.zip
+
 
 # next.js
 /.next/
