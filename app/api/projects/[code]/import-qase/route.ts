@@ -44,8 +44,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
         for (const suite of suites) {
           let newSuiteId;
 
-          // If replaceMatching is true and it's a top level suite, we might check if suite with same name exists?
-          // Actually, replacing matching cases is complex. For now, we will just always create new suites.
           const newSuite = await tx.testSuite.create({
             data: {
               title: suite.title,
@@ -88,6 +86,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
       };
 
       await processSuites(body.suites, rootParentId);
+    }, {
+      maxWait: 15000,
+      timeout: 120000
     });
 
     return NextResponse.json({ success: true });
