@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Filter, PlayCircle, Settings, X, Edit3, Copy, Trash2, Cpu, FileText, Sparkles, CloudUpload, Loader2, GitMerge, ExternalLink, Ticket, Plus, AlertTriangle } from "lucide-react";
+import { Search, Filter, PlayCircle, Settings, X, Edit3, Copy, Trash2, Cpu, FileText, Sparkles, CloudUpload, Loader2, GitMerge, ExternalLink, Ticket, Plus, AlertTriangle, Download, Upload } from "lucide-react";
 import { SuiteList } from "@/components/repository/SuiteList";
 import { AiGeneratorModal } from "@/components/repository/AiGeneratorModal";
 import { AiImpactModal } from "@/components/repository/AiImpactModal";
@@ -11,6 +11,7 @@ import { BulkJiraImpactModal } from "@/components/repository/BulkJiraImpactModal
 import { TestCaseAutomationPanel } from "@/components/repository/TestCaseAutomationPanel";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
 import { CloneSuiteModal } from "@/components/repository/CloneSuiteModal";
+import { ImportCasesModal } from "@/components/repository/ImportCasesModal";
 import { useSuiteSelection } from "@/components/providers/SuiteSelectionProvider";
 
 interface RepositoryContentProps {
@@ -31,8 +32,10 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
   const [isMerging, setIsMerging] = useState(false);
   const [isImpactModalOpen, setIsImpactModalOpen] = useState(false);
   const [isBulkJiraModalOpen, setIsBulkJiraModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [lastSyncPr, setLastSyncPr] = useState<{ url: string; number: number | null } | null>(null);
   const [customFieldsDef, setCustomFieldsDef] = useState<any[]>([]);
+  const [isImporting, setIsImporting] = useState(false);
 
   const { selectedCases, clearSelection } = useSuiteSelection();
   const hasSelection = selectedCases.size > 0;
@@ -155,6 +158,10 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
     }
   };
 
+  const handleExportQase = () => {
+    window.open(`/api/projects/${projectCode}/export-qase`, '_blank');
+  };
+
   const activeTestCase = cases.find(c => c.id === activeTestCaseId);
 
   return (
@@ -274,6 +281,28 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                       <Plus size={14} className="mr-1.5" />
                       Test case
                     </Link>
+                    <div className="relative group ml-2">
+                      <button className="flex items-center bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm">
+                        <Settings size={14} className="mr-1.5" />
+                        Options
+                      </button>
+                      <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-slate-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                        <div className="p-1">
+                          <button 
+                            onClick={handleExportQase}
+                            className="flex items-center w-full px-3 py-2 text-[13px] text-slate-700 hover:bg-slate-100 rounded-sm text-left"
+                          >
+                            <Download size={14} className="mr-2 text-slate-400" /> Export Qase
+                          </button>
+                          <button 
+                            onClick={() => setIsImportModalOpen(true)}
+                            className="flex items-center w-full px-3 py-2 text-[13px] text-slate-700 hover:bg-slate-100 rounded-sm text-left"
+                          >
+                            <Upload size={14} className="mr-2 text-slate-400" /> Import Qase
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </>
                 )}
               </div>
@@ -328,9 +357,19 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
         isCloning={isCloningCases}
       />
 
+      <ImportCasesModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        projectCode={projectCode}
+        suites={suites}
+        onSuccess={() => {
+          router.refresh();
+        }}
+      />
+
       {/* Slide-over Detail Panel */}
       <div 
-        className={`fixed top-0 right-0 h-full w-[55vw] min-w-[600px] bg-surface shadow-[-10px_0_30px_rgba(0,0,0,0.1)] border-l border-border transform transition-transform duration-300 ease-in-out z-40 flex flex-col ${activeTestCaseId ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed top-0 right-0 h-full w-[55vw] min-w-[600px] bg-surface shadow-[-10px_0_30px_rgba(0,0,0,0.1)] border-l border-border transform transition-transform duration-300 ease-in-out z-[60] flex flex-col ${activeTestCaseId ? 'translate-x-0' : 'translate-x-full'}`}
       >
         {activeTestCase && (
           <>
@@ -497,7 +536,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
       {/* Backdrop for sliding panel */}
       {activeTestCaseId && (
         <div 
-          className="fixed inset-0 bg-slate-900/20 z-30 transition-opacity" 
+          className="fixed inset-0 bg-slate-900/20 z-[50] transition-opacity" 
           onClick={() => setActiveTestCaseId(null)}
         />
       )}

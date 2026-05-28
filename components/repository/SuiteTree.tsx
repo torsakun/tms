@@ -90,6 +90,10 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild }: S
 
 export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialSuites: any[], cases?: any[], projectCode: string }) => {
   const [suites, setSuites] = useState<any[]>(initialSuites);
+
+  React.useEffect(() => {
+    setSuites(initialSuites);
+  }, [initialSuites]);
   const router = useRouter();
   const searchParams = useSearchParams();
   const { role } = useProjectRole();
