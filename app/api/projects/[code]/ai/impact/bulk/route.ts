@@ -31,8 +31,9 @@ function chunkArray<T>(array: T[], size: number): T[][] {
   return chunks;
 }
 
-export async function POST(req: Request, { params }: { params: { code: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ code: string }> }) {
   try {
+    const { code } = await params;
     const body = await req.json();
     const { newRequirementText, modelProvider, caseIds } = body;
 

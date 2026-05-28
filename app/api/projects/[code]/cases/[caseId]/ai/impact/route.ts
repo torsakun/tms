@@ -22,11 +22,11 @@ const impactSchema = z.object({
   }).describe("Suggested new values for the test case if needsUpdate is true. MUST BE IN THAI LANGUAGE with English technical loanwords.")
 });
 
-export async function POST(req: Request, { params }: { params: { code: string, caseId: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ code: string; caseId: string }> }) {
   try {
+    const { caseId } = await params;
     const body = await req.json();
     const { newRequirementText, modelProvider } = body;
-    const { caseId } = params;
 
     if (!newRequirementText) {
       return NextResponse.json({ error: "newRequirementText is required" }, { status: 400 });
