@@ -3,9 +3,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, Filter, PlayCircle, Settings, X, Edit3, Copy, Trash2, Cpu, FileText, Sparkles, CloudUpload, Loader2, GitMerge, ExternalLink, Ticket, Plus } from "lucide-react";
+import { Search, Filter, PlayCircle, Settings, X, Edit3, Copy, Trash2, Cpu, FileText, Sparkles, CloudUpload, Loader2, GitMerge, ExternalLink, Ticket, Plus, AlertTriangle } from "lucide-react";
 import { SuiteList } from "@/components/repository/SuiteList";
 import { AiGeneratorModal } from "@/components/repository/AiGeneratorModal";
+import { AiImpactModal } from "@/components/repository/AiImpactModal";
+import { BulkJiraImpactModal } from "@/components/repository/BulkJiraImpactModal";
 import { TestCaseAutomationPanel } from "@/components/repository/TestCaseAutomationPanel";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
 import { CloneSuiteModal } from "@/components/repository/CloneSuiteModal";
@@ -27,6 +29,8 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
   const [isCloningCases, setIsCloningCases] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [isMerging, setIsMerging] = useState(false);
+  const [isImpactModalOpen, setIsImpactModalOpen] = useState(false);
+  const [isBulkJiraModalOpen, setIsBulkJiraModalOpen] = useState(false);
   const [lastSyncPr, setLastSyncPr] = useState<{ url: string; number: number | null } | null>(null);
   const [customFieldsDef, setCustomFieldsDef] = useState<any[]>([]);
 
@@ -252,14 +256,21 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                       Sync to GitHub
                     </button>
                     <button 
+                      onClick={() => setIsBulkJiraModalOpen(true)}
+                      className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm hover:shadow-md active:scale-95 ml-2"
+                    >
+                      <Ticket size={14} className="mr-1.5" />
+                      Story Impact
+                    </button>
+                    <button 
                       onClick={() => setIsAiModalOpen(true)}
-                      className="flex items-center bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm hover:shadow-md active:scale-95"
+                      className="flex items-center bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm hover:shadow-md active:scale-95 ml-2"
                     >
                       <Sparkles size={14} className="mr-1.5" />
                       Generate Tests
                     </button>
                     
-                    <Link href={`/projects/${projectCode}/cases/create`} className="flex items-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm hover:shadow-md active:scale-95">
+                    <Link href={`/projects/${projectCode}/cases/create`} className="flex items-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm hover:shadow-md active:scale-95 ml-2">
                       <Plus size={14} className="mr-1.5" />
                       Test case
                     </Link>
@@ -290,6 +301,17 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
         onClose={() => setIsAiModalOpen(false)}
         projectCode={projectCode}
         suites={suites}
+        onSuccess={() => {
+          router.refresh();
+        }}
+      />
+
+      <BulkJiraImpactModal
+        isOpen={isBulkJiraModalOpen}
+        onClose={() => setIsBulkJiraModalOpen(false)}
+        projectCode={projectCode}
+        suites={suites}
+        allCases={cases}
         onSuccess={() => {
           router.refresh();
         }}
@@ -354,6 +376,20 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
             </header>
 
             <div className="flex-1 overflow-y-auto bg-background p-6 space-y-8 transition-colors">
+              {activeTestCase.isOutdated && (
+                <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl flex flex-col space-y-3 shadow-sm mb-4">
+                  <div className="flex items-start">
+                    <AlertTriangle size={20} className="text-amber-500 mr-2 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-bold text-amber-800">Requirement Changed</h4>
+                      <p className="text-xs text-amber-700 mt-1">The requirement linked to this test case has been updated. The steps may be outdated.</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setIsImpactModalOpen(true)} className="self-start flex items-center bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-colors">
+                    <Sparkles size={14} className="mr-1.5" /> Analyze Impact with AI
+                  </button>
+                </div>
+              )}
                <div className="bg-surface p-6 rounded-xl border border-border shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-colors">
                   <h3 className="text-sm font-bold text-text-main mb-2">Description</h3>
                   <div className="text-[15px] text-text-muted">
@@ -447,6 +483,16 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
           </>
         )}
       </div>
+
+      <AiImpactModal 
+        isOpen={isImpactModalOpen}
+        onClose={() => setIsImpactModalOpen(false)}
+        projectCode={projectCode}
+        testCase={activeTestCase || {}}
+        onSuccess={() => {
+          router.refresh();
+        }}
+      />
 
       {/* Backdrop for sliding panel */}
       {activeTestCaseId && (

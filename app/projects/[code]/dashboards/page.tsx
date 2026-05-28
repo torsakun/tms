@@ -24,7 +24,8 @@ export default async function ProjectOverviewPage({
   let dashboardData = {
     metrics: { totalSuites: 0, totalCases: 0, totalRuns: 0, activeRuns: 0 },
     severityCounts: [] as { severity: string; count: number }[],
-    recentRuns: [] as any[]
+    recentRuns: [] as any[],
+    outdatedCases: [] as any[]
   };
 
   try {
@@ -60,6 +61,13 @@ export default async function ProjectOverviewPage({
         include: { results: { select: { status: true } } }
       });
 
+      const outdatedCases = await prisma.testCase.findMany({
+        where: { projectId: project.id, isOutdated: true },
+        select: { id: true, title: true, jiraId: true },
+        orderBy: { updatedAt: "desc" },
+        take: 5
+      });
+
       dashboardData = {
         metrics: {
           totalSuites: project._count.suites,
@@ -76,7 +84,8 @@ export default async function ProjectOverviewPage({
           const skipped = run.results.filter(r => r.status === "SKIPPED").length;
           const untested = total - passed - failed - blocked - skipped;
           return { id: run.id, title: run.title, status: run.status, createdAt: run.createdAt, metrics: { total, passed, failed, blocked, skipped, untested } };
-        })
+        }),
+        outdatedCases
       };
     }
   } catch (err) {
@@ -87,7 +96,7 @@ export default async function ProjectOverviewPage({
     return <div className="p-8">Project not found</div>;
   }
 
-  const { metrics, severityCounts, recentRuns } = dashboardData;
+  const { metrics, severityCounts, recentRuns, outdatedCases } = dashboardData;
   
   // Severity order mapping
   const severityOrder = ["BLOCKER", "CRITICAL", "MAJOR", "NORMAL", "MINOR", "TRIVIAL", "NOT_SET"];
@@ -273,6 +282,35 @@ export default async function ProjectOverviewPage({
                 )}
               </div>
             </div>
+
+            {/* Impacted Test Cases */}
+            {outdatedCases.length > 0 && (
+              <div className="bg-amber-50 rounded-xl border border-amber-200 shadow-sm col-span-1 lg:col-span-3 flex flex-col">
+                <div className="px-6 py-4 border-b border-amber-200 flex items-center justify-between">
+                  <h2 className="text-base font-bold text-amber-900 flex items-center">
+                    <AlertTriangle className="mr-2 text-amber-600" size={18} />
+                    Impacted Test Cases (Jira Requirement Changed)
+                  </h2>
+                  <Link href={`/projects/${code}/repository`} className="text-sm font-medium text-amber-700 hover:underline">
+                    Go to Repository
+                  </Link>
+                </div>
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {outdatedCases.map(tc => (
+                      <div key={tc.id} className="bg-white border border-amber-200 p-4 rounded-lg shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded uppercase">Outdated</span>
+                          {tc.jiraId && <span className="text-xs text-slate-500 font-mono">{tc.jiraId}</span>}
+                        </div>
+                        <h3 className="text-sm font-bold text-slate-800 truncate">{tc.title}</h3>
+                        <p className="text-xs text-slate-500 mt-2">Requirement changed in Jira. Needs AI Impact Analysis.</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
           </div>
         </div>

@@ -202,6 +202,9 @@ model TestCase {
   automationScript String?          @db.Text
   lastVerificationLog String?       @db.Text
   githubPrUrl      String?          @db.Text
+  jiraId           String?
+  requirementText  String?          @db.Text
+  isOutdated       Boolean          @default(false)
   
   // Relations
   projectId        String
