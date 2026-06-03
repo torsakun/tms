@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Check, MoreHorizontal, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function WorkspaceRolesPage() {
   const [roles, setRoles] = useState<any[]>([]);
@@ -41,9 +42,11 @@ export default function WorkspaceRolesPage() {
       });
       if (res.ok) {
         fetchRoles();
+        toast.success("Default role updated");
       }
     } catch (e) {
       console.error("Error setting default role", e);
+      toast.error("Failed to update default role");
     }
   };
 
@@ -53,13 +56,14 @@ export default function WorkspaceRolesPage() {
       const res = await fetch(`/api/workspace/roles/${id}`, { method: "DELETE" });
       if (res.ok) {
         fetchRoles();
+        toast.success("Role deleted successfully");
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to delete role");
+        toast.error(data.error || "Failed to delete role");
       }
     } catch (err) {
       console.error("Error deleting role", err);
-      alert("Something went wrong");
+      toast.error("Something went wrong");
     }
   };
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function CreateRolePage() {
   const router = useRouter();
@@ -15,7 +16,7 @@ export default function CreateRolePage() {
 
   const handleSubmit = async () => {
     if (!title.trim() || !description.trim()) {
-      alert("Role title and description are required");
+      toast.error("Role title and description are required");
       return;
     }
     
@@ -38,15 +39,16 @@ export default function CreateRolePage() {
       });
 
       if (res.ok) {
+        toast.success("Role created successfully");
         router.push("/workspace/roles");
         router.refresh();
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to create role");
+        toast.error(data.error || "Failed to create role");
       }
     } catch (err) {
       console.error(err);
-      alert("Something went wrong");
+      toast.error("Something went wrong");
     } finally {
       setIsSubmitting(false);
     }

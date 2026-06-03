@@ -100,10 +100,9 @@ function CreateRunContent() {
           throw new Error("Fallback");
         }
       } catch (err) {
-        // Mock fallback if DB is offline
-        setCases(DUMMY_CASES as any[]);
-        setSuites(DUMMY_SUITES as any[]);
-        setSelectedIds(new Set(DUMMY_CASES.map(c => c.id)));
+        setCases([]);
+        setSuites([]);
+        setSelectedIds(new Set());
       }
     };
     fetchCases();

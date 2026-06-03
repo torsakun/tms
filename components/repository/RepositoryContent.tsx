@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search, Filter, PlayCircle, Settings, X, Edit3, Copy, Trash2, Cpu, FileText, Sparkles, CloudUpload, Loader2, GitMerge, ExternalLink, Ticket, Plus, AlertTriangle, Download, Upload } from "lucide-react";
+import { toast } from "sonner";
 import { SuiteList } from "@/components/repository/SuiteList";
 import { AiGeneratorModal } from "@/components/repository/AiGeneratorModal";
 import { AiImpactModal } from "@/components/repository/AiImpactModal";
@@ -54,14 +55,15 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
       
       if (res.ok) {
         clearSelection();
+        toast.success("Successfully deleted selected test cases");
         router.refresh();
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to delete test cases");
+        toast.error(data.error || "Failed to delete test cases");
       }
     } catch (err) {
       console.error(err);
-      alert("Error deleting test cases");
+      toast.error("Error deleting test cases");
     }
   };
 
@@ -82,17 +84,17 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
       });
       
       if (res.ok) {
-        const data = await res.json();
         setIsCloneCasesModalOpen(false);
         clearSelection();
+        toast.success("Successfully cloned selected test cases");
         router.refresh();
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to clone test cases");
+        toast.error(data.error || "Failed to clone test cases");
       }
     } catch (err) {
       console.error(err);
-      alert("Error cloning test cases");
+      toast.error("Error cloning test cases");
     } finally {
       setIsCloningCases(false);
     }
@@ -104,7 +106,10 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
   };
 
   const handleBulkEdit = () => {
-    alert("Bulk Edit is coming soon!");
+    toast("Bulk Edit is coming soon!", {
+      description: "This feature is currently under development.",
+      icon: "🚧"
+    });
   };
 
   React.useEffect(() => {
@@ -127,10 +132,10 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
       if (!res.ok) throw new Error(data.error || "Sync failed");
       
       setLastSyncPr({ url: data.prUrl, number: data.prNumber });
-      alert(`Success! Created PR for ${data.count} test cases.`);
+      toast.success(`Success! Created PR for ${data.count} test cases.`);
       router.refresh();
     } catch (err: any) {
-      alert(`Error: ${err.message}`);
+      toast.error(`Error: ${err.message}`);
     } finally {
       setIsSyncing(false);
     }
@@ -149,10 +154,10 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Merge failed");
       
-      alert(`Merged successfully! ${data.message || ''}`);
+      toast.success(`Merged successfully! ${data.message || ''}`);
       setLastSyncPr(null);
     } catch (err: any) {
-      alert(`Error merging PR: ${err.message}`);
+      toast.error(`Error merging PR: ${err.message}`);
     } finally {
       setIsMerging(false);
     }

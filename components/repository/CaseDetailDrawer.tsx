@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { X, Edit2, Trash2, Clock, CheckCircle2, AlertCircle, Paperclip, Download } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function CaseDetailDrawer({ 
   caseId, 
@@ -72,13 +73,18 @@ export function CaseDetailDrawer({
     if (!confirm("Are you sure you want to delete this test case?")) return;
     setIsDeleting(true);
     try {
-      await fetch(`/api/cases/${caseId}`, { method: 'DELETE' });
-      if (onDeleted) onDeleted();
-      onClose();
-      router.refresh();
+      const res = await fetch(`/api/cases/${caseId}`, { method: 'DELETE' });
+      if (res.ok) {
+        if (onDeleted) onDeleted();
+        onClose();
+        router.refresh();
+        toast.success("Test case deleted successfully");
+      } else {
+        toast.error("Failed to delete test case");
+      }
     } catch (error) {
       console.error(error);
-      alert("Failed to delete test case");
+      toast.error("Error deleting test case");
     } finally {
       setIsDeleting(false);
     }

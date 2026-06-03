@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, XCircle, MinusCircle, RefreshCw, ArrowLeft, Eye, Edit3, VolumeX, Settings, ChevronRight, ChevronDown, Clock, X, PlayCircle, Check, Share, Download, MoreHorizontal, Loader2, Terminal, BarChart2, Edit, FileText } from "lucide-react";
+import { toast } from "sonner";
 import Link from "next/link";
 import { createRoot } from "react-dom/client";
 import { PdfReportTemplate } from "./PdfReportTemplate";
@@ -180,9 +181,10 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
       });
       if (!res.ok) throw new Error("Failed to update public link status");
       setIsPublicLinkOn(newState);
+      toast.success(`Public link ${newState ? 'enabled' : 'disabled'}!`);
     } catch (err) {
       console.error(err);
-      alert("Failed to toggle public link");
+      toast.error("Failed to toggle public link");
     } finally {
       setIsTogglingLink(false);
     }
@@ -191,7 +193,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
   const handleCopyPublicLink = () => {
     if (typeof window !== "undefined") {
       navigator.clipboard.writeText(`${window.location.origin}/report/${runId}`);
-      alert("Public link copied to clipboard!");
+      toast.success("Public link copied to clipboard!");
     }
   };
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -284,9 +286,10 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
        setIsCompleteModalOpen(false);
        router.push(`/projects/${projectCode}/runs`);
        router.refresh();
+       toast.success("Run completed successfully!");
     } catch (e) {
        console.error(e);
-       alert("Error completing run: " + e);
+       toast.error("Error completing run: " + e);
     }
   };
 
@@ -334,7 +337,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
     );
     
     if (automatedResults.length === 0) {
-      alert("No automated test cases with scripts found in this run.");
+      toast.error("No automated test cases with scripts found in this run.");
       return;
     }
     
@@ -412,7 +415,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
       if (!res.ok) throw new Error(data.error || "Failed to trigger GitHub Actions");
       
     } catch (err: any) {
-      alert(`Error triggering GitHub: ${err.message}`);
+      toast.error(`Error triggering GitHub: ${err.message}`);
     } finally {
       setIsTriggeringGitHub(false);
     }
@@ -609,7 +612,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
       updateStepResult(stepId, { attachments: newAtts });
     } catch (error) {
       console.error(error);
-      alert("Failed to upload file");
+      toast.error("Failed to upload file");
     } finally {
       setUploadingStepId(null);
     }
@@ -956,9 +959,10 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
       }
       
       setIsExportModalOpen(false);
+      toast.success("PDF Report generated successfully");
     } catch (err: any) {
       console.error("Failed to generate PDF:", err);
-      alert(`Failed to generate PDF: ${err.message || String(err)}`);
+      toast.error(`Failed to generate PDF: ${err.message || String(err)}`);
     } finally {
       setIsExportingPdf(false);
     }

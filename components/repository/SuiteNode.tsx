@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Plus, Edit2, Copy, Trash2, CheckSquare, Square, Sparkles, User, Check } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
@@ -102,13 +103,14 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
       if (res.ok) {
         setIsEditingSuite(false);
         router.refresh();
+        toast.success("Suite updated successfully");
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to update suite");
+        toast.error(data.error || "Failed to update suite");
       }
     } catch (err) {
       console.error(err);
-      alert("Error updating suite");
+      toast.error("Error updating suite");
     } finally {
       setIsSavingSuite(false);
     }
@@ -130,13 +132,14 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
       if (res.ok) {
         setIsCloneModalOpen(false);
         router.refresh();
+        toast.success("Suite cloned successfully");
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to clone suite");
+        toast.error(data.error || "Failed to clone suite");
       }
     } catch (err) {
       console.error(err);
-      alert("Error cloning suite");
+      toast.error("Error cloning suite");
     } finally {
       setIsCloning(false);
     }
@@ -158,13 +161,14 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
       if (res.ok) {
         setIsDeleteModalOpen(false);
         router.refresh();
+        toast.success("Suite deleted successfully");
       } else {
         const data = await res.json();
-        alert("Failed to delete suite: " + (data.error || res.statusText));
+        toast.error("Failed to delete suite: " + (data.error || res.statusText));
       }
     } catch (err) {
       console.error(err);
-      alert("Error deleting suite");
+      toast.error("Error deleting suite");
     } finally {
       setIsDeletingSuite(false);
     }
@@ -394,13 +398,14 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                               const res = await fetch(`/api/projects/${projectCode}/cases/${tc.id}`, { method: 'DELETE' });
                               if (res.ok) {
                                 router.refresh();
+                                toast.success("Test case deleted successfully");
                               } else {
                                 const data = await res.json();
-                                alert("Failed to delete test case: " + (data.error || res.statusText));
+                                toast.error("Failed to delete test case: " + (data.error || res.statusText));
                               }
                             } catch (err: any) {
                               console.error(err);
-                              alert("Error: " + err.message);
+                              toast.error("Error: " + err.message);
                             }
                           }
                         }}

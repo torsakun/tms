@@ -1,7 +1,8 @@
 // components/repository/SuiteTree.tsx
 "use client";
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, Folder, FolderOpen, Plus } from 'lucide-react';
+import { ChevronRight, ChevronDown, Folder, FolderOpen, Plus, Loader2, X } from 'lucide-react';
+import { toast } from 'sonner';
 import { Suite } from '@/types/repository';
 import { cn } from '@/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -90,6 +91,10 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild }: S
 
 export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialSuites: any[], cases?: any[], projectCode: string }) => {
   const [suites, setSuites] = useState<any[]>(initialSuites);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newSuiteTitle, setNewSuiteTitle] = useState("");
+  const [targetParentId, setTargetParentId] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   React.useEffect(() => {
     setSuites(initialSuites);
@@ -145,23 +150,39 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
   const suiteTree = React.useMemo(() => buildTree(suites, cases), [suites, cases]);
   const unassignedCount = React.useMemo(() => cases.filter(tc => !tc.suiteId).length, [cases]);
 
-  const handleAddSuite = async (parentId: string | null) => {
-    const title = window.prompt("Enter Suite Name:");
-    if (!title) return;
+  const handleOpenCreateModal = (parentId: string | null) => {
+    setTargetParentId(parentId);
+    setNewSuiteTitle("");
+    setIsCreateModalOpen(true);
+  };
 
+  const handleCreateSuite = async () => {
+    if (!newSuiteTitle.trim()) {
+      toast.error("Suite name is required");
+      return;
+    }
+
+    setIsCreating(true);
     try {
       const res = await fetch(`/api/projects/${projectCode}/suites`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, parentId })
+        body: JSON.stringify({ title: newSuiteTitle.trim(), parentId: targetParentId })
       });
       if (res.ok) {
         const newSuite = await res.json();
         setSuites([...suites, newSuite]);
+        toast.success("Suite created successfully");
+        setIsCreateModalOpen(false);
         router.refresh();
+      } else {
+        toast.error("Failed to create suite");
       }
     } catch (err) {
       console.error(err);
+      toast.error("Error creating suite");
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -172,7 +193,7 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
           <h2 className="font-semibold text-[15px]">Suites</h2>
           {role !== 'VIEWER' && (
-            <button onClick={() => handleAddSuite(null)} className="text-text-muted hover:text-text-main ml-1">
+            <button onClick={() => handleOpenCreateModal(null)} className="text-text-muted hover:text-text-main ml-1">
               <Plus size={16} />
             </button>
           )}
@@ -184,7 +205,7 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
       </div>
       <div className="flex-1 overflow-y-auto py-2 space-y-0.5">
         {suiteTree.map((suite) => (
-          <SuiteItem key={suite.id} suite={suite} level={0} projectCode={projectCode} selectedSuiteId={selectedSuiteId} onAddChild={handleAddSuite} />
+          <SuiteItem key={suite.id} suite={suite} level={0} projectCode={projectCode} selectedSuiteId={selectedSuiteId} onAddChild={handleOpenCreateModal} />
         ))}
         {unassignedCount > 0 && (
           <SuiteItem 
@@ -197,6 +218,66 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
           />
         )}
       </div>
+
+      {/* Create Suite Modal */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100">
+              <h3 className="font-bold text-lg text-slate-800">
+                Create Suite
+              </h3>
+              <button 
+                onClick={() => setIsCreateModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Suite Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={newSuiteTitle}
+                onChange={(e) => setNewSuiteTitle(e.target.value)}
+                placeholder="e.g. Authentication, Shopping Cart"
+                className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleCreateSuite();
+                  }
+                }}
+              />
+            </div>
+            
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end space-x-3">
+              <button
+                onClick={() => setIsCreateModalOpen(false)}
+                className="px-4 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+                disabled={isCreating}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateSuite}
+                disabled={isCreating}
+                className="flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+              >
+                {isCreating ? (
+                  <><Loader2 size={16} className="animate-spin mr-2" /> Creating...</>
+                ) : (
+                  'Create Suite'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

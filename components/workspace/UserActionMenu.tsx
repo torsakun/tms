@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { MoreHorizontal, UserX, UserCheck, Key, Shield, ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface WorkspaceRole {
   id: string;
@@ -55,16 +56,17 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
         body: JSON.stringify({ action }),
       });
       
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
-      
-      if (action === "reset_password") {
-        alert("Password has been reset to: password123");
+      if (response.ok) {
+        if (action === "reset_password") {
+          toast.success("Password has been reset to: password123", { duration: 5000 });
+        }
+        router.refresh();
+      } else {
+        const data = await response.json();
+        toast.error(`Action failed: ${data.error || "Unknown error"}`);
       }
-      
-      router.refresh();
     } catch (error: any) {
-      alert(`Action failed: ${error.message}`);
+      toast.error(`Action failed: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -79,13 +81,16 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
         body: JSON.stringify({ action: "change_role", roleId: selectedRoleId }),
       });
       
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
-      
-      setShowRoleModal(false);
-      router.refresh();
+      if (response.ok) {
+        toast.success("User role updated successfully");
+        setShowRoleModal(false);
+        router.refresh();
+      } else {
+        const data = await response.json();
+        toast.error(`Role update failed: ${data.error || "Unknown error"}`);
+      }
     } catch (error: any) {
-      alert(`Role update failed: ${error.message}`);
+      toast.error(`Role update failed: ${error.message}`);
     } finally {
       setIsLoading(false);
     }

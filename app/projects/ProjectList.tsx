@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { Search, LayoutList, Grid, MoreVertical, AlertTriangle, Check, Settings, Archive } from "lucide-react";
+import { toast } from "sonner";
 
 function timeAgo(dateString: string) {
   const date = new Date(dateString);
@@ -239,7 +240,7 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
                           <div className="h-px bg-border my-1"></div>
                           <button 
                             className="w-full text-left px-4 py-2 text-sm text-amber-600 hover:bg-surface-hover flex items-center"
-                            onClick={() => alert('Archive project coming soon')}
+                            onClick={() => toast("Archive project coming soon", { icon: "🚧" })}
                           >
                             <Archive size={14} className="mr-2 text-amber-400" /> Archive Project
                           </button>
