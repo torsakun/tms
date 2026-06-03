@@ -113,7 +113,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
         {role !== 'VIEWER' && (
           <Link
             href={`/projects/${code}/runs/create`}
-            className="bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+            className="bg-primary text-primary-foreground shadow-sm px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-hover transition-colors"
           >
             Start new test run
           </Link>
@@ -162,7 +162,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
           {role !== 'VIEWER' && (
             <Link
               href={`/projects/${code}/runs/create`}
-              className="px-5 py-2.5 bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] rounded-md font-medium hover:bg-blue-700 transition-colors"
+              className="px-5 py-2.5 bg-primary text-primary-foreground shadow-sm rounded-md font-medium hover:bg-primary-hover transition-colors"
             >
               Start test run
             </Link>
@@ -391,7 +391,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
                 </button>
-                <div className="min-w-[32px] h-8 flex items-center justify-center bg-primary shadow-[0_0_10px_rgba(93,135,255,0.3)] text-white rounded-md font-medium text-sm">
+                <div className="min-w-[32px] h-8 flex items-center justify-center bg-primary shadow-sm text-primary-foreground rounded-md font-medium text-sm">
                   {currentPage}
                 </div>
                 <button 

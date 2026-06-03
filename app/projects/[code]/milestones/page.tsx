@@ -52,7 +52,7 @@ export default function MilestonesPage() {
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-bold flex items-center transition-colors shadow-sm"
+          className="bg-primary hover:bg-primary-hover text-primary-foreground px-4 py-2 rounded-md text-sm font-bold flex items-center transition-colors shadow-sm"
         >
           <Plus size={16} className="mr-2" /> Create milestone
         </button>
@@ -68,7 +68,7 @@ export default function MilestonesPage() {
             </p>
             <button 
               onClick={() => setIsModalOpen(true)}
-              className="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-bold transition-colors shadow-sm"
+              className="bg-primary hover:bg-primary-hover text-primary-foreground px-4 py-2 rounded-md text-sm font-bold transition-colors shadow-sm"
             >
               Create milestone
             </button>
@@ -149,7 +149,7 @@ export default function MilestonesPage() {
               </div>
               <div className="px-6 py-4 bg-background border-t border-border flex justify-end space-x-3">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 rounded-md border border-border text-sm font-medium hover:bg-surface-hover text-text-main transition-colors">Cancel</button>
-                <button type="submit" className="px-4 py-2 rounded-md bg-primary hover:bg-blue-700 text-white text-sm font-medium shadow-[0_0_10px_rgba(93,135,255,0.4)] transition-all">Create</button>
+                <button type="submit" className="px-4 py-2 rounded-md bg-primary hover:bg-primary-hover text-primary-foreground text-sm font-medium shadow-sm transition-all">Create</button>
               </div>
             </form>
           </div>

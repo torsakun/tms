@@ -66,14 +66,14 @@ export function CreateProjectModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden">
+      <div className="bg-surface rounded-xl shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Header */}
         <header className="flex items-center justify-between px-6 py-4 shrink-0">
-          <h2 className="text-xl font-bold text-slate-800">Create new project</h2>
+          <h2 className="text-xl font-bold text-text-main">Create new project</h2>
           <button 
             type="button"
             onClick={handleClose} 
-            className="p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full transition-colors"
+            className="p-2 text-text-muted hover:bg-surface-hover hover:text-text-muted rounded-full transition-colors"
           >
             <X size={20} />
           </button>
@@ -91,7 +91,7 @@ export function CreateProjectModal() {
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">
+              <label className="block text-sm font-semibold text-text-main mb-1">
                 Project name <span className="text-red-500">*</span>
               </label>
               <input
@@ -100,16 +100,16 @@ export function CreateProjectModal() {
                 value={name}
                 onChange={handleNameChange}
                 placeholder="For example: Web Application"
-                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                className="w-full px-3 py-2 border border-text-muted rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
               />
             </div>
 
             <div>
               <div className="flex items-center mb-1">
-                <label className="block text-sm font-semibold text-slate-700">
+                <label className="block text-sm font-semibold text-text-main">
                   Project code <span className="text-red-500">*</span>
                 </label>
-                <HelpCircle size={14} className="ml-1.5 text-slate-400" />
+                <HelpCircle size={14} className="ml-1.5 text-text-muted" />
               </div>
               <input
                 type="text"
@@ -117,12 +117,12 @@ export function CreateProjectModal() {
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
                 placeholder="For example: WA"
-                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
+                className="w-full px-3 py-2 border border-text-muted rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">
+              <label className="block text-sm font-semibold text-text-main mb-1">
                 Description
               </label>
               <textarea
@@ -130,14 +130,14 @@ export function CreateProjectModal() {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
                 placeholder="Write a few sentences about your project"
-                className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors resize-none"
+                className="w-full px-3 py-2 border border-text-muted rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors resize-none"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-8">
               {/* Project access type */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                <label className="block text-sm font-semibold text-text-main mb-3">
                   Project access type
                 </label>
                 <div className="space-y-3">
@@ -151,10 +151,10 @@ export function CreateProjectModal() {
                         onChange={(e) => setAccessType(e.target.value)}
                         className="peer sr-only"
                       />
-                      <div className="w-4 h-4 border-2 border-slate-300 rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
-                      <div className="absolute w-2 h-2 bg-blue-600 rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
+                      <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
+                      <div className="absolute w-2 h-2 bg-primary rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                     </div>
-                    <span className="text-sm font-medium text-slate-800">Private</span>
+                    <span className="text-sm font-medium text-text-main">Private</span>
                   </label>
                   
                   <label className="flex items-center space-x-3 cursor-pointer group">
@@ -167,17 +167,17 @@ export function CreateProjectModal() {
                         onChange={(e) => setAccessType(e.target.value)}
                         className="peer sr-only"
                       />
-                      <div className="w-4 h-4 border-2 border-slate-300 rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
-                      <div className="absolute w-2 h-2 bg-blue-600 rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
+                      <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
+                      <div className="absolute w-2 h-2 bg-primary rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                     </div>
-                    <span className="text-sm font-medium text-slate-800">Public</span>
+                    <span className="text-sm font-medium text-text-main">Public</span>
                   </label>
                 </div>
               </div>
 
               {/* Member access */}
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-3">
+                <label className="block text-sm font-semibold text-text-main mb-3">
                   Member access
                 </label>
                 <div className="space-y-3">
@@ -191,10 +191,10 @@ export function CreateProjectModal() {
                         onChange={(e) => setMemberAccess(e.target.value)}
                         className="peer sr-only"
                       />
-                      <div className="w-4 h-4 border-2 border-slate-300 rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
-                      <div className="absolute w-2 h-2 bg-blue-600 rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
+                      <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
+                      <div className="absolute w-2 h-2 bg-primary rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                     </div>
-                    <span className="text-sm font-medium text-slate-800">Add all members to this project</span>
+                    <span className="text-sm font-medium text-text-main">Add all members to this project</span>
                   </label>
                   
                   <label className="flex items-center space-x-3 cursor-pointer group">
@@ -207,10 +207,10 @@ export function CreateProjectModal() {
                         onChange={(e) => setMemberAccess(e.target.value)}
                         className="peer sr-only"
                       />
-                      <div className="w-4 h-4 border-2 border-slate-300 rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
-                      <div className="absolute w-2 h-2 bg-blue-600 rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
+                      <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
+                      <div className="absolute w-2 h-2 bg-primary rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                     </div>
-                    <span className="text-sm font-medium text-slate-800">Group access</span>
+                    <span className="text-sm font-medium text-text-main">Group access</span>
                   </label>
 
                   <label className="flex items-center space-x-3 cursor-pointer group">
@@ -223,10 +223,10 @@ export function CreateProjectModal() {
                         onChange={(e) => setMemberAccess(e.target.value)}
                         className="peer sr-only"
                       />
-                      <div className="w-4 h-4 border-2 border-slate-300 rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
-                      <div className="absolute w-2 h-2 bg-blue-600 rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
+                      <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
+                      <div className="absolute w-2 h-2 bg-primary rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                     </div>
-                    <span className="text-sm font-medium text-slate-800">Don't add members</span>
+                    <span className="text-sm font-medium text-text-main">Don't add members</span>
                   </label>
                 </div>
               </div>
@@ -236,11 +236,11 @@ export function CreateProjectModal() {
         </div>
 
         {/* Footer */}
-        <footer className="flex items-center justify-end px-6 py-4 bg-slate-50 border-t border-slate-200 shrink-0 space-x-3">
+        <footer className="flex items-center justify-end px-6 py-4 bg-surface-hover border-t border-border shrink-0 space-x-3">
           <button 
             type="button" 
             onClick={handleClose}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-text-main bg-surface border border-text-muted rounded-md hover:bg-surface-hover transition-colors"
           >
             Cancel
           </button>
@@ -248,7 +248,7 @@ export function CreateProjectModal() {
             form="create-project-form"
             type="submit"
             disabled={loading || !name || !code}
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Creating..." : "Create project"}
           </button>

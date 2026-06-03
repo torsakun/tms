@@ -13,7 +13,7 @@ function getInitials(name: string | null) {
 
 function getColorForUser(name: string | null) {
   const colors = [
-    "bg-emerald-600", "bg-blue-600", "bg-purple-600", "bg-rose-500",
+    "bg-emerald-600", "bg-primary", "bg-purple-600", "bg-rose-500",
     "bg-amber-600", "bg-indigo-600", "bg-pink-600", "bg-teal-600"
   ];
   if (!name) return colors[0];
@@ -49,48 +49,48 @@ export default async function WorkspaceUsersPage() {
 
   return (
     <div className="w-full max-w-[1400px] mx-auto px-8 py-8">
-      <h1 className="text-2xl font-bold text-slate-800 mb-6">Workspace</h1>
+      <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-900 to-blue-800 mb-6 tracking-tight flex items-center">Workspace</h1>
 
       {/* Toolbar */}
       <div className="flex items-center mb-6">
         <div className="relative w-64 mr-4">
-          <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
+          <Search className="absolute left-3 top-2.5 text-text-muted" size={16} />
           <input
             type="text"
             placeholder="Search for team members"
-            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+            className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
           />
         </div>
-        <button className="text-blue-600 text-sm font-medium hover:underline">
+        <button className="text-primary text-sm font-medium hover:underline">
           Add filter
         </button>
       </div>
 
       {/* Users Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-xl shadow-sm bg-white/60 backdrop-blur-md border border-indigo-100/50 hover:shadow-md hover:border-indigo-200 transition-all">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-slate-200">
-              <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">User</th>
-              <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
-              <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Type</th>
-              <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Role</th>
-              <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Role Title</th>
-              <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Last Action</th>
-              <th className="px-4 py-3 w-10"></th>
+            <tr className="bg-gradient-to-r from-indigo-900 to-blue-900 shadow-md">
+              <th className="px-4 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider rounded-tl-xl">User</th>
+              <th className="px-4 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider">Status</th>
+              <th className="px-4 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider">Type</th>
+              <th className="px-4 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider">Role</th>
+              <th className="px-4 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider">Role Title</th>
+              <th className="px-4 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider">Last Action</th>
+              <th className="px-4 py-4 w-10 rounded-tr-xl"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {users.map((user) => (
-              <tr key={user.id} className={`transition-colors ${user.isActive ? "hover:bg-slate-50" : "bg-slate-50/50 opacity-60"}`}>
+              <tr key={user.id} className={`transition-colors ${user.isActive ? "hover:bg-blue-500/10" : "bg-blue-500/5 opacity-60"}`}>
                 <td className="px-4 py-3">
                   <div className="flex items-center space-x-3">
                     <div className={`w-9 h-9 ${user.isActive ? user.color : 'bg-slate-300'} rounded flex items-center justify-center text-white font-semibold text-sm shrink-0`}>
                       {user.initials}
                     </div>
                     <div className="flex flex-col">
-                      <span className={`font-bold text-sm ${user.isActive ? 'text-slate-800' : 'text-slate-500 line-through'}`}>{user.name}</span>
-                      <span className="text-xs text-slate-500">{user.email}</span>
+                      <span className={`font-bold text-sm ${user.isActive ? 'text-text-main' : 'text-text-muted line-through'}`}>{user.name}</span>
+                      <span className="text-xs text-text-muted">{user.email}</span>
                     </div>
                   </div>
                 </td>
@@ -98,19 +98,19 @@ export default async function WorkspaceUsersPage() {
                   {user.isActive ? (
                     <Check size={16} className="text-emerald-500" />
                   ) : (
-                    <Minus size={16} className="text-slate-400" />
+                    <Minus size={16} className="text-text-muted" />
                   )}
                 </td>
-                <td className="px-4 py-3 text-sm text-slate-600">
+                <td className="px-4 py-3 text-sm text-text-muted">
                   {user.type}
                 </td>
-                <td className="px-4 py-3 text-sm text-slate-600">
+                <td className="px-4 py-3 text-sm text-text-muted">
                   {user.role}
                 </td>
-                <td className="px-4 py-3 text-sm text-slate-600">
+                <td className="px-4 py-3 text-sm text-text-muted">
                   {user.roleTitle}
                 </td>
-                <td className="px-4 py-3 text-sm text-slate-600">
+                <td className="px-4 py-3 text-sm text-text-muted">
                   {user.lastAction}
                 </td>
                 <td className="px-4 py-3 text-right">

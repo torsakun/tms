@@ -42,8 +42,8 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         {payload.map((entry: any, index: number) => (
           <div key={`item-${index}`} className="flex items-center space-x-2 text-sm mb-1">
             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
-            <span className="font-medium text-slate-600 capitalize">{entry.name}:</span>
-            <span className="font-bold text-slate-900">{entry.value}</span>
+            <span className="font-medium text-slate-500 capitalize">{entry.name}:</span>
+            <span className="font-bold text-slate-800">{entry.value}</span>
           </div>
         ))}
       </div>
@@ -55,7 +55,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export function ExecutionTrendChart({ data }: { data: DashboardChartsProps["trendData"] }) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-full items-center justify-center text-slate-400 font-medium text-sm">
+      <div className="flex h-full items-center justify-center text-slate-500 font-medium text-sm">
         No execution data available for trend analysis.
       </div>
     );
@@ -128,7 +128,7 @@ export function AutomationDonutChart({ data }: { data: DashboardChartsProps["aut
 
   if (total === 0) {
     return (
-      <div className="flex h-full items-center justify-center text-slate-400 font-medium text-sm">
+      <div className="flex h-full items-center justify-center text-slate-500 font-medium text-sm">
         No test cases found.
       </div>
     );
@@ -153,8 +153,8 @@ export function AutomationDonutChart({ data }: { data: DashboardChartsProps["aut
             ))}
           </Pie>
           <Tooltip 
-            contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-            itemStyle={{ fontWeight: 'bold' }}
+            contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', backgroundColor: 'white', color: '#1e293b', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+            itemStyle={{ fontWeight: 'bold', color: '#1e293b' }}
           />
         </PieChart>
       </ResponsiveContainer>

@@ -46,10 +46,10 @@ export default function AuditLogsPage({ params }: { params: Promise<{ code: stri
     switch (action) {
       case "CREATED": return <PlusCircle size={16} className="text-emerald-500" />;
       case "DELETED": return <Trash2 size={16} className="text-red-500" />;
-      case "UPDATED": return <Edit2 size={16} className="text-blue-500" />;
+      case "UPDATED": return <Edit2 size={16} className="text-primary" />;
       case "EXECUTED": return <PlayCircle size={16} className="text-purple-500" />;
       case "SHARED": return <Share2 size={16} className="text-amber-500" />;
-      default: return <Activity size={16} className="text-slate-500" />;
+      default: return <Activity size={16} className="text-text-muted" />;
     }
   };
 
@@ -94,22 +94,22 @@ export default function AuditLogsPage({ params }: { params: Promise<{ code: stri
         ) : (
           <div className="divide-y divide-border">
             {logs.map((log) => (
-              <div key={log.id} className="p-4 hover:bg-slate-50 transition-colors flex items-start space-x-4">
-                <div className="mt-1 bg-white p-2 rounded-full border border-border shadow-sm">
+              <div key={log.id} className="p-4 hover:bg-surface-hover transition-colors flex items-start space-x-4">
+                <div className="mt-1 bg-surface p-2 rounded-full border border-border shadow-sm">
                   {getActionIcon(log.action)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-text-main">
-                    <span className="font-semibold text-slate-800">{log.user.name || log.user.email}</span>
-                    <span className="text-slate-500 mx-1">{log.action.toLowerCase()}</span>
-                    <span className="font-medium text-slate-700">{getEntityLabel(log.entity)}</span>
+                    <span className="font-semibold text-text-main">{log.user.name || log.user.email}</span>
+                    <span className="text-text-muted mx-1">{log.action.toLowerCase()}</span>
+                    <span className="font-medium text-text-main">{getEntityLabel(log.entity)}</span>
                   </p>
                   {log.details && (
                     <p className="text-xs text-text-muted mt-1 truncate">
                       {log.details}
                     </p>
                   )}
-                  <p className="text-xs text-slate-400 mt-2">
+                  <p className="text-xs text-text-muted mt-2">
                     {formatThaiTime(log.createdAt)}
                   </p>
                 </div>

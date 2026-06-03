@@ -350,7 +350,7 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
                 {activeTab === "JIRA" && (
                   <div className="flex flex-col h-full justify-center">
                     <div className="bg-background border border-border p-8 rounded-xl shadow-sm max-w-lg w-full mx-auto text-center">
-                      <div className="w-16 h-16 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <div className="w-16 h-16 bg-blue-500/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-6">
                         <Ticket size={32} />
                       </div>
                       <h3 className="text-lg font-bold text-text-main mb-2">Fetch from Jira</h3>
@@ -370,7 +370,7 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
                         <button 
                           onClick={handleJiraFetch}
                           disabled={isFetchingJira || !jiraTicketId.trim()}
-                          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all shadow-sm disabled:opacity-50 flex items-center"
+                          className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-all shadow-sm disabled:opacity-50 flex items-center"
                         >
                           {isFetchingJira ? <Loader2 size={18} className="animate-spin" /> : 'Fetch'}
                         </button>
@@ -387,7 +387,7 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
               <div className="relative w-20 h-20 mb-6">
                 <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping"></div>
                 <div className="absolute inset-2 bg-primary/40 rounded-full animate-ping" style={{ animationDelay: '0.2s' }}></div>
-                <div className="absolute inset-4 bg-primary rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(93,135,255,0.6)]">
+                <div className="absolute inset-4 bg-primary rounded-full flex items-center justify-center shadow-md">
                   <Sparkles className="text-white" size={24} />
                 </div>
               </div>
@@ -420,7 +420,7 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
                         className="p-4 flex items-start cursor-pointer select-none"
                         onClick={() => toggleSelection(idx)}
                       >
-                        <div className={`w-5 h-5 rounded border mt-0.5 flex items-center justify-center mr-3 shrink-0 transition-colors ${isSelected ? 'bg-primary border-primary text-white' : 'border-slate-300'}`}>
+                        <div className={`w-5 h-5 rounded border mt-0.5 flex items-center justify-center mr-3 shrink-0 transition-colors ${isSelected ? 'bg-primary border-primary text-white' : 'border-text-muted'}`}>
                           {isSelected && <Check size={14} />}
                         </div>
                         <div className="flex-1">
@@ -471,7 +471,7 @@ export function AiGeneratorModal({ isOpen, onClose, projectCode, suites, onSucce
           {step === "INPUT" && (
             <button 
               onClick={handleGenerate}
-              className="flex items-center px-5 py-2 bg-primary hover:bg-blue-700 text-white rounded-md font-bold shadow-[0_0_10px_rgba(93,135,255,0.4)] transition-all"
+              className="flex items-center px-5 py-2 bg-primary hover:bg-primary-hover text-primary-foreground rounded-md font-bold shadow-sm transition-all"
             >
               <Sparkles size={16} className="mr-2" />
               Generate

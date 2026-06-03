@@ -177,19 +177,19 @@ export default async function GlobalDashboardPage() {
   const automatedPercent = totalAutomationCases > 0 ? (automation.automated / totalAutomationCases) * 100 : 0;
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 bg-[#F8FAFC] font-sans text-slate-800">
+    <div className="flex flex-col flex-1 min-h-0 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-blue-50/30 font-sans text-text-main">
       
       {/* Clean SaaS Header */}
-      <header className="bg-white border-b border-slate-200 px-8 py-6 shrink-0 z-10 flex items-center justify-between">
+      <header className="bg-white/60 backdrop-blur-md border-b border-indigo-100/50 px-8 py-6 shrink-0 z-10 flex items-center justify-between shadow-sm">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center">
-            <BarChart2 className="mr-3 text-blue-600" size={26} />
-            Quality Assurance Dashboard
+          <h1 className="text-2xl font-bold text-text-main tracking-tight flex items-center">
+            <BarChart2 className="mr-3 text-indigo-600" size={26} />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-900 to-blue-800">Quality Assurance Dashboard</span>
           </h1>
-          <p className="text-sm text-slate-500 mt-1">Cross-project testing metrics, coverage, and execution health.</p>
+          <p className="text-sm text-text-muted mt-1">Cross-project testing metrics, coverage, and execution health.</p>
         </div>
         <div className="flex items-center space-x-3">
-          <Link href="/projects" className="px-4 py-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg text-sm font-semibold transition-all shadow-sm">
+          <Link href="/projects" className="px-4 py-2 bg-surface border border-border text-text-main hover:bg-surface-hover hover:text-text-main rounded-lg text-sm font-semibold transition-all shadow-sm">
             View All Projects
           </Link>
         </div>
@@ -201,65 +201,65 @@ export default async function GlobalDashboardPage() {
           {/* Key QA Metrics (Top Row) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
-            <div className="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-slate-300 transition-all group relative overflow-hidden">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-blue-50 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-800 rounded-2xl border-none p-6 shadow-lg flex flex-col justify-between hover:shadow-xl transition-all group relative overflow-hidden text-white">
+              <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500 blur-xl"></div>
               <div className="flex justify-between items-start mb-4 relative z-10">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Total Test Cases</div>
-                <div className="w-10 h-10 bg-blue-50/80 backdrop-blur-sm rounded-xl flex items-center justify-center text-blue-600 shadow-sm border border-blue-100/50">
+                <div className="text-xs font-bold text-blue-100 uppercase tracking-widest">Total Test Cases</div>
+                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white shadow-sm">
                   <FileText size={20} />
                 </div>
               </div>
               <div className="relative z-10">
-                <div className="text-4xl font-extrabold text-slate-900 tracking-tight">{metrics.totalCases}</div>
-                <div className="text-sm font-medium text-slate-500 mt-1">Across {metrics.totalProjects} active projects</div>
+                <div className="text-4xl font-extrabold text-white tracking-tight">{metrics.totalCases}</div>
+                <div className="text-sm font-medium text-blue-100 mt-1">Across {metrics.totalProjects} active projects</div>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-slate-300 transition-all group relative overflow-hidden">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+            <div className="bg-gradient-to-br from-emerald-500 to-teal-700 rounded-2xl border-none p-6 shadow-lg flex flex-col justify-between hover:shadow-xl transition-all group relative overflow-hidden text-white">
+              <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500 blur-xl"></div>
               <div className="flex justify-between items-start mb-4 relative z-10">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Global Automation</div>
-                <div className="w-10 h-10 bg-emerald-50/80 backdrop-blur-sm rounded-xl flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100/50">
+                <div className="text-xs font-bold text-emerald-100 uppercase tracking-widest">Global Automation</div>
+                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white shadow-sm">
                   <ShieldCheck size={20} />
                 </div>
               </div>
               <div className="relative z-10">
-                <div className="text-4xl font-extrabold text-slate-900 tracking-tight">{automatedPercent.toFixed(1)}%</div>
-                <div className="w-full h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
-                  <div className="h-full bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]" style={{ width: `${automatedPercent}%` }}></div>
+                <div className="text-4xl font-extrabold text-white tracking-tight">{automatedPercent.toFixed(1)}%</div>
+                <div className="w-full h-1.5 bg-black/20 rounded-full mt-3 overflow-hidden">
+                  <div className="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]" style={{ width: `${automatedPercent}%` }}></div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-slate-300 transition-all group relative overflow-hidden">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-indigo-50 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+            <div className="bg-gradient-to-br from-indigo-500 to-violet-800 rounded-2xl border-none p-6 shadow-lg flex flex-col justify-between hover:shadow-xl transition-all group relative overflow-hidden text-white">
+              <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500 blur-xl"></div>
               <div className="flex justify-between items-start mb-4 relative z-10">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Total Test Runs</div>
-                <div className="w-10 h-10 bg-indigo-50/80 backdrop-blur-sm rounded-xl flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100/50">
+                <div className="text-xs font-bold text-indigo-100 uppercase tracking-widest">Total Test Runs</div>
+                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white shadow-sm">
                   <PlayCircle size={20} />
                 </div>
               </div>
               <div className="relative z-10">
-                <div className="text-4xl font-extrabold text-slate-900 tracking-tight">{metrics.totalRuns}</div>
-                <div className="text-sm font-medium text-slate-500 mt-1 flex items-center">
-                  <TrendingUp size={14} className="text-emerald-500 mr-1" />
+                <div className="text-4xl font-extrabold text-white tracking-tight">{metrics.totalRuns}</div>
+                <div className="text-sm font-medium text-indigo-100 mt-1 flex items-center">
+                  <TrendingUp size={14} className="text-white mr-1" />
                   Execution volume
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200/60 p-6 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-slate-300 transition-all group relative overflow-hidden">
-              <div className="absolute -right-6 -top-6 w-24 h-24 bg-green-50 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500"></div>
+            <div className="bg-gradient-to-br from-fuchsia-600 to-pink-700 rounded-2xl border-none p-6 shadow-lg flex flex-col justify-between hover:shadow-xl transition-all group relative overflow-hidden text-white">
+              <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500 blur-xl"></div>
               <div className="flex justify-between items-start mb-4 relative z-10">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Global Pass Rate</div>
-                <div className="w-10 h-10 bg-green-50/80 backdrop-blur-sm rounded-xl flex items-center justify-center text-green-600 shadow-sm border border-green-100/50">
+                <div className="text-xs font-bold text-pink-100 uppercase tracking-widest">Global Pass Rate</div>
+                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white shadow-sm">
                   <CheckCircle2 size={20} />
                 </div>
               </div>
               <div className="relative z-10">
-                <div className="text-4xl font-extrabold text-slate-900 tracking-tight">{metrics.passRate.toFixed(1)}%</div>
-                <div className="w-full h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
-                  <div className="h-full bg-green-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.5)]" style={{ width: `${metrics.passRate}%` }}></div>
+                <div className="text-4xl font-extrabold text-white tracking-tight">{metrics.passRate.toFixed(1)}%</div>
+                <div className="w-full h-1.5 bg-black/20 rounded-full mt-3 overflow-hidden">
+                  <div className="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]" style={{ width: `${metrics.passRate}%` }}></div>
                 </div>
               </div>
             </div>
@@ -269,14 +269,14 @@ export default async function GlobalDashboardPage() {
           {/* New Section: Trend Chart & Automation Donut */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm col-span-1 lg:col-span-2 overflow-hidden flex flex-col">
-              <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white">
+            <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-indigo-100/50 shadow-sm col-span-1 lg:col-span-2 overflow-hidden flex flex-col">
+              <div className="px-6 py-5 border-b border-indigo-50 flex justify-between items-center bg-transparent">
                 <div>
-                  <h2 className="text-base font-extrabold text-slate-800 flex items-center">
-                    <Activity className="mr-2 text-indigo-500" size={18} strokeWidth={2.5} />
+                  <h2 className="text-base font-extrabold text-indigo-950 flex items-center">
+                    <Activity className="mr-2 text-indigo-600" size={18} strokeWidth={2.5} />
                     Execution Trends
                   </h2>
-                  <p className="text-xs font-medium text-slate-400 mt-0.5">Test results over the last 14 days</p>
+                  <p className="text-xs font-medium text-slate-500 mt-0.5">Test results over the last 14 days</p>
                 </div>
               </div>
               <div className="flex-1 p-6 min-h-[300px]">
@@ -284,13 +284,13 @@ export default async function GlobalDashboardPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm col-span-1 flex flex-col">
-              <div className="px-6 py-5 border-b border-slate-100 bg-white">
-                <h2 className="text-base font-extrabold text-slate-800 flex items-center">
-                  <ShieldCheck className="mr-2 text-emerald-500" size={18} strokeWidth={2.5} />
+            <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-indigo-100/50 shadow-sm col-span-1 flex flex-col">
+              <div className="px-6 py-5 border-b border-indigo-50 bg-transparent">
+                <h2 className="text-base font-extrabold text-indigo-950 flex items-center">
+                  <ShieldCheck className="mr-2 text-emerald-600" size={18} strokeWidth={2.5} />
                   Automation Distribution
                 </h2>
-                <p className="text-xs font-medium text-slate-400 mt-0.5">Coverage status across all projects</p>
+                <p className="text-xs font-medium text-slate-500 mt-0.5">Coverage status across all projects</p>
               </div>
               <div className="flex-1 p-6 flex flex-col items-center justify-center">
                 <div className="relative w-full h-[220px]">
@@ -304,21 +304,21 @@ export default async function GlobalDashboardPage() {
                       <div className="w-3 h-3 rounded-full bg-emerald-500 mr-3 shadow-sm"></div>
                       <span className="text-sm text-slate-700 font-bold">Automated</span>
                     </div>
-                    <span className="font-extrabold text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-md text-sm">{automation.automated}</span>
+                    <span className="font-extrabold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md text-sm">{automation.automated}</span>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors">
                     <div className="flex items-center">
                       <div className="w-3 h-3 rounded-full bg-amber-500 mr-3 shadow-sm"></div>
                       <span className="text-sm text-slate-700 font-bold">To Be Automated</span>
                     </div>
-                    <span className="font-extrabold text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-md text-sm">{automation.toBeAutomated}</span>
+                    <span className="font-extrabold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md text-sm">{automation.toBeAutomated}</span>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors">
                     <div className="flex items-center">
                       <div className="w-3 h-3 rounded-full bg-slate-400 mr-3 shadow-sm"></div>
                       <span className="text-sm text-slate-700 font-bold">Manual</span>
                     </div>
-                    <span className="font-extrabold text-slate-900 bg-slate-100 px-2.5 py-0.5 rounded-md text-sm">{automation.manual}</span>
+                    <span className="font-extrabold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md text-sm">{automation.manual}</span>
                   </div>
                 </div>
               </div>

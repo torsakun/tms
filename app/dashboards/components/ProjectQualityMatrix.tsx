@@ -17,17 +17,17 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
   const currentProjects = projects.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col h-full">
-      <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-white">
-        <h2 className="text-base font-extrabold text-slate-800 flex items-center">
-          <Folder className="mr-2 text-blue-500" size={18} strokeWidth={2.5} />
+    <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-indigo-100/50 shadow-sm overflow-hidden flex flex-col h-full">
+      <div className="px-6 py-5 border-b border-indigo-50 flex justify-between items-center bg-transparent">
+        <h2 className="text-base font-extrabold text-indigo-950 flex items-center">
+          <Folder className="mr-2 text-indigo-600" size={18} strokeWidth={2.5} />
           Project Quality Matrix
         </h2>
       </div>
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left border-collapse min-w-[500px]">
           <thead>
-            <tr className="border-b border-slate-200/60 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider bg-slate-50/50">
+            <tr className="border-b border-indigo-50 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider bg-slate-50/50">
               <th className="px-6 py-3.5">Project</th>
               <th className="px-6 py-3.5 text-right">Cases</th>
               <th className="px-6 py-3.5">Automation</th>
@@ -36,17 +36,17 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
           </thead>
           <tbody className="text-sm">
             {currentProjects.map((p) => (
-              <tr key={p.code} className="border-b border-slate-100 hover:bg-blue-50/30 transition-colors">
+              <tr key={p.code} className="border-b border-indigo-50 hover:bg-slate-50/80 transition-colors">
                 <td className="px-6 py-4">
-                  <Link href={`/projects/${p.code}/repository`} className="flex flex-col">
-                    <span className="font-bold text-slate-800 hover:text-blue-600 transition-colors">{p.name}</span>
-                    <span className="text-[11px] font-bold text-slate-400 mt-0.5">{p.code}</span>
+                  <Link href={`/projects/${p.code}/repository`} className="flex flex-col items-start">
+                    <span className="font-bold text-slate-800 hover:text-indigo-600 transition-colors">{p.name}</span>
+                    <span className="text-[10px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-1.5 py-0.5 rounded shadow-sm mt-1.5">{p.code}</span>
                   </Link>
                 </td>
                 <td className="px-6 py-4 text-right font-bold text-slate-600">{p.cases}</td>
                 <td className="px-6 py-4">
                   <div className="flex items-center">
-                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mr-3 max-w-[80px]">
+                    <div className="w-full h-1.5 bg-indigo-50 rounded-full overflow-hidden mr-3 max-w-[80px]">
                       <div className="h-full bg-emerald-500" style={{width: `${p.automated}%`}}></div>
                     </div>
                     <span className="text-xs font-bold text-slate-600">{p.automated.toFixed(0)}%</span>
@@ -58,10 +58,10 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
                       {p.lastRunHealth >= 90 ? <CheckCircle2 size={16} className="text-emerald-500 mr-1.5" /> : 
                        p.lastRunHealth >= 70 ? <AlertCircle size={16} className="text-amber-500 mr-1.5" /> : 
                        <XCircle size={16} className="text-red-500 mr-1.5" />}
-                      <span className="font-bold text-slate-700">{p.lastRunHealth.toFixed(0)}%</span>
+                      <span className="font-bold text-slate-800">{p.lastRunHealth.toFixed(0)}%</span>
                     </div>
                   ) : (
-                    <span className="text-xs font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded">No runs</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 border border-slate-200/60 shadow-sm px-2 py-1 rounded-md">No runs</span>
                   )}
                 </td>
               </tr>
@@ -75,7 +75,7 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
       
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50 mt-auto">
+        <div className="px-6 py-4 border-t border-indigo-50 flex items-center justify-between bg-slate-50/50 mt-auto">
           <span className="text-xs text-slate-500 font-medium">
             Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, projects.length)} of {projects.length}
           </span>

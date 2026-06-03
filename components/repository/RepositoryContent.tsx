@@ -168,25 +168,25 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
     <>
       <div className="flex-1 flex flex-col min-w-0 relative h-full overflow-hidden bg-background transition-colors">
         {/* Toolbar (Qase-style Filter Bar or Bulk Action Toolbar) */}
-        <header className="h-14 border-b border-border/50 flex items-center justify-between px-6 bg-white shrink-0 transition-colors">
+        <header className="h-14 border-b border-border/50 flex items-center justify-between px-6 bg-background shrink-0 transition-colors">
           {hasSelection ? (
             <div className="flex items-center space-x-4 w-full">
-              <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded px-1 py-1 h-9">
-                <button onClick={handleBulkEdit} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors" title="Edit">
+              <div className="flex items-center space-x-2 bg-surface-hover border border-border rounded px-1 py-1 h-9">
+                <button onClick={handleBulkEdit} className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded transition-colors" title="Edit">
                   <Edit3 size={16} />
                 </button>
-                <div className="w-px h-4 bg-slate-300 mx-1"></div>
-                <button onClick={handleBulkClone} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors" title="Clone">
+                <div className="w-px h-4 bg-border mx-1"></div>
+                <button onClick={handleBulkClone} className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded transition-colors" title="Clone">
                   <Copy size={16} />
                 </button>
-                <div className="w-px h-4 bg-slate-300 mx-1"></div>
-                <button onClick={handleBulkRun} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded transition-colors" title="Run">
+                <div className="w-px h-4 bg-border mx-1"></div>
+                <button onClick={handleBulkRun} className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded transition-colors" title="Run">
                   <PlayCircle size={16} />
                 </button>
-                <div className="w-px h-4 bg-slate-300 mx-1"></div>
+                <div className="w-px h-4 bg-border mx-1"></div>
                 <button 
                   onClick={handleBulkDelete}
-                  className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors" 
+                  className="p-1.5 text-text-muted hover:text-red-500 hover:bg-red-500/10 rounded transition-colors" 
                   title="Delete"
                 >
                   <Trash2 size={16} />
@@ -194,12 +194,12 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
               </div>
 
               <div className="flex items-center space-x-2">
-                <button className="flex items-center px-3 py-1.5 h-9 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-[13px] font-medium rounded transition-colors shadow-sm">
-                  <Sparkles size={14} className="mr-1.5 text-blue-500" />
+                <button className="flex items-center px-3 py-1.5 h-9 bg-surface hover:bg-surface-hover border border-border text-text-main text-[13px] font-medium rounded-md transition-colors shadow-sm">
+                  <Sparkles size={14} className="mr-1.5" />
                   Run advisor
                 </button>
-                <button className="flex items-center px-3 py-1.5 h-9 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-[13px] font-medium rounded transition-colors shadow-sm">
-                  <Cpu size={14} className="mr-1.5 text-indigo-500" />
+                <button className="flex items-center px-3 py-1.5 h-9 bg-surface hover:bg-surface-hover border border-border text-text-main text-[13px] font-medium rounded-md transition-colors shadow-sm">
+                  <Cpu size={14} className="mr-1.5" />
                   Automate
                 </button>
               </div>
@@ -211,30 +211,30 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                   <input 
                     type="text" 
                     placeholder="Search" 
-                    className="w-full px-3 py-1.5 text-[13px] bg-white border border-slate-300 text-slate-700 rounded focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full px-3 py-1.5 text-[13px] bg-surface border border-border text-text-main rounded-md focus:outline-none focus:border-text-muted transition-colors"
                   />
                 </div>
                 
                 <div className="relative w-36">
-                  <select className="w-full px-3 py-1.5 text-[13px] bg-white border border-slate-300 text-slate-700 rounded focus:outline-none focus:border-blue-500 appearance-none cursor-pointer">
+                  <select className="w-full px-3 py-1.5 text-[13px] bg-surface border border-border text-text-main rounded-md focus:outline-none focus:border-text-muted appearance-none cursor-pointer">
                     <option>By all fields</option>
                     <option>By title</option>
                   </select>
                 </div>
                 
-                <button className="text-[13px] text-blue-600 font-medium hover:underline">
+                <button className="text-[13px] text-text-muted hover:text-text-main font-medium">
                   Add filter
                 </button>
               </div>
               
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
                 {lastSyncPr && (
-                  <div className="flex items-center space-x-2 bg-indigo-50/50 border border-indigo-100 px-2 py-1 rounded mr-2">
+                  <div className="flex items-center space-x-2 bg-surface-hover border border-border px-2 py-1 rounded-md mr-2">
                     <a 
                       href={lastSyncPr.url} 
                       target="_blank" 
                       rel="noreferrer"
-                      className="flex items-center text-xs font-medium text-indigo-600 hover:text-indigo-800 transition-colors px-2 py-1"
+                      className="flex items-center text-xs font-medium text-text-main hover:underline transition-colors px-2 py-1"
                     >
                       <ExternalLink size={14} className="mr-1" />
                       View PR #{lastSyncPr.number}
@@ -243,7 +243,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                       <button
                         onClick={handleQuickMerge}
                         disabled={isMerging}
-                        className="flex items-center bg-indigo-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                        className="flex items-center bg-primary text-primary-foreground px-3 py-1 rounded-md text-xs font-medium hover:bg-primary-hover transition-colors disabled:opacity-50"
                       >
                         {isMerging ? <Loader2 size={12} className="mr-1 animate-spin" /> : <GitMerge size={12} className="mr-1" />}
                         Quick Merge
@@ -257,48 +257,58 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                     <button 
                       onClick={handleSyncAll}
                       disabled={isSyncing}
-                      className="flex items-center bg-slate-800 hover:bg-slate-700 text-white px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+                      title="Sync to GitHub"
+                      className="flex items-center shrink-0 bg-gradient-to-r from-sky-400 to-blue-500 text-white px-2.5 lg:px-3 py-1.5 rounded-md text-[13px] font-bold shadow-md disabled:opacity-50 hover:brightness-110 transition-all"
                     >
-                      {isSyncing ? <Loader2 size={14} className="mr-1.5 animate-spin" /> : <CloudUpload size={14} className="mr-1.5" />}
-                      Sync to GitHub
+                      {isSyncing ? <Loader2 size={14} className="animate-spin lg:mr-1.5" /> : <CloudUpload size={14} className="lg:mr-1.5" />}
+                      <span className="hidden lg:inline">Sync</span>
                     </button>
                     <button 
                       onClick={() => setIsBulkJiraModalOpen(true)}
-                      className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm hover:shadow-md active:scale-95 ml-2"
+                      title="Story Impact Analysis"
+                      className="flex items-center shrink-0 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-2.5 lg:px-3 py-1.5 rounded-md text-[13px] font-bold shadow-md hover:brightness-110 transition-all"
                     >
-                      <Ticket size={14} className="mr-1.5" />
-                      Story Impact
+                      <Ticket size={14} className="lg:mr-1.5" />
+                      <span className="hidden lg:inline">Impact</span>
                     </button>
                     <button 
                       onClick={() => setIsAiModalOpen(true)}
-                      className="flex items-center bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-white px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm hover:shadow-md active:scale-95 ml-2"
+                      title="Generate AI Tests"
+                      className="flex items-center shrink-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2.5 lg:px-3 py-1.5 rounded-md text-[13px] font-bold shadow-md hover:brightness-110 transition-all"
                     >
-                      <Sparkles size={14} className="mr-1.5" />
-                      Generate Tests
+                      <Sparkles size={14} className="lg:mr-1.5" />
+                      <span className="hidden lg:inline">AI Gen</span>
                     </button>
                     
-                    <Link href={`/projects/${projectCode}/cases/create`} className="flex items-center bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3.5 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm hover:shadow-md active:scale-95 ml-2">
-                      <Plus size={14} className="mr-1.5" />
-                      Test case
+                    <Link href={`/projects/${projectCode}/cases/create`} className="flex items-center shrink-0 bg-primary text-primary-foreground hover:bg-primary-hover px-2.5 lg:px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors shadow-sm">
+                      <Plus size={14} className="lg:mr-1.5" />
+                      <span className="hidden lg:inline">Test Case</span>
                     </Link>
-                    <div className="relative group ml-2">
-                      <button className="flex items-center bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-md text-[13px] font-medium transition-all shadow-sm">
-                        <Settings size={14} className="mr-1.5" />
-                        Options
+
+                    <div className="relative group shrink-0">
+                      <button className="flex items-center shrink-0 bg-surface border border-border hover:bg-surface-hover text-text-main px-2.5 lg:px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors shadow-sm">
+                        <Settings size={14} className="xl:mr-1.5" />
+                        <span className="hidden xl:inline">Options</span>
                       </button>
-                      <div className="absolute right-0 top-full mt-1 w-40 bg-white border border-slate-200 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                        <div className="p-1">
+                      <div className="absolute right-0 top-full mt-1 w-48 bg-surface border border-border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                        <div className="p-1 flex flex-col space-y-0.5">
+                          <button 
+                            onClick={handleSyncAll}
+                            className="lg:hidden flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-sm text-left"
+                          >
+                            <CloudUpload size={14} className="mr-2 text-text-muted" /> Sync to GitHub
+                          </button>
                           <button 
                             onClick={handleExportQase}
-                            className="flex items-center w-full px-3 py-2 text-[13px] text-slate-700 hover:bg-slate-100 rounded-sm text-left"
+                            className="flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-sm text-left"
                           >
-                            <Download size={14} className="mr-2 text-slate-400" /> Export Qase
+                            <Download size={14} className="mr-2 text-text-muted" /> Export Qase
                           </button>
                           <button 
                             onClick={() => setIsImportModalOpen(true)}
-                            className="flex items-center w-full px-3 py-2 text-[13px] text-slate-700 hover:bg-slate-100 rounded-sm text-left"
+                            className="flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-sm text-left"
                           >
-                            <Upload size={14} className="mr-2 text-slate-400" /> Import Qase
+                            <Upload size={14} className="mr-2 text-text-muted" /> Import Qase
                           </button>
                         </div>
                       </div>
@@ -312,7 +322,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
 
 
         {/* Hierarchical Content */}
-        <div className="flex-1 overflow-y-auto bg-white relative transition-colors">
+        <div className="flex-1 overflow-y-auto bg-background relative transition-colors">
           <div className="p-8 pb-32">
             <SuiteList 
               suites={suites} 
@@ -399,7 +409,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                  <button className="bg-background border border-border hover:bg-surface-hover text-text-main px-3 py-1.5 rounded text-sm font-semibold flex items-center transition-colors">
                     <Settings size={14} className="mr-2" /> Run advisor
                  </button>
-                 <button className="bg-primary hover:bg-blue-700 text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] px-3 py-1.5 rounded text-sm font-semibold flex items-center transition-colors">
+                 <button className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-sm px-3 py-1.5 rounded text-sm font-semibold flex items-center transition-colors">
                     <Cpu size={14} className="mr-2" /> Automate
                  </button>
               </div>

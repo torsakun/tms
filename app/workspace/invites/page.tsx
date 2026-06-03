@@ -61,7 +61,7 @@ export default function WorkspaceInvitesPage() {
 
   return (
     <div className="w-full max-w-[1400px] mx-auto px-8 py-8 relative">
-      <h1 className="text-2xl font-bold text-slate-800 mb-6">Invites</h1>
+      <h1 className="text-2xl font-bold text-text-main mb-6">Invites</h1>
 
       {/* Toolbar */}
       <div className="flex items-center mb-6 space-x-4">
@@ -73,11 +73,11 @@ export default function WorkspaceInvitesPage() {
         </button>
         
         <div className="relative w-64">
-          <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
+          <Search className="absolute left-3 top-2.5 text-text-muted" size={16} />
           <input 
             type="text" 
             placeholder="Search invites"
-            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-slate-50"
+            className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface-hover"
           />
         </div>
       </div>
@@ -86,43 +86,43 @@ export default function WorkspaceInvitesPage() {
       <div className="mt-8">
         {isLoading ? (
           <div className="flex justify-center items-center py-12">
-            <Loader2 className="animate-spin text-blue-600" size={24} />
+            <Loader2 className="animate-spin text-primary" size={24} />
           </div>
         ) : invites.length === 0 ? (
-          <p className="text-sm text-slate-500 text-center py-12 bg-white border border-slate-200 rounded-lg border-dashed">
+          <p className="text-sm text-text-muted text-center py-12 bg-surface border border-border rounded-lg border-dashed">
             No pending invites.
           </p>
         ) : (
-          <div className="border border-slate-200 rounded-lg">
-            <table className="w-full text-left border-collapse bg-white">
+          <div className="border border-border rounded-lg">
+            <table className="w-full text-left border-collapse bg-surface">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Email</th>
-                  <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Role</th>
-                  <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Sent At</th>
-                  <th className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Expires At</th>
+                <tr className="bg-surface-hover border-b border-border">
+                  <th className="px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Email</th>
+                  <th className="px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Role</th>
+                  <th className="px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Sent At</th>
+                  <th className="px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Expires At</th>
                   <th className="px-4 py-3 w-10"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {invites.map((invite) => (
-                  <tr key={invite.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={invite.id} className="hover:bg-surface-hover transition-colors">
                     <td className="px-4 py-4">
                       <div className="flex items-center space-x-3">
-                        <Mail size={16} className="text-slate-400" />
-                        <span className="font-medium text-slate-700 text-sm">{invite.email}</span>
+                        <Mail size={16} className="text-text-muted" />
+                        <span className="font-medium text-text-main text-sm">{invite.email}</span>
                       </div>
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex flex-col">
-                        <span className="text-sm font-medium text-slate-700">{invite.accessRoleName || "Member"}</span>
+                        <span className="text-sm font-medium text-text-main">{invite.accessRoleName || "Member"}</span>
                         {invite.roleTitle && (
-                          <span className="text-xs text-slate-500 mt-0.5">{invite.roleTitle}</span>
+                          <span className="text-xs text-text-muted mt-0.5">{invite.roleTitle}</span>
                         )}
                       </div>
                     </td>
                     <td className="px-4 py-4">
-                      <span className="text-sm text-slate-600">
+                      <span className="text-sm text-text-muted">
                         {new Date(invite.createdAt).toLocaleDateString()}
                       </span>
                     </td>
@@ -141,16 +141,16 @@ export default function WorkspaceInvitesPage() {
                             e.nativeEvent.stopImmediatePropagation();
                             setOpenMenuId(openMenuId === invite.id ? null : invite.id);
                           }}
-                          className="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-200 focus:outline-none"
+                          className="text-text-muted hover:text-text-muted p-1 rounded hover:bg-slate-200 focus:outline-none"
                         >
                           <MoreHorizontal size={16} />
                         </button>
                         
                         {openMenuId === invite.id && (
-                          <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-slate-200 z-10 py-1">
+                          <div className="absolute right-0 mt-2 w-48 bg-surface rounded-md shadow-lg border border-border z-10 py-1">
                             <button 
                               onClick={() => handleResend(invite.id)}
-                              className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                              className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover transition-colors"
                             >
                               Resend invitation
                             </button>

@@ -59,14 +59,14 @@ export function ResizableLayout({
     <div className="flex flex-1 overflow-hidden h-full">
       {/* Left Pane Container */}
       <aside 
-        className="flex flex-col shrink-0 h-full bg-white relative"
+        className="flex flex-col shrink-0 h-full bg-surface relative"
         style={{ width: sidebarWidth }}
       >
         {leftPane}
         
         {/* Drag Handle */}
         <div 
-          className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-blue-500/50 z-10 transition-colors border-r border-slate-200"
+          className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-blue-500/50 z-10 transition-colors border-r border-border"
           onMouseDown={handleMouseDown}
         />
       </aside>

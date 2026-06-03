@@ -82,7 +82,7 @@ export default function WorkspaceSettingsPage() {
         <button 
           onClick={handleSave}
           disabled={saving}
-          className="bg-primary hover:bg-blue-700 text-white px-5 py-2 rounded-md text-sm font-bold flex items-center transition-all shadow-[0_0_10px_rgba(93,135,255,0.4)] disabled:opacity-50 disabled:shadow-none"
+          className="bg-primary hover:bg-primary-hover text-primary-foreground px-5 py-2 rounded-md text-sm font-bold flex items-center transition-all shadow-sm disabled:opacity-50 disabled:shadow-none"
         >
           {saving ? "Saving..." : <><Save size={16} className="mr-2" /> Save Changes</>}
         </button>
@@ -155,7 +155,7 @@ export default function WorkspaceSettingsPage() {
 
           <section className="bg-surface border border-border rounded-xl overflow-hidden shadow-sm">
             <div className="px-6 py-4 border-b border-border bg-background/50 flex items-center">
-              <svg className="w-5 h-5 text-blue-500 mr-2" viewBox="0 0 24 24" fill="currentColor">
+              <svg className="w-5 h-5 text-primary mr-2" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M11.53 2c0 2.4 1.97 4.35 4.35 4.35h1.78v4.35c0 2.4 1.97 4.35 4.35 4.35v-8.7C22 3.96 20.04 2 17.65 2h-6.12zm-4.7 4.7c0 2.4 1.96 4.35 4.35 4.35h1.78v4.35c0 2.4 1.96 4.35 4.34 4.35v-8.7c0-2.4-1.95-4.35-4.34-4.35H6.83zm-4.7 4.7c0 2.4 1.96 4.35 4.34 4.35h1.78v4.35C8.25 20.1 6.3 22 3.91 22v-8.7C3.91 10.9 1.95 8.95 0 8.95v2.45h2.13z"/>
               </svg>
               <h2 className="text-lg font-bold text-text-main">Jira Integration</h2>
@@ -222,7 +222,7 @@ export default function WorkspaceSettingsPage() {
                 <a 
                   href="/api/workspace/export" 
                   download
-                  className="shrink-0 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-4 py-2 rounded-md text-sm font-semibold flex items-center transition-colors"
+                  className="shrink-0 bg-surface hover:bg-surface-hover border border-border text-text-main px-4 py-2 rounded-md text-sm font-semibold flex items-center transition-colors"
                 >
                   <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>

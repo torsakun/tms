@@ -66,7 +66,7 @@ export default function PublicReportPage({ params }: { params: Promise<{ runId: 
         </div>
       </div>
       
-      <div className="w-full max-w-[1000px] bg-white shadow-xl rounded-lg overflow-hidden border border-gray-200">
+      <div className="w-full max-w-[1000px] bg-surface shadow-xl rounded-lg overflow-hidden border border-gray-200">
         <PdfReportTemplate run={run} projectCode={run.project?.code || 'UNKNOWN'} />
       </div>
     </div>

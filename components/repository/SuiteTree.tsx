@@ -30,7 +30,7 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild }: S
         className={cn(
           "flex items-center py-1.5 pr-2 rounded-none cursor-pointer transition-colors relative",
           level === 0 ? "font-bold text-[15px]" : "font-semibold text-[14px]",
-          selectedSuiteId === suite.id ? "bg-blue-50 text-blue-600" : "text-slate-700 hover:bg-slate-50"
+          selectedSuiteId === suite.id ? "bg-blue-50 text-primary" : "text-text-main hover:bg-surface-hover"
         )}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
       >
@@ -39,7 +39,7 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild }: S
             e.stopPropagation();
             toggleSuite(suite.id);
           }}
-          className={cn("p-0.5 rounded mr-1 transition-colors", selectedSuiteId === suite.id ? "text-blue-500 hover:text-blue-700" : "text-slate-500 hover:text-slate-700")}
+          className={cn("p-0.5 rounded mr-1 transition-colors", selectedSuiteId === suite.id ? "text-primary hover:text-blue-700" : "text-text-muted hover:text-text-main")}
         >
           {isOpen ? <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg> : <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M10 7l5 5-5 5z"/></svg>}
         </button>
@@ -48,25 +48,25 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild }: S
 
         <div className="ml-auto flex items-center pl-2">
           {suite.caseCount !== undefined && (
-            <span className="text-[12px] text-slate-500 font-medium w-6 text-right group-hover/item:hidden">
+            <span className="text-[12px] text-text-muted font-medium w-6 text-right group-hover/item:hidden">
               {suite.caseCount}
             </span>
           )}
 
           {role !== 'VIEWER' && (
-            <div className="hidden group-hover/item:flex items-center text-slate-400">
+            <div className="hidden group-hover/item:flex items-center text-text-muted">
               <button 
                 onClick={(e) => {
                   e.stopPropagation();
                   if (!isOpen) toggleSuite(suite.id);
                   onAddChild(suite.id);
                 }}
-                className="p-0.5 hover:text-slate-800 transition-colors mx-1"
+                className="p-0.5 hover:text-text-main transition-colors mx-1"
                 title="Add child suite"
               >
                 <Plus size={14} />
               </button>
-              <button className="p-0.5 hover:text-slate-800 transition-colors">
+              <button className="p-0.5 hover:text-text-main transition-colors">
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
               </button>
             </div>
@@ -166,20 +166,20 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
   };
 
   return (
-    <div className="flex flex-col h-full bg-white transition-colors">
-      <div className="px-4 py-3 border-b border-border/50 bg-white flex justify-between items-center shrink-0 transition-colors">
-        <div className="flex items-center space-x-2 text-slate-800">
+    <div className="flex flex-col h-full bg-surface transition-colors">
+      <div className="px-4 py-3 border-b border-border/50 bg-surface flex justify-between items-center shrink-0 transition-colors">
+        <div className="flex items-center space-x-2 text-text-main">
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
           <h2 className="font-semibold text-[15px]">Suites</h2>
           {role !== 'VIEWER' && (
-            <button onClick={() => handleAddSuite(null)} className="text-slate-400 hover:text-slate-700 ml-1">
+            <button onClick={() => handleAddSuite(null)} className="text-text-muted hover:text-text-main ml-1">
               <Plus size={16} />
             </button>
           )}
         </div>
-        <div className="flex items-center space-x-1 text-slate-400">
-          <button onClick={() => expandAll(suites.map(s => s.id))} className="hover:text-slate-700 p-1" title="Expand all"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
-          <button onClick={() => collapseAll(suites.map(s => s.id))} className="hover:text-slate-700 p-1" title="Collapse all"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
+        <div className="flex items-center space-x-1 text-text-muted">
+          <button onClick={() => expandAll(suites.map(s => s.id))} className="hover:text-text-main p-1" title="Expand all"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="18 15 12 9 6 15"></polyline></svg></button>
+          <button onClick={() => collapseAll(suites.map(s => s.id))} className="hover:text-text-main p-1" title="Collapse all"><svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto py-2 space-y-0.5">

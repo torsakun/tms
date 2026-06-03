@@ -49,24 +49,24 @@ export function DeleteSuiteModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40">
       <div 
-        className="bg-white rounded-lg shadow-xl w-full max-w-[500px] flex flex-col overflow-hidden"
+        className="bg-surface rounded-lg shadow-xl w-full max-w-[500px] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start px-6 py-5 pb-2 relative">
           <div className="flex items-center space-x-3 mt-1">
             <AlertTriangle className="text-red-600" size={24} strokeWidth={2.5} />
-            <h2 className="text-xl font-bold text-slate-800">Delete suite?</h2>
+            <h2 className="text-xl font-bold text-text-main">Delete suite?</h2>
           </div>
           <button 
             onClick={onClose}
-            className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors p-1 rounded hover:bg-slate-100"
+            className="absolute top-4 right-4 text-text-muted hover:text-text-muted transition-colors p-1 rounded hover:bg-surface-hover"
           >
             <X size={20} />
           </button>
         </div>
 
         <div className="px-6 py-4 flex-1">
-          <p className="text-[15px] text-slate-700 mb-6">
+          <p className="text-[15px] text-text-main mb-6">
             This suite contains <strong>{totalCasesCount} test case{totalCasesCount !== 1 ? 's' : ''}</strong>. Choose the option to delete the suite.
           </p>
 
@@ -80,10 +80,10 @@ export function DeleteSuiteModal({
                   checked={selectedOption === "retain"}
                   onChange={() => setSelectedOption("retain")}
                 />
-                <div className="w-4 h-4 border border-slate-300 rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
-                <div className="absolute w-2 h-2 bg-blue-600 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                <div className="w-4 h-4 border border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
+                <div className="absolute w-2 h-2 bg-primary rounded-full opacity-0 peer-checked:opacity-100 transition-opacity"></div>
               </div>
-              <span className="text-sm text-slate-700">Remove the suite but retain the test cases</span>
+              <span className="text-sm text-text-main">Remove the suite but retain the test cases</span>
             </label>
 
             <label className="flex items-center space-x-3 cursor-pointer group">
@@ -95,10 +95,10 @@ export function DeleteSuiteModal({
                   checked={selectedOption === "deleteAll"}
                   onChange={() => setSelectedOption("deleteAll")}
                 />
-                <div className="w-4 h-4 border border-slate-300 rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
-                <div className="absolute w-2 h-2 bg-blue-600 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                <div className="w-4 h-4 border border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
+                <div className="absolute w-2 h-2 bg-primary rounded-full opacity-0 peer-checked:opacity-100 transition-opacity"></div>
               </div>
-              <span className="text-sm text-slate-700">Delete the suite and all its test cases</span>
+              <span className="text-sm text-text-main">Delete the suite and all its test cases</span>
             </label>
           </div>
         </div>
@@ -106,7 +106,7 @@ export function DeleteSuiteModal({
         <div className="px-6 py-4 flex justify-end space-x-3">
           <button 
             onClick={onClose}
-            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded transition-colors"
+            className="px-4 py-2 bg-surface-hover hover:bg-slate-200 text-text-main text-sm font-medium rounded transition-colors"
             disabled={isDeleting}
           >
             Cancel
@@ -117,7 +117,7 @@ export function DeleteSuiteModal({
             className={cn(
               "px-4 py-2 text-sm font-medium rounded transition-colors flex items-center",
               !selectedOption 
-                ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
+                ? "bg-surface-hover text-text-muted cursor-not-allowed" 
                 : "bg-red-500 hover:bg-red-600 text-white"
             )}
           >

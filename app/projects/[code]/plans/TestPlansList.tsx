@@ -87,7 +87,7 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-4">
           <div className="relative w-72">
-            <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
+            <Search className="absolute left-3 top-2.5 text-text-muted" size={16} />
             <input 
               type="text" 
               placeholder="Search test plans..." 
@@ -137,7 +137,7 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
           </p>
           <Link 
             href={`/projects/${code}/plans/create`}
-            className="bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] px-5 py-2.5 rounded-md font-medium hover:bg-blue-700 transition-colors"
+            className="bg-primary text-primary-foreground shadow-sm px-5 py-2.5 rounded-md font-medium hover:bg-primary-hover transition-colors"
           >
             Create new plan
           </Link>
@@ -195,7 +195,7 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
                     <div className="flex items-center justify-end space-x-2">
                       <Link 
                         href={`/projects/${code}/runs/create?plan=${plan.id}`}
-                        className="bg-primary/10 text-primary hover:bg-primary hover:text-white px-3 py-1.5 rounded text-sm font-semibold transition-colors flex items-center opacity-0 group-hover:opacity-100"
+                        className="bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground px-3 py-1.5 rounded text-sm font-semibold transition-colors flex items-center opacity-0 group-hover:opacity-100"
                       >
                         <PlayCircle size={14} className="mr-1.5" /> Start run
                       </Link>

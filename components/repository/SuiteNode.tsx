@@ -52,11 +52,11 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   const children = childrenMap.get(suite.id) || [];
   const cases = casesBySuiteId.get(suite.id) || [];
 
-  const headerBgClass = "bg-slate-50 border border-slate-200/60 rounded-md";
+  const headerBgClass = "bg-surface-hover border border-border rounded-md";
   
   const titleClass = depth === 0 
-    ? "font-bold text-[15px] text-slate-800" 
-    : "font-semibold text-[14px] text-slate-800";
+    ? "font-bold text-[15px] text-text-main" 
+    : "font-semibold text-[14px] text-text-main";
                       
   const handleCreateQuickTest = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && quickTestTitle.trim() && !isCreating) {
@@ -197,13 +197,13 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
               <button 
                 onClick={handleUpdateSuite} 
                 disabled={isSavingSuite}
-                className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-blue-700"
+                className="bg-primary text-primary-foreground px-3 py-1 rounded text-xs font-medium hover:bg-primary-hover"
               >
                 {isSavingSuite ? 'Saving...' : 'Save'}
               </button>
               <button 
                 onClick={() => setIsEditingSuite(false)} 
-                className="text-slate-500 hover:bg-slate-100 px-3 py-1 rounded text-xs font-medium"
+                className="text-text-muted hover:bg-surface-hover px-3 py-1 rounded text-xs font-medium"
               >
                 Cancel
               </button>
@@ -216,14 +216,14 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
               {!isUnassigned && cases.length > 0 && (
                 <button 
                   onClick={(e) => { e.stopPropagation(); toggleSuiteCases(allCasesInSuite); }}
-                  className="mt-0.5 mr-3 text-slate-300 hover:text-blue-500 transition-colors focus:outline-none"
+                  className="mt-0.5 mr-3 text-slate-300 hover:text-primary transition-colors focus:outline-none"
                 >
                   {isAllSelected ? (
-                    <div className="w-3.5 h-3.5 rounded bg-blue-600 flex items-center justify-center text-white">
+                    <div className="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-white">
                       <Check size={10} strokeWidth={3} />
                     </div>
                   ) : (
-                    <div className="w-3.5 h-3.5 rounded border border-slate-300 hover:border-blue-400" />
+                    <div className="w-3.5 h-3.5 rounded border border-text-muted hover:border-blue-400" />
                   )}
                 </button>
               )}
@@ -242,28 +242,28 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                       <div className="opacity-0 group-hover:opacity-100 flex items-center space-x-1 ml-3 transition-opacity">
                         <button 
                           onClick={(e) => { e.stopPropagation(); setShowQuickTest(true); }}
-                          className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                          className="p-1 text-primary hover:bg-blue-50 rounded transition-colors"
                           title="Create quick test"
                         >
                           <Plus size={14} strokeWidth={2.5} />
                         </button>
                         <button 
                           onClick={(e) => { e.stopPropagation(); setIsEditingSuite(true); }}
-                          className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded transition-colors"
+                          className="p-1 text-text-muted hover:text-text-muted hover:bg-slate-200/50 rounded transition-colors"
                           title="Edit suite"
                         >
                           <Edit2 size={13} />
                         </button>
                         <button 
                           onClick={handleCloneSuiteClick}
-                          className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded transition-colors"
+                          className="p-1 text-text-muted hover:text-text-muted hover:bg-slate-200/50 rounded transition-colors"
                           title="Clone suite"
                         >
                           <Copy size={13} />
                         </button>
                         <button 
                           onClick={handleDeleteSuiteClick}
-                          className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                          className="p-1 text-text-muted hover:text-red-500 hover:bg-red-50 rounded transition-colors"
                           title="Delete suite"
                         >
                           <Trash2 size={13} />
@@ -272,7 +272,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                     )}
                   </div>
                   {suite.description && (
-                    <span className="text-[13px] text-slate-500 mt-1 truncate">
+                    <span className="text-[13px] text-text-muted mt-1 truncate">
                       {suite.description}
                     </span>
                   )}
@@ -324,7 +324,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                 return (
                 <div 
                   key={tc.id} 
-                  className={cn("group flex items-center px-4 py-1.5 border-b border-transparent hover:border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer", isSelected && "bg-blue-50/50 hover:bg-blue-50")}
+                  className={cn("group flex items-center px-4 py-1.5 border-b border-transparent hover:border-border hover:bg-surface-hover transition-colors cursor-pointer", isSelected && "bg-blue-50/50 hover:bg-blue-50")}
                   onClick={() => {
                     if (onSelectCase) {
                       onSelectCase(tc);
@@ -337,14 +337,14 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                   {!isUnassigned && (
                     <button 
                       onClick={(e) => { e.stopPropagation(); toggleCase(tc.id); }}
-                      className="mr-3 text-slate-300 hover:text-blue-500 transition-colors focus:outline-none shrink-0"
+                      className="mr-3 text-slate-300 hover:text-primary transition-colors focus:outline-none shrink-0"
                     >
                       {isSelected ? (
-                        <div className="w-3.5 h-3.5 rounded bg-blue-600 flex items-center justify-center text-white">
+                        <div className="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-white">
                           <Check size={10} strokeWidth={3} />
                         </div>
                       ) : (
-                        <div className="w-3.5 h-3.5 rounded border border-slate-300 hover:border-blue-400" />
+                        <div className="w-3.5 h-3.5 rounded border border-text-muted hover:border-blue-400" />
                       )}
                     </button>
                   )}
@@ -361,7 +361,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                       )}
                     </div>
                     {/* Type Badge (M or AI) */}
-                    <div className="w-4 flex justify-center shrink-0 text-slate-400">
+                    <div className="w-4 flex justify-center shrink-0 text-text-muted">
                       {tc.tags?.some((t: any) => t.name === "AI-Generated") ? (
                         <span title="AI Generated"><Sparkles size={12} className="text-amber-500" /></span>
                       ) : (
@@ -370,11 +370,11 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                     </div>
                   </div>
                   
-                  <div className="w-16 shrink-0 text-[13px] text-slate-400 font-medium">
+                  <div className="w-16 shrink-0 text-[13px] text-text-muted font-medium">
                     {tc.code || `${projectCode}-${tc.id.substring(0,2)}`}
                   </div>
                   
-                  <div className="flex-1 flex items-center text-sm font-normal text-slate-700 min-w-0">
+                  <div className="flex-1 flex items-center text-sm font-normal text-text-main min-w-0">
                     <span className="truncate">{tc.title}</span>
                     {tc.isOutdated && (
                       <span className="ml-2 flex shrink-0 items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700" title="Requirement Changed">
@@ -404,7 +404,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                             }
                           }
                         }}
-                        className="p-1 text-slate-400 hover:text-red-500 rounded transition-colors"
+                        className="p-1 text-text-muted hover:text-red-500 rounded transition-colors"
                         title="Delete test case"
                       >
                         <Trash2 size={14} />
@@ -419,7 +419,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                 <div className="px-4 py-1.5 mt-1 ml-6">
                   <button 
                     onClick={() => setShowQuickTest(true)}
-                    className="text-[13px] font-medium text-slate-400 hover:text-blue-600 flex items-center transition-colors"
+                    className="text-[13px] font-medium text-text-muted hover:text-primary flex items-center transition-colors"
                   >
                     + Create quick test
                   </button>

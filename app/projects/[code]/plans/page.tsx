@@ -46,7 +46,7 @@ export default async function TestPlansPage({
         <div className="flex items-center space-x-3">
           <Link 
             href={`/projects/${code}/plans/create`}
-            className="bg-primary text-white shadow-[0_0_10px_rgba(93,135,255,0.4)] px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors flex items-center"
+            className="bg-primary text-primary-foreground shadow-sm px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-hover transition-colors flex items-center"
           >
             <Plus size={16} className="mr-2" />
             Create test plan

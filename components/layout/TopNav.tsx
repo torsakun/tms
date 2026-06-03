@@ -32,10 +32,10 @@ export function TopNav() {
   ];
 
   return (
-    <header className="w-full h-16 bg-slate-900 shadow-[0_1px_15px_rgba(0,0,0,0.04)] dark:shadow-none flex items-center justify-between px-6 shrink-0 transition-colors z-50 relative border-b border-slate-800">
-      <div className="flex items-center space-x-8">
+    <header className="w-full h-16 bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950 flex items-center justify-between px-6 shrink-0 transition-colors z-50 relative border-b border-white/10 text-white shadow-xl shadow-indigo-900/20">
+      <div className="flex items-center space-x-6">
         {/* Logo Placeholder */}
-        <Link href="/projects" className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+        <Link href="/projects" className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-[0_0_15px_rgba(79,70,229,0.5)] border border-white/20">
           M
         </Link>
 
@@ -48,10 +48,10 @@ export function TopNav() {
                 key={link.name}
                 href={link.href}
                 className={cn(
-                  "px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
+                  "px-3 py-1.5 rounded-md text-sm transition-colors",
                   isActive
-                    ? "text-white bg-white/10"
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                    ? "bg-white/20 text-white font-bold shadow-[0_0_20px_rgba(255,255,255,0.2)] backdrop-blur-md border border-white/20"
+                    : "text-white/70 hover:text-white hover:bg-white/10 font-medium"
                 )}
               >
                 {link.name}
@@ -63,8 +63,8 @@ export function TopNav() {
 
       {/* Right Side Actions */}
       <div className="flex items-center space-x-4">
-        <button className="text-slate-400 hover:text-white">
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <button className="text-white/70 hover:text-white transition-colors">
+          <svg className="w-5 h-5 drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         </button>
         
         <div className="relative">
@@ -75,29 +75,29 @@ export function TopNav() {
               e.nativeEvent.stopImmediatePropagation();
               setIsDropdownOpen(!isDropdownOpen);
             }}
-            className="w-8 h-8 bg-[#4338ca] rounded flex items-center justify-center text-white text-xs font-bold leading-none text-center cursor-pointer hover:bg-[#3730a3] transition-colors"
+            className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white text-xs font-bold leading-none text-center cursor-pointer shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all hover:scale-105 border border-white/20"
           >
             {getInitials(session?.user?.name || session?.user?.email)}
           </div>
           
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-slate-200 z-50 py-1">
-              <div className="px-4 py-3 border-b border-slate-100">
-                <p className="text-sm font-medium text-slate-800 truncate">{session?.user?.name || "User"}</p>
-                <p className="text-xs text-slate-500 truncate">{session?.user?.email}</p>
+            <div className="absolute right-0 mt-2 w-56 bg-surface rounded-xl shadow-lg border border-border z-50 py-1 overflow-hidden">
+              <div className="px-4 py-3 border-b border-border bg-surface-hover/30">
+                <p className="text-sm font-medium text-text-main truncate">{session?.user?.name || "User"}</p>
+                <p className="text-xs text-text-muted truncate">{session?.user?.email}</p>
               </div>
               <div className="py-1">
                 <Link 
                   href="/profile"
-                  className="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                  className="block px-4 py-2 text-sm text-text-main hover:bg-surface-hover transition-colors"
                 >
                   Profile Settings
                 </Link>
               </div>
-              <div className="border-t border-slate-100 py-1">
+              <div className="border-t border-border py-1">
                 <button 
                   onClick={() => signOut({ callbackUrl: '/login' })}
-                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-500/10 transition-colors"
                 >
                   Sign out
                 </button>

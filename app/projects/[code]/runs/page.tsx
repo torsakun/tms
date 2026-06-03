@@ -81,7 +81,7 @@ export default async function RunsPage({ params }: { params: Promise<{ code: str
             </div>
 
             <div className="bg-surface rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-none p-4 flex items-center space-x-3 transition-colors">
-              <div className="w-10 h-10 bg-blue-500/10 text-blue-500 rounded-xl flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 bg-blue-500/10 text-primary rounded-xl flex items-center justify-center shrink-0">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
               </div>
               <div>

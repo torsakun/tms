@@ -76,26 +76,26 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[1px]">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-xl flex flex-col max-h-[90vh] overflow-hidden">
+      <div className="bg-surface rounded-xl shadow-2xl w-full max-w-xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Header */}
         <header className="flex items-center justify-between px-6 py-4 shrink-0">
-          <h2 className="text-lg font-bold text-slate-800">Invite new user</h2>
+          <h2 className="text-lg font-bold text-text-main">Invite new user</h2>
           <button 
             type="button"
             onClick={onClose} 
-            className="text-slate-500 hover:bg-slate-100 hover:text-slate-700 rounded-md p-1 transition-colors"
+            className="text-text-muted hover:bg-surface-hover hover:text-text-main rounded-md p-1 transition-colors"
           >
             <X size={20} />
           </button>
         </header>
 
         {/* Tabs */}
-        <div className="px-6 border-b border-slate-200 flex space-x-6">
+        <div className="px-6 border-b border-border flex space-x-6">
           <button 
             className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${
               activeTab === "single" 
-                ? "border-blue-700 text-slate-800" 
-                : "border-transparent text-slate-500 hover:text-slate-700"
+                ? "border-blue-700 text-text-main" 
+                : "border-transparent text-text-muted hover:text-text-main"
             }`}
             onClick={() => setActiveTab("single")}
           >
@@ -104,8 +104,8 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
           <button 
             className={`pb-3 text-sm font-semibold border-b-2 transition-colors ${
               activeTab === "bulk" 
-                ? "border-blue-700 text-slate-800" 
-                : "border-transparent text-slate-500 hover:text-slate-700"
+                ? "border-blue-700 text-text-main" 
+                : "border-transparent text-text-muted hover:text-text-main"
             }`}
             onClick={() => setActiveTab("bulk")}
           >
@@ -129,7 +129,7 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
                 </div>
               )}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-text-main mb-1.5">
                   Email <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -138,12 +138,12 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="example@example.com"
-                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder:text-slate-400"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder:text-text-muted"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-text-main mb-1.5">
                   First name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -152,12 +152,12 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="For example: John"
-                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder:text-slate-400"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder:text-text-muted"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-text-main mb-1.5">
                   Last name <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -166,12 +166,12 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="For example: Smith"
-                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder:text-slate-400"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder:text-text-muted"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-text-main mb-1.5">
                   Role title <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -180,16 +180,16 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
                   value={roleTitle}
                   onChange={(e) => setRoleTitle(e.target.value)}
                   placeholder="For example: Senior QA"
-                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder:text-slate-400"
+                  className="w-full px-3 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors placeholder:text-text-muted"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-text-main mb-1.5">
                   Role <span className="text-red-500">*</span>
                 </label>
                 {isLoadingRoles ? (
-                  <div className="flex items-center text-sm text-slate-500 py-2">
+                  <div className="flex items-center text-sm text-text-muted py-2">
                     <Loader2 size={16} className="animate-spin mr-2" /> Loading roles...
                   </div>
                 ) : roles.length > 0 ? (
@@ -197,7 +197,7 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
                     value={roleId}
                     required
                     onChange={(e) => setRoleId(e.target.value)}
-                    className="w-full px-3 py-2 text-sm text-slate-700 border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none bg-white"
+                    className="w-full px-3 py-2 text-sm text-text-main border border-border rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition-colors appearance-none bg-surface"
                     style={{ backgroundImage: `url('data:image/svg+xml;charset=US-ASCII,<svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="%2364748b"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>')`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center' }}
                   >
                     <option value="" disabled>Select a role</option>
@@ -223,10 +223,10 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
                       onChange={(e) => setReadOnly(e.target.checked)}
                       className="peer sr-only"
                     />
-                    <div className="w-4 h-4 border border-slate-300 rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors"></div>
+                    <div className="w-4 h-4 border border-text-muted rounded peer-checked:bg-primary peer-checked:border-blue-600 transition-colors"></div>
                     <svg className="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </div>
-                  <span className="text-sm text-slate-800">Read-only</span>
+                  <span className="text-sm text-text-main">Read-only</span>
                 </label>
               </div>
 
@@ -239,18 +239,18 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
                       onChange={(e) => setAccess(e.target.checked)}
                       className="peer sr-only"
                     />
-                    <div className="w-4 h-4 border border-slate-300 rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors"></div>
+                    <div className="w-4 h-4 border border-text-muted rounded peer-checked:bg-primary peer-checked:border-blue-600 transition-colors"></div>
                     <svg className="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-sm font-bold text-slate-800">Access</span>
-                    <span className="text-xs text-slate-500">A user will receive access to all private projects in your workspace.</span>
+                    <span className="text-sm font-bold text-text-main">Access</span>
+                    <span className="text-xs text-text-muted">A user will receive access to all private projects in your workspace.</span>
                   </div>
                 </label>
               </div>
             </form>
           ) : (
-            <div className="text-sm text-slate-500">
+            <div className="text-sm text-text-muted">
               Bulk invite functionality is not available yet.
             </div>
           )}
@@ -261,7 +261,7 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
           <button 
             type="button" 
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors"
+            className="px-4 py-2 text-sm font-medium text-text-main bg-surface-hover hover:bg-slate-200 rounded-md transition-colors"
           >
             Cancel
           </button>

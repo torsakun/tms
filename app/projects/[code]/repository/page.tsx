@@ -48,7 +48,7 @@ export default async function RepositoryPage({
   return (
     <SuiteExpansionProvider initialExpandedIds={allSuiteIds} projectCode={code}>
       <SuiteSelectionProvider>
-        <div className="flex flex-col flex-1 w-full bg-white overflow-hidden h-full">
+        <div className="flex flex-col flex-1 w-full bg-surface overflow-hidden h-full">
           
           <RepositoryHeader 
             projectCode={code} 

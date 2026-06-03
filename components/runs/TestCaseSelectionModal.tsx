@@ -386,7 +386,7 @@ export function TestCaseSelectionModal({ isOpen, onClose, onSave, suites, cases,
           <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-text-muted hover:text-text-main hover:bg-surface-hover rounded transition-colors">
             Cancel
           </button>
-          <button type="button" onClick={handleSave} className="px-6 py-2 text-sm font-semibold text-white bg-primary hover:bg-blue-700 rounded shadow-[0_0_10px_rgba(93,135,255,0.4)] transition-colors">
+          <button type="button" onClick={handleSave} className="px-6 py-2 text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary-hover rounded shadow-sm transition-colors">
             Done
           </button>
         </footer>

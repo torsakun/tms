@@ -54,7 +54,7 @@ function LoginPageContent() {
 
         <div className="relative z-10">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-sm">
               <Activity className="text-white" size={24} />
             </div>
             <span className="text-2xl font-bold text-white tracking-tight">QMaster</span>
@@ -80,7 +80,7 @@ function LoginPageContent() {
               </div>
               <div>
                 <span className="font-semibold text-white block">LLM Case Generation</span>
-                <span className="text-sm text-slate-400">Instantly write test cases from requirements</span>
+                <span className="text-sm text-text-muted">Instantly write test cases from requirements</span>
               </div>
             </div>
             <div className="flex items-center text-slate-300 group">
@@ -89,7 +89,7 @@ function LoginPageContent() {
               </div>
               <div>
                 <span className="font-semibold text-white block">Autonomous Execution</span>
-                <span className="text-sm text-slate-400">Self-healing Playwright scripts via AI</span>
+                <span className="text-sm text-text-muted">Self-healing Playwright scripts via AI</span>
               </div>
             </div>
             <div className="flex items-center text-slate-300 group">
@@ -98,13 +98,13 @@ function LoginPageContent() {
               </div>
               <div>
                 <span className="font-semibold text-white block">Predictive Insights</span>
-                <span className="text-sm text-slate-400">Spot defects before they reach production</span>
+                <span className="text-sm text-text-muted">Spot defects before they reach production</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="relative z-10 text-slate-400 text-sm font-medium">
+        <div className="relative z-10 text-text-muted text-sm font-medium">
           © 2026 QMaster Systems Inc.
         </div>
       </div>
@@ -113,7 +113,7 @@ function LoginPageContent() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 bg-surface">
         <div className="w-full max-w-md">
           <div className="lg:hidden flex justify-center mb-8">
-            <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30">
+            <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-sm">
               <Activity className="text-white" size={32} />
             </div>
           </div>
@@ -177,7 +177,7 @@ function LoginPageContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-[0_4px_14px_0_rgba(93,135,255,0.39)] text-sm font-bold text-white bg-primary hover:bg-blue-700 hover:shadow-[0_6px_20px_rgba(93,135,255,0.23)] hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none transition-all duration-200"
+                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-primary-foreground bg-primary hover:bg-primary-hover hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none transition-all duration-200"
               >
                 {loading ? (
                   <span className="flex items-center">

@@ -61,14 +61,14 @@ export default function ProfilePage() {
   };
 
   if (!session) {
-    return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-blue-600" /></div>;
+    return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-primary" /></div>;
   }
 
   return (
     <div className="w-full max-w-3xl mx-auto px-8 py-12">
-      <h1 className="text-2xl font-bold text-slate-800 mb-8">Profile Settings</h1>
+      <h1 className="text-2xl font-bold text-text-main mb-8">Profile Settings</h1>
 
-      <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+      <div className="bg-surface border border-border rounded-xl p-6 shadow-sm">
         {message.text && (
           <div className={`p-4 mb-6 rounded-md text-sm ${message.type === "error" ? "bg-red-50 text-red-700 border border-red-100" : "bg-emerald-50 text-emerald-700 border border-emerald-100"}`}>
             {message.text}
@@ -77,65 +77,65 @@ export default function ProfilePage() {
 
         <form onSubmit={handleUpdateProfile} className="space-y-6">
           <div>
-            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-100 pb-2">Personal Information</h2>
+            <h2 className="text-lg font-semibold text-text-main mb-4 border-b border-border pb-2">Personal Information</h2>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Email (Read Only)</label>
+                <label className="block text-sm font-medium text-text-main mb-1">Email (Read Only)</label>
                 <input 
                   type="email" 
                   value={session.user?.email || ""} 
                   disabled
-                  className="w-full px-3 py-2 border border-slate-200 rounded-md bg-slate-50 text-slate-500 cursor-not-allowed"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-surface-hover text-text-muted cursor-not-allowed"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                <label className="block text-sm font-medium text-text-main mb-1">Full Name</label>
                 <input 
                   type="text" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-text-muted rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
           </div>
 
           <div className="pt-4">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-100 pb-2">Change Password</h2>
-            <p className="text-xs text-slate-500 mb-4">Leave blank if you do not want to change your password.</p>
+            <h2 className="text-lg font-semibold text-text-main mb-4 border-b border-border pb-2">Change Password</h2>
+            <p className="text-xs text-text-muted mb-4">Leave blank if you do not want to change your password.</p>
             
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Current Password</label>
+                <label className="block text-sm font-medium text-text-main mb-1">Current Password</label>
                 <input 
                   type="password" 
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-text-muted rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">New Password</label>
+                  <label className="block text-sm font-medium text-text-main mb-1">New Password</label>
                   <input 
                     type="password"
                     minLength={8}
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-text-muted rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Confirm New Password</label>
+                  <label className="block text-sm font-medium text-text-main mb-1">Confirm New Password</label>
                   <input 
                     type="password"
                     minLength={8}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-text-muted rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
               </div>
@@ -146,7 +146,7 @@ export default function ProfilePage() {
             <button
               type="submit"
               disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 flex items-center"
+              className="bg-primary hover:bg-primary-hover text-white px-6 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 flex items-center"
             >
               {loading ? <Loader2 size={16} className="animate-spin mr-2" /> : null}
               Save Changes

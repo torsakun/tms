@@ -55,10 +55,10 @@ export function ImportCasesModal({ isOpen, onClose, projectCode, suites, onSucce
 
   return (
     <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-[100]">
-      <div className="bg-white rounded-xl shadow-xl w-[500px] max-w-[90vw] overflow-hidden flex flex-col">
-        <header className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900">Import test cases</h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 rounded transition-colors">
+      <div className="bg-surface rounded-xl shadow-xl w-[500px] max-w-[90vw] overflow-hidden flex flex-col">
+        <header className="px-6 py-4 border-b border-border flex items-center justify-between">
+          <h2 className="text-lg font-bold text-text-main">Import test cases</h2>
+          <button onClick={onClose} className="text-text-muted hover:text-text-muted p-1 rounded transition-colors">
             <X size={20} />
           </button>
         </header>
@@ -68,7 +68,7 @@ export function ImportCasesModal({ isOpen, onClose, projectCode, suites, onSucce
             If you're using MS Excel for managing your test cases, select the Qase.io as a source type.
           </div>
           
-          <a href="#" className="flex items-center text-sm text-blue-600 hover:underline">
+          <a href="#" className="flex items-center text-sm text-primary hover:underline">
             <HelpCircle size={14} className="mr-1.5" />
             How to prepare your file for the Qase JSON format
           </a>
@@ -76,36 +76,36 @@ export function ImportCasesModal({ isOpen, onClose, projectCode, suites, onSucce
           {error && <div className="text-red-600 text-sm">{error}</div>}
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Source type</label>
+            <label className="block text-sm font-semibold text-text-main mb-1.5">Source type</label>
             <select 
               value={sourceType}
               onChange={(e) => setSourceType(e.target.value)}
-              className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              className="w-full px-3 py-2 bg-surface border border-text-muted rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             >
               <option value="Qase.io">Qase.io (JSON)</option>
             </select>
-            <p className="text-xs text-slate-500 mt-1">Supported formats: JSON</p>
+            <p className="text-xs text-text-muted mt-1">Supported formats: JSON</p>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Parent suite</label>
+            <label className="block text-sm font-semibold text-text-main mb-1.5">Parent suite</label>
             <select
               value={parentId || ""}
               onChange={(e) => setParentId(e.target.value || null)}
-              className="w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              className="w-full px-3 py-2 bg-surface border border-text-muted rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
             >
               <option value="">Project root</option>
               {suites.map((s) => (
                 <option key={s.id} value={s.id}>{s.title}</option>
               ))}
             </select>
-            <p className="text-xs text-slate-500 mt-1">Select a suite into which you want to import the test cases.</p>
+            <p className="text-xs text-text-muted mt-1">Select a suite into which you want to import the test cases.</p>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Upload file <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold text-text-main mb-1.5">Upload file <span className="text-red-500">*</span></label>
             <div className="flex items-center">
-              <label className="bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 px-3 py-1.5 rounded text-sm cursor-pointer transition-colors">
+              <label className="bg-surface-hover hover:bg-slate-200 border border-text-muted text-text-main px-3 py-1.5 rounded text-sm cursor-pointer transition-colors">
                 Choose a file
                 <input 
                   type="file" 
@@ -117,7 +117,7 @@ export function ImportCasesModal({ isOpen, onClose, projectCode, suites, onSucce
                   }} 
                 />
               </label>
-              {file && <span className="ml-3 text-sm text-slate-600 truncate max-w-[200px]">{file.name}</span>}
+              {file && <span className="ml-3 text-sm text-text-muted truncate max-w-[200px]">{file.name}</span>}
             </div>
           </div>
 
@@ -126,23 +126,23 @@ export function ImportCasesModal({ isOpen, onClose, projectCode, suites, onSucce
               type="checkbox" 
               checked={replaceMatching} 
               onChange={(e) => setReplaceMatching(e.target.checked)}
-              className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500" 
+              className="w-4 h-4 text-primary border-text-muted rounded focus:ring-blue-500" 
             />
-            <span className="text-sm text-slate-700">Replace matching test cases</span>
+            <span className="text-sm text-text-main">Replace matching test cases</span>
           </label>
         </div>
 
-        <footer className="px-6 py-4 border-t border-slate-100 flex items-center justify-end space-x-3 bg-slate-50 shrink-0">
+        <footer className="px-6 py-4 border-t border-border flex items-center justify-end space-x-3 bg-surface-hover shrink-0">
           <button 
             onClick={onClose} 
-            className="px-4 py-2 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-md shadow-sm hover:bg-slate-50 transition-colors"
+            className="px-4 py-2 bg-surface border border-text-muted text-text-main text-sm font-medium rounded-md shadow-sm hover:bg-surface-hover transition-colors"
           >
             Cancel
           </button>
           <button 
             onClick={handleImport}
             disabled={isImporting || !file}
-            className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-md shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isImporting ? <Loader2 size={16} className="mr-2 animate-spin" /> : null}
             Import test cases

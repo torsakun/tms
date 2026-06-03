@@ -10,10 +10,10 @@ export default async function SettingsUsersPage() {
   if (!session || (session.user as any).role !== "ADMIN") {
     // Basic protection: Only ADMINs can view this page
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-8">
+      <div className="min-h-screen bg-surface-hover flex flex-col items-center justify-center p-8">
         <ShieldAlert size={64} className="text-red-500 mb-4" />
-        <h1 className="text-2xl font-bold text-slate-800">Access Denied</h1>
-        <p className="text-slate-500 mt-2">You must be a System Administrator to view this page.</p>
+        <h1 className="text-2xl font-bold text-text-main">Access Denied</h1>
+        <p className="text-text-muted mt-2">You must be a System Administrator to view this page.</p>
       </div>
     );
   }
@@ -34,50 +34,50 @@ export default async function SettingsUsersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-8">
+    <div className="min-h-screen bg-surface-hover p-8">
       <div className="max-w-5xl mx-auto space-y-6">
         <header className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 flex items-center">
-              <Users className="mr-3 text-blue-600" />
+            <h1 className="text-2xl font-bold text-text-main flex items-center">
+              <Users className="mr-3 text-primary" />
               User Management
             </h1>
-            <p className="text-sm text-slate-500 mt-1">Manage system access and global roles.</p>
+            <p className="text-sm text-text-muted mt-1">Manage system access and global roles.</p>
           </div>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition">
+          <button className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary-hover transition">
             Invite User
           </button>
         </header>
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">User</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Email</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">System Role</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right">Actions</th>
+              <tr className="bg-surface-hover border-b border-border">
+                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">User</th>
+                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">Email</th>
+                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">System Role</th>
+                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {users.map(u => (
-                <tr key={u.id} className="hover:bg-slate-50 transition">
+                <tr key={u.id} className="hover:bg-surface-hover transition">
                   <td className="px-6 py-4">
-                    <div className="font-semibold text-slate-800">{u.name || "Unknown"}</div>
+                    <div className="font-semibold text-text-main">{u.name || "Unknown"}</div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-slate-600 flex items-center">
-                    <Mail size={14} className="mr-2 text-slate-400" />
+                  <td className="px-6 py-4 text-sm text-text-muted flex items-center">
+                    <Mail size={14} className="mr-2 text-text-muted" />
                     {u.email}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ${u.role === "ADMIN" ? "bg-purple-100 text-purple-800" : "bg-slate-100 text-slate-600"
+                    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ${u.role === "ADMIN" ? "bg-purple-100 text-purple-800" : "bg-surface-hover text-text-muted"
                       }`}>
                       {u.role === "ADMIN" && <Shield size={12} className="mr-1" />}
                       {u.role}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">Edit</button>
+                    <button className="text-primary hover:text-blue-800 text-sm font-medium">Edit</button>
                   </td>
                 </tr>
               ))}

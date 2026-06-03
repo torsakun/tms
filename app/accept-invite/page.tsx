@@ -58,12 +58,12 @@ function AcceptInviteContent() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-surface-hover flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
-            <h2 className="text-xl font-bold text-slate-900 mb-2">Invalid Invitation</h2>
-            <p className="text-slate-600 mb-6">No invitation token was provided in the URL.</p>
-            <Link href="/" className="text-blue-600 hover:text-blue-500 font-medium">Return to Home</Link>
+          <div className="bg-surface py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
+            <h2 className="text-xl font-bold text-text-main mb-2">Invalid Invitation</h2>
+            <p className="text-text-muted mb-6">No invitation token was provided in the URL.</p>
+            <Link href="/" className="text-primary hover:text-primary font-medium">Return to Home</Link>
           </div>
         </div>
       </div>
@@ -72,17 +72,17 @@ function AcceptInviteContent() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-surface-hover flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
+          <div className="bg-surface py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
             <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <ShieldCheck size={32} />
             </div>
-            <h2 className="text-xl font-bold text-slate-900 mb-2">Invitation Accepted!</h2>
-            <p className="text-slate-600 mb-6">You have successfully joined the project.</p>
+            <h2 className="text-xl font-bold text-text-main mb-2">Invitation Accepted!</h2>
+            <p className="text-text-muted mb-6">You have successfully joined the project.</p>
             <Link 
               href={`/login?redirect=/projects/${projectCode}/repository`}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover"
             >
               Sign In to Continue
             </Link>
@@ -93,18 +93,18 @@ function AcceptInviteContent() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-surface-hover flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-slate-900">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-text-main">
           Accept Project Invitation
         </h2>
-        <p className="mt-2 text-center text-sm text-slate-600">
+        <p className="mt-2 text-center text-sm text-text-muted">
           Complete your profile to join the project team.
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-surface py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
               <div className="p-3 rounded-md bg-red-50 text-red-600 text-sm font-medium">
@@ -113,43 +113,43 @@ function AcceptInviteContent() {
             )}
             
             <div>
-              <label className="block text-sm font-medium text-slate-700">Full Name</label>
+              <label className="block text-sm font-medium text-text-main">Full Name</label>
               <div className="mt-1">
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-text-muted rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">Password</label>
+              <label className="block text-sm font-medium text-text-main">Password</label>
               <div className="mt-1">
                 <input
                   type="password"
                   required
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-text-muted rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-text-muted">
                 (If you already have an account with this email, your password will not be changed)
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">Confirm Password</label>
+              <label className="block text-sm font-medium text-text-main">Confirm Password</label>
               <div className="mt-1">
                 <input
                   type="password"
                   required
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="appearance-none block w-full px-3 py-2 border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="appearance-none block w-full px-3 py-2 border border-text-muted rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
             </div>
@@ -158,7 +158,7 @@ function AcceptInviteContent() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
                 {isLoading ? <Loader2 size={16} className="animate-spin" /> : "Accept Invitation"}
               </button>
@@ -172,7 +172,7 @@ function AcceptInviteContent() {
 
 export default function AcceptInvitePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><Loader2 size={32} className="animate-spin text-blue-600" /></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-surface-hover flex items-center justify-center"><Loader2 size={32} className="animate-spin text-primary" /></div>}>
       <AcceptInviteContent />
     </Suspense>
   );

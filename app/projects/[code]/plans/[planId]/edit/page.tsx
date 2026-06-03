@@ -126,18 +126,18 @@ export default function EditPlanPage() {
 
   if (fetching) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50">
-        <Loader2 className="animate-spin text-blue-600" size={32} />
+      <div className="flex h-screen items-center justify-center bg-surface-hover">
+        <Loader2 className="animate-spin text-primary" size={32} />
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-slate-50 items-center justify-center">
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-        <header className="flex items-center justify-between px-6 py-4 border-b border-slate-200 shrink-0">
-          <h1 className="text-xl font-semibold text-slate-800">Edit test plan</h1>
-          <button type="button" onClick={() => router.back()} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition">
+    <div className="flex h-screen bg-surface-hover items-center justify-center">
+      <div className="bg-surface rounded-xl border border-border shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+        <header className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
+          <h1 className="text-xl font-semibold text-text-main">Edit test plan</h1>
+          <button type="button" onClick={() => router.back()} className="p-2 text-text-muted hover:text-text-muted hover:bg-surface-hover rounded-full transition">
             <X size={20} />
           </button>
         </header>
@@ -152,63 +152,63 @@ export default function EditPlanPage() {
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Plan Title</label>
+              <label className="block text-sm font-semibold text-text-main mb-2">Plan Title</label>
               <input 
                 type="text" 
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Release 1.2 Regression"
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                className="w-full px-4 py-2.5 bg-surface-hover border border-border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Description (Optional)</label>
+              <label className="block text-sm font-semibold text-text-main mb-2">Description (Optional)</label>
               <textarea 
                 rows={2}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What is the goal of this test plan?"
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"
+                className="w-full px-4 py-2.5 bg-surface-hover border border-border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"
               />
             </div>
 
             {/* Modal Trigger */}
             <div className="pt-2">
-              <label className="block text-sm font-semibold text-slate-700 mb-2">Test Cases</label>
+              <label className="block text-sm font-semibold text-text-main mb-2">Test Cases</label>
               <button
                 type="button"
-                className="flex items-center justify-between w-full px-4 py-3 bg-white border border-slate-200 rounded-lg hover:border-blue-300 hover:ring-1 hover:ring-blue-500/20 transition-all text-left group"
+                className="flex items-center justify-between w-full px-4 py-3 bg-surface border border-border rounded-lg hover:border-blue-300 hover:ring-1 hover:ring-blue-500/20 transition-all text-left group"
                 onClick={() => setIsModalOpen(true)}
               >
                 <div>
-                  <div className="text-sm font-medium text-slate-800 group-hover:text-blue-700 transition-colors">Select test cases</div>
-                  <div className="text-xs text-slate-500 mt-1">
+                  <div className="text-sm font-medium text-text-main group-hover:text-blue-700 transition-colors">Select test cases</div>
+                  <div className="text-xs text-text-muted mt-1">
                     {selectedIds.size === cases.length 
                       ? "All test cases selected" 
                       : `${selectedIds.size} of ${cases.length} cases selected`}
                   </div>
                 </div>
-                <div className="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-md text-sm font-medium group-hover:bg-blue-50 group-hover:text-blue-700 transition-colors">
+                <div className="px-3 py-1.5 bg-surface-hover text-text-muted rounded-md text-sm font-medium group-hover:bg-blue-50 group-hover:text-blue-700 transition-colors">
                   Edit selection
                 </div>
               </button>
             </div>
           </div>
 
-          <div className="flex justify-end p-6 border-t border-slate-200 shrink-0 bg-white">
+          <div className="flex justify-end p-6 border-t border-border shrink-0 bg-surface">
             <button 
               type="button" 
               onClick={() => router.back()}
-              className="px-4 py-2 font-medium text-slate-600 hover:bg-slate-100 rounded-md transition mr-3"
+              className="px-4 py-2 font-medium text-text-muted hover:bg-surface-hover rounded-md transition mr-3"
             >
               Cancel
             </button>
             <button 
               type="submit" 
               disabled={loading}
-              className="flex items-center px-4 py-2 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition shadow-sm disabled:opacity-50"
+              className="flex items-center px-4 py-2 font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary-hover transition shadow-sm disabled:opacity-50"
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>

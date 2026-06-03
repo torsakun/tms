@@ -290,7 +290,7 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
             className="w-full px-4 py-2 flex items-center justify-between bg-slate-900 border-b border-slate-800 transition-colors cursor-pointer"
           >
             <div className="flex items-center text-xs font-bold text-slate-300">
-              <Terminal size={14} className="mr-2 text-slate-400" />
+              <Terminal size={14} className="mr-2 text-text-muted" />
               Verification Console Output
             </div>
             <div className="flex items-center space-x-3">
@@ -309,7 +309,7 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
                   {isFixing ? "Fixing..." : "Auto-fix with AI"}
                 </button>
               )}
-              {isVerificationExpanded ? <ChevronUp size={14} className="text-slate-400" /> : <ChevronDown size={14} className="text-slate-400" />}
+              {isVerificationExpanded ? <ChevronUp size={14} className="text-text-muted" /> : <ChevronDown size={14} className="text-text-muted" />}
             </div>
           </div>
           
@@ -366,7 +366,7 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
             </button>
             <button 
               onClick={handleExplore}
-              className="flex items-center justify-center px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-md font-bold shadow-[0_0_10px_rgba(93,135,255,0.3)] transition-all"
+              className="flex items-center justify-center px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground rounded-md font-bold shadow-sm transition-all"
             >
               <Sparkles size={16} className="mr-2" />
               Explore & Automate (Agentic)
@@ -382,7 +382,7 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
         <div className="flex flex-col items-center justify-center py-12 border border-border rounded-lg bg-background/50">
           <div className="relative w-12 h-12 mb-4">
             <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping"></div>
-            <div className="absolute inset-2 bg-primary flex items-center justify-center rounded-full shadow-[0_0_15px_rgba(93,135,255,0.5)]">
+            <div className="absolute inset-2 bg-primary flex items-center justify-center rounded-full shadow-sm">
               <Sparkles size={16} className="text-white" />
             </div>
           </div>
@@ -396,7 +396,7 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
           <div className="relative w-12 h-12 mb-4">
             <div className="absolute inset-0 bg-primary/20 rounded-full animate-ping" style={{ animationDuration: '2s' }}></div>
             <div className="absolute inset-0 bg-primary/40 rounded-full animate-ping" style={{ animationDuration: '3s', animationDelay: '0.5s' }}></div>
-            <div className="absolute inset-2 bg-primary flex items-center justify-center rounded-full shadow-[0_0_20px_rgba(93,135,255,0.6)]">
+            <div className="absolute inset-2 bg-primary flex items-center justify-center rounded-full shadow-md">
               <Sparkles size={16} className="text-white animate-pulse" />
             </div>
           </div>
@@ -428,7 +428,7 @@ export function TestCaseAutomationPanel({ testCase, projectCode, onUpdate }: Tes
                 </div>
               </div>
               <p className="text-sm font-bold text-white">AI is fixing the script...</p>
-              <p className="text-xs text-slate-400 mt-1">Analyzing Playwright logs and correcting errors</p>
+              <p className="text-xs text-text-muted mt-1">Analyzing Playwright logs and correcting errors</p>
             </div>
           )}
           

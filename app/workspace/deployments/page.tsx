@@ -13,8 +13,8 @@ export default async function DeploymentsPage() {
     <div className="w-full max-w-[1400px] mx-auto px-8 py-8">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Deployments</h1>
-          <p className="text-sm text-slate-500 mt-1">Monitor and trigger VPS container deployments</p>
+          <h1 className="text-2xl font-bold text-text-main">Deployments</h1>
+          <p className="text-sm text-text-muted mt-1">Monitor and trigger VPS container deployments</p>
         </div>
       </div>
       

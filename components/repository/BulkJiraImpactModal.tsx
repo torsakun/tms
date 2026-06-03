@@ -199,7 +199,7 @@ export function BulkJiraImpactModal({ isOpen, onClose, projectCode, suites, allC
               
               <div className="bg-surface p-6 rounded-xl border border-border">
                 <h4 className="text-sm font-bold text-text-main mb-4 flex items-center">
-                  <Ticket size={16} className="mr-2 text-blue-500" />
+                  <Ticket size={16} className="mr-2 text-primary" />
                   1. Fetch Jira Requirement
                 </h4>
                 <div className="flex space-x-3 mb-4">
@@ -214,7 +214,7 @@ export function BulkJiraImpactModal({ isOpen, onClose, projectCode, suites, allC
                   <button 
                     onClick={handleJiraFetch}
                     disabled={isFetchingJira || !jiraTicketId.trim()}
-                    className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all disabled:opacity-50 flex items-center"
+                    className="px-6 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-all disabled:opacity-50 flex items-center"
                   >
                     {isFetchingJira ? <Loader2 size={18} className="animate-spin" /> : 'Fetch Story'}
                   </button>
@@ -226,7 +226,7 @@ export function BulkJiraImpactModal({ isOpen, onClose, projectCode, suites, allC
                       value={newRequirementText}
                       onChange={(e) => setNewRequirementText(e.target.value)}
                       placeholder="Paste your requirement or user story here to test without Jira..."
-                      className="w-full p-4 bg-slate-50 border border-slate-200 rounded-lg h-32 text-xs text-slate-700 font-sans focus:ring-2 focus:ring-primary/20 outline-none resize-y"
+                      className="w-full p-4 bg-surface-hover border border-border rounded-lg h-32 text-xs text-text-main font-sans focus:ring-2 focus:ring-primary/20 outline-none resize-y"
                     />
                   </div>
                 )}
@@ -323,40 +323,40 @@ export function BulkJiraImpactModal({ isOpen, onClose, projectCode, suites, allC
                     const originalCase = allCases.find(c => c.id === res.caseId);
                     
                     return (
-                      <div key={res.caseId} className={`border rounded-xl transition-all overflow-hidden ${isSelected ? 'border-indigo-400 shadow-sm' : 'border-border bg-slate-50 opacity-80'}`}>
+                      <div key={res.caseId} className={`border rounded-xl transition-all overflow-hidden ${isSelected ? 'border-indigo-400 shadow-sm' : 'border-border bg-surface-hover opacity-80'}`}>
                         <div 
                           className={`p-4 flex items-start cursor-pointer select-none ${isSelected ? 'bg-indigo-50/30' : ''}`}
                           onClick={() => toggleSelection(res.caseId)}
                         >
-                          <div className={`w-5 h-5 rounded border mt-0.5 flex items-center justify-center mr-3 shrink-0 transition-colors ${isSelected ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-slate-300 bg-white'}`}>
+                          <div className={`w-5 h-5 rounded border mt-0.5 flex items-center justify-center mr-3 shrink-0 transition-colors ${isSelected ? 'bg-indigo-600 border-indigo-600 text-white' : 'border-text-muted bg-surface'}`}>
                             {isSelected && <CheckCircle2 size={14} />}
                           </div>
                           <div className="flex-1">
-                            <h4 className={`font-bold leading-tight ${isSelected ? 'text-indigo-900' : 'text-slate-700'}`}>
+                            <h4 className={`font-bold leading-tight ${isSelected ? 'text-indigo-900' : 'text-text-main'}`}>
                               {originalCase?.code}: {originalCase?.title}
                             </h4>
                             <p className="text-xs text-indigo-700/80 mt-1 italic">"{res.result.analysis}"</p>
                             
                             {isSelected && (
-                              <div className="mt-4 space-y-4 bg-white p-4 rounded-lg border border-indigo-100">
+                              <div className="mt-4 space-y-4 bg-surface p-4 rounded-lg border border-indigo-100">
                                 {res.result.suggestedUpdates?.title && res.result.suggestedUpdates.title !== originalCase?.title && (
                                   <div>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Title Update</span>
+                                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-1">Title Update</span>
                                     <div className="text-sm line-through text-red-500/70 mb-1">{originalCase?.title}</div>
                                     <div className="text-sm text-emerald-700">{res.result.suggestedUpdates.title}</div>
                                   </div>
                                 )}
                                 {res.result.suggestedUpdates?.steps && (
                                   <div>
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">New Steps</span>
-                                    <div className="bg-slate-50 border border-slate-200 rounded-lg overflow-hidden">
+                                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-2">New Steps</span>
+                                    <div className="bg-surface-hover border border-border rounded-lg overflow-hidden">
                                       {res.result.suggestedUpdates.steps.map((step: any, sIdx: number) => (
-                                        <div key={sIdx} className="flex p-2 border-b border-slate-200 last:border-0">
-                                          <div className="w-6 text-slate-400 font-mono text-xs mt-0.5">{sIdx + 1}.</div>
-                                          <div className="flex-1 text-sm text-slate-800">
+                                        <div key={sIdx} className="flex p-2 border-b border-border last:border-0">
+                                          <div className="w-6 text-text-muted font-mono text-xs mt-0.5">{sIdx + 1}.</div>
+                                          <div className="flex-1 text-sm text-text-main">
                                             <div>{step.action}</div>
                                             {step.expectedResult && (
-                                              <div className="mt-0.5 text-slate-500 text-xs">Expected: {step.expectedResult}</div>
+                                              <div className="mt-0.5 text-text-muted text-xs">Expected: {step.expectedResult}</div>
                                             )}
                                           </div>
                                         </div>
@@ -377,11 +377,11 @@ export function BulkJiraImpactModal({ isOpen, onClose, projectCode, suites, allC
               {casesUnchanged.length > 0 && (
                 <div className="mt-8">
                   <h5 className="font-bold text-text-main text-sm mb-3">No Updates Needed ({casesUnchanged.length} cases)</h5>
-                  <div className="bg-slate-50 rounded-lg p-4 border border-border">
+                  <div className="bg-surface-hover rounded-lg p-4 border border-border">
                     <ul className="list-disc pl-5 space-y-1">
                       {casesUnchanged.map(res => (
-                        <li key={res.caseId} className="text-sm text-slate-600">
-                          <strong>{res.originalTitle}</strong> - <span className="text-xs italic text-slate-500">{res.result?.analysis}</span>
+                        <li key={res.caseId} className="text-sm text-text-muted">
+                          <strong>{res.originalTitle}</strong> - <span className="text-xs italic text-text-muted">{res.result?.analysis}</span>
                         </li>
                       ))}
                     </ul>

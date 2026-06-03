@@ -28,18 +28,18 @@ export function RepositoryHeader({ projectCode, totalCases, totalSuites, cases }
 
   if (selectedCases.size > 0) {
     return (
-      <div className="flex-none px-6 py-4 border-b border-border/50 bg-white">
+      <div className="flex-none px-6 py-4 border-b border-border/50 bg-surface">
         <div className="flex items-center space-x-3 h-[32px]">
-          <h1 className="text-2xl font-bold text-slate-800">{projectCode} repository</h1>
-          <span className="text-[13px] text-slate-500 font-medium">
+          <h1 className="text-2xl font-bold text-text-main">{projectCode} repository</h1>
+          <span className="text-[13px] text-text-muted font-medium">
             {totalCases} cases ({totalCases}) | {totalSuites} suites ({totalSuites})
           </span>
           <span className="text-slate-300 mx-2">|</span>
-          <span className="text-[13px] text-slate-800 font-bold flex items-center">
+          <span className="text-[13px] text-text-main font-bold flex items-center">
             Selected: {selectedCases.size} cases | {selectedSuitesCount} suite{selectedSuitesCount !== 1 ? 's' : ''}
             <button 
               onClick={clearSelection}
-              className="ml-2 text-slate-400 hover:text-slate-600 transition-colors rounded hover:bg-slate-100 p-0.5"
+              className="ml-2 text-text-muted hover:text-text-muted transition-colors rounded hover:bg-surface-hover p-0.5"
             >
               <X size={14} />
             </button>
@@ -50,10 +50,10 @@ export function RepositoryHeader({ projectCode, totalCases, totalSuites, cases }
   }
 
   return (
-    <div className="flex-none px-6 py-4 border-b border-border/50 bg-white">
+    <div className="flex-none px-6 py-4 border-b border-border/50 bg-surface">
       <div className="flex items-baseline space-x-3 h-[32px]">
-        <h1 className="text-2xl font-bold text-slate-800">{projectCode} repository</h1>
-        <span className="text-[13px] text-slate-500 font-medium">
+        <h1 className="text-2xl font-bold text-text-main">{projectCode} repository</h1>
+        <span className="text-[13px] text-text-muted font-medium">
           {totalCases} cases ({totalCases}) | {totalSuites} suites ({totalSuites})
         </span>
       </div>

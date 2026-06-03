@@ -78,7 +78,7 @@ export default function ProjectIntegrationsPage({ params }: { params: Promise<{ 
     <div className="p-8 max-w-4xl mx-auto space-y-8 overflow-y-auto h-full pb-20">
       <header>
         <h1 className="text-2xl font-bold text-text-main flex items-center">
-          <GitBranch className="mr-3 text-slate-800 dark:text-slate-200" />
+          <GitBranch className="mr-3 text-text-main dark:text-slate-200" />
           Integrations
         </h1>
         <p className="text-sm text-text-muted mt-2">
@@ -167,7 +167,7 @@ export default function ProjectIntegrationsPage({ params }: { params: Promise<{ 
           <button 
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center px-4 py-2.5 bg-primary text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
+            className="flex items-center px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-bold hover:bg-primary-hover transition-colors shadow-sm disabled:opacity-50"
           >
             {isSaving ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Save size={16} className="mr-2" />}
             Save Settings
@@ -317,9 +317,9 @@ jobs:
             <p className="text-xs text-text-muted">
               In your GitHub repository, go to <strong>Settings &gt; Secrets and variables &gt; Actions</strong> and add a new repository secret:
             </p>
-            <div className="mt-3 p-4 bg-slate-50 border border-border rounded-lg text-sm">
-              <div><strong className="text-slate-700">Name:</strong> <code className="bg-slate-200 px-1 py-0.5 rounded text-slate-800">TESSA_API_URL</code></div>
-              <div className="mt-1"><strong className="text-slate-700">Value:</strong> (The URL where your TESSA instance is hosted, e.g., <code>https://tms.yourdomain.com</code>)</div>
+            <div className="mt-3 p-4 bg-surface-hover border border-border rounded-lg text-sm">
+              <div><strong className="text-text-main">Name:</strong> <code className="bg-slate-200 px-1 py-0.5 rounded text-text-main">TESSA_API_URL</code></div>
+              <div className="mt-1"><strong className="text-text-main">Value:</strong> (The URL where your TESSA instance is hosted, e.g., <code>https://tms.yourdomain.com</code>)</div>
             </div>
           </div>
 

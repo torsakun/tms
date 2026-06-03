@@ -65,7 +65,7 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
         <div className="flex items-center space-x-3 flex-1">
           <Link 
             href="?create=true"
-            className="bg-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-hover transition shadow-sm"
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-hover hover:-translate-y-0.5 transition-all shadow-sm"
           >
             Create new project
           </Link>
@@ -78,12 +78,12 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
               placeholder="Search for projects"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm border-none bg-surface text-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition-colors"
+              className="w-full pl-9 pr-4 py-2 text-sm border border-border bg-surface text-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-primary/40 shadow-sm transition-colors"
             />
           </div>
 
           <div className="flex items-center space-x-3">
-            <button className="bg-surface text-text-main shadow-[0_2px_10px_rgba(0,0,0,0.03)] px-4 py-2 rounded-md text-sm font-medium transition hover:bg-surface-hover">
+            <button className="bg-surface text-text-main shadow-sm px-4 py-2 rounded-md text-sm font-medium transition hover:bg-surface-hover hover:shadow-md">
               Status: Active
             </button>
             <button className="text-primary text-sm font-medium hover:underline px-2">
@@ -92,7 +92,7 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 rounded-md p-1 bg-surface shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+        <div className="flex items-center space-x-2 rounded-md p-1 bg-surface shadow-sm">
           <button className="p-1.5 bg-primary/10 text-primary rounded">
             <LayoutList size={16} />
           </button>
@@ -102,35 +102,35 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
         </div>
       </div>
 
-      <div className="rounded-2xl overflow-hidden shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-none bg-surface transition-colors">
+      <div className="rounded-xl overflow-hidden shadow-sm bg-white/60 backdrop-blur-md transition-colors border border-indigo-100/50 hover:shadow-md hover:border-indigo-200">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-surface-hover border-b border-border/50">
-              <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">Project</th>
-              <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider w-40">Project Health</th>
-              <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider w-48">Automation</th>
-              <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider w-48">Test Runs</th>
-              <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider w-32">Team</th>
-              <th className="px-6 py-4 w-16"></th>
+            <tr className="bg-gradient-to-r from-indigo-900 to-blue-900 text-white shadow-md">
+              <th className="px-6 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider rounded-tl-xl">Project</th>
+              <th className="px-6 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider w-40">Project Health</th>
+              <th className="px-6 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider w-40">Automation</th>
+              <th className="px-6 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider w-40">Test Runs</th>
+              <th className="px-6 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider w-32">Team</th>
+              <th className="px-6 py-4 w-12 rounded-tr-xl"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {filteredProjects.map((project, idx) => {
-              const colors = ["bg-amber-600", "bg-emerald-700", "bg-indigo-600", "bg-blue-600", "bg-rose-600", "bg-purple-600"];
+              const colors = ["bg-amber-600", "bg-emerald-700", "bg-indigo-600", "bg-primary", "bg-rose-600", "bg-purple-600"];
               const colorClass = colors[idx % colors.length];
 
               // Fake avatars array for Team column based on member count
               const avatars = Array.from({ length: Math.min(project.teamMembers, 3) }).map((_, i) => `bg-slate-${300 + (i * 100)}`);
               
               return (
-                <tr key={project.id} className="hover:bg-surface-hover transition-colors group">
+                <tr key={project.id} className="hover:bg-primary/5 transition-colors group">
                   <td className="px-6 py-5 align-middle">
                     <Link href={`/projects/${project.code}/repository`} className="flex items-start space-x-4">
                       <div className={`w-11 h-11 ${colorClass} rounded-lg text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm`}>
                         {project.code.substring(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <div className="font-bold text-text-main text-[15px] group-hover:text-primary transition-colors">
+                        <div className="font-semibold text-text-main text-[15px] group-hover:text-primary transition-colors">
                           {project.name}
                         </div>
                         <div className="text-xs text-text-muted mt-1.5 flex items-center space-x-2">
@@ -147,14 +147,18 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
                   {/* Project Health (Latest Run Pass Rate) */}
                   <td className="px-6 py-5 align-middle">
                     {project.latestRunPassRate !== null ? (
-                      <div className="flex items-center space-x-2">
-                        <div className={`w-2 h-2 rounded-full ${project.latestRunPassRate >= 90 ? 'bg-emerald-500' : project.latestRunPassRate >= 70 ? 'bg-amber-500' : 'bg-red-500'}`}></div>
-                        <span className={`text-sm font-semibold ${project.latestRunPassRate >= 90 ? 'text-emerald-700' : project.latestRunPassRate >= 70 ? 'text-amber-700' : 'text-red-700'}`}>
-                          {project.latestRunPassRate.toFixed(0)}% Pass
-                        </span>
+                      <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-[13px] font-bold ${
+                        project.latestRunPassRate >= 90 
+                          ? 'bg-emerald-100 text-emerald-700' 
+                          : project.latestRunPassRate >= 70 
+                            ? 'bg-amber-100 text-amber-700' 
+                            : 'bg-red-100 text-red-700'
+                      }`}>
+                        {project.latestRunPassRate >= 90 ? <Check size={14} className="mr-1" /> : project.latestRunPassRate >= 70 ? <AlertTriangle size={14} className="mr-1" /> : <div className="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5" />}
+                        {project.latestRunPassRate.toFixed(0)}% Pass
                       </div>
                     ) : (
-                      <span className="text-text-muted text-sm">No data</span>
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-surface-hover text-text-muted">No data</span>
                     )}
                   </td>
 
@@ -166,7 +170,7 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
                       </div>
                       <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-primary rounded-full shadow-[0_0_10px_rgba(93,135,255,0.4)]" 
+                          className="h-full bg-primary rounded-full shadow-sm" 
                           style={{ width: `${project.automationPercent}%` }}
                         ></div>
                       </div>
@@ -224,7 +228,7 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
                             href={`/projects/${project.code}/dashboards`}
                             className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center"
                           >
-                            <LayoutList size={14} className="mr-2 text-slate-400" /> View Dashboard
+                            <LayoutList size={14} className="mr-2 text-text-muted" /> View Dashboard
                           </Link>
                           <Link 
                             href={`/projects/${project.code}/settings/members`}

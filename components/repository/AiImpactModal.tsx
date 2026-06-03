@@ -159,7 +159,7 @@ export function AiImpactModal({ isOpen, onClose, projectCode, testCase, onSucces
               <div className="bg-surface-hover p-4 rounded-lg border border-border">
                 <h4 className="font-bold text-text-main mb-2">AI Analysis</h4>
                 <p className="text-sm text-text-muted">{impactResult.analysis}</p>
-                <div className="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-white border border-border shadow-sm">
+                <div className="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface border border-border shadow-sm">
                   Status: <span className={`ml-1 ${impactResult.needsUpdate ? 'text-amber-600 font-bold' : 'text-emerald-600 font-bold'}`}>{impactResult.needsUpdate ? 'Needs Update' : 'No Update Required'}</span>
                 </div>
               </div>

@@ -38,7 +38,7 @@ function ResultRow({ result, depth, isSelected, openResult, projectCode, runId, 
       case "FAILED": return "bg-red-500 text-white";
       case "BLOCKED": return "bg-orange-500 text-white";
       case "SKIPPED": return "bg-slate-400 text-white";
-      default: return "bg-slate-100 text-slate-500 border border-slate-200";
+      default: return "bg-surface-hover text-text-muted border border-border";
     }
   };
 
@@ -636,7 +636,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
       case "FAILED": return "bg-red-500 text-white";
       case "BLOCKED": return "bg-orange-500 text-white";
       case "SKIPPED": return "bg-slate-400 text-white";
-      default: return "bg-slate-100 text-slate-500 border border-slate-200";
+      default: return "bg-surface-hover text-text-muted border border-border";
     }
   };
 
@@ -977,7 +977,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
               <X size={20} />
             </button>
           </div>
-          <div className="flex-1 w-full bg-white relative">
+          <div className="flex-1 w-full bg-surface relative">
             {/* The Playwright report has its own white background */}
             <iframe 
               src={run.reportUrl} 
@@ -1025,10 +1025,10 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                 {isExecutingAllAutomated ? <Loader2 size={14} className="mr-2 animate-spin" /> : <PlayCircle size={14} className="mr-2" />} 
                 {isExecutingAllAutomated ? `Running (${automatedProgress.current}/${automatedProgress.total})` : "Run Local"}
               </button>
-              <button onClick={handleOpenWizard} className="bg-primary hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm font-bold transition-all flex items-center shadow-[0_0_10px_rgba(93,135,255,0.4)]">
+              <button onClick={handleOpenWizard} className="bg-primary hover:bg-primary-hover text-primary-foreground px-3 py-1.5 rounded text-sm font-bold transition-all flex items-center shadow-sm">
                 <PlayCircle size={14} className="mr-2" /> Open wizard
               </button>
-              <button onClick={() => setIsCompleteModalOpen(true)} className="bg-primary hover:bg-blue-700 text-white px-3 py-1.5 rounded text-sm font-bold transition-all flex items-center shadow-[0_0_10px_rgba(93,135,255,0.4)]">
+              <button onClick={() => setIsCompleteModalOpen(true)} className="bg-primary hover:bg-primary-hover text-primary-foreground px-3 py-1.5 rounded text-sm font-bold transition-all flex items-center shadow-sm">
                 <Check size={14} className="mr-2" /> Complete
               </button>
               <div className="relative" ref={mainMenuRef}>
@@ -1039,7 +1039,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                   <MoreHorizontal size={14} />
                 </button>
                 {mainMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-[#1C1C1C] border border-border rounded-md shadow-lg z-50 overflow-hidden">
+                  <div className="absolute right-0 mt-2 w-48 bg-surface dark:bg-[#1C1C1C] border border-border rounded-md shadow-lg z-50 overflow-hidden">
                     <button 
                       onClick={() => { setIsShareModalOpen(true); setMainMenuOpen(false); }} 
                       className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center transition-colors"
@@ -1295,7 +1295,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                        <button 
                          onClick={handleRunAutomation}
                          disabled={isExecutingAutomated || process.env.NEXT_PUBLIC_IS_DEMO === 'true'}
-                         className="flex items-center px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-md font-bold shadow-[0_0_10px_rgba(93,135,255,0.4)] transition-all disabled:opacity-50"
+                         className="flex items-center px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground rounded-md font-bold shadow-sm transition-all disabled:opacity-50"
                          title={process.env.NEXT_PUBLIC_IS_DEMO === 'true' ? "Playwright is disabled in Demo Mode" : ""}
                        >
                          {isExecutingAutomated ? <Loader2 size={16} className="mr-2 animate-spin" /> : <PlayCircle size={16} className="mr-2" />}
@@ -1310,11 +1310,11 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
                          </div>
-                         <div className="ml-4 text-xs font-mono text-slate-400">playwright execution log</div>
+                         <div className="ml-4 text-xs font-mono text-text-muted">playwright execution log</div>
                        </div>
                        <div className="p-4 min-h-[300px] max-h-[500px] overflow-y-auto">
                          {!automationLogs ? (
-                           <div className="text-slate-500 font-mono text-sm">
+                           <div className="text-text-muted font-mono text-sm">
                              Ready to execute. Click "Run Automation" to start.
                              <div className="mt-4 opacity-50">
                                <pre>{activeResult.testCase.automationScript}</pre>
@@ -1435,7 +1435,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                                     {att.url?.match(/\.(mp4|webm|ogg)$/i) ? (
                                       <video src={att.url} className="w-full h-full object-contain bg-black" />
                                     ) : att.url?.match(/\.(zip|pdf|csv|txt|doc|docx|xls|xlsx)$/i) ? (
-                                      <div className="w-full h-full flex flex-col items-center justify-center bg-slate-50 text-slate-500">
+                                      <div className="w-full h-full flex flex-col items-center justify-center bg-surface-hover text-text-muted">
                                         <FileText size={32} className="mb-2" />
                                         <span className="text-xs font-medium px-2 text-center truncate w-full">{att.name || "File"}</span>
                                       </div>
@@ -1502,7 +1502,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
           <div className="absolute top-4 right-4 md:top-6 md:right-6">
             <button 
               onClick={() => setViewingAttachment(null)}
-              className="bg-white/10 hover:bg-white/20 text-white rounded-full p-2 transition backdrop-blur-sm"
+              className="bg-surface/10 hover:bg-surface/20 text-white rounded-full p-2 transition backdrop-blur-sm"
             >
               <XCircle size={32} />
             </button>
@@ -1514,9 +1514,9 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
             {viewingAttachment.url?.match(/\.(mp4|webm|ogg)$/i) ? (
               <video src={viewingAttachment.url} controls autoPlay className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl bg-black" />
             ) : viewingAttachment.isTrace ? (
-              <div className="w-full h-full bg-white rounded-lg overflow-hidden shadow-2xl flex flex-col">
-                 <div className="bg-slate-100 border-b border-slate-200 px-4 py-3 flex items-center">
-                    <span className="text-sm font-bold text-slate-800 flex items-center">
+              <div className="w-full h-full bg-surface rounded-lg overflow-hidden shadow-2xl flex flex-col">
+                 <div className="bg-surface-hover border-b border-border px-4 py-3 flex items-center">
+                    <span className="text-sm font-bold text-text-main flex items-center">
                        <img src="https://playwright.dev/img/playwright-logo.svg" className="w-5 h-5 mr-2" alt="Playwright" />
                        Playwright Trace Viewer
                     </span>
@@ -1529,14 +1529,14 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
               </div>
             ) : viewingAttachment.url?.match(/\.(zip|pdf|csv|txt|doc|docx|xls|xlsx)$/i) ? (
               <div className="bg-surface p-12 rounded-lg shadow-2xl flex flex-col items-center justify-center border border-border min-w-[300px]">
-                 <FileText size={48} className="text-slate-400 mb-4" />
+                 <FileText size={48} className="text-text-muted mb-4" />
                  <h3 className="text-lg font-bold text-text-main mb-6 text-center break-all max-w-sm">{viewingAttachment.name}</h3>
                  <a 
                    href={viewingAttachment.url} 
                    download 
                    target="_blank" 
                    rel="noreferrer"
-                   className="px-6 py-2.5 bg-primary text-white font-medium rounded-md hover:bg-blue-700 transition-colors shadow-sm"
+                   className="px-6 py-2.5 bg-primary text-primary-foreground font-medium rounded-md hover:bg-primary-hover transition-colors shadow-sm"
                  >
                    Download File
                  </a>
@@ -1569,7 +1569,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
              </div>
              <div className="px-6 py-4 bg-surface-hover border-t border-border/50 flex justify-end space-x-3 transition-colors">
                 <button onClick={() => setIsCompleteModalOpen(false)} className="px-4 py-2 bg-background border border-border rounded-md text-sm font-bold text-text-main hover:bg-surface transition-colors shadow-sm">Cancel</button>
-                <button onClick={handleCompleteRun} className="px-4 py-2 bg-primary rounded-md text-sm font-bold text-white hover:bg-blue-700 transition-colors shadow-[0_0_10px_rgba(93,135,255,0.4)]">Complete</button>
+                <button onClick={handleCompleteRun} className="px-4 py-2 bg-primary rounded-md text-sm font-bold text-primary-foreground hover:bg-primary-hover transition-colors shadow-sm">Complete</button>
              </div>
           </div>
         </div>
@@ -1588,7 +1588,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                   <div className="relative">
                     <input type="checkbox" className="sr-only" checked={isPublicLinkOn} onChange={togglePublicLink} disabled={isTogglingLink} />
                     <div className={`block w-11 h-6 rounded-full transition-colors ${isPublicLinkOn ? 'bg-primary' : 'bg-surface-hover border border-border'} ${isTogglingLink ? 'opacity-50' : ''}`}></div>
-                    <div className={`absolute left-[2px] top-[2px] bg-white w-5 h-5 rounded-full transition-transform transform ${isPublicLinkOn ? 'translate-x-5' : ''} shadow-sm`}></div>
+                    <div className={`absolute left-[2px] top-[2px] bg-surface w-5 h-5 rounded-full transition-transform transform ${isPublicLinkOn ? 'translate-x-5' : ''} shadow-sm`}></div>
                   </div>
                   <div className="ml-3 text-[15px] font-medium text-text-main group-hover:text-primary transition-colors">
                     {isPublicLinkOn ? 'Public link is turned on' : 'Public link is turned off'}
@@ -1607,7 +1607,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                 )}
              </div>
              <div className="px-6 py-4 border-t border-border/50 flex justify-end bg-surface">
-                <button onClick={() => setIsShareModalOpen(false)} className="px-5 py-2 bg-primary rounded-md text-sm font-bold text-white hover:bg-blue-700 transition-colors shadow-[0_0_10px_rgba(93,135,255,0.4)]">Done</button>
+                <button onClick={() => setIsShareModalOpen(false)} className="px-5 py-2 bg-primary rounded-md text-sm font-bold text-primary-foreground hover:bg-primary-hover transition-colors shadow-sm">Done</button>
              </div>
           </div>
         </div>
@@ -1671,7 +1671,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
             </div>
             <div className="px-6 py-4 bg-background border-t border-border/50 flex justify-end space-x-3">
               <button onClick={() => setIsAssignModalOpen(false)} className="px-4 py-2 rounded-md border border-border text-sm font-medium hover:bg-surface-hover text-text-main transition-colors">Cancel</button>
-              <button onClick={submitAssignee} className="px-4 py-2 rounded-md bg-primary hover:bg-blue-700 text-white text-sm font-medium shadow-[0_0_10px_rgba(93,135,255,0.4)] transition-all" disabled={!selectedAssigneeId}>Assign</button>
+              <button onClick={submitAssignee} className="px-4 py-2 rounded-md bg-primary hover:bg-primary-hover text-primary-foreground text-sm font-medium shadow-sm transition-all" disabled={!selectedAssigneeId}>Assign</button>
             </div>
           </div>
         </div>

@@ -44,14 +44,14 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="relative flex flex-col items-center justify-center w-full h-24 border-2 border-slate-300 border-dashed rounded-lg cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+      <label className="relative flex flex-col items-center justify-center w-full h-24 border-2 border-text-muted border-dashed rounded-lg cursor-pointer bg-surface-hover hover:bg-surface-hover transition-colors">
         <div className="flex flex-col items-center justify-center pt-5 pb-6">
           {isUploading ? (
-            <Loader2 size={24} className="text-blue-500 animate-spin mb-2" />
+            <Loader2 size={24} className="text-primary animate-spin mb-2" />
           ) : (
-            <UploadCloud size={24} className="text-slate-400 mb-2" />
+            <UploadCloud size={24} className="text-text-muted mb-2" />
           )}
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-text-muted">
             {isUploading ? "Uploading..." : <><span className="font-semibold">Click to upload</span> or drag and drop</>}
           </p>
         </div>

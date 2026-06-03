@@ -54,7 +54,7 @@ export default function DeploymentLogsModal({ deploymentId, onClose }: { deploym
           </div>
           <button 
             onClick={onClose}
-            className="text-slate-400 hover:text-white transition-colors"
+            className="text-text-muted hover:text-white transition-colors"
           >
             <X size={20} />
           </button>
@@ -62,7 +62,7 @@ export default function DeploymentLogsModal({ deploymentId, onClose }: { deploym
 
         <div className="flex-1 overflow-y-auto p-6 font-mono text-xs sm:text-sm text-emerald-400 bg-black leading-relaxed">
           {loading && !deployment ? (
-            <div className="text-slate-500 flex items-center gap-2"><Loader2 className="animate-spin" size={14} /> Loading connection...</div>
+            <div className="text-text-muted flex items-center gap-2"><Loader2 className="animate-spin" size={14} /> Loading connection...</div>
           ) : (
             <pre className="whitespace-pre-wrap break-words font-mono">
               {deployment.logs || "Waiting for output..."}

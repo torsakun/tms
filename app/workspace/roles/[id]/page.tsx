@@ -232,7 +232,7 @@ export default function EditRolePage() {
   if (isLoading) {
     return (
       <div className="w-full h-full flex items-center justify-center min-h-[500px]">
-        <Loader2 className="animate-spin text-blue-500" size={32} />
+        <Loader2 className="animate-spin text-primary" size={32} />
       </div>
     );
   }
@@ -240,9 +240,9 @@ export default function EditRolePage() {
   return (
     <div className="w-full flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <header className="px-8 py-6 border-b border-slate-200 shrink-0">
-        <div className="flex items-center text-slate-800">
-          <Link href="/workspace/roles" className="mr-4 text-slate-400 hover:text-slate-600 transition-colors">
+      <header className="px-8 py-6 border-b border-border shrink-0">
+        <div className="flex items-center text-text-main">
+          <Link href="/workspace/roles" className="mr-4 text-text-muted hover:text-text-muted transition-colors">
             <ArrowLeft size={24} />
           </Link>
           <h1 className="text-2xl font-bold">{isSystem ? "View Role" : "Update Role"}</h1>
@@ -255,13 +255,13 @@ export default function EditRolePage() {
           
           {/* Role Settings */}
           <section>
-            <h2 className="text-xl font-bold text-slate-800 mb-4 pb-2 border-b border-slate-200">
+            <h2 className="text-xl font-bold text-text-main mb-4 pb-2 border-b border-border">
               Role settings
             </h2>
             
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">
+                <label className="block text-sm font-bold text-text-main mb-2">
                   Role title {isSystem ? "" : <span className="text-red-500">*</span>}
                 </label>
                 <input
@@ -269,19 +269,19 @@ export default function EditRolePage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   disabled={isSystem}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors disabled:bg-slate-50 disabled:text-slate-500"
+                  className="w-full px-3 py-2 text-sm border border-text-muted rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors disabled:bg-surface-hover disabled:text-text-muted"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">
+                <label className="block text-sm font-bold text-text-main mb-2">
                   Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors resize-none"
+                  className="w-full px-3 py-2 text-sm border border-text-muted rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors resize-none"
                 />
               </div>
 
@@ -294,10 +294,10 @@ export default function EditRolePage() {
                       onChange={(e) => setIsDefault(e.target.checked)}
                       className="peer sr-only"
                     />
-                    <div className="w-4 h-4 border border-slate-300 rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors"></div>
+                    <div className="w-4 h-4 border border-text-muted rounded peer-checked:bg-primary peer-checked:border-blue-600 transition-colors"></div>
                     <svg className="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </div>
-                  <span className="text-sm font-bold text-slate-700">Set as default role</span>
+                  <span className="text-sm font-bold text-text-main">Set as default role</span>
                 </label>
               </div>
             </div>
@@ -305,15 +305,15 @@ export default function EditRolePage() {
 
           {/* Role access rights */}
           <section>
-            <h2 className="text-xl font-bold text-slate-800 mb-6 pb-2 border-b border-slate-200">
+            <h2 className="text-xl font-bold text-text-main mb-6 pb-2 border-b border-border">
               Role access rights
             </h2>
             
             <div className="space-y-6">
               {permissionBlocks.map((block) => (
-                <div key={block.id} className="border border-slate-200 rounded-lg overflow-hidden">
+                <div key={block.id} className="border border-border rounded-lg overflow-hidden">
                   {/* Block Header */}
-                  <label className="bg-slate-50 px-4 py-3 flex items-start border-b border-slate-200 cursor-pointer">
+                  <label className="bg-surface-hover px-4 py-3 flex items-start border-b border-border cursor-pointer">
                     <div className="relative flex items-center justify-center w-4 h-4 mt-1 mr-4 shrink-0">
                       <input 
                         type="checkbox" 
@@ -321,19 +321,19 @@ export default function EditRolePage() {
                         checked={block.rules.length > 0 && block.rules.every(r => selectedPermissions[r.id])}
                         onChange={() => toggleBlock(block.rules.map(r => r.id))}
                       />
-                      <div className="w-4 h-4 border border-slate-300 rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors"></div>
+                      <div className="w-4 h-4 border border-text-muted rounded peer-checked:bg-primary peer-checked:border-blue-600 transition-colors"></div>
                       <svg className="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-slate-800">{block.title}</h3>
-                      <p className="text-sm text-slate-500 mt-0.5">{block.description}</p>
+                      <h3 className="text-sm font-bold text-text-main">{block.title}</h3>
+                      <p className="text-sm text-text-muted mt-0.5">{block.description}</p>
                     </div>
                   </label>
 
                   {/* Rules List */}
-                  <div className="bg-white divide-y divide-slate-100">
+                  <div className="bg-surface divide-y divide-slate-100">
                     {block.rules.map((rule) => (
-                      <label key={rule.id} className="px-4 py-3 flex items-start hover:bg-slate-50 transition-colors cursor-pointer">
+                      <label key={rule.id} className="px-4 py-3 flex items-start hover:bg-surface-hover transition-colors cursor-pointer">
                         <div className="relative flex items-center justify-center w-4 h-4 mt-0.5 mr-4 shrink-0">
                           <input 
                             type="checkbox" 
@@ -341,15 +341,15 @@ export default function EditRolePage() {
                             checked={!!selectedPermissions[rule.id]}
                             onChange={() => togglePermission(rule.id)}
                           />
-                          <div className="w-4 h-4 border border-slate-300 rounded peer-checked:bg-blue-600 peer-checked:border-blue-600 transition-colors"></div>
+                          <div className="w-4 h-4 border border-text-muted rounded peer-checked:bg-primary peer-checked:border-blue-600 transition-colors"></div>
                           <svg className="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                         </div>
                         <div className="flex-1 grid grid-cols-12 gap-4">
                           <div className="col-span-4 sm:col-span-3">
-                            <span className="text-sm font-bold text-slate-700">{rule.name}</span>
+                            <span className="text-sm font-bold text-text-main">{rule.name}</span>
                           </div>
                           <div className="col-span-8 sm:col-span-9">
-                            <span className="text-sm text-slate-600">{rule.desc}</span>
+                            <span className="text-sm text-text-muted">{rule.desc}</span>
                           </div>
                         </div>
                       </label>
@@ -360,15 +360,15 @@ export default function EditRolePage() {
             </div>
             
             {/* Form Actions */}
-            <div className="mt-10 pt-6 border-t border-slate-200 flex items-center space-x-4">
+            <div className="mt-10 pt-6 border-t border-border flex items-center space-x-4">
               <button 
                 onClick={handleSubmit} 
                 disabled={isSubmitting}
-                className="px-6 py-2 bg-[#2563eb] hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-md transition-colors"
+                className="px-6 py-2 bg-[#2563eb] hover:bg-primary-hover disabled:opacity-50 text-white text-sm font-medium rounded-md transition-colors"
               >
                 {isSubmitting ? "Saving..." : "Save changes"}
               </button>
-              <Link href="/workspace/roles" className="px-6 py-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 text-sm font-medium rounded-md transition-colors">
+              <Link href="/workspace/roles" className="px-6 py-2 bg-surface border border-text-muted text-text-main hover:bg-surface-hover text-sm font-medium rounded-md transition-colors">
                 Cancel
               </Link>
             </div>

@@ -248,7 +248,7 @@ function EditRunContent() {
             <button 
               type="submit" 
               disabled={loading}
-              className="flex items-center px-4 py-2 font-medium text-white bg-primary rounded-md hover:bg-blue-700 transition-all shadow-[0_0_10px_rgba(93,135,255,0.4)] disabled:opacity-50 disabled:shadow-none"
+              className="flex items-center px-4 py-2 font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary-hover transition-all shadow-sm disabled:opacity-50 disabled:shadow-none"
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>
