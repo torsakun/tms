@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MoreHorizontal, UserX, UserCheck, Key, Shield, ChevronDown } from "lucide-react";
+import { MoreHorizontal, UserX, UserCheck, Key, Shield, ChevronDown, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -189,9 +189,16 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
               <button
                 onClick={handleRoleSave}
                 disabled={isLoading || !selectedRoleId || selectedRoleId === currentRoleId}
-                className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover rounded-lg transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center min-w-[120px]"
               >
-                {isLoading ? "Saving..." : "Save Changes"}
+                {isLoading ? (
+                  <>
+                    <Loader2 size={16} className="animate-spin mr-2" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
               </button>
             </div>
           </div>

@@ -17,6 +17,7 @@ export const metadata: Metadata = {
 import { AuthProvider } from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "sonner";
+import NextTopLoader from 'nextjs-toploader';
 
 export default function RootLayout({
   children,
@@ -37,6 +38,17 @@ export default function RootLayout({
             enableSystem={false}
             disableTransitionOnChange
           >
+            <NextTopLoader
+              color="#3b82f6"
+              initialPosition={0.08}
+              crawlSpeed={200}
+              height={3}
+              crawl={true}
+              showSpinner={false}
+              easing="ease"
+              speed={200}
+              shadow="0 0 10px #3b82f6,0 0 5px #3b82f6"
+            />
             <AuthProvider>
               {children}
             </AuthProvider>
