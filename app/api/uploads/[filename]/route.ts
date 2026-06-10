@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import path from 'path';
-import { readFile } from 'fs/promises';
-import { existsSync } from 'fs';
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { s3Client, S3_BUCKET } from "@/lib/s3";
 
 export async function GET(
   req: NextRequest, 
@@ -16,31 +16,17 @@ export async function GET(
       return new NextResponse('Bad Request', { status: 400 });
     }
 
-    const filePath = path.join(process.cwd(), 'public', 'uploads', filename);
-
-    if (!existsSync(filePath)) {
-      return new NextResponse('Not Found', { status: 404 });
-    }
-
-    const fileBuffer = await readFile(filePath);
-    
-    const ext = path.extname(filename).toLowerCase();
-    let mimeType = 'application/octet-stream';
-    if (ext === '.png') mimeType = 'image/png';
-    else if (ext === '.jpg' || ext === '.jpeg') mimeType = 'image/jpeg';
-    else if (ext === '.gif') mimeType = 'image/gif';
-    else if (ext === '.svg') mimeType = 'image/svg+xml';
-    else if (ext === '.webp') mimeType = 'image/webp';
-    else if (ext === '.pdf') mimeType = 'application/pdf';
-
-    return new NextResponse(fileBuffer, {
-      headers: {
-        'Content-Type': mimeType,
-        'Cache-Control': 'public, max-age=86400',
-      },
+    const command = new GetObjectCommand({
+      Bucket: S3_BUCKET,
+      Key: filename,
     });
+    
+    // Generate a presigned URL valid for 1 hour
+    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+
+    return NextResponse.redirect(signedUrl);
   } catch (error) {
-    console.error('Error serving file:', error);
+    console.error('Error generating presigned URL:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

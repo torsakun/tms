@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { s3Client, S3_BUCKET } from "@/lib/s3";
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,12 +42,14 @@ export async function POST(req: NextRequest) {
     const safeFilename = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
     const uniqueFilename = `${Date.now()}-${safeFilename}`;
     
-    // Save to public/uploads
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
-    
-    const filePath = path.join(uploadDir, uniqueFilename);
-    await writeFile(filePath, buffer);
+    // Upload to S3
+    const command = new PutObjectCommand({
+      Bucket: S3_BUCKET,
+      Key: uniqueFilename,
+      Body: buffer,
+      ContentType: file.type || "application/octet-stream",
+    });
+    await s3Client.send(command);
 
     const fileUrl = `/api/uploads/${uniqueFilename}`;
 
