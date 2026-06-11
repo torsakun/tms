@@ -17,8 +17,8 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
   const currentProjects = projects.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-indigo-100/50 shadow-sm overflow-hidden flex flex-col h-full">
-      <div className="px-6 py-5 border-b border-indigo-50 flex justify-between items-center bg-transparent">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full">
+      <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-transparent">
         <h2 className="text-base font-extrabold text-indigo-950 flex items-center">
           <Folder className="mr-2 text-indigo-600" size={18} strokeWidth={2.5} />
           Project Quality Matrix
@@ -27,7 +27,7 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left border-collapse min-w-[500px]">
           <thead>
-            <tr className="border-b border-indigo-50 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider bg-slate-50/50">
+            <tr className="border-b border-slate-100 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider bg-slate-50/50">
               <th className="px-6 py-3.5">Project</th>
               <th className="px-6 py-3.5 text-right">Cases</th>
               <th className="px-6 py-3.5">Automation</th>
@@ -36,7 +36,7 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
           </thead>
           <tbody className="text-sm">
             {currentProjects.map((p) => (
-              <tr key={p.code} className="border-b border-indigo-50 hover:bg-slate-50/80 transition-colors">
+              <tr key={p.code} className="border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
                 <td className="px-6 py-4">
                   <Link href={`/projects/${p.code}/repository`} className="flex flex-col items-start">
                     <span className="font-bold text-slate-800 hover:text-indigo-600 transition-colors">{p.name}</span>

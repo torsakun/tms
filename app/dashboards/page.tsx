@@ -177,167 +177,148 @@ export default async function GlobalDashboardPage() {
   const automatedPercent = totalAutomationCases > 0 ? (automation.automated / totalAutomationCases) * 100 : 0;
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 bg-gradient-to-br from-slate-50 via-indigo-50/50 to-blue-50/30 font-sans text-text-main">
-      
-      {/* Clean SaaS Header */}
-      <header className="bg-white/60 backdrop-blur-md border-b border-indigo-100/50 px-8 py-6 shrink-0 z-10 flex items-center justify-between shadow-sm">
-        <div>
-          <h1 className="text-2xl font-bold text-text-main tracking-tight flex items-center">
-            <BarChart2 className="mr-3 text-indigo-600" size={26} />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-900 to-blue-800">Quality Assurance Dashboard</span>
-          </h1>
-          <p className="text-sm text-text-muted mt-1">Cross-project testing metrics, coverage, and execution health.</p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Link href="/projects" className="px-4 py-2 bg-surface border border-border text-text-main hover:bg-surface-hover hover:text-text-main rounded-lg text-sm font-semibold transition-all shadow-sm">
-            View All Projects
-          </Link>
-        </div>
-      </header>
+    <div className="flex flex-col flex-1 min-h-0 bg-background font-sans text-text-main">
 
-      <div className="flex-1 overflow-y-auto p-8 scrollbar-thin scrollbar-thumb-slate-200">
-        <div className="max-w-[1400px] mx-auto space-y-8">
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-[1400px] mx-auto px-6 py-6 space-y-6">
+
+          {/* Page header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold text-slate-800 tracking-tight">Dashboard</h1>
+              <p className="text-xs text-slate-400 mt-0.5">Cross-project testing metrics, coverage, and execution health</p>
+            </div>
+            <Link href="/projects"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 transition-all"
+              style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
+              View all projects
+            </Link>
+          </div>
           
-          {/* Key QA Metrics (Top Row) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
-            <div className="bg-gradient-to-br from-blue-600 to-indigo-800 rounded-2xl border-none p-6 shadow-lg flex flex-col justify-between hover:shadow-xl transition-all group relative overflow-hidden text-white">
-              <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500 blur-xl"></div>
-              <div className="flex justify-between items-start mb-4 relative z-10">
-                <div className="text-xs font-bold text-blue-100 uppercase tracking-widest">Total Test Cases</div>
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white shadow-sm">
-                  <FileText size={20} />
+          {/* ── Stat cards ──────────────────────────────────── */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+            {/* Total Test Cases */}
+            <div className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform"
+              style={{ background: "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)", boxShadow: "0 4px 20px rgba(79,70,229,0.35)" }}>
+              <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white/10" />
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Test Cases</span>
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <FileText size={15} />
                 </div>
               </div>
-              <div className="relative z-10">
-                <div className="text-4xl font-extrabold text-white tracking-tight">{metrics.totalCases}</div>
-                <div className="text-sm font-medium text-blue-100 mt-1">Across {metrics.totalProjects} active projects</div>
+              <div className="text-3xl font-extrabold tracking-tight">{metrics.totalCases}</div>
+              <div className="text-xs text-white/60 mt-1">{metrics.totalProjects} projects</div>
+            </div>
+
+            {/* Global Automation */}
+            <div className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform"
+              style={{ background: "linear-gradient(135deg, #059669 0%, #10b981 100%)", boxShadow: "0 4px 20px rgba(5,150,105,0.35)" }}>
+              <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white/10" />
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Automation</span>
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <ShieldCheck size={15} />
+                </div>
+              </div>
+              <div className="text-3xl font-extrabold tracking-tight">{automatedPercent.toFixed(1)}%</div>
+              <div className="w-full h-1 bg-black/20 rounded-full mt-2 overflow-hidden">
+                <div className="h-full bg-white/80 rounded-full" style={{ width: `${automatedPercent}%` }} />
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-emerald-500 to-teal-700 rounded-2xl border-none p-6 shadow-lg flex flex-col justify-between hover:shadow-xl transition-all group relative overflow-hidden text-white">
-              <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500 blur-xl"></div>
-              <div className="flex justify-between items-start mb-4 relative z-10">
-                <div className="text-xs font-bold text-emerald-100 uppercase tracking-widest">Global Automation</div>
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white shadow-sm">
-                  <ShieldCheck size={20} />
+            {/* Total Test Runs */}
+            <div className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform"
+              style={{ background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)", boxShadow: "0 4px 20px rgba(124,58,237,0.35)" }}>
+              <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white/10" />
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Test Runs</span>
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <PlayCircle size={15} />
                 </div>
               </div>
-              <div className="relative z-10">
-                <div className="text-4xl font-extrabold text-white tracking-tight">{automatedPercent.toFixed(1)}%</div>
-                <div className="w-full h-1.5 bg-black/20 rounded-full mt-3 overflow-hidden">
-                  <div className="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]" style={{ width: `${automatedPercent}%` }}></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-indigo-500 to-violet-800 rounded-2xl border-none p-6 shadow-lg flex flex-col justify-between hover:shadow-xl transition-all group relative overflow-hidden text-white">
-              <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500 blur-xl"></div>
-              <div className="flex justify-between items-start mb-4 relative z-10">
-                <div className="text-xs font-bold text-indigo-100 uppercase tracking-widest">Total Test Runs</div>
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white shadow-sm">
-                  <PlayCircle size={20} />
-                </div>
-              </div>
-              <div className="relative z-10">
-                <div className="text-4xl font-extrabold text-white tracking-tight">{metrics.totalRuns}</div>
-                <div className="text-sm font-medium text-indigo-100 mt-1 flex items-center">
-                  <TrendingUp size={14} className="text-white mr-1" />
-                  Execution volume
-                </div>
+              <div className="text-3xl font-extrabold tracking-tight">{metrics.totalRuns}</div>
+              <div className="flex items-center gap-1 text-xs text-white/60 mt-1">
+                <TrendingUp size={11} /> Execution volume
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-fuchsia-600 to-pink-700 rounded-2xl border-none p-6 shadow-lg flex flex-col justify-between hover:shadow-xl transition-all group relative overflow-hidden text-white">
-              <div className="absolute -right-6 -top-6 w-32 h-32 bg-white/10 rounded-full opacity-50 group-hover:scale-110 transition-transform duration-500 blur-xl"></div>
-              <div className="flex justify-between items-start mb-4 relative z-10">
-                <div className="text-xs font-bold text-pink-100 uppercase tracking-widest">Global Pass Rate</div>
-                <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center text-white shadow-sm">
-                  <CheckCircle2 size={20} />
+            {/* Global Pass Rate */}
+            <div className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform"
+              style={{ background: "linear-gradient(135deg, #db2777 0%, #f43f5e 100%)", boxShadow: "0 4px 20px rgba(219,39,119,0.35)" }}>
+              <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white/10" />
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Pass Rate</span>
+                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                  <CheckCircle2 size={15} />
                 </div>
               </div>
-              <div className="relative z-10">
-                <div className="text-4xl font-extrabold text-white tracking-tight">{metrics.passRate.toFixed(1)}%</div>
-                <div className="w-full h-1.5 bg-black/20 rounded-full mt-3 overflow-hidden">
-                  <div className="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]" style={{ width: `${metrics.passRate}%` }}></div>
-                </div>
+              <div className="text-3xl font-extrabold tracking-tight">{metrics.passRate.toFixed(1)}%</div>
+              <div className="w-full h-1 bg-black/20 rounded-full mt-2 overflow-hidden">
+                <div className="h-full bg-white/80 rounded-full" style={{ width: `${metrics.passRate}%` }} />
               </div>
             </div>
 
           </div>
 
-          {/* New Section: Trend Chart & Automation Donut */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-indigo-100/50 shadow-sm col-span-1 lg:col-span-2 overflow-hidden flex flex-col">
-              <div className="px-6 py-5 border-b border-indigo-50 flex justify-between items-center bg-transparent">
+          {/* ── Trend + Donut ───────────────────────────────── */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm col-span-1 lg:col-span-2 overflow-hidden flex flex-col">
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
                 <div>
-                  <h2 className="text-base font-extrabold text-indigo-950 flex items-center">
-                    <Activity className="mr-2 text-indigo-600" size={18} strokeWidth={2.5} />
+                  <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                    <Activity size={16} className="text-indigo-500" strokeWidth={2.5} />
                     Execution Trends
                   </h2>
-                  <p className="text-xs font-medium text-slate-500 mt-0.5">Test results over the last 14 days</p>
+                  <p className="text-xs text-slate-400 mt-0.5">Test results over the last 14 days</p>
                 </div>
               </div>
-              <div className="flex-1 p-6 min-h-[300px]">
+              <div className="flex-1 p-5 min-h-[280px]">
                 <ExecutionTrendChart data={trendData} />
               </div>
             </div>
 
-            <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-indigo-100/50 shadow-sm col-span-1 flex flex-col">
-              <div className="px-6 py-5 border-b border-indigo-50 bg-transparent">
-                <h2 className="text-base font-extrabold text-indigo-950 flex items-center">
-                  <ShieldCheck className="mr-2 text-emerald-600" size={18} strokeWidth={2.5} />
-                  Automation Distribution
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm flex flex-col">
+              <div className="px-5 py-4 border-b border-slate-100">
+                <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <ShieldCheck size={16} className="text-emerald-500" strokeWidth={2.5} />
+                  Automation
                 </h2>
-                <p className="text-xs font-medium text-slate-500 mt-0.5">Coverage status across all projects</p>
+                <p className="text-xs text-slate-400 mt-0.5">Coverage across all projects</p>
               </div>
-              <div className="flex-1 p-6 flex flex-col items-center justify-center">
-                <div className="relative w-full h-[220px]">
+              <div className="flex-1 p-5 flex flex-col items-center justify-center">
+                <div className="relative w-full h-[200px]">
                   <AutomationDonutChart data={automation} />
                 </div>
-                
-                {/* Custom Legend */}
-                <div className="w-full mt-4 space-y-2.5">
-                  <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors">
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-emerald-500 mr-3 shadow-sm"></div>
-                      <span className="text-sm text-slate-700 font-bold">Automated</span>
+                <div className="w-full mt-4 space-y-1.5">
+                  {[
+                    { label: "Automated",       value: automation.automated,      color: "#10b981" },
+                    { label: "To Be Automated",  value: automation.toBeAutomated,  color: "#f59e0b" },
+                    { label: "Manual",           value: automation.manual,         color: "#cbd5e1" },
+                  ].map(({ label, value, color }) => (
+                    <div key={label} className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
+                        <span className="text-xs font-semibold text-slate-600">{label}</span>
+                      </div>
+                      <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">{value}</span>
                     </div>
-                    <span className="font-extrabold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md text-sm">{automation.automated}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors">
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-amber-500 mr-3 shadow-sm"></div>
-                      <span className="text-sm text-slate-700 font-bold">To Be Automated</span>
-                    </div>
-                    <span className="font-extrabold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md text-sm">{automation.toBeAutomated}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 transition-colors">
-                    <div className="flex items-center">
-                      <div className="w-3 h-3 rounded-full bg-slate-400 mr-3 shadow-sm"></div>
-                      <span className="text-sm text-slate-700 font-bold">Manual</span>
-                    </div>
-                    <span className="font-extrabold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-md text-sm">{automation.manual}</span>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
 
           </div>
 
-          {/* Bottom Row - Project Matrix & Execution Stream */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            
+          {/* ── Bottom: Matrix + Executions ──────────────────── */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <ProjectQualityMatrix projects={projects} />
-            
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col gap-4">
               <UpcomingSchedules schedules={schedules} />
-              <div className="flex-1">
-                <RecentExecutionsTable recentRuns={recentRuns} />
-              </div>
+              <RecentExecutionsTable recentRuns={recentRuns} />
             </div>
-
           </div>
 
         </div>

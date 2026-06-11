@@ -95,8 +95,8 @@ function ResultRow({ result, depth, isSelected, openResult, projectCode, runId, 
   return (
     <div 
       onClick={() => openResult(result)}
-      className={`flex items-center group cursor-pointer border-b border-border/50 transition-colors ${
-        isSelected ? 'bg-primary/10' : 'hover:bg-surface-hover bg-surface'
+      className={`flex items-center group cursor-pointer border-b border-slate-100 last:border-0 transition-colors ${
+        isSelected ? 'bg-indigo-50/60' : 'hover:bg-slate-50 bg-white'
       }`}
       style={{ paddingLeft: `${depth * 24 + 16}px` }}
     >
@@ -691,18 +691,20 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
     const results = resultsBySuiteId.get(suite.id) || [];
     const children = childrenMap.get(suite.id) || [];
 
+    const SUITE_COLORS = ["#4f46e5","#7c3aed","#0891b2","#059669","#d97706","#e11d48","#0284c7","#9333ea"];
+    const accentColor = SUITE_COLORS[Math.abs(suite.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0)) % SUITE_COLORS.length];
+
     return (
-      <div key={suite.id} className="flex flex-col">
-        <div 
-          className="flex items-center py-3 border-b border-border/50 bg-surface hover:bg-surface-hover cursor-pointer group transition-colors"
-          style={{ paddingLeft: `${depth * 24 + 16}px` }}
+      <div key={suite.id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-3" style={{ borderLeft: `3px solid ${accentColor}` }}>
+        <div
+          className="flex items-center py-3 px-4 border-b border-slate-100 bg-slate-50/80 hover:bg-indigo-50/40 cursor-pointer group transition-colors"
           onClick={() => toggleSuite(suite.id)}
         >
-          <div className="w-5 flex items-center justify-center mr-1 text-text-muted">
-            {isExpanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          <div className="w-5 flex items-center justify-center mr-1 text-slate-400">
+            {isExpanded ? <ChevronDown size={15} /> : <ChevronRight size={15} />}
           </div>
-          <input type="checkbox" className="w-4 h-4 mr-3 rounded border-border text-primary focus:ring-primary/20" onClick={e => e.stopPropagation()} />
-          <span className="font-bold text-text-main text-[15px] mr-3 group-hover:text-primary transition-colors">{suite.title}</span>
+          <input type="checkbox" className="w-4 h-4 mr-3 rounded border-slate-300 text-indigo-600 focus:ring-indigo-300" onClick={e => e.stopPropagation()} />
+          <span className="font-bold text-slate-700 text-[14px] mr-3 group-hover:text-indigo-600 transition-colors">{suite.title}</span>
           
           <div className="flex items-center text-xs text-text-muted font-medium whitespace-nowrap">
             {renderProgressBar(stats)}
@@ -712,9 +714,13 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
         </div>
         
         {isExpanded && (
-          <div className="flex flex-col">
+          <div className="flex flex-col bg-white">
             {results.map(r => renderResultRow(r, depth + 1))}
-            {children.map(child => renderSuiteTree(child, depth + 1))}
+            {children.length > 0 && (
+              <div className="px-4 pb-3 space-y-2 mt-1">
+                {children.map(child => renderSuiteTree(child, depth + 1))}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -993,16 +999,16 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
       </div>
     )}
 
-    <div className="flex h-[calc(100vh-4rem)] w-full bg-background overflow-hidden relative transition-colors">
+    <div className="flex h-[calc(100vh-4rem)] w-full bg-[#f0f2f8] overflow-hidden relative transition-colors">
       {/* Main Suite/Case Tree View */}
-      <main className="flex-1 flex flex-col min-w-0 bg-surface border-r border-border transition-colors">
-        <header className="px-8 pt-8 pb-4 border-b border-border/50">
-          <div className="flex items-center text-sm text-text-muted hover:text-text-main cursor-pointer transition-colors mb-4" onClick={() => router.push(`/projects/${projectCode}/runs`)}>
-            <ArrowLeft size={16} className="mr-2" />
+      <main className="flex-1 flex flex-col min-w-0 bg-white border-r transition-colors" style={{ borderColor: "#e8eaf2" }}>
+        <header className="px-6 pt-5 pb-4 border-b bg-white" style={{ borderColor: "#e8eaf2", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+          <div className="flex items-center text-sm text-slate-400 hover:text-slate-600 cursor-pointer transition-colors mb-3 gap-1.5" onClick={() => router.push(`/projects/${projectCode}/runs`)}>
+            <ArrowLeft size={14} />
             Back to runs
           </div>
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-2xl font-bold text-text-main">{run.title}</h1>
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-xl font-bold text-slate-800 tracking-tight">{run.title}</h1>
             <div className="flex space-x-2">
               {run.reportUrl && (
                 <button 
@@ -1068,29 +1074,31 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
             </div>
           </div>
           
-          <div className="flex items-center space-x-6 border-b border-border/50">
-            <div className="pb-3 border-b-2 border-primary text-primary font-semibold text-sm cursor-pointer transition-colors">
+          <div className="flex items-center space-x-6 border-b border-slate-100">
+            <div className="pb-3 border-b-2 border-indigo-500 text-indigo-600 font-semibold text-sm cursor-pointer transition-colors">
               Test cases
             </div>
           </div>
         </header>
-        
-        {/* Tree Header */}
-        <div className="bg-surface border-b border-border/50 px-8 py-3 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)] z-10 relative transition-colors">
-          <div className="flex space-x-2 w-96">
-            <input type="text" placeholder="Search..." className="flex-1 px-3 py-1.5 text-sm border-none bg-background text-text-main rounded focus:ring-2 focus:ring-primary/20 focus:outline-none transition-colors" />
-            <select className="px-3 py-1.5 text-sm border-none bg-background text-text-main rounded focus:outline-none transition-colors">
+
+        {/* Toolbar */}
+        <div className="bg-white border-b px-6 py-2.5 flex items-center justify-between z-10 relative" style={{ borderColor: "#e8eaf2" }}>
+          <div className="flex gap-2 w-96">
+            <div className="relative flex-1">
+              <input type="text" placeholder="Search…" className="w-full pl-3 pr-3 py-1.5 text-sm border border-slate-200 bg-slate-50 text-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-300 focus:outline-none transition-colors" />
+            </div>
+            <select className="px-3 py-1.5 text-sm border border-slate-200 bg-slate-50 text-slate-600 rounded-lg focus:outline-none transition-colors">
               <option>By all fields</option>
             </select>
-            <button className="text-primary text-sm font-medium hover:underline whitespace-nowrap ml-2">Add filter</button>
+            <button className="text-indigo-500 text-sm font-semibold hover:text-indigo-700 whitespace-nowrap px-1">+ Filter</button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto pb-32">
+        <div className="flex-1 overflow-y-auto pb-32 bg-[#f0f2f8] p-4 space-y-3">
           {unassignedResults.length > 0 && (
-            <div className="flex flex-col">
-              <div className="flex items-center py-3 border-b border-border/50 bg-surface hover:bg-surface-hover cursor-pointer group px-4 transition-colors">
-                 <span className="font-bold text-text-main text-[15px] mr-3">Unassigned Cases</span>
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="flex items-center px-4 py-3 border-b border-slate-100 bg-slate-50/80 cursor-pointer group">
+                <span className="font-bold text-slate-600 text-[13px] uppercase tracking-wider">Unassigned Cases</span>
               </div>
               {unassignedResults.map(r => renderResultRow(r, 0))}
             </div>
@@ -1099,77 +1107,64 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
         </div>
       </main>
 
-      {/* Right Sidebar: Run Details & Progress */}
-      <aside className="w-80 shrink-0 bg-surface flex flex-col overflow-y-auto transition-colors">
-        <div className="p-8 flex flex-col items-center border-b border-border/50 mt-4">
-          <div className="w-48 h-48 rounded-full flex items-center justify-center relative shadow-[0_0_20px_rgba(0,0,0,0.05)] dark:shadow-[0_0_20px_rgba(255,255,255,0.02)]" style={{ background: renderConicGradient() }}>
-            <div className="w-40 h-40 bg-surface rounded-full flex flex-col items-center justify-center absolute shadow-[inset_0_2px_10px_rgba(0,0,0,0.05)] transition-colors">
-               <span className="text-xs text-text-muted font-medium mb-1">Completion rate</span>
-               <span className="text-4xl font-bold text-text-main">{completionRate}%</span>
-               <span className="text-xs text-text-muted mt-1">{runStats.total - runStats.untested} of {runStats.total}</span>
+      {/* Right Sidebar */}
+      <aside className="w-72 shrink-0 bg-white flex flex-col overflow-y-auto transition-colors border-l" style={{ borderColor: "#e8eaf2" }}>
+        <div className="p-6 flex flex-col items-center border-b border-slate-100">
+          <div className="w-40 h-40 rounded-full flex items-center justify-center relative" style={{ background: renderConicGradient() }}>
+            <div className="w-32 h-32 bg-white rounded-full flex flex-col items-center justify-center absolute shadow-sm">
+              <span className="text-[11px] text-slate-400 font-medium mb-0.5">Completion rate</span>
+              <span className="text-3xl font-extrabold text-slate-800">{completionRate}%</span>
+              <span className="text-[11px] text-slate-400 mt-0.5">{runStats.total - runStats.untested} of {runStats.total}</span>
             </div>
           </div>
         </div>
 
-        <div className="p-6 space-y-6 text-sm">
+        <div className="p-5 space-y-4 text-sm">
           <div>
-            <div className="font-bold text-text-main mb-1">Status</div>
-            <div className="flex items-center text-text-muted">
-               {completionRate === 100 ? (
-                 <><CheckCircle2 size={16} className="text-emerald-500 mr-2" /> Completed</>
-               ) : (
-                 <><RefreshCw size={16} className="text-primary mr-2" /> In Progress</>
-               )}
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Status</div>
+            <div className="flex items-center text-slate-600 font-medium">
+              {completionRate === 100 ? (
+                <><CheckCircle2 size={14} className="text-emerald-500 mr-1.5" /> Completed</>
+              ) : (
+                <><RefreshCw size={14} className="text-indigo-500 mr-1.5" /> In Progress</>
+              )}
             </div>
           </div>
+          <div className="h-px bg-slate-100" />
           <div>
-            <div className="font-bold text-text-main mb-1">Started by</div>
-            <div className="flex items-center text-text-muted">
-               <div className="w-5 h-5 rounded bg-[#b87c88] text-white text-[10px] flex items-center justify-center font-bold mr-2">SA</div>
-               System Admin
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Started by</div>
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
+                style={{ background: "linear-gradient(135deg, #4f46e5, #a855f7)" }}>SA</div>
+              <span className="text-slate-600 font-medium">System Admin</span>
             </div>
           </div>
+          <div className="h-px bg-slate-100" />
           <div>
-            <div className="font-bold text-text-main mb-1">Estimation</div>
-            <div className="flex items-center text-text-muted">
-               <Clock size={14} className="mr-2 opacity-70" />
-               25s 762ms
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Started at</div>
+            <div className="flex items-center text-slate-500">
+              <Clock size={13} className="mr-1.5 text-slate-400" />
+              {formatThaiTime(run.createdAt)}
             </div>
           </div>
+          <div className="h-px bg-slate-100" />
           <div>
-            <div className="font-bold text-text-main mb-1">Started at</div>
-            <div className="flex items-center text-text-muted">
-               <Clock size={14} className="mr-2 opacity-70" />
-               {formatThaiTime(run.createdAt)}
-            </div>
-          </div>
-          <div>
-            <div className="font-bold text-text-main mb-1">Total Time</div>
-            <div className="flex items-center text-text-muted">
-               <Clock size={14} className="mr-2 opacity-70" />
-               6s 436ms
-            </div>
-          </div>
-          <div>
-            <div className="font-bold text-text-main mb-1">Elapsed Time</div>
-            <div className="flex items-center text-text-muted">
-               <Clock size={14} className="mr-2 opacity-70" />
-               4m 33s
-            </div>
-          </div>
-          <div>
-            <div className="font-bold text-text-main mb-1">Environment</div>
-            <div className="text-text-muted">{(run as any).environment?.title || "Not specified"}</div>
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Environment</div>
+            <div className="text-slate-500">{(run as any).environment?.title || "Not specified"}</div>
           </div>
           {(run as any).milestone && (
-            <div>
-              <div className="font-bold text-text-main mb-1">Milestone</div>
-              <div className="text-text-muted">{(run as any).milestone.title}</div>
-            </div>
+            <>
+              <div className="h-px bg-slate-100" />
+              <div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Milestone</div>
+                <div className="text-slate-500">{(run as any).milestone.title}</div>
+              </div>
+            </>
           )}
+          <div className="h-px bg-slate-100" />
           <div>
-            <div className="font-bold text-text-main mb-1">External issue</div>
-            <button className="w-full py-2 bg-background border border-border hover:bg-surface-hover text-text-main font-bold rounded-md transition-colors mt-1 text-sm shadow-sm">
+            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">External issue</div>
+            <button className="w-full py-2 bg-slate-50 border border-slate-200 hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-600 text-slate-600 font-semibold rounded-lg transition-colors mt-1 text-xs shadow-sm">
               Select an integration
             </button>
           </div>

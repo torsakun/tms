@@ -2,247 +2,261 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Search, LayoutList, Grid, MoreVertical, AlertTriangle, Check, Settings, Archive } from "lucide-react";
+import {
+  Search, LayoutList, Grid, MoreVertical,
+  AlertTriangle, Check, Settings, Archive,
+  FolderOpen, Plus, ChevronDown,
+} from "lucide-react";
 import { toast } from "sonner";
 
 function timeAgo(dateString: string) {
   const date = new Date(dateString);
-  const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-  let interval = seconds / 31536000;
-  if (interval > 1) return Math.floor(interval) + " years ago";
-  interval = seconds / 2592000;
-  if (interval > 1) return Math.floor(interval) + " months ago";
-  interval = seconds / 86400;
-  if (interval >= 1) return Math.floor(interval) + " days ago";
-  interval = seconds / 3600;
-  if (interval >= 1) return Math.floor(interval) + " hours ago";
-  interval = seconds / 60;
-  if (interval >= 1) return Math.floor(interval) + " minutes ago";
-  return "Just now";
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  const intervals = [
+    { label: "year",  secs: 31536000 },
+    { label: "month", secs: 2592000  },
+    { label: "day",   secs: 86400    },
+    { label: "hour",  secs: 3600     },
+    { label: "min",   secs: 60       },
+  ];
+  for (const { label, secs } of intervals) {
+    const n = Math.floor(seconds / secs);
+    if (n >= 1) return `${n} ${label}${n > 1 ? "s" : ""} ago`;
+  }
+  return "just now";
 }
 
 interface ProjectData {
-  id: string;
-  name: string;
-  code: string;
-  testCasesCount: number;
-  suitesCount: number;
-  activeRunsCount: number;
-  testRunsCount: number;
-  milestonesCount: number;
-  teamMembers: number;
-  automationPercent: number;
-  latestRunPassRate: number | null;
+  id: string; name: string; code: string;
+  testCasesCount: number; suitesCount: number;
+  activeRunsCount: number; testRunsCount: number;
+  milestonesCount: number; teamMembers: number;
+  automationPercent: number; latestRunPassRate: number | null;
   updatedAt: string;
 }
 
-interface ProjectListProps {
-  initialProjects: ProjectData[];
+// Deterministic vibrant color per project index
+const PROJECT_PALETTES = [
+  { bg: "#f97316", light: "#fff7ed", border: "#f97316" }, // orange
+  { bg: "#10b981", light: "#f0fdf4", border: "#10b981" }, // emerald
+  { bg: "#6366f1", light: "#eef2ff", border: "#6366f1" }, // indigo
+  { bg: "#8b5cf6", light: "#f5f3ff", border: "#8b5cf6" }, // violet
+  { bg: "#f43f5e", light: "#fff1f2", border: "#f43f5e" }, // rose
+  { bg: "#0ea5e9", light: "#f0f9ff", border: "#0ea5e9" }, // sky
+];
+
+function HealthBadge({ rate }: { rate: number | null }) {
+  if (rate === null) return <span className="text-slate-300 font-medium">—</span>;
+  const good = rate >= 90, warn = rate >= 70;
+  return (
+    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold
+      ${good ? "bg-emerald-50 text-emerald-700" : warn ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-600"}`}>
+      {good ? <Check size={11} strokeWidth={3} /> : warn ? <AlertTriangle size={11} /> : <span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block" />}
+      {rate.toFixed(0)}%
+    </span>
+  );
 }
 
-export function ProjectList({ initialProjects }: ProjectListProps) {
+function AutomationBar({ percent }: { percent: number }) {
+  const color = percent >= 70 ? "#10b981" : percent >= 30 ? "#f59e0b" : "#e2e8f0";
+  return (
+    <div className="flex items-center gap-2 min-w-[100px]">
+      <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+        <div className="h-full rounded-full transition-all" style={{ width: `${percent}%`, background: color }} />
+      </div>
+      <span className="text-xs font-semibold text-slate-500 w-8 text-right shrink-0">{percent.toFixed(0)}%</span>
+    </div>
+  );
+}
+
+export function ProjectList({ initialProjects }: { initialProjects: ProjectData[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node))
         setActiveDropdown(null);
-      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const filteredProjects = initialProjects.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filtered = initialProjects.filter(p =>
+    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3 flex-1">
-          <Link 
-            href="?create=true"
-            className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-hover hover:-translate-y-0.5 transition-all shadow-sm"
-          >
-            Create new project
-          </Link>
-          
-          <div className="relative w-64">
-            <Search className="absolute left-3 top-2.5 text-text-muted" size={16} />
-            <input 
-              type="text" 
+      {/* ── Page header ───────────────────────────────────── */}
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">Projects</h1>
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">
+            {initialProjects.length}
+          </span>
+        </div>
+        <Link href="?create=true"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 transition-all active:translate-y-0"
+          style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
+          <Plus size={15} strokeWidth={2.5} />
+          New project
+        </Link>
+      </div>
+
+      {/* ── Toolbar ──────────────────────────────────────── */}
+      <div className="flex items-center justify-between mb-4 gap-3">
+        <div className="flex items-center gap-2 flex-1">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+            <input
+              type="text"
               aria-label="Search projects"
-              placeholder="Search for projects"
+              placeholder="Search projects…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm border border-border bg-surface text-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-primary/40 shadow-sm transition-colors"
+              className="pl-8 pr-4 h-8 text-sm border border-slate-200 bg-white text-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 w-52 transition-all"
             />
           </div>
-
-          <div className="flex items-center space-x-3">
-            <button className="bg-surface text-text-main shadow-sm px-4 py-2 rounded-md text-sm font-medium transition hover:bg-surface-hover hover:shadow-md">
-              Status: Active
-            </button>
-            <button className="text-primary text-sm font-medium hover:underline px-2">
-              Add filter
-            </button>
-          </div>
+          <button className="h-8 flex items-center gap-1.5 px-3 rounded-lg border border-slate-200 bg-white text-slate-600 text-xs font-semibold hover:border-slate-300 transition-all">
+            Status: Active <ChevronDown size={12} />
+          </button>
+          <button className="h-8 px-3 text-indigo-500 text-xs font-semibold hover:bg-indigo-50 rounded-lg transition-all">
+            + Filter
+          </button>
         </div>
 
-        <div className="flex items-center space-x-2 rounded-md p-1 bg-surface shadow-sm">
-          <button className="p-1.5 bg-primary/10 text-primary rounded">
-            <LayoutList size={16} />
+        {/* View toggle */}
+        <div className="flex items-center gap-0.5 p-1 bg-slate-100 rounded-lg">
+          <button className="p-1.5 bg-white rounded-md shadow-sm text-indigo-600">
+            <LayoutList size={14} />
           </button>
-          <button className="p-1.5 text-text-muted hover:text-text-main rounded hover:bg-surface-hover">
-            <Grid size={16} />
+          <button className="p-1.5 text-slate-400 hover:text-slate-600 rounded-md transition-colors">
+            <Grid size={14} />
           </button>
         </div>
       </div>
 
-      <div className="rounded-xl overflow-hidden shadow-sm bg-white/60 backdrop-blur-md transition-colors border border-indigo-100/50 hover:shadow-md hover:border-indigo-200">
+      {/* ── Table ────────────────────────────────────────── */}
+      <div className="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gradient-to-r from-indigo-900 to-blue-900 text-white shadow-md">
-              <th className="px-6 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider rounded-tl-xl">Project</th>
-              <th className="px-6 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider w-40">Project Health</th>
-              <th className="px-6 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider w-40">Automation</th>
-              <th className="px-6 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider w-40">Test Runs</th>
-              <th className="px-6 py-4 text-xs font-bold text-indigo-100 uppercase tracking-wider w-32">Team</th>
-              <th className="px-6 py-4 w-12 rounded-tr-xl"></th>
+            <tr className="border-b border-slate-100 bg-slate-50/80">
+              <th className="pl-4 pr-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Project</th>
+              <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-36">Health</th>
+              <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-48">Automation</th>
+              <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-44">Runs</th>
+              <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-28">Team</th>
+              <th className="pr-4 py-3 w-10" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
-            {filteredProjects.map((project, idx) => {
-              const colors = ["bg-amber-600", "bg-emerald-700", "bg-indigo-600", "bg-primary", "bg-rose-600", "bg-purple-600"];
-              const colorClass = colors[idx % colors.length];
+          <tbody>
+            {filtered.map((project, idx) => {
+              const pal = PROJECT_PALETTES[idx % PROJECT_PALETTES.length];
+              const isOpen = activeDropdown === project.id;
 
-              // Fake avatars array for Team column based on member count
-              const avatars = Array.from({ length: Math.min(project.teamMembers, 3) }).map((_, i) => `bg-slate-${300 + (i * 100)}`);
-              
               return (
-                <tr key={project.id} className="hover:bg-primary/5 transition-colors group">
-                  <td className="px-6 py-5 align-middle">
-                    <Link href={`/projects/${project.code}/repository`} className="flex items-start space-x-4">
-                      <div className={`w-11 h-11 ${colorClass} rounded-lg text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-sm`}>
-                        {project.code.substring(0, 2).toUpperCase()}
+                <tr key={project.id}
+                  className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors group">
+
+                  {/* PROJECT — left accent border via pseudo box-shadow trick on first td */}
+                  <td className="pl-0 pr-5 py-4 align-middle" style={{ borderLeft: `3px solid ${pal.border}` }}>
+                    <Link href={`/projects/${project.code}/repository`}
+                      className="flex items-center gap-3 pl-4">
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-sm"
+                        style={{ background: pal.bg }}>
+                        {project.code.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <div className="font-semibold text-text-main text-[15px] group-hover:text-primary transition-colors">
+                        <div className="font-semibold text-slate-800 text-sm group-hover:text-indigo-600 transition-colors">
                           {project.name}
                         </div>
-                        <div className="text-xs text-text-muted mt-1.5 flex items-center space-x-2">
-                          <span>{project.testCasesCount} cases</span>
-                          <span className="text-border">•</span>
-                          <span>{project.suitesCount} suites</span>
-                          <span className="text-border">•</span>
-                          <span>Updated {timeAgo(project.updatedAt)}</span>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className="text-[11px] text-slate-400">{project.testCasesCount} cases</span>
+                          <span className="text-slate-200">·</span>
+                          <span className="text-[11px] text-slate-400">{project.suitesCount} suites</span>
+                          <span className="text-slate-200">·</span>
+                          <span className="text-[11px] text-slate-400">{timeAgo(project.updatedAt)}</span>
                         </div>
                       </div>
                     </Link>
                   </td>
-                  
-                  {/* Project Health (Latest Run Pass Rate) */}
-                  <td className="px-6 py-5 align-middle">
-                    {project.latestRunPassRate !== null ? (
-                      <div className={`inline-flex items-center px-2.5 py-1 rounded-full text-[13px] font-bold ${
-                        project.latestRunPassRate >= 90 
-                          ? 'bg-emerald-100 text-emerald-700' 
-                          : project.latestRunPassRate >= 70 
-                            ? 'bg-amber-100 text-amber-700' 
-                            : 'bg-red-100 text-red-700'
-                      }`}>
-                        {project.latestRunPassRate >= 90 ? <Check size={14} className="mr-1" /> : project.latestRunPassRate >= 70 ? <AlertTriangle size={14} className="mr-1" /> : <div className="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5" />}
-                        {project.latestRunPassRate.toFixed(0)}% Pass
-                      </div>
+
+                  {/* HEALTH */}
+                  <td className="px-5 py-4 align-middle">
+                    <HealthBadge rate={project.latestRunPassRate} />
+                  </td>
+
+                  {/* AUTOMATION */}
+                  <td className="px-5 py-4 align-middle">
+                    <AutomationBar percent={project.automationPercent} />
+                  </td>
+
+                  {/* RUNS */}
+                  <td className="px-5 py-4 align-middle">
+                    {project.testRunsCount > 0 ? (
+                      <Link href={`/projects/${project.code}/runs`}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                        {project.activeRunsCount} active
+                        <span className="text-slate-300">/</span>
+                        <span className="text-slate-500 font-normal">{project.testRunsCount} total</span>
+                      </Link>
                     ) : (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-surface-hover text-text-muted">No data</span>
+                      <span className="text-slate-300 font-medium">—</span>
                     )}
                   </td>
 
-                  {/* Automation Status */}
-                  <td className="px-6 py-5 align-middle">
-                    <div className="w-full">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-xs font-semibold text-text-main">{project.automationPercent.toFixed(0)}% Automated</span>
+                  {/* TEAM */}
+                  <td className="px-5 py-4 align-middle">
+                    {project.teamMembers > 0 ? (
+                      <div className="flex -space-x-2">
+                        {Array.from({ length: Math.min(project.teamMembers, 3) }).map((_, i) => (
+                          <div key={i}
+                            className="w-7 h-7 rounded-full border-2 border-white flex items-center justify-center text-[10px] font-bold text-white shadow-sm"
+                            style={{ background: PROJECT_PALETTES[i % PROJECT_PALETTES.length].bg }}>
+                            U{i + 1}
+                          </div>
+                        ))}
+                        {project.teamMembers > 3 && (
+                          <div className="w-7 h-7 rounded-full border-2 border-white bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">
+                            +{project.teamMembers - 3}
+                          </div>
+                        )}
                       </div>
-                      <div className="w-full h-1.5 bg-border rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary rounded-full shadow-sm" 
-                          style={{ width: `${project.automationPercent}%` }}
-                        ></div>
-                      </div>
-                    </div>
+                    ) : (
+                      <span className="text-slate-300 font-medium">—</span>
+                    )}
                   </td>
 
-                  {/* Test Runs */}
-                  <td className="px-6 py-5 align-middle">
-                    <div className="flex flex-col space-y-1.5">
-                      {project.testRunsCount > 0 ? (
-                        <Link href={`/projects/${project.code}/runs`} className="text-primary text-xs font-medium hover:underline block">
-                          {project.activeRunsCount} active / {project.testRunsCount} total runs
-                        </Link>
-                      ) : (
-                        <span className="text-text-muted text-xs">No test runs</span>
-                      )}
-                    </div>
-                  </td>
-
-                  {/* Team Members */}
-                  <td className="px-6 py-5 align-middle">
-                    <div className="flex items-center">
-                      {project.teamMembers > 0 ? (
-                        <div className="flex -space-x-2">
-                          {avatars.map((_, i) => (
-                            <div key={i} className={`w-8 h-8 rounded-full border-2 border-surface bg-surface-hover flex items-center justify-center text-[10px] font-bold text-text-muted z-${30-i} shadow-sm`}>
-                              U{i+1}
-                            </div>
-                          ))}
-                          {project.teamMembers > 3 && (
-                            <div className="w-8 h-8 rounded-full border-2 border-surface bg-background flex items-center justify-center text-[10px] font-bold text-text-muted z-0 shadow-sm">
-                              +{project.teamMembers - 3}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-text-muted text-sm">No members</span>
-                      )}
-                    </div>
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-6 py-5 align-middle text-right">
-                    <div className="relative inline-block text-left" ref={activeDropdown === project.id ? dropdownRef : null}>
-                      <button 
-                        onClick={() => setActiveDropdown(activeDropdown === project.id ? null : project.id)}
-                        className={`p-1.5 rounded transition ${activeDropdown === project.id ? 'bg-surface-hover text-text-main' : 'text-text-muted hover:text-text-main hover:bg-surface-hover'}`}
-                      >
-                        <MoreVertical size={18} />
+                  {/* ACTIONS */}
+                  <td className="pr-4 py-4 align-middle text-right">
+                    <div className="relative inline-block" ref={isOpen ? dropdownRef : null}>
+                      <button
+                        onClick={() => setActiveDropdown(isOpen ? null : project.id)}
+                        className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all
+                          ${isOpen ? "bg-slate-100 text-slate-700" : "text-slate-300 hover:text-slate-600 hover:bg-slate-100 opacity-0 group-hover:opacity-100"}`}>
+                        <MoreVertical size={15} />
                       </button>
-                      
-                      {activeDropdown === project.id && (
-                        <div className="absolute right-0 mt-1 w-48 bg-surface border-none rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] py-1 z-30 overflow-hidden">
-                          <Link 
-                            href={`/projects/${project.code}/dashboards`}
-                            className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center"
-                          >
-                            <LayoutList size={14} className="mr-2 text-text-muted" /> View Dashboard
+
+                      {isOpen && (
+                        <div className="absolute right-0 mt-1 w-48 bg-white rounded-xl py-1 z-30 overflow-hidden"
+                          style={{ border: "1px solid #f1f3f9", boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }}>
+                          <Link href={`/projects/${project.code}/dashboards`}
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                            <LayoutList size={13} className="text-slate-400" /> View Dashboard
                           </Link>
-                          <Link 
-                            href={`/projects/${project.code}/settings/members`}
-                            className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center"
-                          >
-                            <Settings size={14} className="mr-2 text-text-muted" /> Project Settings
+                          <Link href={`/projects/${project.code}/settings`}
+                            className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                            <Settings size={13} className="text-slate-400" /> Settings
                           </Link>
-                          <div className="h-px bg-border my-1"></div>
-                          <button 
-                            className="w-full text-left px-4 py-2 text-sm text-amber-600 hover:bg-surface-hover flex items-center"
-                            onClick={() => toast("Archive project coming soon", { icon: "🚧" })}
-                          >
-                            <Archive size={14} className="mr-2 text-amber-400" /> Archive Project
+                          <div className="h-px bg-slate-100 my-1" />
+                          <button
+                            onClick={() => toast("Archive coming soon", { icon: "🚧" })}
+                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 transition-colors">
+                            <Archive size={13} className="text-amber-400" /> Archive
                           </button>
                         </div>
                       )}
@@ -252,12 +266,14 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
               );
             })}
 
-            {filteredProjects.length === 0 && (
+            {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-16 text-center">
-                  <div className="text-text-muted mb-2">No projects found.</div>
-                  <Link href="?create=true" className="text-primary text-sm font-medium hover:underline">
-                    Create a new project
+                <td colSpan={6} className="py-20 text-center">
+                  <FolderOpen size={32} className="mx-auto mb-3 text-slate-200" />
+                  <p className="text-sm text-slate-400 mb-3">No projects found</p>
+                  <Link href="?create=true"
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+                    <Plus size={14} /> Create a project
                   </Link>
                 </td>
               </tr>

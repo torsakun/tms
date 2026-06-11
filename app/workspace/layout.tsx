@@ -7,7 +7,7 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
       <TopNav />
       <div className="flex-1 flex overflow-hidden w-full">
         <WorkspaceSidebar />
-        <main className="flex-1 flex flex-col overflow-y-auto bg-gradient-to-br from-slate-50 via-indigo-50/50 to-blue-50/30 border-l border-border transition-colors">
+        <main className="flex-1 flex flex-col overflow-y-auto bg-background transition-colors">
           {children}
         </main>
       </div>

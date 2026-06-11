@@ -14,7 +14,6 @@ interface RepositoryHeaderProps {
 export function RepositoryHeader({ projectCode, totalCases, totalSuites, cases }: RepositoryHeaderProps) {
   const { selectedCases, clearSelection } = useSuiteSelection();
 
-  // Calculate unique suites that have selected cases
   const selectedSuitesCount = useMemo(() => {
     if (selectedCases.size === 0) return 0;
     const suiteIds = new Set<string>();
@@ -28,20 +27,22 @@ export function RepositoryHeader({ projectCode, totalCases, totalSuites, cases }
 
   if (selectedCases.size > 0) {
     return (
-      <div className="flex-none px-6 py-4 border-b border-border/50 bg-surface">
-        <div className="flex items-center space-x-3 h-[32px]">
-          <h1 className="text-2xl font-bold text-text-main">{projectCode} repository</h1>
-          <span className="text-[13px] text-text-muted font-medium">
-            {totalCases} cases ({totalCases}) | {totalSuites} suites ({totalSuites})
+      <div className="flex-none px-6 py-3.5 border-b bg-white" style={{ borderColor: "#e8eaf2", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">{projectCode}</h1>
+          <span className="text-slate-300">/</span>
+          <span className="text-xl font-bold text-slate-800">Repository</span>
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">
+            {totalCases} cases
           </span>
-          <span className="text-slate-300 mx-2">|</span>
-          <span className="text-[13px] text-text-main font-bold flex items-center">
-            Selected: {selectedCases.size} cases | {selectedSuitesCount} suite{selectedSuitesCount !== 1 ? 's' : ''}
-            <button 
+          <span className="text-slate-300">·</span>
+          <span className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
+            {selectedCases.size} selected · {selectedSuitesCount} suite{selectedSuitesCount !== 1 ? "s" : ""}
+            <button
               onClick={clearSelection}
-              className="ml-2 text-text-muted hover:text-text-muted transition-colors rounded hover:bg-surface-hover p-0.5"
+              className="ml-1 text-indigo-400 hover:text-indigo-600 transition-colors rounded-full hover:bg-indigo-100 p-0.5"
             >
-              <X size={14} />
+              <X size={13} />
             </button>
           </span>
         </div>
@@ -50,11 +51,16 @@ export function RepositoryHeader({ projectCode, totalCases, totalSuites, cases }
   }
 
   return (
-    <div className="flex-none px-6 py-4 border-b border-border/50 bg-surface">
-      <div className="flex items-baseline space-x-3 h-[32px]">
-        <h1 className="text-2xl font-bold text-text-main">{projectCode} repository</h1>
-        <span className="text-[13px] text-text-muted font-medium">
-          {totalCases} cases ({totalCases}) | {totalSuites} suites ({totalSuites})
+    <div className="flex-none px-6 py-3.5 border-b bg-white" style={{ borderColor: "#e8eaf2", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+      <div className="flex items-center gap-3">
+        <h1 className="text-xl font-bold text-slate-800 tracking-tight">{projectCode}</h1>
+        <span className="text-slate-300">/</span>
+        <span className="text-xl font-bold text-slate-800">Repository</span>
+        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">
+          {totalCases} cases
+        </span>
+        <span className="text-[11px] font-medium text-slate-400">
+          {totalSuites} suites
         </span>
       </div>
     </div>

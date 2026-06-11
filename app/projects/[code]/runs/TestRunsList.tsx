@@ -108,82 +108,86 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
   const paginatedRuns = filteredRuns.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   return (
-    <div className="w-full flex flex-col h-full bg-background p-8 pt-0 transition-colors">
-      <div className="flex items-center space-x-4 mb-6 pt-4">
+    <div className="w-full flex flex-col">
+      <div className="flex items-center gap-3 mb-4">
         {role !== 'VIEWER' && (
           <Link
             href={`/projects/${code}/runs/create`}
-            className="bg-primary text-primary-foreground shadow-sm px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-hover transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 transition-all"
+            style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
           >
             Start new test run
           </Link>
         )}
-        
-        <div className="relative w-64">
-          <Search className="absolute left-3 top-2.5 text-text-muted" size={16} />
-          <input 
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+          <input
             type="text"
-            placeholder="Search test runs..."
+            placeholder="Search test runs…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-sm border-none bg-surface text-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition-colors"
+            className="pl-8 pr-4 h-8 text-sm border border-slate-200 bg-white text-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 w-52 transition-all"
           />
         </div>
-        
+
         <div className="relative">
-          <button 
+          <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center text-sm px-4 py-2 rounded-md transition-colors shadow-[0_2px_10px_rgba(0,0,0,0.03)] ${showFilters || statusFilter !== 'ALL' ? 'bg-primary/10 text-primary font-medium' : 'bg-surface text-text-muted hover:text-text-main hover:bg-surface-hover'}`}
+            className={`flex items-center h-8 text-xs px-3 rounded-lg border transition-colors font-semibold ${showFilters || statusFilter !== 'ALL' ? 'bg-indigo-50 text-indigo-600 border-indigo-200' : 'bg-white text-slate-500 border-slate-200 hover:text-slate-700 hover:bg-slate-50'}`}
           >
-            <Filter size={14} className="mr-2" />
+            <Filter size={13} className="mr-1.5" />
             {statusFilter === "ALL" ? "All Statuses" : statusFilter}
           </button>
-          
+
           {showFilters && (
-            <div className="absolute top-full mt-2 left-0 w-48 bg-surface border-none rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] z-20 py-2 overflow-hidden">
-              <button onClick={() => { setStatusFilter("ALL"); setShowFilters(false); }} className={`w-full text-left px-4 py-2 text-sm ${statusFilter === "ALL" ? "bg-primary/10 text-primary font-medium" : "text-text-muted hover:bg-surface-hover"}`}>All Statuses</button>
-              <button onClick={() => { setStatusFilter("ACTIVE"); setShowFilters(false); }} className={`w-full text-left px-4 py-2 text-sm ${statusFilter === "ACTIVE" ? "bg-primary/10 text-primary font-medium" : "text-text-muted hover:bg-surface-hover"}`}>Active</button>
-              <button onClick={() => { setStatusFilter("COMPLETED"); setShowFilters(false); }} className={`w-full text-left px-4 py-2 text-sm ${statusFilter === "COMPLETED" ? "bg-primary/10 text-primary font-medium" : "text-text-muted hover:bg-surface-hover"}`}>Completed</button>
-              <button onClick={() => { setStatusFilter("ABORTED"); setShowFilters(false); }} className={`w-full text-left px-4 py-2 text-sm ${statusFilter === "ABORTED" ? "bg-primary/10 text-primary font-medium" : "text-text-muted hover:bg-surface-hover"}`}>Aborted</button>
+            <div className="absolute top-full mt-1 left-0 w-44 bg-white border border-slate-200 rounded-xl shadow-lg z-20 py-1.5 overflow-hidden">
+              {["ALL","ACTIVE","COMPLETED","ABORTED"].map(s => (
+                <button key={s} onClick={() => { setStatusFilter(s); setShowFilters(false); }}
+                  className={`w-full text-left px-4 py-2 text-sm font-medium transition-colors ${statusFilter === s ? "bg-indigo-50 text-indigo-600" : "text-slate-600 hover:bg-slate-50"}`}>
+                  {s === "ALL" ? "All Statuses" : s.charAt(0) + s.slice(1).toLowerCase()}
+                </button>
+              ))}
             </div>
           )}
         </div>
       </div>
 
       {filteredRuns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-surface rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-none transition-colors">
-          <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4">
+        <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-200 shadow-sm">
+          <div className="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mb-4">
             <FileText size={32} />
           </div>
-          <h3 className="text-lg font-bold text-text-main mb-2">No test runs found</h3>
-          <p className="text-text-muted text-center max-w-sm mb-6 text-sm">
+          <h3 className="text-lg font-bold text-slate-800 mb-2">No test runs found</h3>
+          <p className="text-slate-500 text-center max-w-sm mb-6 text-sm">
             {role !== 'VIEWER' ? "Create a new test run to start executing tests and tracking quality." : "There are currently no test runs for this project."}
           </p>
           {role !== 'VIEWER' && (
             <Link
               href={`/projects/${code}/runs/create`}
-              className="px-5 py-2.5 bg-primary text-primary-foreground shadow-sm rounded-md font-medium hover:bg-primary-hover transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 transition-all"
+              style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
             >
               Start test run
             </Link>
           )}
         </div>
       ) : (
-        <div className="w-full bg-surface rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-none overflow-visible transition-colors">
+        <div className="w-full bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-border/50 bg-surface-hover">
-                <th className="py-4 px-6 text-xs font-semibold text-text-muted uppercase tracking-wider">TITLE</th>
-                <th className="py-4 px-3 text-xs font-semibold text-text-muted uppercase tracking-wider w-28">STATUS</th>
-                <th className="py-4 px-3 text-xs font-semibold text-text-muted uppercase tracking-wider w-40">AUTHOR</th>
-                <th className="py-4 px-3 text-xs font-semibold text-text-muted uppercase tracking-wider w-32">ENVIRONMENT</th>
-                <th className="py-4 px-3 text-xs font-semibold text-text-muted uppercase tracking-wider w-32">TOTAL TIME</th>
-                <th className="py-4 px-3 text-xs font-semibold text-text-muted uppercase tracking-wider w-32">ELAPSED TIME</th>
-                <th className="py-4 px-3 text-xs font-semibold text-text-muted uppercase tracking-wider w-64">TEST RUN STATS</th>
-                <th className="py-4 px-3 w-16"></th>
+              <tr className="border-b border-slate-100 bg-slate-50/80">
+                <th className="py-3 px-6 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Title</th>
+                <th className="py-3 px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-28">Status</th>
+                <th className="py-3 px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-40">Author</th>
+                <th className="py-3 px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-32">Environment</th>
+                <th className="py-3 px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-28">Total Time</th>
+                <th className="py-3 px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-28">Elapsed</th>
+                <th className="py-3 px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-64">Stats</th>
+                <th className="py-3 px-3 w-12"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/50">
+            <tbody className="divide-y divide-slate-100">
               {paginatedRuns.map((run) => {
                 const passed = run.results.filter((r: any) => r.status === "PASSED").length;
                 const failed = run.results.filter((r: any) => r.status === "FAILED").length;
@@ -202,24 +206,24 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
                 const completionPercent = total > 0 ? (completed / total) * 100 : 0;
 
                 let statusLabel = "Empty";
-                let statusColor = "bg-background text-text-muted border-border";
+                let statusColor = "bg-slate-100 text-slate-500 border-slate-200";
 
                 if (total > 0) {
                   if (run.status === "COMPLETED") {
                     statusLabel = "Completed";
-                    statusColor = "bg-background text-text-main border-border";
+                    statusColor = "bg-slate-100 text-slate-600 border-slate-200";
                   } else if (run.status === "ABORTED") {
                     statusLabel = "Aborted";
-                    statusColor = "bg-red-500/10 text-red-500 border-red-500/20";
+                    statusColor = "bg-red-50 text-red-600 border-red-200";
                   } else if (failed > 0) {
                     statusLabel = "Failed";
-                    statusColor = "bg-red-500/10 text-red-500 border-red-500/20";
+                    statusColor = "bg-red-50 text-red-600 border-red-200";
                   } else if (passed === total) {
                     statusLabel = "Passed";
-                    statusColor = "bg-[#00875a]/10 text-[#00875a] border-[#00875a]/20";
+                    statusColor = "bg-emerald-50 text-emerald-700 border-emerald-200";
                   } else {
                     statusLabel = "In Progress";
-                    statusColor = "bg-[#6554c0]/10 text-[#6554c0] border-[#6554c0]/20";
+                    statusColor = "bg-indigo-50 text-indigo-600 border-indigo-200";
                   }
                 }
 
@@ -231,52 +235,53 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
                 const totalTimeMs = run.results.reduce((acc: number, result: any) => acc + (result.timeSpent || 0), 0);
 
                 return (
-                  <tr key={run.id} className="group hover:bg-surface-hover transition-colors">
-                    <td className="py-5 px-6 align-middle">
+                  <tr key={run.id} className="group hover:bg-slate-50/70 transition-colors">
+                    <td className="py-4 px-6 align-middle">
                       <Link href={`/projects/${code}/runs/${run.id}`} className="block">
-                        <div className="font-semibold text-text-main text-[15px] group-hover:text-primary transition-colors mb-1">
+                        <div className="font-semibold text-slate-800 text-[14px] group-hover:text-indigo-600 transition-colors mb-0.5">
                           {run.title}
                         </div>
-                        <div className="text-xs text-text-muted">
+                        <div className="text-[11px] text-slate-400">
                           Started {timeAgo(run.createdAt)}
                         </div>
                       </Link>
                     </td>
-                    <td className="py-5 px-3 align-middle">
-                      <span className={`inline-flex px-2.5 py-1 text-xs font-bold rounded-md border ${statusColor}`}>
+                    <td className="py-4 px-3 align-middle">
+                      <span className={`inline-flex items-center px-2.5 py-1 text-[10px] font-bold rounded-md border uppercase tracking-wider ${statusColor}`}>
                         {statusLabel}
                       </span>
                     </td>
-                    <td className="py-5 px-3 align-middle">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-6 h-6 rounded bg-[#b87c88] text-white flex items-center justify-center text-[10px] font-bold">
+                    <td className="py-4 px-3 align-middle">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
+                          style={{ background: "linear-gradient(135deg, #4f46e5, #a855f7)" }}>
                           SA
                         </div>
-                        <span className="text-sm font-medium text-text-main">System Admin</span>
+                        <span className="text-sm text-slate-600">System Admin</span>
                       </div>
                     </td>
-                    <td className="py-5 px-3 align-middle">
-                      <span className="text-sm text-text-muted">Integration</span>
+                    <td className="py-4 px-3 align-middle">
+                      <span className="text-sm text-slate-500">Integration</span>
                     </td>
-                    <td className="py-5 px-3 align-middle">
-                      <div className="flex items-center text-sm font-medium text-text-muted">
-                        <Clock size={14} className="mr-1.5 opacity-70" />
+                    <td className="py-4 px-3 align-middle">
+                      <div className="flex items-center text-sm text-slate-500">
+                        <Clock size={13} className="mr-1.5 text-slate-400" />
                         {formatDuration(totalTimeMs)}
                       </div>
                     </td>
-                    <td className="py-5 px-3 align-middle">
-                      <div className="flex items-center text-sm font-medium text-text-muted">
-                        <Clock size={14} className="mr-1.5 opacity-70" />
+                    <td className="py-4 px-3 align-middle">
+                      <div className="flex items-center text-sm text-slate-500">
+                        <Clock size={13} className="mr-1.5 text-slate-400" />
                         {formatDuration(elapsedMs)}
                       </div>
                     </td>
-                    <td className="py-5 px-3 align-middle">
-                      <div className="flex h-6 w-full rounded-md bg-background overflow-hidden border border-border/50">
+                    <td className="py-4 px-3 align-middle">
+                      <div className="flex h-6 w-full rounded-md bg-slate-100 overflow-hidden border border-slate-200">
                         {passed > 0 && (
                           <div style={{ width: `${passedPercent}%` }} className="group/tt relative bg-[#00875a] flex items-center justify-center text-xs text-white font-medium min-w-[24px]">
                             {passed}
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/tt:block z-50">
-                              <div className="bg-surface border border-border shadow-sm text-text-main text-sm py-1 px-3 rounded-md whitespace-nowrap font-normal">
+                              <div className="bg-white border border-slate-200 shadow-sm text-slate-700 text-sm py-1 px-3 rounded-md whitespace-nowrap font-normal">
                                 Passed
                               </div>
                             </div>
@@ -286,7 +291,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
                           <div style={{ width: `${failedPercent}%` }} className="group/tt relative bg-[#de350b] flex items-center justify-center text-xs text-white font-medium min-w-[24px]">
                             {failed}
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/tt:block z-50">
-                              <div className="bg-surface border border-border shadow-sm text-text-main text-sm py-1 px-3 rounded-md whitespace-nowrap font-normal">
+                              <div className="bg-white border border-slate-200 shadow-sm text-slate-700 text-sm py-1 px-3 rounded-md whitespace-nowrap font-normal">
                                 Failed
                               </div>
                             </div>
@@ -296,7 +301,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
                           <div style={{ width: `${blockedPercent}%` }} className="group/tt relative bg-[#ff991f] flex items-center justify-center text-xs text-white font-medium min-w-[24px]">
                             {blocked}
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/tt:block z-50">
-                              <div className="bg-surface border border-border shadow-sm text-text-main text-sm py-1 px-3 rounded-md whitespace-nowrap font-normal">
+                              <div className="bg-white border border-slate-200 shadow-sm text-slate-700 text-sm py-1 px-3 rounded-md whitespace-nowrap font-normal">
                                 Blocked
                               </div>
                             </div>
@@ -306,7 +311,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
                           <div style={{ width: `${skippedPercent}%` }} className="group/tt relative bg-[#0052cc] flex items-center justify-center text-xs text-white font-medium min-w-[24px]">
                             {skipped}
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/tt:block z-50">
-                              <div className="bg-surface border border-border shadow-sm text-text-main text-sm py-1 px-3 rounded-md whitespace-nowrap font-normal">
+                              <div className="bg-white border border-slate-200 shadow-sm text-slate-700 text-sm py-1 px-3 rounded-md whitespace-nowrap font-normal">
                                 Skipped
                               </div>
                             </div>
@@ -316,7 +321,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
                           <div style={{ width: `${untestedPercent}%` }} className="group/tt relative bg-[#5e6c84] flex items-center justify-center text-xs text-white font-medium min-w-[24px]">
                             {untested}
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover/tt:block z-50">
-                              <div className="bg-surface border border-border shadow-sm text-text-main text-sm py-1 px-3 rounded-md whitespace-nowrap font-normal">
+                              <div className="bg-white border border-slate-200 shadow-sm text-slate-700 text-sm py-1 px-3 rounded-md whitespace-nowrap font-normal">
                                 In Progress
                               </div>
                             </div>
@@ -334,24 +339,24 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
                         </button>
                         
                         {activeDropdown === run.id && (
-                          <div className="absolute right-0 mt-1 w-40 bg-surface border-none rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] z-30 py-1 overflow-hidden">
-                            <Link 
+                          <div className="absolute right-0 mt-1 w-40 bg-white border border-slate-200 rounded-xl shadow-lg z-30 py-1 overflow-hidden">
+                            <Link
                               href={`/projects/${code}/runs/${run.id}`}
-                              className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center transition-colors"
+                              className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center transition-colors"
                             >
-                              <Play size={14} className="mr-2 text-text-muted" /> Open run
+                              <Play size={13} className="mr-2 text-slate-400" /> Open run
                             </Link>
-                            <Link 
+                            <Link
                               href={`/projects/${code}/runs/${run.id}/edit`}
-                              className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center transition-colors"
+                              className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center transition-colors"
                             >
-                              <Edit size={14} className="mr-2 text-text-muted" /> Edit run
+                              <Edit size={13} className="mr-2 text-slate-400" /> Edit run
                             </Link>
-                            <button 
+                            <button
                               onClick={() => handleDelete(run.id)}
-                              className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10 flex items-center transition-colors"
+                              className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 flex items-center transition-colors"
                             >
-                              <Trash2 size={14} className="mr-2" /> Delete run
+                              <Trash2 size={13} className="mr-2" /> Delete run
                             </button>
                           </div>
                         )}
@@ -364,21 +369,21 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
           </table>
 
           {filteredRuns.length > 0 && (
-            <div className="flex items-center justify-end px-6 py-4 border-t border-border/50 text-sm text-text-main space-x-6">
+            <div className="flex items-center justify-end px-6 py-4 border-t border-slate-100 text-sm text-slate-600 space-x-6 bg-slate-50/50">
               <div className="flex items-center space-x-2">
-                <span className="text-text-muted">Rows per page:</span>
+                <span className="text-slate-400">Rows per page:</span>
                 <div className="relative">
-                  <select 
-                    value={rowsPerPage} 
+                  <select
+                    value={rowsPerPage}
                     onChange={(e) => { setRowsPerPage(Number(e.target.value)); setCurrentPage(1); }}
-                    className="appearance-none bg-transparent border border-border rounded-md pl-3 pr-8 py-1.5 text-sm outline-none focus:border-primary cursor-pointer hover:bg-surface-hover transition-colors"
+                    className="appearance-none bg-white border border-slate-200 rounded-md pl-3 pr-8 py-1.5 text-sm outline-none focus:border-indigo-400 cursor-pointer hover:bg-slate-50 transition-colors"
                   >
                     <option value={10}>10</option>
                     <option value={20}>20</option>
                     <option value={50}>50</option>
                     <option value={100}>100</option>
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text-muted">
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
                   </div>
                 </div>

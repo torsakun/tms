@@ -79,12 +79,8 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
   }
 
   return (
-    <main className="flex-1 w-full bg-gradient-to-br from-slate-50 via-indigo-50/50 to-blue-50/30 overflow-y-auto transition-colors">
-      <div className="max-w-[1400px] mx-auto px-8 py-8">
-        <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-900 to-blue-800 mb-6 tracking-tight flex items-center">
-          Projects
-        </h1>
-
+    <main className="flex-1 w-full bg-background overflow-y-auto transition-colors">
+      <div className="max-w-[1400px] mx-auto px-6 py-6">
         {dbError && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
             <h3 className="font-bold flex items-center">

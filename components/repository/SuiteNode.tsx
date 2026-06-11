@@ -53,11 +53,14 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   const children = childrenMap.get(suite.id) || [];
   const cases = casesBySuiteId.get(suite.id) || [];
 
-  const headerBgClass = "bg-surface-hover border border-border rounded-md";
-  
-  const titleClass = depth === 0 
-    ? "font-bold text-[15px] text-text-main" 
-    : "font-semibold text-[14px] text-text-main";
+  const SUITE_ACCENT_COLORS = ["#4f46e5","#7c3aed","#0891b2","#059669","#d97706","#e11d48","#0284c7","#9333ea"];
+  const accentColor = isUnassigned ? "#94a3b8" : SUITE_ACCENT_COLORS[Math.abs(suite.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0)) % SUITE_ACCENT_COLORS.length];
+
+  const headerBgClass = "bg-white border border-slate-200 rounded-lg shadow-sm";
+
+  const titleClass = depth === 0
+    ? "font-bold text-[14px] text-slate-800"
+    : "font-semibold text-[13px] text-slate-700";
                       
   const handleCreateQuickTest = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && quickTestTitle.trim() && !isCreating) {
@@ -179,8 +182,9 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
 
   return (
     <div id={`suite-${suite.id}`} className={cn("flex flex-col", depth > 0 && "ml-4 mt-2")}>
-      <div 
-        className={cn("group px-4 py-3 transition-colors mb-2", headerBgClass)}
+      <div
+        className={cn("group px-4 py-3 transition-colors mb-2 overflow-hidden", headerBgClass)}
+        style={{ borderLeft: `3px solid ${accentColor}` }}
       >
         {isEditingSuite ? (
           <div className="flex flex-col space-y-2 py-1">
@@ -328,7 +332,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                 return (
                 <div 
                   key={tc.id} 
-                  className={cn("group flex items-center px-4 py-1.5 border-b border-transparent hover:border-border hover:bg-surface-hover transition-colors cursor-pointer", isSelected && "bg-blue-50/50 hover:bg-blue-50")}
+                  className={cn("group flex items-center px-4 py-2 border-b border-slate-100 last:border-0 hover:bg-indigo-50/40 transition-colors cursor-pointer", isSelected && "bg-indigo-50/60 hover:bg-indigo-50/80")}
                   onClick={() => {
                     if (onSelectCase) {
                       onSelectCase(tc);
@@ -374,8 +378,10 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                     </div>
                   </div>
                   
-                  <div className="w-16 shrink-0 text-[13px] text-text-muted font-medium">
-                    {tc.code || `${projectCode}-${tc.id.substring(0,2)}`}
+                  <div className="w-20 shrink-0">
+                    <span className="text-[10px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-1.5 py-0.5 rounded shadow-sm">
+                      {tc.code || `${projectCode}-${tc.id.substring(0,2)}`}
+                    </span>
                   </div>
                   
                   <div className="flex-1 flex items-center text-sm font-normal text-text-main min-w-0">

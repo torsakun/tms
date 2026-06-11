@@ -24,50 +24,59 @@ const SuiteItem = ({ suite, level, projectCode, selectedSuiteId, onAddChild }: S
   const isOpen = isExpanded(suite.id);
   const hasChildren = suite.children && suite.children.length > 0;
 
+  const isActive = selectedSuiteId === suite.id;
+
   return (
     <div className="select-none group/item">
       <div
         onClick={() => router.push(`/projects/${projectCode}/repository?suite=${suite.id}`)}
         className={cn(
-          "flex items-center py-1.5 pr-2 rounded-none cursor-pointer transition-colors relative",
-          level === 0 ? "font-bold text-[15px]" : "font-semibold text-[14px]",
-          selectedSuiteId === suite.id ? "bg-blue-50 text-primary" : "text-text-main hover:bg-surface-hover"
+          "flex items-center py-1.5 pr-2 cursor-pointer transition-colors relative",
+          level === 0 ? "font-semibold text-[13px]" : "font-medium text-[13px]",
+          isActive
+            ? "bg-indigo-50 text-indigo-700"
+            : "text-slate-700 hover:bg-slate-50"
         )}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
       >
+        {isActive && <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-indigo-500 rounded-r" />}
         <button
           onClick={(e) => {
             e.stopPropagation();
             toggleSuite(suite.id);
           }}
-          className={cn("p-0.5 rounded mr-1 transition-colors", selectedSuiteId === suite.id ? "text-primary hover:text-blue-700" : "text-text-muted hover:text-text-main")}
+          className={cn("p-0.5 rounded mr-1 transition-colors shrink-0", isActive ? "text-indigo-500" : "text-slate-400 hover:text-slate-600")}
         >
-          {isOpen ? <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg> : <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M10 7l5 5-5 5z"/></svg>}
+          {isOpen
+            ? <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+            : <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M10 7l5 5-5 5z"/></svg>}
         </button>
+
+        <svg className={cn("w-3.5 h-3.5 mr-1.5 shrink-0", isActive ? "text-indigo-400" : "text-slate-400")} viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
 
         <span className="truncate">{suite.title}</span>
 
         <div className="ml-auto flex items-center pl-2">
           {suite.caseCount !== undefined && (
-            <span className="text-[12px] text-text-muted font-medium w-6 text-right group-hover/item:hidden">
+            <span className={cn("text-[11px] font-semibold px-1.5 py-0.5 rounded-full group-hover/item:hidden", isActive ? "bg-indigo-100 text-indigo-500" : "bg-slate-100 text-slate-500")}>
               {suite.caseCount}
             </span>
           )}
 
           {role !== 'VIEWER' && (
-            <div className="hidden group-hover/item:flex items-center text-text-muted">
-              <button 
+            <div className="hidden group-hover/item:flex items-center text-slate-400">
+              <button
                 onClick={(e) => {
                   e.stopPropagation();
                   if (!isOpen) toggleSuite(suite.id);
                   onAddChild(suite.id);
                 }}
-                className="p-0.5 hover:text-text-main transition-colors mx-1"
+                className="p-0.5 hover:text-indigo-600 transition-colors mx-1"
                 title="Add child suite"
               >
                 <Plus size={14} />
               </button>
-              <button className="p-0.5 hover:text-text-main transition-colors">
+              <button className="p-0.5 hover:text-slate-600 transition-colors">
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
               </button>
             </div>
@@ -187,11 +196,11 @@ export const SuiteTree = ({ initialSuites, cases = [], projectCode }: { initialS
   };
 
   return (
-    <div className="flex flex-col h-full bg-surface transition-colors">
-      <div className="px-4 py-3 border-b border-border/50 bg-surface flex justify-between items-center shrink-0 transition-colors">
-        <div className="flex items-center space-x-2 text-text-main">
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-          <h2 className="font-semibold text-[15px]">Suites</h2>
+    <div className="flex flex-col h-full bg-white transition-colors border-r" style={{ borderColor: "#e8eaf2" }}>
+      <div className="px-4 py-3 border-b bg-white flex justify-between items-center shrink-0 transition-colors" style={{ borderColor: "#e8eaf2" }}>
+        <div className="flex items-center space-x-2 text-slate-700">
+          <svg className="w-4 h-4 text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <h2 className="font-bold text-[13px] text-slate-600 uppercase tracking-wider">Suites</h2>
           {role !== 'VIEWER' && (
             <button onClick={() => handleOpenCreateModal(null)} className="text-text-muted hover:text-text-main ml-1">
               <Plus size={16} />

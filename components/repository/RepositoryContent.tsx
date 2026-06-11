@@ -171,84 +171,83 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
 
   return (
     <>
-      <div className="flex-1 flex flex-col min-w-0 relative h-full overflow-hidden bg-background transition-colors">
-        {/* Toolbar (Qase-style Filter Bar or Bulk Action Toolbar) */}
-        <header className="h-14 border-b border-border/50 flex items-center justify-between px-6 bg-background shrink-0 transition-colors">
+      <div className="flex-1 flex flex-col min-w-0 relative h-full overflow-hidden bg-[#f0f2f8] transition-colors">
+        {/* Toolbar */}
+        <header className="h-14 border-b flex items-center justify-between px-6 bg-white shrink-0 transition-colors" style={{ borderColor: "#e8eaf2", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
           {hasSelection ? (
             <div className="flex items-center space-x-4 w-full">
-              <div className="flex items-center space-x-2 bg-surface-hover border border-border rounded px-1 py-1 h-9">
-                <button onClick={handleBulkEdit} className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded transition-colors" title="Edit">
-                  <Edit3 size={16} />
+              <div className="flex items-center space-x-1 bg-slate-100 border border-slate-200 rounded-lg px-1 py-1 h-9">
+                <button onClick={handleBulkEdit} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-md transition-colors" title="Edit">
+                  <Edit3 size={15} />
                 </button>
-                <div className="w-px h-4 bg-border mx-1"></div>
-                <button onClick={handleBulkClone} className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded transition-colors" title="Clone">
-                  <Copy size={16} />
+                <div className="w-px h-4 bg-slate-200"></div>
+                <button onClick={handleBulkClone} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-md transition-colors" title="Clone">
+                  <Copy size={15} />
                 </button>
-                <div className="w-px h-4 bg-border mx-1"></div>
-                <button onClick={handleBulkRun} className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded transition-colors" title="Run">
-                  <PlayCircle size={16} />
+                <div className="w-px h-4 bg-slate-200"></div>
+                <button onClick={handleBulkRun} className="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-white rounded-md transition-colors" title="Run">
+                  <PlayCircle size={15} />
                 </button>
-                <div className="w-px h-4 bg-border mx-1"></div>
-                <button 
+                <div className="w-px h-4 bg-slate-200"></div>
+                <button
                   onClick={handleBulkDelete}
-                  className="p-1.5 text-text-muted hover:text-red-500 hover:bg-red-500/10 rounded transition-colors" 
+                  className="p-1.5 text-slate-500 hover:text-red-500 hover:bg-white rounded-md transition-colors"
                   title="Delete"
                 >
-                  <Trash2 size={16} />
+                  <Trash2 size={15} />
                 </button>
               </div>
 
               <div className="flex items-center space-x-2">
-                <button className="flex items-center px-3 py-1.5 h-9 bg-surface hover:bg-surface-hover border border-border text-text-main text-[13px] font-medium rounded-md transition-colors shadow-sm">
-                  <Sparkles size={14} className="mr-1.5" />
+                <button className="flex items-center px-3 py-1.5 h-9 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-[13px] font-medium rounded-lg transition-colors shadow-sm">
+                  <Sparkles size={14} className="mr-1.5 text-amber-500" />
                   Run advisor
                 </button>
-                <button className="flex items-center px-3 py-1.5 h-9 bg-surface hover:bg-surface-hover border border-border text-text-main text-[13px] font-medium rounded-md transition-colors shadow-sm">
-                  <Cpu size={14} className="mr-1.5" />
+                <button className="flex items-center px-3 py-1.5 h-9 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-[13px] font-medium rounded-lg transition-colors shadow-sm">
+                  <Cpu size={14} className="mr-1.5 text-indigo-500" />
                   Automate
                 </button>
               </div>
             </div>
           ) : (
             <div className="flex items-center justify-between w-full">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
                 <div className="relative w-48">
-                  <input 
-                    type="text" 
-                    placeholder="Search" 
-                    className="w-full px-3 py-1.5 text-[13px] bg-surface border border-border text-text-main rounded-md focus:outline-none focus:border-text-muted transition-colors"
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={13} />
+                  <input
+                    type="text"
+                    placeholder="Search cases…"
+                    className="w-full pl-8 pr-3 py-1.5 text-[13px] bg-slate-50 border border-slate-200 text-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all"
                   />
                 </div>
-                
-                <div className="relative w-36">
-                  <select className="w-full px-3 py-1.5 text-[13px] bg-surface border border-border text-text-main rounded-md focus:outline-none focus:border-text-muted appearance-none cursor-pointer">
-                    <option>By all fields</option>
-                    <option>By title</option>
-                  </select>
-                </div>
-                
-                <button className="text-[13px] text-text-muted hover:text-text-main font-medium">
-                  Add filter
+
+                <select className="px-3 py-1.5 text-[13px] bg-slate-50 border border-slate-200 text-slate-600 rounded-lg focus:outline-none focus:border-indigo-300 appearance-none cursor-pointer w-36">
+                  <option>By all fields</option>
+                  <option>By title</option>
+                </select>
+
+                <button className="text-[13px] text-indigo-500 hover:text-indigo-700 font-semibold px-2">
+                  + Filter
                 </button>
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 {lastSyncPr && (
-                  <div className="flex items-center space-x-2 bg-surface-hover border border-border px-2 py-1 rounded-md mr-2">
-                    <a 
-                      href={lastSyncPr.url} 
-                      target="_blank" 
+                  <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-2 py-1 rounded-lg mr-2">
+                    <a
+                      href={lastSyncPr.url}
+                      target="_blank"
                       rel="noreferrer"
-                      className="flex items-center text-xs font-medium text-text-main hover:underline transition-colors px-2 py-1"
+                      className="flex items-center text-xs font-medium text-slate-700 hover:text-indigo-600 hover:underline transition-colors px-2 py-1"
                     >
-                      <ExternalLink size={14} className="mr-1" />
+                      <ExternalLink size={13} className="mr-1" />
                       View PR #{lastSyncPr.number}
                     </a>
                     {role !== 'VIEWER' && (
                       <button
                         onClick={handleQuickMerge}
                         disabled={isMerging}
-                        className="flex items-center bg-primary text-primary-foreground px-3 py-1 rounded-md text-xs font-medium hover:bg-primary-hover transition-colors disabled:opacity-50"
+                        className="flex items-center bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50"
                       >
                         {isMerging ? <Loader2 size={12} className="mr-1 animate-spin" /> : <GitMerge size={12} className="mr-1" />}
                         Quick Merge
@@ -327,8 +326,8 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
 
 
         {/* Hierarchical Content */}
-        <div className="flex-1 overflow-y-auto bg-background relative transition-colors">
-          <div className="p-8 pb-32">
+        <div className="flex-1 overflow-y-auto bg-[#f0f2f8] relative transition-colors">
+          <div className="p-6 pb-32">
             <SuiteList 
               suites={suites} 
               cases={cases} 

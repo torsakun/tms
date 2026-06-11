@@ -23,10 +23,9 @@ export default async function RunsPage({ params }: { params: Promise<{ code: str
     console.warn("Database connection failed. Falling back to empty state.");
   }
 
-  // Calculate insights
   const totalRuns = runs.length;
   const activeRuns = runs.filter(r => r.status === "ACTIVE").length;
-  
+
   let totalTests = 0;
   let totalCompleted = 0;
   let totalPassed = 0;
@@ -43,7 +42,6 @@ export default async function RunsPage({ params }: { params: Promise<{ code: str
   const passRate = totalTests > 0 ? ((totalPassed / totalTests) * 100).toFixed(1) : "0.0";
   const failRate = totalTests > 0 ? ((totalFailed / totalTests) * 100).toFixed(1) : "0.0";
 
-  // Serialize dates for client component
   const serializedRuns = runs.map(run => ({
     ...run,
     createdAt: run.createdAt.toISOString(),
@@ -51,68 +49,77 @@ export default async function RunsPage({ params }: { params: Promise<{ code: str
   }));
 
   return (
-    <div className="flex flex-col flex-1 bg-background transition-colors min-h-0">
-      <header className="h-16 bg-surface shadow-[0_1px_15px_rgba(0,0,0,0.04)] dark:shadow-none flex items-center justify-between px-8 shrink-0 z-10 relative transition-colors">
-        <h1 className="text-xl font-bold text-text-main">Test Runs</h1>
-      </header>
+    <div className="flex flex-col flex-1 bg-[#f0f2f8] transition-colors min-h-0 overflow-y-auto">
+      <div className="max-w-[1400px] mx-auto w-full px-6 py-6 space-y-5">
 
-      <div className="flex-1 overflow-y-auto">
-        {/* Top Insights Widget */}
-        <div className="px-8 py-8 pb-4">
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="bg-surface rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-none p-4 flex items-center space-x-3 transition-colors">
-              <div className="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center shrink-0">
-                <PlayCircle size={20} />
-              </div>
-              <div>
-                <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Total Runs</div>
-                <div className="text-xl font-bold text-text-main">{totalRuns}</div>
+        {/* Page header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-bold text-slate-800 tracking-tight">Test Runs</h1>
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">
+              {totalRuns}
+            </span>
+          </div>
+        </div>
+
+        {/* Stat cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform"
+            style={{ background: "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)", boxShadow: "0 4px 20px rgba(79,70,229,0.30)" }}>
+            <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white/10" />
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Total Runs</span>
+              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <PlayCircle size={15} />
               </div>
             </div>
+            <div className="text-3xl font-extrabold tracking-tight">{totalRuns}</div>
+          </div>
 
-            <div className="bg-surface rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-none p-4 flex items-center space-x-3 transition-colors">
-              <div className="w-10 h-10 bg-[#6554c0]/10 text-[#6554c0] rounded-xl flex items-center justify-center shrink-0">
-                <Activity size={20} />
-              </div>
-              <div>
-                <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Active Runs</div>
-                <div className="text-xl font-bold text-text-main">{activeRuns}</div>
+          <div className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform"
+            style={{ background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)", boxShadow: "0 4px 20px rgba(124,58,237,0.30)" }}>
+            <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white/10" />
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Active Runs</span>
+              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <Activity size={15} />
               </div>
             </div>
+            <div className="text-3xl font-extrabold tracking-tight">{activeRuns}</div>
+          </div>
 
-            <div className="bg-surface rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-none p-4 flex items-center space-x-3 transition-colors">
-              <div className="w-10 h-10 bg-blue-500/10 text-primary rounded-xl flex items-center justify-center shrink-0">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-              </div>
-              <div>
-                <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Completion</div>
-                <div className="text-xl font-bold text-text-main">{completionRate}%</div>
+          <div className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform"
+            style={{ background: "linear-gradient(135deg, #059669 0%, #10b981 100%)", boxShadow: "0 4px 20px rgba(5,150,105,0.30)" }}>
+            <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white/10" />
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Pass Rate</span>
+              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <CheckCircle2 size={15} />
               </div>
             </div>
+            <div className="text-3xl font-extrabold tracking-tight">{passRate}%</div>
+            <div className="w-full h-1 bg-black/20 rounded-full mt-2 overflow-hidden">
+              <div className="h-full bg-white/80 rounded-full" style={{ width: `${passRate}%` }} />
+            </div>
+          </div>
 
-            <div className="bg-surface rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-none p-4 flex items-center space-x-3 transition-colors">
-              <div className="w-10 h-10 bg-[#00875a]/10 text-[#00875a] rounded-xl flex items-center justify-center shrink-0">
-                <CheckCircle2 size={20} />
-              </div>
-              <div>
-                <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Pass Rate</div>
-                <div className="text-xl font-bold text-text-main">{passRate}%</div>
+          <div className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform"
+            style={{ background: "linear-gradient(135deg, #db2777 0%, #f43f5e 100%)", boxShadow: "0 4px 20px rgba(219,39,119,0.30)" }}>
+            <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white/10" />
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">Fail Rate</span>
+              <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                <AlertCircle size={15} />
               </div>
             </div>
-
-            <div className="bg-surface rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-none p-4 flex items-center space-x-3 transition-colors">
-              <div className="w-10 h-10 bg-[#de350b]/10 text-[#de350b] rounded-xl flex items-center justify-center shrink-0">
-                <AlertCircle size={20} />
-              </div>
-              <div>
-                <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Fail Rate</div>
-                <div className="text-xl font-bold text-text-main">{failRate}%</div>
-              </div>
+            <div className="text-3xl font-extrabold tracking-tight">{failRate}%</div>
+            <div className="w-full h-1 bg-black/20 rounded-full mt-2 overflow-hidden">
+              <div className="h-full bg-white/80 rounded-full" style={{ width: `${failRate}%` }} />
             </div>
           </div>
         </div>
 
-        {/* Interactive List */}
+        {/* Runs table */}
         <TestRunsList initialRuns={serializedRuns} code={code} />
       </div>
     </div>

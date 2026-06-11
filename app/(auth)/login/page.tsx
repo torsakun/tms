@@ -5,17 +5,16 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Activity, AlertCircle, CheckCircle2, Target, ShieldCheck, Zap, Sparkles, BrainCircuit, Bot } from "lucide-react";
-
+import { AlertCircle, CheckCircle2, Zap, BrainCircuit, Bot, Sparkles, ShieldCheck, ArrowRight } from "lucide-react";
 import { Suspense } from "react";
 
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const inviteAccepted = searchParams.get("invite_accepted");
-  
-  const [email, setEmail] = useState("admin@example.com");
-  const [password, setPassword] = useState("password123");
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -35,169 +34,203 @@ function LoginPageContent() {
       setLoading(false);
     } else {
       router.push("/");
-      router.refresh(); 
+      router.refresh();
     }
   };
 
   return (
-    <div className="min-h-screen flex w-full font-sans bg-background">
-      {/* Left Panel - Branding & Visuals (Hidden on small screens) */}
-      <div className="hidden lg:flex w-1/2 bg-slate-900 relative overflow-hidden flex-col justify-between p-12 border-r border-slate-800">
-        {/* Abstract Background Elements */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-          <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] rounded-full bg-primary/20 blur-[120px]"></div>
-          <div className="absolute top-[40%] -right-[20%] w-[60%] h-[60%] rounded-full bg-emerald-500/10 blur-[100px]"></div>
-          <div className="absolute bottom-0 left-[20%] w-[80%] h-[50%] rounded-full bg-indigo-500/10 blur-[120px]"></div>
-          {/* Grid Pattern */}
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCI+CgkJPGcgc3Ryb2tlPSJyZ2JhKDI1NSwgMjU1LCAyNTUsIDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiPgoJCQk8cGF0aCBkPSJNMCAwaDQwTTAgNDBoNDBNMCAwdjQwTTQwIDB2NDAiIC8+CgkJPC9nPgoJPC9zdmc+')] opacity-50 z-0"></div>
+    <div className="min-h-screen flex w-full font-sans" style={{ background: "#f0f2f8" }}>
+      {/* Left Panel */}
+      <div className="hidden lg:flex w-[52%] relative overflow-hidden flex-col justify-between p-12"
+        style={{ background: "linear-gradient(145deg, #1e1b4b 0%, #312e81 30%, #4338ca 60%, #6d28d9 100%)" }}>
+
+        {/* Background decorations */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full opacity-20" style={{ background: "radial-gradient(circle, #818cf8, transparent)" }} />
+          <div className="absolute top-1/2 -right-24 w-80 h-80 rounded-full opacity-15" style={{ background: "radial-gradient(circle, #a78bfa, transparent)" }} />
+          <div className="absolute -bottom-24 left-1/4 w-96 h-96 rounded-full opacity-20" style={{ background: "radial-gradient(circle, #34d399, transparent)" }} />
+          {/* Dot grid */}
+          <div className="absolute inset-0" style={{
+            backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px)",
+            backgroundSize: "32px 32px"
+          }} />
+          {/* Floating shapes */}
+          <div className="absolute top-[18%] right-[12%] w-16 h-16 rounded-2xl rotate-12 bg-white/5 border border-white/10" />
+          <div className="absolute bottom-[22%] left-[8%] w-10 h-10 rounded-xl rotate-45 bg-white/5 border border-white/10" />
+          <div className="absolute top-[60%] right-[25%] w-6 h-6 rounded-full bg-emerald-400/30" />
+          <div className="absolute top-[30%] left-[15%] w-4 h-4 rounded-full bg-indigo-300/40" />
         </div>
 
+        {/* Logo */}
         <div className="relative z-10">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-sm">
-              <Activity className="text-white" size={24} />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
+              style={{ background: "linear-gradient(135deg, #6366f1, #8b5cf6)" }}>
+              <Zap className="text-white" size={20} strokeWidth={2.5} />
             </div>
             <span className="text-2xl font-bold text-white tracking-tight">QMaster</span>
           </div>
         </div>
 
+        {/* Hero text */}
         <div className="relative z-10 max-w-lg">
-          <div className="inline-flex items-center px-3 py-1 mb-6 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-semibold tracking-wide uppercase shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-            <Sparkles size={14} className="mr-2 text-indigo-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 mb-8 rounded-full text-xs font-bold tracking-widest uppercase"
+            style={{ background: "rgba(99,102,241,0.25)", border: "1px solid rgba(165,180,252,0.3)", color: "#c7d2fe" }}>
+            <Sparkles size={12} />
             Powered by Generative AI
           </div>
-          <h1 className="text-4xl lg:text-5xl font-extrabold text-white leading-tight tracking-tight mb-6">
-            Test Intelligence <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400">Reimagined.</span>
+
+          <h1 className="text-5xl font-extrabold text-white leading-[1.1] tracking-tight mb-6">
+            Test Intelligence<br />
+            <span className="text-transparent bg-clip-text"
+              style={{ backgroundImage: "linear-gradient(90deg, #818cf8, #c084fc, #34d399)" }}>
+              Reimagined.
+            </span>
           </h1>
-          <p className="text-lg text-slate-300 mb-10 leading-relaxed font-light">
-            Leverage state-of-the-art Large Language Models to auto-generate test cases, orchestrate smart automation, and guarantee flawless software delivery.
+
+          <p className="text-lg text-indigo-200 mb-10 leading-relaxed font-light">
+            Leverage state-of-the-art LLMs to auto-generate test cases, orchestrate smart automation, and guarantee flawless software delivery.
           </p>
 
-          <div className="space-y-6">
-            <div className="flex items-center text-slate-300 group">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center mr-4 border border-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.1)] group-hover:bg-indigo-500/20 transition-all duration-300">
-                <BrainCircuit size={20} className="text-indigo-400" />
+          <div className="space-y-5">
+            {[
+              { icon: BrainCircuit, color: "#818cf8", bg: "rgba(129,140,248,0.15)", title: "LLM Case Generation", desc: "Instantly write test cases from requirements" },
+              { icon: Bot, color: "#c084fc", bg: "rgba(192,132,252,0.15)", title: "Autonomous Execution", desc: "Self-healing Playwright scripts via AI" },
+              { icon: ShieldCheck, color: "#34d399", bg: "rgba(52,211,153,0.15)", title: "Predictive Insights", desc: "Spot defects before they reach production" },
+            ].map(({ icon: Icon, color, bg, title, desc }) => (
+              <div key={title} className="flex items-center gap-4 group">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 group-hover:scale-110"
+                  style={{ background: bg, border: `1px solid ${color}30` }}>
+                  <Icon size={20} style={{ color }} />
+                </div>
+                <div>
+                  <div className="font-semibold text-white text-[15px]">{title}</div>
+                  <div className="text-sm text-indigo-300">{desc}</div>
+                </div>
               </div>
-              <div>
-                <span className="font-semibold text-white block">LLM Case Generation</span>
-                <span className="text-sm text-text-muted">Instantly write test cases from requirements</span>
-              </div>
-            </div>
-            <div className="flex items-center text-slate-300 group">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center mr-4 border border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.1)] group-hover:bg-purple-500/20 transition-all duration-300">
-                <Bot size={20} className="text-purple-400" />
-              </div>
-              <div>
-                <span className="font-semibold text-white block">Autonomous Execution</span>
-                <span className="text-sm text-text-muted">Self-healing Playwright scripts via AI</span>
-              </div>
-            </div>
-            <div className="flex items-center text-slate-300 group">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center mr-4 border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)] group-hover:bg-emerald-500/20 transition-all duration-300">
-                <Sparkles size={20} className="text-emerald-400" />
-              </div>
-              <div>
-                <span className="font-semibold text-white block">Predictive Insights</span>
-                <span className="text-sm text-text-muted">Spot defects before they reach production</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
 
-        <div className="relative z-10 text-text-muted text-sm font-medium">
+        {/* Footer */}
+        <div className="relative z-10 text-indigo-400 text-sm font-medium">
           © 2026 QMaster Systems Inc.
         </div>
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 bg-surface">
-        <div className="w-full max-w-md">
-          <div className="lg:hidden flex justify-center mb-8">
-            <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shadow-sm">
-              <Activity className="text-white" size={32} />
+      <div className="w-full lg:w-[48%] flex items-center justify-center p-8 sm:p-12 bg-white">
+        <div className="w-full max-w-[400px]">
+
+          {/* Mobile logo */}
+          <div className="lg:hidden flex items-center gap-3 mb-10 justify-center">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
+              style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
+              <Zap className="text-white" size={20} strokeWidth={2.5} />
             </div>
+            <span className="text-2xl font-bold text-slate-800 tracking-tight">QMaster</span>
           </div>
-          
-          <div className="text-center lg:text-left mb-10">
-            <h2 className="text-3xl font-extrabold text-text-main tracking-tight mb-2">
+
+          {/* Header */}
+          <div className="mb-8">
+            <h2 className="text-[2rem] font-extrabold text-slate-900 tracking-tight leading-tight mb-2">
               Welcome back
             </h2>
-            <p className="text-text-muted">
-              Please enter your credentials to access your workspace.
+            <p className="text-slate-500 text-[15px]">
+              Sign in to your workspace to continue
             </p>
           </div>
 
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {inviteAccepted && (
-              <div className="p-4 bg-emerald-50 text-emerald-700 flex items-center rounded-xl border border-emerald-100 text-sm font-medium animate-in fade-in slide-in-from-top-2">
-                <CheckCircle2 size={20} className="mr-3 shrink-0" />
+              <div className="p-4 bg-emerald-50 text-emerald-700 flex items-center rounded-xl border border-emerald-200 text-sm font-medium">
+                <CheckCircle2 size={18} className="mr-3 shrink-0" />
                 Invitation accepted! You can now sign in.
               </div>
             )}
-            
+
             {error && (
-              <div className="p-4 bg-red-50 text-red-700 flex items-center rounded-xl border border-red-100 text-sm font-medium animate-in fade-in slide-in-from-top-2">
-                <AlertCircle size={20} className="mr-3 shrink-0" />
+              <div className="p-4 bg-red-50 text-red-600 flex items-center rounded-xl border border-red-200 text-sm font-medium">
+                <AlertCircle size={18} className="mr-3 shrink-0" />
                 {error}
               </div>
             )}
 
             <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-text-main">Work Email</label>
-              <div className="relative">
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3 bg-background border border-border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
-                  placeholder="you@company.com"
-                />
-              </div>
+              <label className="block text-sm font-semibold text-slate-700">Work Email</label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@company.com"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 transition-all text-[15px]"
+              />
             </div>
 
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
-                <label className="block text-sm font-semibold text-text-main">Password</label>
-                <a href="#" className="text-sm font-medium text-primary hover:text-blue-700 transition-colors">Forgot password?</a>
+                <label className="block text-sm font-semibold text-slate-700">Password</label>
+                <a href="#" className="text-sm font-semibold text-indigo-500 hover:text-indigo-700 transition-colors">
+                  Forgot password?
+                </a>
               </div>
-              <div className="relative">
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-4 py-3 bg-background border border-border rounded-xl text-text-main placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm"
-                  placeholder="••••••••"
-                />
-              </div>
+              <input
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 transition-all text-[15px]"
+              />
             </div>
 
-            <div className="pt-2">
+            <div className="pt-1">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-primary-foreground bg-primary hover:bg-primary-hover hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none transition-all duration-200"
+                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl text-sm font-bold text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 focus:outline-none disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-md transition-all duration-200"
+                style={{ background: loading ? "#6366f1" : "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
               >
                 {loading ? (
-                  <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                     </svg>
-                    Authenticating...
-                  </span>
-                ) : "Sign in to Workspace"}
+                    Authenticating…
+                  </>
+                ) : (
+                  <>
+                    Sign in to Workspace
+                    <ArrowRight size={16} />
+                  </>
+                )}
               </button>
             </div>
           </form>
 
-          <p className="mt-8 text-center text-sm text-text-muted">
-            Don't have an account yet?{" "}
-            <Link href="/signup" className="font-semibold text-primary hover:text-blue-700 transition-colors">
+          <p className="mt-8 text-center text-sm text-slate-500">
+            Don&apos;t have an account yet?{" "}
+            <Link href="/signup" className="font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
               Request access
             </Link>
           </p>
+
+          {/* Decorative divider */}
+          <div className="mt-10 pt-6 border-t border-slate-100 text-center">
+            <p className="text-[11px] text-slate-400 font-medium tracking-wider uppercase">
+              Trusted by QA teams worldwide
+            </p>
+            <div className="flex justify-center gap-6 mt-3">
+              {["99.9% uptime", "SOC 2", "GDPR"].map(label => (
+                <span key={label} className="text-[11px] font-bold text-slate-400 flex items-center gap-1">
+                  <span className="w-1 h-1 rounded-full bg-indigo-400 inline-block" />
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -206,7 +239,11 @@ function LoginPageContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center text-text-muted">Loading workspace...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#f0f2f8] flex items-center justify-center text-slate-400">
+        Loading workspace…
+      </div>
+    }>
       <LoginPageContent />
     </Suspense>
   );

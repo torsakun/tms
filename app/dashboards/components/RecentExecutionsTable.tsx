@@ -45,8 +45,8 @@ export function RecentExecutionsTable({ recentRuns }: RecentExecutionsTableProps
   const currentRuns = enhancedRuns.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="bg-white/90 backdrop-blur-md rounded-2xl border border-indigo-100/50 shadow-sm overflow-hidden flex flex-col h-full">
-      <div className="px-6 py-5 border-b border-indigo-50 flex justify-between items-center bg-transparent">
+    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-full">
+      <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-transparent">
         <h2 className="text-base font-extrabold text-indigo-950 flex items-center">
           <Activity className="mr-2 text-indigo-600" size={18} strokeWidth={2.5} />
           Live Execution Center
@@ -55,7 +55,7 @@ export function RecentExecutionsTable({ recentRuns }: RecentExecutionsTableProps
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left border-collapse min-w-[500px]">
           <thead>
-            <tr className="border-b border-indigo-50 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider bg-slate-50/50">
+            <tr className="border-b border-slate-100 text-[11px] font-extrabold text-slate-500 uppercase tracking-wider bg-slate-50/50">
               <th className="px-6 py-3.5">Run</th>
               <th className="px-6 py-3.5 w-28">Status</th>
               <th className="px-6 py-3.5">Progress</th>
@@ -70,7 +70,7 @@ export function RecentExecutionsTable({ recentRuns }: RecentExecutionsTableProps
               const untestedPercent = run.metrics.total > 0 ? (run.metrics.untested / run.metrics.total) * 100 : 0;
 
               return (
-                <tr key={run.id} className="border-b border-indigo-50 hover:bg-slate-50/80 transition-colors group">
+                <tr key={run.id} className="border-b border-slate-100 hover:bg-slate-50/80 transition-colors group">
                   <td className="px-6 py-4">
                     <Link href={`/projects/${run.project.code}/runs/${run.id}`} className="flex flex-col">
                       <span className="font-bold text-slate-800 hover:text-indigo-600 transition-colors flex items-center">
