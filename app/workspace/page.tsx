@@ -1,6 +1,7 @@
-import { Search, UserPlus, MoreHorizontal, CheckCircle2, XCircle } from "lucide-react";
+import { Search, MoreHorizontal, CheckCircle2, XCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import UserActionMenu from "@/components/workspace/UserActionMenu";
+import InviteMemberButton from "@/components/workspace/InviteMemberButton";
 
 function getInitials(name: string | null) {
   if (!name) return "U";
@@ -60,12 +61,7 @@ export default async function WorkspaceUsersPage() {
             {users.length}
           </span>
         </div>
-        <button
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 transition-all"
-          style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
-          <UserPlus size={15} strokeWidth={2.5} />
-          Invite member
-        </button>
+        <InviteMemberButton />
       </div>
 
       {/* ── Toolbar ─────────────────────────────────────── */}
