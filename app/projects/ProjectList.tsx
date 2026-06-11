@@ -140,7 +140,7 @@ export function ProjectList({ initialProjects }: { initialProjects: ProjectData[
       </div>
 
       {/* ── Table ────────────────────────────────────────── */}
-      <div className="rounded-xl overflow-hidden bg-white border border-slate-200 shadow-sm">
+      <div className="rounded-xl bg-white border border-slate-200 shadow-sm overflow-visible">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50/80">
