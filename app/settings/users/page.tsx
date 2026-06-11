@@ -23,14 +23,9 @@ export default async function SettingsUsersPage() {
     users = await prisma.user.findMany({
       orderBy: { createdAt: 'desc' }
     });
-    if (users.length === 0) throw new Error("Fallback if empty DB due to DB issues");
   } catch (error) {
-    console.error("Failed to fetch users, using mock data.", error);
-    users = [
-      { id: "mock-ext-1", name: "System Admin", email: "admin@qase.clone", role: "ADMIN" },
-      { id: "mock-ext-2", name: "QA Engineer", email: "qa@qase.clone", role: "USER" },
-      { id: "mock-ext-3", name: "Developer", email: "dev@qase.clone", role: "USER" }
-    ];
+    console.error("Failed to fetch users", error);
+    users = [];
   }
 
   return (
@@ -56,7 +51,6 @@ export default async function SettingsUsersPage() {
                 <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">User</th>
                 <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">Email</th>
                 <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">System Role</th>
-                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -76,11 +70,15 @@ export default async function SettingsUsersPage() {
                       {u.role}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right">
-                    <button className="text-primary hover:text-blue-800 text-sm font-medium">Edit</button>
-                  </td>
                 </tr>
               ))}
+              {users.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="px-6 py-12 text-center text-sm text-text-muted">
+                    No users found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

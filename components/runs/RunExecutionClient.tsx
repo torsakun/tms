@@ -5,9 +5,30 @@ import { useRouter } from "next/navigation";
 import { CheckCircle2, XCircle, MinusCircle, RefreshCw, ArrowLeft, Eye, Edit3, VolumeX, Settings, ChevronRight, ChevronDown, Clock, X, PlayCircle, Check, Share, Download, MoreHorizontal, Loader2, Terminal, BarChart2, Edit, FileText } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { createRoot } from "react-dom/client";
 import { PdfReportTemplate } from "./PdfReportTemplate";
 import { formatThaiTime } from "@/lib/utils";
+
+const AVATAR_COLORS = ["#4f46e5", "#7c3aed", "#0891b2", "#059669", "#d97706", "#e11d48", "#0284c7", "#9333ea"];
+function userMeta(user: { name?: string | null; email?: string | null } | null | undefined) {
+  const display = user?.name || user?.email?.split("@")[0] || "Unknown";
+  const parts = display.split(" ");
+  const initials = (parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}` : display.substring(0, 2)).toUpperCase();
+  let sum = 0;
+  for (let i = 0; i < display.length; i++) sum += display.charCodeAt(i);
+  return { display, initials, color: AVATAR_COLORS[sum % AVATAR_COLORS.length] };
+}
+function formatRunDuration(ms: number) {
+  if (!ms || ms <= 0) return "—";
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
 
 interface RunExecutionClientProps {
   run: any;
@@ -16,7 +37,7 @@ interface RunExecutionClientProps {
   runId: string;
 }
 
-function ResultRow({ result, depth, isSelected, openResult, projectCode, runId, onDelete, onUpdateAssignee, onAssignClick }: any) {
+function ResultRow({ result, depth, isSelected, openResult, projectCode, runId, onDelete, onUpdateAssignee, onAssignClick, currentUser }: any) {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -46,13 +67,16 @@ function ResultRow({ result, depth, isSelected, openResult, projectCode, runId, 
   const handleAssignToMe = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setMenuOpen(false);
-    onUpdateAssignee(result.id, "me"); // "me" implies current user, API will need true ID later
+    if (!currentUser?.id) {
+      toast.error("You must be signed in to assign cases");
+      return;
+    }
+    onUpdateAssignee(result.id, { id: currentUser.id, name: currentUser.name, email: currentUser.email });
     try {
       await fetch(`/api/runs/${runId}/results/${result.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        // Hardcoding a dummy assignee ID for MVP, real app uses session user ID
-        body: JSON.stringify({ assigneeId: "dummy-user-id" }) 
+        body: JSON.stringify({ assigneeId: currentUser.id })
       });
     } catch (err) {
       console.error(err);
@@ -116,13 +140,16 @@ function ResultRow({ result, depth, isSelected, openResult, projectCode, runId, 
         </div>
         <div className="w-48 flex items-center justify-between">
           <div className="flex items-center">
-            {result.assigneeId ? (
-              <>
-                <div className="w-6 h-6 rounded bg-[#b87c88] text-[10px] text-white flex items-center justify-center font-bold mr-2">ME</div>
-                <span className="text-xs text-text-muted truncate w-24">Assignee</span>
-              </>
-            ) : (
-              <span className="text-xs text-text-muted italic opacity-50">Unassigned</span>
+            {result.assigneeId ? (() => {
+                const a = userMeta(result.assignee);
+                return (
+                  <>
+                    <div className="w-6 h-6 rounded-full text-[10px] text-white flex items-center justify-center font-bold mr-2 shrink-0" style={{ background: a.color }}>{a.initials}</div>
+                    <span className="text-xs text-slate-500 truncate w-24">{a.display}</span>
+                  </>
+                );
+              })() : (
+              <span className="text-xs text-slate-400 italic opacity-70">Unassigned</span>
             )}
           </div>
           <div className="relative" ref={menuRef}>
@@ -154,7 +181,10 @@ function ResultRow({ result, depth, isSelected, openResult, projectCode, runId, 
 
 export default function RunExecutionClient({ run: initialRun, suites, projectCode, runId }: RunExecutionClientProps) {
   const router = useRouter();
+  const { data: session } = useSession();
+  const currentUser = session?.user as { id?: string; name?: string | null; email?: string | null } | undefined;
   const [run, setRun] = useState(initialRun);
+  const [searchQuery, setSearchQuery] = useState("");
   const [activeResultId, setActiveResultId] = useState<string | null>(null);
   const [stepResults, setStepResults] = useState<Record<string, any>>({});
   const [uploadingStepId, setUploadingStepId] = useState<string | null>(null);
@@ -437,14 +467,27 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
   }, [suites]);
 
   const resultsBySuiteId = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
     const grouped = new Map<string, any[]>();
     run.results.forEach((r: any) => {
+      if (q) {
+        const title = (r.testCase?.title || "").toLowerCase();
+        const code = `${projectCode}-${r.testCase?.id?.substring(0, 4) || ""}`.toLowerCase();
+        if (!title.includes(q) && !code.includes(q)) return;
+      }
       const sId = r.testCase?.suiteId || 'unassigned';
       if (!grouped.has(sId)) grouped.set(sId, []);
       grouped.get(sId)!.push(r);
     });
     return grouped;
-  }, [run.results]);
+  }, [run.results, searchQuery, projectCode]);
+
+  const computeSuiteTime = (suiteId: string): number => {
+    let total = 0;
+    (resultsBySuiteId.get(suiteId) || []).forEach((c: any) => { total += c.timeSpent || 0; });
+    (childrenMap.get(suiteId) || []).forEach((child: any) => { total += computeSuiteTime(child.id); });
+    return total;
+  };
 
   const computeSuiteStats = (suiteId: string): any => {
     let stats = { passed: 0, failed: 0, blocked: 0, skipped: 0, untested: 0, total: 0 };
@@ -651,7 +694,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
     const skippedPct = (stats.skipped / stats.total) * 100;
     
     return (
-      <div className="flex h-2 w-48 rounded bg-background overflow-hidden ml-4 border border-border/50">
+      <div className="flex h-2 w-48 rounded-full bg-slate-100 overflow-hidden ml-4 border border-slate-200">
         {stats.passed > 0 && <div style={{ width: `${passedPct}%` }} className="bg-emerald-500" />}
         {stats.failed > 0 && <div style={{ width: `${failedPct}%` }} className="bg-red-500" />}
         {stats.blocked > 0 && <div style={{ width: `${blockedPct}%` }} className="bg-orange-500" />}
@@ -674,11 +717,12 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
         onDelete={(id: string) => {
            setRun({ ...run, results: run.results.filter((r: any) => r.id !== id) });
         }}
-        onUpdateAssignee={(id: string, assigneeId: string | null) => {
-           const updatedResults = run.results.map((r: any) => r.id === id ? { ...r, assigneeId } : r);
+        onUpdateAssignee={(id: string, assignee: { id: string; name?: string | null; email?: string | null } | null) => {
+           const updatedResults = run.results.map((r: any) => r.id === id ? { ...r, assigneeId: assignee?.id ?? null, assignee: assignee ?? null } : r);
            setRun({ ...run, results: updatedResults });
         }}
         onAssignClick={handleAssignClick}
+        currentUser={currentUser}
       />
     );
   };
@@ -706,10 +750,10 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
           <input type="checkbox" className="w-4 h-4 mr-3 rounded border-slate-300 text-indigo-600 focus:ring-indigo-300" onClick={e => e.stopPropagation()} />
           <span className="font-bold text-slate-700 text-[14px] mr-3 group-hover:text-indigo-600 transition-colors">{suite.title}</span>
           
-          <div className="flex items-center text-xs text-text-muted font-medium whitespace-nowrap">
+          <div className="flex items-center text-xs text-slate-400 font-medium whitespace-nowrap">
             {renderProgressBar(stats)}
             <Clock size={12} className="ml-3 mr-1" />
-            2h 52m
+            {formatRunDuration(computeSuiteTime(suite.id))}
           </div>
         </div>
         
@@ -1085,12 +1129,8 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
         <div className="bg-white border-b px-6 py-2.5 flex items-center justify-between z-10 relative" style={{ borderColor: "#e8eaf2" }}>
           <div className="flex gap-2 w-96">
             <div className="relative flex-1">
-              <input type="text" placeholder="Search…" className="w-full pl-3 pr-3 py-1.5 text-sm border border-slate-200 bg-slate-50 text-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-300 focus:outline-none transition-colors" />
+              <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Search cases…" className="w-full pl-3 pr-3 py-1.5 text-sm border border-slate-200 bg-slate-50 text-slate-700 rounded-lg focus:ring-2 focus:ring-indigo-300 focus:outline-none transition-colors" />
             </div>
-            <select className="px-3 py-1.5 text-sm border border-slate-200 bg-slate-50 text-slate-600 rounded-lg focus:outline-none transition-colors">
-              <option>By all fields</option>
-            </select>
-            <button className="text-indigo-500 text-sm font-semibold hover:text-indigo-700 whitespace-nowrap px-1">+ Filter</button>
           </div>
         </div>
 
@@ -1133,11 +1173,15 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
           <div className="h-px bg-slate-100" />
           <div>
             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Started by</div>
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                style={{ background: "linear-gradient(135deg, #4f46e5, #a855f7)" }}>SA</div>
-              <span className="text-slate-600 font-medium">System Admin</span>
-            </div>
+            {(() => {
+              const a = userMeta((run as any).author);
+              return (
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0" style={{ background: a.color }}>{a.initials}</div>
+                  <span className="text-slate-600 font-medium">{a.display}</span>
+                </div>
+              );
+            })()}
           </div>
           <div className="h-px bg-slate-100" />
           <div>
@@ -1173,42 +1217,30 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
 
       {/* Slide-over Execution Panel */}
       <div 
-        className={`fixed top-0 right-0 h-full w-[55vw] min-w-[600px] bg-surface shadow-[-10px_0_30px_rgba(0,0,0,0.1)] border-l border-border transform transition-transform duration-300 ease-in-out z-40 flex flex-col ${activeResultId ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed top-0 right-0 h-full w-[55vw] min-w-[600px] bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] border-l transform transition-transform duration-300 ease-in-out z-40 flex flex-col ${activeResultId ? 'translate-x-0' : 'translate-x-full'}`}
+        style={{ borderColor: "#e8eaf2" }}
       >
         {activeResult && activeResult.testCase && (
           <>
-            <header className="flex items-center justify-between px-6 py-4 border-b border-border/50 bg-surface shrink-0">
-              <div className="flex items-center space-x-3 truncate">
+            <header className="flex items-center justify-between px-6 py-4 border-b bg-white shrink-0" style={{ borderColor: "#e8eaf2" }}>
+              <div className="flex items-center gap-3 truncate">
                 <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${getStatusColor(activeResult.status)}`}>
                   {activeResult.status === "PASSED" && <CheckCircle2 size={12} />}
                   {activeResult.status === "FAILED" && <XCircle size={12} />}
                   {activeResult.status === "BLOCKED" && <MinusCircle size={12} />}
                 </div>
-                <h2 className="text-lg font-bold text-text-main truncate">{activeResult.testCase.title}</h2>
-                <span className="text-sm text-text-muted font-mono shrink-0">{projectCode}-{activeResult.testCase.id.substring(0,4).toUpperCase()}</span>
+                <h2 className="text-lg font-bold text-slate-800 truncate">{activeResult.testCase.title}</h2>
+                <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded shadow-sm shrink-0">{projectCode}-{activeResult.testCase.id.substring(0,4).toUpperCase()}</span>
               </div>
-              <div className="flex items-center space-x-2 ml-4 shrink-0">
-                 <button className="text-text-muted hover:text-text-main p-2"><Edit3 size={18}/></button>
-                 <button className="text-text-muted hover:text-text-main p-2"><VolumeX size={18}/></button>
-                 <button onClick={() => setActiveResultId(null)} className="text-text-muted hover:text-red-500 p-2"><X size={20}/></button>
+              <div className="flex items-center gap-1 ml-4 shrink-0">
+                 <button onClick={() => setActiveResultId(null)} className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"><X size={18}/></button>
               </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto">
-              <div className="px-6 py-5 border-b border-border/50 flex space-x-4 bg-background/50">
-                 <button className="bg-surface border border-border hover:bg-surface-hover text-text-main px-3 py-1.5 rounded text-sm font-semibold flex items-center transition-colors">
-                   <RefreshCw size={14} className="mr-2 text-text-muted" /> Run again
-                 </button>
-                 <button className="bg-surface border border-border hover:bg-surface-hover text-text-main px-3 py-1.5 rounded text-sm font-semibold flex items-center transition-colors">
-                   <Settings size={14} className="mr-2 text-text-muted" /> Automate
-                 </button>
-              </div>
-              
-              <div className="border-b border-border/50 px-6">
-                <div className="flex space-x-6">
-                  <button className="pb-3 pt-4 border-b-2 border-primary text-primary font-bold text-sm">Execution</button>
-                  <button className="pb-3 pt-4 text-text-muted hover:text-text-main font-medium text-sm transition-colors">Run History</button>
-                  <button className="pb-3 pt-4 text-text-muted hover:text-text-main font-medium text-sm transition-colors">Retries</button>
+            <div className="flex-1 overflow-y-auto bg-[#f0f2f8]">
+              <div className="border-b bg-white px-6" style={{ borderColor: "#e8eaf2" }}>
+                <div className="flex gap-6">
+                  <button className="pb-3 pt-4 border-b-2 border-indigo-500 text-indigo-600 font-bold text-sm">Execution</button>
                 </div>
               </div>
 
@@ -1265,19 +1297,28 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                  </div>
                  <div className="w-56 pl-6 shrink-0 text-sm space-y-4">
                     <div>
-                      <div className="font-bold text-text-main mb-1">Executed by</div>
-                      <div className="flex items-center text-text-muted">
-                         <div className="w-5 h-5 rounded bg-[#b87c88] text-white text-[10px] flex items-center justify-center font-bold mr-2">SA</div>
-                         System Admin
-                      </div>
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Executed by</div>
+                      {(() => {
+                        const a = userMeta(activeResult.assignee || (run as any).author);
+                        return (
+                          <div className="flex items-center gap-2">
+                            <div className="w-5 h-5 rounded-full text-white text-[10px] flex items-center justify-center font-bold shrink-0" style={{ background: a.color }}>{a.initials}</div>
+                            <span className="text-slate-600 font-medium">{a.display}</span>
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div>
-                      <div className="font-bold text-text-main mb-1">Started at</div>
-                      <div className="text-text-muted">{formatThaiTime(activeResult.createdAt)}</div>
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Time spent</div>
+                      <div className="text-slate-500">{formatRunDuration(activeResult.timeSpent || 0)}</div>
                     </div>
                     <div>
-                      <div className="font-bold text-text-main mb-1">Environment</div>
-                      <div className="text-text-muted">{(run as any).environment?.title || "Not specified"}</div>
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Started at</div>
+                      <div className="text-slate-500">{formatThaiTime(activeResult.createdAt)}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Environment</div>
+                      <div className="text-slate-500">{(run as any).environment?.title || "Not specified"}</div>
                     </div>
                  </div>
               </div>

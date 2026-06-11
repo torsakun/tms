@@ -43,6 +43,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
         title,
         description,
         projectId: project.id,
+        authorId: (session.user as any).id,
         planId: planId || undefined,
         environmentId: environmentId || undefined,
         milestoneId: milestoneId || undefined,

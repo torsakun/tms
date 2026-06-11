@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { prisma } from "@/lib/prisma";
 import RunExecutionClient from "@/components/runs/RunExecutionClient";
 import { notFound } from "next/navigation";
@@ -16,11 +18,13 @@ export default async function RunExecutionPage({ params }: { params: Promise<{ c
     include: {
       environment: true,
       milestone: true,
+      author: { select: { id: true, name: true, email: true } },
       results: {
         include: {
           testCase: {
             include: { steps: true }
-          }
+          },
+          assignee: { select: { id: true, name: true, email: true } }
         }
       }
     }

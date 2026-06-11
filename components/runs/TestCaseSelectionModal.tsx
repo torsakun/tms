@@ -29,6 +29,8 @@ interface Props {
 
 export function TestCaseSelectionModal({ isOpen, onClose, onSave, suites, cases, initialSelectedIds }: Props) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [caseSearch, setCaseSearch] = useState("");
+  const [searchScope, setSearchScope] = useState<"all" | "title">("all");
   const [activeSuiteId, setActiveSuiteId] = useState<string | "all" | "unassigned">("all");
   const [expandedSuites, setExpandedSuites] = useState<Set<string>>(new Set());
 
@@ -211,6 +213,19 @@ export function TestCaseSelectionModal({ isOpen, onClose, onSave, suites, cases,
     }
   }
 
+  // Apply search filter to the displayed cases
+  const q = caseSearch.trim().toLowerCase();
+  if (q) {
+    displayCases = displayCases.filter((c: any) => {
+      const title = (c.title || "").toLowerCase();
+      if (title.includes(q)) return true;
+      if (searchScope === "title") return false;
+      const code = (c.code || "").toLowerCase();
+      return code.includes(q);
+    });
+    activeSuiteSelectionIds = displayCases.map(c => c.id);
+  }
+
   const activePaneSelectedCount = activeSuiteSelectionIds.filter(id => selectedIds.has(id)).length;
   const isActivePaneAllSelected = activePaneSelectedCount === activeSuiteSelectionIds.length && activeSuiteSelectionIds.length > 0;
   const isActivePaneIndeterminate = activePaneSelectedCount > 0 && activePaneSelectedCount < activeSuiteSelectionIds.length;
@@ -244,17 +259,21 @@ export function TestCaseSelectionModal({ isOpen, onClose, onSave, suites, cases,
         <div className="px-6 py-3 border-b border-t border-border/50 bg-background flex space-x-3 shrink-0">
           <div className="relative w-64">
             <Search className="absolute left-3 top-2 text-text-muted" size={16} />
-            <input 
-              type="text" 
-              placeholder="Search for cases" 
+            <input
+              type="text"
+              value={caseSearch}
+              onChange={(e) => setCaseSearch(e.target.value)}
+              placeholder="Search for cases"
               className="w-full pl-9 pr-3 py-1.5 text-sm bg-surface border border-border text-text-main rounded focus:ring-1 focus:ring-primary focus:outline-none transition-colors"
             />
           </div>
-          <select className="px-3 py-1.5 text-sm bg-surface border border-border text-text-main rounded focus:outline-none transition-colors">
-            <option>By all fields</option>
-            <option>Title</option>
+          <select
+            value={searchScope}
+            onChange={(e) => setSearchScope(e.target.value as "all" | "title")}
+            className="px-3 py-1.5 text-sm bg-surface border border-border text-text-main rounded focus:outline-none transition-colors">
+            <option value="all">By all fields</option>
+            <option value="title">Title</option>
           </select>
-          <button className="text-sm font-semibold text-primary hover:text-blue-700 transition-colors">Add filter</button>
         </div>
 
         {/* Split Pane */}

@@ -14,7 +14,7 @@ export default async function RunsPage({ params }: { params: Promise<{ code: str
       include: {
         testRuns: {
           orderBy: { createdAt: 'desc' },
-          include: { results: true }
+          include: { results: true, author: { select: { name: true, email: true } }, environment: { select: { title: true } } }
         }
       }
     });

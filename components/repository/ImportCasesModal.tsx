@@ -68,7 +68,7 @@ export function ImportCasesModal({ isOpen, onClose, projectCode, suites, onSucce
             If you're using MS Excel for managing your test cases, select the Qase.io as a source type.
           </div>
           
-          <a href="#" className="flex items-center text-sm text-primary hover:underline">
+          <a href="https://help.qase.io/en/articles/5563701-import-test-cases-from-a-file" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm text-primary hover:underline">
             <HelpCircle size={14} className="mr-1.5" />
             How to prepare your file for the Qase JSON format
           </a>

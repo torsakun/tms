@@ -10,11 +10,15 @@ export async function GET(req: Request, { params }: { params: Promise<{ runId: s
     const run = await prisma.testRun.findUnique({
       where: { id: runId },
       include: {
+        environment: true,
+        milestone: true,
+        author: { select: { id: true, name: true, email: true } },
         results: {
           include: {
             testCase: {
               include: { steps: true }
-            }
+            },
+            assignee: { select: { id: true, name: true, email: true } }
           }
         }
       }

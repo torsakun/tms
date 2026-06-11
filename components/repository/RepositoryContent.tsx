@@ -13,6 +13,7 @@ import { TestCaseAutomationPanel } from "@/components/repository/TestCaseAutomat
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
 import { CloneSuiteModal } from "@/components/repository/CloneSuiteModal";
 import { ImportCasesModal } from "@/components/repository/ImportCasesModal";
+import { BulkEditModal } from "@/components/repository/BulkEditModal";
 import { useSuiteSelection } from "@/components/providers/SuiteSelectionProvider";
 
 interface RepositoryContentProps {
@@ -26,6 +27,10 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
   const router = useRouter();
   const { role } = useProjectRole();
   const [activeTestCaseId, setActiveTestCaseId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchScope, setSearchScope] = useState<"all" | "title">("all");
+  const [isBulkEditModalOpen, setIsBulkEditModalOpen] = useState(false);
+  const [isBulkEditing, setIsBulkEditing] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isCloneCasesModalOpen, setIsCloneCasesModalOpen] = useState(false);
   const [isCloningCases, setIsCloningCases] = useState(false);
@@ -106,10 +111,33 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
   };
 
   const handleBulkEdit = () => {
-    toast("Bulk Edit is coming soon!", {
-      description: "This feature is currently under development.",
-      icon: "🚧"
-    });
+    setIsBulkEditModalOpen(true);
+  };
+
+  const executeBulkEdit = async (fields: Record<string, string>) => {
+    setIsBulkEditing(true);
+    try {
+      const res = await fetch(`/api/projects/${projectCode}/cases/bulk`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ caseIds: Array.from(selectedCases), fields }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setIsBulkEditModalOpen(false);
+        clearSelection();
+        toast.success(`Updated ${data.count} test case${data.count !== 1 ? "s" : ""}`);
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || "Failed to update test cases");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error updating test cases");
+    } finally {
+      setIsBulkEditing(false);
+    }
   };
 
   React.useEffect(() => {
@@ -169,6 +197,46 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
 
   const activeTestCase = cases.find(c => c.id === activeTestCaseId);
 
+  const handleCloneCase = async () => {
+    if (!activeTestCase) return;
+    try {
+      const res = await fetch(`/api/projects/${projectCode}/cases/bulk-clone`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ caseIds: [activeTestCase.id], destinationId: activeTestCase.suiteId || null }),
+      });
+      if (res.ok) {
+        toast.success("Test case cloned successfully");
+        router.refresh();
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Failed to clone test case");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error cloning test case");
+    }
+  };
+
+  const handleDeleteActiveCase = async () => {
+    if (!activeTestCase) return;
+    if (!window.confirm(`Delete test case "${activeTestCase.title}"? This cannot be undone.`)) return;
+    try {
+      const res = await fetch(`/api/projects/${projectCode}/cases/${activeTestCase.id}`, { method: "DELETE" });
+      if (res.ok) {
+        toast.success("Test case deleted successfully");
+        setActiveTestCaseId(null);
+        router.refresh();
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Failed to delete test case");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error deleting test case");
+    }
+  };
+
   return (
     <>
       <div className="flex-1 flex flex-col min-w-0 relative h-full overflow-hidden bg-[#f0f2f8] transition-colors">
@@ -216,19 +284,20 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={13} />
                   <input
                     type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search cases…"
                     className="w-full pl-8 pr-3 py-1.5 text-[13px] bg-slate-50 border border-slate-200 text-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all"
                   />
                 </div>
 
-                <select className="px-3 py-1.5 text-[13px] bg-slate-50 border border-slate-200 text-slate-600 rounded-lg focus:outline-none focus:border-indigo-300 appearance-none cursor-pointer w-36">
-                  <option>By all fields</option>
-                  <option>By title</option>
+                <select
+                  value={searchScope}
+                  onChange={(e) => setSearchScope(e.target.value as "all" | "title")}
+                  className="px-3 py-1.5 text-[13px] bg-slate-50 border border-slate-200 text-slate-600 rounded-lg focus:outline-none focus:border-indigo-300 appearance-none cursor-pointer w-36">
+                  <option value="all">By all fields</option>
+                  <option value="title">By title</option>
                 </select>
-
-                <button className="text-[13px] text-indigo-500 hover:text-indigo-700 font-semibold px-2">
-                  + Filter
-                </button>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -328,12 +397,14 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
         {/* Hierarchical Content */}
         <div className="flex-1 overflow-y-auto bg-[#f0f2f8] relative transition-colors">
           <div className="p-6 pb-32">
-            <SuiteList 
-              suites={suites} 
-              cases={cases} 
-              activeSuiteId={activeSuiteId} 
-              projectCode={projectCode} 
+            <SuiteList
+              suites={suites}
+              cases={cases}
+              activeSuiteId={activeSuiteId}
+              projectCode={projectCode}
               onSelectCase={(tc: any) => setActiveTestCaseId(tc.id)}
+              searchQuery={searchQuery}
+              searchScope={searchScope}
             />
           </div>
         </div>
@@ -381,6 +452,15 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
         }}
       />
 
+      <BulkEditModal
+        isOpen={isBulkEditModalOpen}
+        onClose={() => setIsBulkEditModalOpen(false)}
+        count={selectedCases.size}
+        suites={suites}
+        onApply={executeBulkEdit}
+        isSaving={isBulkEditing}
+      />
+
       {/* Slide-over Detail Panel */}
       <div
         className={`fixed top-0 right-0 h-full w-[55vw] min-w-[600px] bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] border-l transform transition-transform duration-300 ease-in-out z-[60] flex flex-col ${activeTestCaseId ? 'translate-x-0' : 'translate-x-full'}`}
@@ -404,10 +484,10 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                  <button onClick={() => router.push(`/projects/${projectCode}/cases/${activeTestCase.id}/edit`)} className="bg-white border border-slate-200 hover:bg-slate-50 hover:border-indigo-200 hover:text-indigo-600 text-slate-500 p-2 rounded-lg transition-colors shadow-sm" title="Edit case">
                     <Edit3 size={15} />
                  </button>
-                 <button className="bg-white border border-slate-200 hover:bg-slate-50 hover:border-indigo-200 hover:text-indigo-600 text-slate-500 p-2 rounded-lg transition-colors shadow-sm" title="Clone case">
+                 <button onClick={handleCloneCase} className="bg-white border border-slate-200 hover:bg-slate-50 hover:border-indigo-200 hover:text-indigo-600 text-slate-500 p-2 rounded-lg transition-colors shadow-sm" title="Clone case">
                     <Copy size={15} />
                  </button>
-                 <button className="bg-white border border-slate-200 hover:bg-red-50 hover:border-red-200 hover:text-red-500 text-slate-500 p-2 rounded-lg transition-colors shadow-sm" title="Delete case">
+                 <button onClick={handleDeleteActiveCase} className="bg-white border border-slate-200 hover:bg-red-50 hover:border-red-200 hover:text-red-500 text-slate-500 p-2 rounded-lg transition-colors shadow-sm" title="Delete case">
                     <Trash2 size={15} />
                  </button>
                  <div className="w-px h-6 bg-slate-200 mx-1"></div>

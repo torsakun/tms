@@ -1,26 +1,54 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Users, MoreHorizontal, Check, Plus, X, Loader2 } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Users, MoreHorizontal, Check, Plus, X, Loader2, Search } from "lucide-react";
 import { toast } from "sonner";
-import Link from "next/link";
 
-// Mock Data
-const MOCK_GROUPS = [
-  { id: "g-1", title: "QA Team", description: "Quality Assurance engineers and testers.", members: 12, projects: 5 },
-  { id: "g-2", title: "Frontend Developers", description: "UI/UX and frontend engineering team.", members: 8, projects: 3 },
-  { id: "g-3", title: "Management", description: "Project managers and stakeholders.", members: 4, projects: 12 },
-];
+interface GroupMember { id: string; name: string | null; email: string }
+interface Group {
+  id: string;
+  title: string;
+  description: string | null;
+  members: number;
+  projects: number;
+  memberList?: GroupMember[];
+}
+interface WorkspaceUser { id: string; name: string | null; email: string }
+
+const AVATAR_COLORS = ["#4f46e5", "#7c3aed", "#0891b2", "#059669", "#d97706", "#e11d48", "#0284c7", "#9333ea"];
+function avatarMeta(u: { name?: string | null; email: string }) {
+  const display = u.name || u.email.split("@")[0];
+  const parts = display.split(" ");
+  const initials = (parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}` : display.substring(0, 2)).toUpperCase();
+  let sum = 0;
+  for (let i = 0; i < display.length; i++) sum += display.charCodeAt(i);
+  return { display, initials, color: AVATAR_COLORS[sum % AVATAR_COLORS.length] };
+}
 
 export default function WorkspaceGroupsPage() {
-  const [groups, setGroups] = useState<any[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [users, setUsers] = useState<WorkspaceUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  
-  // Modal State
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // Drawer state (shared create + edit)
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [newGroup, setNewGroup] = useState({ title: "", description: "" });
+  const [form, setForm] = useState<{ title: string; description: string; memberIds: Set<string> }>({
+    title: "", description: "", memberIds: new Set(),
+  });
+  const [memberSearch, setMemberSearch] = useState("");
+
+  const loadGroups = useCallback(async () => {
+    try {
+      const res = await fetch("/api/workspace/groups");
+      if (res.ok) setGroups(await res.json());
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load groups");
+    }
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = () => setOpenMenuId(null);
@@ -29,43 +57,106 @@ export default function WorkspaceGroupsPage() {
   }, []);
 
   useEffect(() => {
-    // Simulate network delay for realistic feel
-    const timer = setTimeout(() => {
-      setGroups(MOCK_GROUPS);
+    (async () => {
+      setIsLoading(true);
+      await loadGroups();
+      try {
+        const res = await fetch("/api/workspace/users");
+        if (res.ok) setUsers(await res.json());
+      } catch (err) {
+        console.error(err);
+      }
       setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
+    })();
+  }, [loadGroups]);
 
-  const handleCreateGroup = () => {
-    if (!newGroup.title.trim()) {
+  const openCreate = () => {
+    setEditingId(null);
+    setForm({ title: "", description: "", memberIds: new Set() });
+    setMemberSearch("");
+    setDrawerOpen(true);
+  };
+
+  const openEdit = async (group: Group) => {
+    setOpenMenuId(null);
+    setEditingId(group.id);
+    // Fetch fresh member list for the group
+    let memberIds = new Set<string>((group.memberList || []).map((m) => m.id));
+    if (!group.memberList) {
+      const res = await fetch("/api/workspace/groups");
+      if (res.ok) {
+        const all: Group[] = await res.json();
+        const g = all.find((x) => x.id === group.id);
+        memberIds = new Set((g?.memberList || []).map((m) => m.id));
+      }
+    }
+    setForm({ title: group.title, description: group.description || "", memberIds });
+    setMemberSearch("");
+    setDrawerOpen(true);
+  };
+
+  const toggleMember = (id: string) => {
+    setForm((f) => {
+      const next = new Set(f.memberIds);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return { ...f, memberIds: next };
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (!form.title.trim()) {
       toast.error("Group name is required");
       return;
     }
-    
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      const created = {
-        id: `g-${Date.now()}`,
-        title: newGroup.title,
-        description: newGroup.description,
-        members: 0,
-        projects: 0,
+    try {
+      const payload = {
+        title: form.title.trim(),
+        description: form.description.trim(),
+        memberIds: Array.from(form.memberIds),
       };
-      setGroups([...groups, created]);
-      toast.success("Group created successfully");
+      const res = await fetch(
+        editingId ? `/api/workspace/groups/${editingId}` : "/api/workspace/groups",
+        { method: editingId ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }
+      );
+      if (res.ok) {
+        toast.success(editingId ? "Group updated successfully" : "Group created successfully");
+        setDrawerOpen(false);
+        await loadGroups();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || "Failed to save group");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error saving group");
+    } finally {
       setIsSubmitting(false);
-      setIsCreateModalOpen(false);
-      setNewGroup({ title: "", description: "" });
-    }, 600);
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    setOpenMenuId(null);
     if (!confirm("Are you sure you want to delete this group?")) return;
-    setGroups(groups.filter(g => g.id !== id));
-    toast.success("Group deleted successfully");
+    try {
+      const res = await fetch(`/api/workspace/groups/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setGroups((prev) => prev.filter((g) => g.id !== id));
+        toast.success("Group deleted successfully");
+      } else {
+        toast.error("Failed to delete group");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error deleting group");
+    }
   };
+
+  const filteredUsers = users.filter((u) => {
+    const q = memberSearch.trim().toLowerCase();
+    if (!q) return true;
+    return (u.name || "").toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
+  });
 
   if (isLoading) {
     return (
@@ -76,37 +167,33 @@ export default function WorkspaceGroupsPage() {
   }
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto px-8 py-8 relative">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-800 flex items-center">
-            <Users className="mr-2 text-indigo-600" size={24} />
-            User Groups
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">Manage user groups to easily assign permissions across projects.</p>
+    <div className="w-full max-w-[1400px] mx-auto px-6 py-6 relative">
+      <div className="flex justify-between items-center mb-5">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">User Groups</h1>
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">{groups.length}</span>
         </div>
-        
-        <button 
-          onClick={() => setIsCreateModalOpen(true)}
-          className="flex items-center bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+        <button
+          onClick={openCreate}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 transition-all"
+          style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
         >
-          <Plus size={16} className="mr-1" /> Create Group
+          <Plus size={15} strokeWidth={2.5} /> Create Group
         </button>
       </div>
 
+      <p className="text-sm text-slate-400 mb-5">Manage user groups to easily assign permissions across projects.</p>
+
       {groups.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+        <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-slate-200 rounded-xl bg-white">
           <div className="bg-indigo-50 p-4 rounded-full mb-4">
             <Users className="text-indigo-400" size={32} />
           </div>
           <h3 className="text-lg font-bold text-slate-700">No groups found</h3>
-          <p className="text-slate-500 mt-1 mb-4 text-sm max-w-sm text-center">
-            You haven't created any groups yet. Groups help you manage permissions and roles for multiple users at once.
+          <p className="text-slate-400 mt-1 mb-4 text-sm max-w-sm text-center">
+            Groups help you manage permissions and roles for multiple users at once.
           </p>
-          <button 
-            onClick={() => setIsCreateModalOpen(true)}
-            className="text-indigo-600 font-medium hover:text-indigo-700 transition-colors"
-          >
+          <button onClick={openCreate} className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors">
             Create your first group
           </button>
         </div>
@@ -114,25 +201,25 @@ export default function WorkspaceGroupsPage() {
         <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-visible">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider rounded-tl-xl">Group Details</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-32">Members</th>
-                <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-32">Projects</th>
-                <th className="px-6 py-4 w-16 rounded-tr-xl"></th>
+              <tr className="border-b border-slate-100 bg-slate-50/80">
+                <th className="px-6 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Group Details</th>
+                <th className="px-6 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-32">Members</th>
+                <th className="px-6 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-32">Projects</th>
+                <th className="px-6 py-3 w-16"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {groups.map((group) => (
-                <tr key={group.id} className="hover:bg-slate-50/80 transition-colors group/row">
+                <tr key={group.id} className="hover:bg-slate-50/70 transition-colors group/row">
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
-                      <span className="font-bold text-slate-800 text-sm group-hover/row:text-indigo-600 transition-colors">{group.title}</span>
-                      <span className="text-xs text-slate-500 mt-1">{group.description || "No description provided."}</span>
+                      <span className="font-semibold text-slate-800 text-sm">{group.title}</span>
+                      <span className="text-xs text-slate-400 mt-0.5">{group.description || "No description provided."}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100/50">
-                      {group.members} users
+                      {group.members} {group.members === 1 ? "user" : "users"}
                     </span>
                   </td>
                   <td className="px-6 py-4">
@@ -141,7 +228,7 @@ export default function WorkspaceGroupsPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right relative">
-                    <button 
+                    <button
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -152,17 +239,16 @@ export default function WorkspaceGroupsPage() {
                     >
                       <MoreHorizontal size={18} />
                     </button>
-                    
                     {openMenuId === group.id && (
-                      <div className="absolute right-12 top-10 w-48 bg-white rounded-lg shadow-xl border border-slate-100 z-50 py-1 text-left animate-in fade-in zoom-in-95 duration-100">
-                        <button 
+                      <div className="absolute right-12 top-10 w-44 bg-white rounded-xl shadow-xl border border-slate-100 z-50 py-1 text-left">
+                        <button
                           className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                          onClick={() => { toast.info("Edit mode coming soon"); setOpenMenuId(null); }}
+                          onClick={(e) => { e.stopPropagation(); openEdit(group); }}
                         >
                           Edit Group
                         </button>
-                        <button 
-                          onClick={() => handleDelete(group.id)}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDelete(group.id); }}
                           className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-slate-100 mt-1 pt-1"
                         >
                           Delete Group
@@ -177,75 +263,109 @@ export default function WorkspaceGroupsPage() {
         </div>
       )}
 
-      {/* Slide-out Drawer for Create Group */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex justify-end">
-          <div 
+      {/* Slide-out drawer for create/edit */}
+      {drawerOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex justify-end" onClick={() => setDrawerOpen(false)}>
+          <div
             className="bg-white w-full max-w-md h-full shadow-2xl animate-in slide-in-from-right duration-300 flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-              <h2 className="text-lg font-bold text-slate-800">Create New Group</h2>
-              <button 
-                onClick={() => setIsCreateModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition-colors"
-              >
+            <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+              <h2 className="text-lg font-bold text-slate-800">{editingId ? "Edit Group" : "Create New Group"}</h2>
+              <button onClick={() => setDrawerOpen(false)} className="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition-colors">
                 <X size={20} />
               </button>
             </div>
-            
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-5">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1.5">
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
                   Group Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  value={newGroup.title}
-                  onChange={(e) => setNewGroup({...newGroup, title: e.target.value})}
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
                   placeholder="e.g. QA Automation Team"
-                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 text-sm transition-shadow"
+                  className="w-full border border-slate-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 text-sm transition-all bg-slate-50"
                   autoFocus
                 />
               </div>
-              
+
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1.5">
-                  Description
-                </label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Description</label>
                 <textarea
-                  value={newGroup.description}
-                  onChange={(e) => setNewGroup({...newGroup, description: e.target.value})}
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
                   placeholder="What is the purpose of this group?"
-                  className="w-full border border-slate-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 text-sm h-28 resize-none transition-shadow"
+                  className="w-full border border-slate-200 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 text-sm h-24 resize-none transition-all bg-slate-50"
                 />
               </div>
 
-              <div className="bg-amber-50 border border-amber-200/60 rounded-lg p-4">
-                <p className="text-xs text-amber-800 font-medium leading-relaxed">
-                  <strong className="font-bold">Note:</strong> User assignment and project access control will be available after the database schema is fully implemented. For now, this is a UI preview.
-                </p>
+              {/* Member picker */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-sm font-semibold text-slate-700">Members</label>
+                  <span className="text-[11px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">{form.memberIds.size} selected</span>
+                </div>
+                <div className="relative mb-2">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+                  <input
+                    type="text"
+                    value={memberSearch}
+                    onChange={(e) => setMemberSearch(e.target.value)}
+                    placeholder="Search members…"
+                    className="w-full pl-8 pr-3 py-2 text-sm border border-slate-200 bg-slate-50 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all"
+                  />
+                </div>
+                <div className="border border-slate-200 rounded-lg max-h-56 overflow-y-auto divide-y divide-slate-100">
+                  {filteredUsers.length === 0 ? (
+                    <div className="px-4 py-6 text-center text-sm text-slate-400">No users found</div>
+                  ) : (
+                    filteredUsers.map((u) => {
+                      const a = avatarMeta(u);
+                      const selected = form.memberIds.has(u.id);
+                      return (
+                        <button
+                          key={u.id}
+                          type="button"
+                          onClick={() => toggleMember(u.id)}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${selected ? "bg-indigo-50/60" : "hover:bg-slate-50"}`}
+                        >
+                          <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0" style={{ background: a.color }}>
+                            {a.initials}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm font-medium text-slate-700 truncate">{a.display}</div>
+                            <div className="text-[11px] text-slate-400 truncate">{u.email}</div>
+                          </div>
+                          <div className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors ${selected ? "bg-indigo-600 text-white" : "border border-slate-300"}`}>
+                            {selected && <Check size={13} strokeWidth={3} />}
+                          </div>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
               </div>
             </div>
-            
-            <div className="px-6 py-5 border-t border-slate-100 bg-slate-50 flex justify-end space-x-3">
+
+            <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/60 flex justify-end gap-3">
               <button
-                onClick={() => setIsCreateModalOpen(false)}
-                className="px-4 py-2 text-sm font-bold text-slate-600 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+                onClick={() => setDrawerOpen(false)}
+                className="px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors"
                 disabled={isSubmitting}
               >
                 Cancel
               </button>
               <button
-                onClick={handleCreateGroup}
+                onClick={handleSubmit}
                 disabled={isSubmitting}
-                className="flex items-center px-4 py-2 text-sm font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-70 shadow-sm"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:hover:translate-y-0"
+                style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
               >
-                {isSubmitting ? (
-                  <><Loader2 size={16} className="animate-spin mr-2" /> Creating...</>
-                ) : (
-                  'Create Group'
-                )}
+                {isSubmitting && <Loader2 size={14} className="animate-spin" />}
+                {editingId ? "Save Changes" : "Create Group"}
               </button>
             </div>
           </div>

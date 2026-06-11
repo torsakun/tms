@@ -4,6 +4,7 @@
 import React, { useEffect } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
+import { toast } from "sonner";
 import {
   Plus,
   GripVertical,
@@ -207,33 +208,21 @@ export default function TestCaseEditor() {
             customFields: data.customFields || {}
           });
         } else {
-          handleFallback();
+          handleLoadError();
         }
       } catch (err) {
-        console.error("Failed to fetch, using dummy data", err);
-        handleFallback();
+        console.error("Failed to fetch test case", err);
+        handleLoadError();
       }
     };
 
-    const handleFallback = () => {
-      reset({
-        title: "Verify successful login",
-        severity: "MAJOR",
-        priority: "HIGH",
-        automationStatus: "MANUAL",
-        preconditions: "User must have a registered account",
-        description: "",
-        steps: [
-          { action: "Navigate to login page", expectedResult: "Login page loads" },
-          { action: "Enter valid credentials", expectedResult: "Inputs are filled" },
-          { action: "Click submit", expectedResult: "User is logged in and redirected to dashboard" }
-        ],
-        customFields: {}
-      });
+    const handleLoadError = () => {
+      toast.error("Failed to load test case. It may have been deleted.");
+      router.push(`/projects/${projectCode}/repository`);
     };
 
     loadData();
-  }, [caseId, reset]);
+  }, [caseId, reset, projectCode, router]);
 
   const onSubmit = async (data: TestCaseFormValues) => {
     console.log("Saving Test Case Edits:", data);

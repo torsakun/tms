@@ -24,6 +24,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
             suites: true,
             testRuns: true,
             members: true,
+            milestones: true,
           }
         },
         testRuns: {
@@ -66,10 +67,11 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
         suitesCount: project._count.suites,
         activeRunsCount: project.testRuns.length,
         testRunsCount: project._count.testRuns,
-        milestonesCount: 0, // Mocked for now
+        milestonesCount: project._count.milestones,
         teamMembers: project._count.members,
         automationPercent,
         latestRunPassRate: passRate,
+        isArchived: project.isArchived,
         updatedAt: project.updatedAt.toISOString(),
       };
     }));

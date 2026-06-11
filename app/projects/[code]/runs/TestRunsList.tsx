@@ -32,6 +32,16 @@ function timeAgo(dateString: string) {
   return "Just now";
 }
 
+const AVATAR_COLORS = ["#4f46e5", "#7c3aed", "#0891b2", "#059669", "#d97706", "#e11d48", "#0284c7", "#9333ea"];
+function authorMeta(author: { name?: string | null; email?: string | null } | null | undefined) {
+  const display = author?.name || author?.email?.split("@")[0] || "Unknown";
+  const parts = display.split(" ");
+  const initials = (parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}` : display.substring(0, 2)).toUpperCase();
+  let sum = 0;
+  for (let i = 0; i < display.length; i++) sum += display.charCodeAt(i);
+  return { display, initials, color: AVATAR_COLORS[sum % AVATAR_COLORS.length] };
+}
+
 function formatDuration(ms: number) {
   if (ms === 0) return "0s";
   const days = Math.floor(ms / (1000 * 60 * 60 * 24));
@@ -252,16 +262,21 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
                       </span>
                     </td>
                     <td className="py-4 px-3 align-middle">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                          style={{ background: "linear-gradient(135deg, #4f46e5, #a855f7)" }}>
-                          SA
-                        </div>
-                        <span className="text-sm text-slate-600">System Admin</span>
-                      </div>
+                      {(() => {
+                        const a = authorMeta(run.author);
+                        return (
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
+                              style={{ background: a.color }}>
+                              {a.initials}
+                            </div>
+                            <span className="text-sm text-slate-600">{a.display}</span>
+                          </div>
+                        );
+                      })()}
                     </td>
                     <td className="py-4 px-3 align-middle">
-                      <span className="text-sm text-slate-500">Integration</span>
+                      <span className="text-sm text-slate-500">{run.environment?.title || "—"}</span>
                     </td>
                     <td className="py-4 px-3 align-middle">
                       <div className="flex items-center text-sm text-slate-500">

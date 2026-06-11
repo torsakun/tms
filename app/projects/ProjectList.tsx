@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Search, LayoutList, Grid, MoreVertical,
   AlertTriangle, Check, Settings, Archive,
@@ -32,6 +33,7 @@ interface ProjectData {
   activeRunsCount: number; testRunsCount: number;
   milestonesCount: number; teamMembers: number;
   automationPercent: number; latestRunPassRate: number | null;
+  isArchived: boolean;
   updatedAt: string;
 }
 
@@ -69,24 +71,70 @@ function AutomationBar({ percent }: { percent: number }) {
   );
 }
 
+type StatusFilter = "ACTIVE" | "ARCHIVED" | "ALL";
+type ViewMode = "list" | "grid";
+
 export function ProjectList({ initialProjects }: { initialProjects: ProjectData[] }) {
+  const router = useRouter();
+  const [projects, setProjects] = useState<ProjectData[]>(initialProjects);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("ACTIVE");
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [archivingId, setArchivingId] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const statusMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { setProjects(initialProjects); }, [initialProjects]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node))
         setActiveDropdown(null);
+      if (statusMenuRef.current && !statusMenuRef.current.contains(e.target as Node))
+        setShowStatusMenu(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const filtered = initialProjects.filter(p =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.code.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleToggleArchive = async (project: ProjectData) => {
+    setActiveDropdown(null);
+    setArchivingId(project.id);
+    const next = !project.isArchived;
+    try {
+      const res = await fetch(`/api/projects/${project.code}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isArchived: next }),
+      });
+      if (res.ok) {
+        setProjects(prev => prev.map(p => p.id === project.id ? { ...p, isArchived: next } : p));
+        toast.success(next ? `Archived "${project.name}"` : `Restored "${project.name}"`);
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || "Failed to update project");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error updating project");
+    } finally {
+      setArchivingId(null);
+    }
+  };
+
+  const STATUS_LABEL: Record<StatusFilter, string> = { ACTIVE: "Active", ARCHIVED: "Archived", ALL: "All" };
+
+  const filtered = projects.filter(p => {
+    const matchesSearch =
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.code.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      statusFilter === "ALL" ? true : statusFilter === "ARCHIVED" ? p.isArchived : !p.isArchived;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <>
@@ -120,26 +168,44 @@ export function ProjectList({ initialProjects }: { initialProjects: ProjectData[
               className="pl-8 pr-4 h-8 text-sm border border-slate-200 bg-white text-slate-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 w-52 transition-all"
             />
           </div>
-          <button className="h-8 flex items-center gap-1.5 px-3 rounded-lg border border-slate-200 bg-white text-slate-600 text-xs font-semibold hover:border-slate-300 transition-all">
-            Status: Active <ChevronDown size={12} />
-          </button>
-          <button className="h-8 px-3 text-indigo-500 text-xs font-semibold hover:bg-indigo-50 rounded-lg transition-all">
-            + Filter
-          </button>
+          <div className="relative" ref={statusMenuRef}>
+            <button
+              onClick={() => setShowStatusMenu(v => !v)}
+              className={`h-8 flex items-center gap-1.5 px-3 rounded-lg border text-xs font-semibold transition-all
+                ${statusFilter !== "ACTIVE" ? "border-indigo-200 bg-indigo-50 text-indigo-600" : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"}`}>
+              Status: {STATUS_LABEL[statusFilter]} <ChevronDown size={12} />
+            </button>
+            {showStatusMenu && (
+              <div className="absolute left-0 mt-1 w-40 bg-white rounded-xl py-1 z-30 overflow-hidden"
+                style={{ border: "1px solid #f1f3f9", boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }}>
+                {(["ACTIVE", "ARCHIVED", "ALL"] as StatusFilter[]).map(s => (
+                  <button key={s} onClick={() => { setStatusFilter(s); setShowStatusMenu(false); }}
+                    className={`w-full text-left px-4 py-2 text-sm font-medium transition-colors flex items-center justify-between
+                      ${statusFilter === s ? "bg-indigo-50 text-indigo-600" : "text-slate-600 hover:bg-slate-50"}`}>
+                    {STATUS_LABEL[s]}
+                    {statusFilter === s && <Check size={13} strokeWidth={3} />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* View toggle */}
         <div className="flex items-center gap-0.5 p-1 bg-slate-100 rounded-lg">
-          <button className="p-1.5 bg-white rounded-md shadow-sm text-indigo-600">
+          <button onClick={() => setViewMode("list")}
+            className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-white shadow-sm text-indigo-600" : "text-slate-400 hover:text-slate-600"}`}>
             <LayoutList size={14} />
           </button>
-          <button className="p-1.5 text-slate-400 hover:text-slate-600 rounded-md transition-colors">
+          <button onClick={() => setViewMode("grid")}
+            className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-white shadow-sm text-indigo-600" : "text-slate-400 hover:text-slate-600"}`}>
             <Grid size={14} />
           </button>
         </div>
       </div>
 
-      {/* ── Table ────────────────────────────────────────── */}
+      {/* ── Table (list view) ────────────────────────────── */}
+      {viewMode === "list" && (
       <div className="rounded-xl bg-white border border-slate-200 shadow-sm overflow-visible">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -170,8 +236,13 @@ export function ProjectList({ initialProjects }: { initialProjects: ProjectData[
                         {project.code.slice(0, 2).toUpperCase()}
                       </div>
                       <div>
-                        <div className="font-semibold text-slate-800 text-sm group-hover:text-indigo-600 transition-colors">
-                          {project.name}
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-slate-800 text-sm group-hover:text-indigo-600 transition-colors">
+                            {project.name}
+                          </span>
+                          {project.isArchived && (
+                            <span className="text-[9px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">Archived</span>
+                          )}
                         </div>
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <span className="text-[11px] text-slate-400">{project.testCasesCount} cases</span>
@@ -254,9 +325,10 @@ export function ProjectList({ initialProjects }: { initialProjects: ProjectData[
                           </Link>
                           <div className="h-px bg-slate-100 my-1" />
                           <button
-                            onClick={() => toast("Archive coming soon", { icon: "🚧" })}
-                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 transition-colors">
-                            <Archive size={13} className="text-amber-400" /> Archive
+                            onClick={() => handleToggleArchive(project)}
+                            disabled={archivingId === project.id}
+                            className="w-full flex items-center gap-2 px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 transition-colors disabled:opacity-50">
+                            <Archive size={13} className="text-amber-400" /> {project.isArchived ? "Restore" : "Archive"}
                           </button>
                         </div>
                       )}
@@ -281,6 +353,105 @@ export function ProjectList({ initialProjects }: { initialProjects: ProjectData[
           </tbody>
         </table>
       </div>
+      )}
+
+      {/* ── Grid view ────────────────────────────────────── */}
+      {viewMode === "grid" && (
+        filtered.length === 0 ? (
+          <div className="rounded-xl bg-white border border-slate-200 shadow-sm py-20 text-center">
+            <FolderOpen size={32} className="mx-auto mb-3 text-slate-200" />
+            <p className="text-sm text-slate-400 mb-3">No projects found</p>
+            <Link href="?create=true" className="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-800">
+              <Plus size={14} /> Create a project
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((project, idx) => {
+              const pal = PROJECT_PALETTES[idx % PROJECT_PALETTES.length];
+              const isOpen = activeDropdown === project.id;
+              return (
+                <div key={project.id}
+                  className="group relative bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all overflow-hidden"
+                  style={{ borderTop: `3px solid ${pal.border}` }}>
+                  <div className="p-5">
+                    <div className="flex items-start justify-between mb-4">
+                      <Link href={`/projects/${project.code}/repository`} className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-sm"
+                          style={{ background: pal.bg }}>
+                          {project.code.slice(0, 2).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-800 text-sm truncate group-hover:text-indigo-600 transition-colors">{project.name}</span>
+                            {project.isArchived && (
+                              <span className="text-[9px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded shrink-0">Archived</span>
+                            )}
+                          </div>
+                          <span className="text-[11px] font-mono text-slate-400">{project.code}</span>
+                        </div>
+                      </Link>
+                      <div className="relative shrink-0" ref={isOpen ? dropdownRef : null}>
+                        <button
+                          onClick={() => setActiveDropdown(isOpen ? null : project.id)}
+                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all ${isOpen ? "bg-slate-100 text-slate-700" : "text-slate-300 hover:text-slate-600 hover:bg-slate-100"}`}>
+                          <MoreVertical size={15} />
+                        </button>
+                        {isOpen && (
+                          <div className="absolute right-0 mt-1 w-48 bg-white rounded-xl py-1 z-30 overflow-hidden"
+                            style={{ border: "1px solid #f1f3f9", boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }}>
+                            <Link href={`/projects/${project.code}/dashboards`} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                              <LayoutList size={13} className="text-slate-400" /> View Dashboard
+                            </Link>
+                            <Link href={`/projects/${project.code}/settings`} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                              <Settings size={13} className="text-slate-400" /> Settings
+                            </Link>
+                            <div className="h-px bg-slate-100 my-1" />
+                            <button onClick={() => handleToggleArchive(project)} disabled={archivingId === project.id}
+                              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-amber-600 hover:bg-amber-50 transition-colors disabled:opacity-50">
+                              <Archive size={13} className="text-amber-400" /> {project.isArchived ? "Restore" : "Archive"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-[11px] text-slate-400 mb-4">
+                      <span>{project.testCasesCount} cases</span>
+                      <span className="text-slate-200">·</span>
+                      <span>{project.suitesCount} suites</span>
+                      <span className="text-slate-200">·</span>
+                      <span>{project.milestonesCount} milestones</span>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Health</span>
+                        <HealthBadge rate={project.latestRunPassRate} />
+                      </div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider shrink-0">Automation</span>
+                        <AutomationBar percent={project.automationPercent} />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Runs</span>
+                        {project.testRunsCount > 0 ? (
+                          <Link href={`/projects/${project.code}/runs`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition-colors">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            {project.activeRunsCount} active <span className="text-slate-300">/</span> <span className="text-slate-500 font-normal">{project.testRunsCount}</span>
+                          </Link>
+                        ) : (
+                          <span className="text-slate-300 font-medium text-xs">—</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )
+      )}
     </>
   );
 }

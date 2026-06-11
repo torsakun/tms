@@ -98,11 +98,23 @@ model User {
   projects        ProjectMember[]
   testCases       TestCase[]
   assignedRunResults TestRunResult[]
+  authoredRuns    TestRun[]       @relation("RunAuthor")
   auditLogs       AuditLog[]
+  groups          Group[]         @relation("GroupMembers")
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
   @@index([workspaceRoleId])
+}
+
+model Group {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  members     User[]    @relation("GroupMembers")
+  projects    Project[] @relation("GroupProjects")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model ProjectMember {
@@ -139,6 +151,7 @@ model Project {
   name        String
   code        String   @unique // e.g., "PROJ"
   description String?
+  isArchived  Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
@@ -163,6 +176,7 @@ model Project {
   milestones   Milestone[]
   sharedSteps  SharedStep[]
   pipelines    PipelineSchedule[]
+  groups       Group[] @relation("GroupProjects")
 
   @@index([code])
 }
@@ -271,6 +285,9 @@ model TestRun {
   
   projectId   String
   project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  authorId    String?
+  author      User?         @relation("RunAuthor", fields: [authorId], references: [id], onDelete: SetNull)
 
   planId      String?
   plan        TestPlan?     @relation(fields: [planId], references: [id], onDelete: SetNull)
