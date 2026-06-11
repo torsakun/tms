@@ -382,53 +382,53 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
       />
 
       {/* Slide-over Detail Panel */}
-      <div 
-        className={`fixed top-0 right-0 h-full w-[55vw] min-w-[600px] bg-surface shadow-[-10px_0_30px_rgba(0,0,0,0.1)] border-l border-border transform transition-transform duration-300 ease-in-out z-[60] flex flex-col ${activeTestCaseId ? 'translate-x-0' : 'translate-x-full'}`}
+      <div
+        className={`fixed top-0 right-0 h-full w-[55vw] min-w-[600px] bg-white shadow-[-10px_0_30px_rgba(0,0,0,0.1)] border-l transform transition-transform duration-300 ease-in-out z-[60] flex flex-col ${activeTestCaseId ? 'translate-x-0' : 'translate-x-full'}`}
+        style={{ borderColor: "#e8eaf2" }}
       >
         {activeTestCase && (
           <>
-            <header className="flex flex-col px-6 py-4 border-b border-border/50 bg-surface shrink-0 transition-colors">
-              <div className="flex items-center justify-between mb-2">
-                 <div className="text-xs text-text-muted font-mono">
+            <header className="flex flex-col px-6 pt-5 pb-0 border-b bg-white shrink-0" style={{ borderColor: "#e8eaf2" }}>
+              <div className="flex items-center justify-between mb-3">
+                 <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded shadow-sm">
                    {activeTestCase.code || `${projectCode}-${activeTestCase.id.substring(0,4)}`}
-                 </div>
-                 <div className="flex items-center space-x-2">
-                    <button className="text-text-muted hover:text-text-main p-1.5"><Copy size={16}/></button>
-                    <button onClick={() => setActiveTestCaseId(null)} className="text-text-muted hover:text-red-500 p-1.5"><X size={20}/></button>
+                 </span>
+                 <div className="flex items-center gap-1">
+                    <button className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"><Copy size={15}/></button>
+                    <button onClick={() => setActiveTestCaseId(null)} className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors"><X size={18}/></button>
                  </div>
               </div>
-              <h2 className="text-xl font-bold text-text-main break-words mb-4">{activeTestCase.title}</h2>
-              
-              <div className="flex items-center space-x-2 mb-4">
-                 <button onClick={() => router.push(`/projects/${projectCode}/cases/${activeTestCase.id}/edit`)} className="bg-background border border-border hover:bg-surface-hover text-text-main p-2 rounded transition-colors" title="Edit case">
-                    <Edit3 size={16} />
+              <h2 className="text-lg font-bold text-slate-800 tracking-tight break-words mb-4 leading-snug">{activeTestCase.title}</h2>
+
+              <div className="flex items-center gap-2 mb-4">
+                 <button onClick={() => router.push(`/projects/${projectCode}/cases/${activeTestCase.id}/edit`)} className="bg-white border border-slate-200 hover:bg-slate-50 hover:border-indigo-200 hover:text-indigo-600 text-slate-500 p-2 rounded-lg transition-colors shadow-sm" title="Edit case">
+                    <Edit3 size={15} />
                  </button>
-                 <button className="bg-background border border-border hover:bg-surface-hover text-text-main p-2 rounded transition-colors" title="Clone case">
-                    <Copy size={16} />
+                 <button className="bg-white border border-slate-200 hover:bg-slate-50 hover:border-indigo-200 hover:text-indigo-600 text-slate-500 p-2 rounded-lg transition-colors shadow-sm" title="Clone case">
+                    <Copy size={15} />
                  </button>
-                 <button className="bg-background border border-border hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-500 text-text-main p-2 rounded transition-colors" title="Delete case">
-                    <Trash2 size={16} />
+                 <button className="bg-white border border-slate-200 hover:bg-red-50 hover:border-red-200 hover:text-red-500 text-slate-500 p-2 rounded-lg transition-colors shadow-sm" title="Delete case">
+                    <Trash2 size={15} />
                  </button>
-                 <div className="w-px h-6 bg-border mx-1"></div>
-                 <button className="bg-background border border-border hover:bg-surface-hover text-text-main px-3 py-1.5 rounded text-sm font-semibold flex items-center transition-colors">
-                    <Settings size={14} className="mr-2" /> Run advisor
+                 <div className="w-px h-6 bg-slate-200 mx-1"></div>
+                 <button className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 px-3 py-1.5 rounded-lg text-[13px] font-semibold flex items-center transition-colors shadow-sm">
+                    <Sparkles size={13} className="mr-1.5 text-amber-500" /> Run advisor
                  </button>
-                 <button className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-sm px-3 py-1.5 rounded text-sm font-semibold flex items-center transition-colors">
-                    <Cpu size={14} className="mr-2" /> Automate
+                 <button className="text-white shadow-sm px-3 py-1.5 rounded-lg text-[13px] font-semibold flex items-center transition-all hover:-translate-y-0.5"
+                   style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
+                    <Cpu size={13} className="mr-1.5" /> Automate
                  </button>
               </div>
 
-              <div className="flex space-x-6">
-                <button className="pb-3 pt-2 border-b-2 border-primary text-primary font-bold text-sm">General</button>
-                <button className="pb-3 pt-2 text-text-muted hover:text-text-main font-medium text-sm transition-colors">Properties</button>
-                <button className="pb-3 pt-2 text-text-muted hover:text-text-main font-medium text-sm transition-colors">Runs</button>
-                <button className="pb-3 pt-2 text-text-muted hover:text-text-main font-medium text-sm transition-colors">History</button>
-                <button className="pb-3 pt-2 text-text-muted hover:text-text-main font-medium text-sm transition-colors">Defects</button>
-                <button className="pb-3 pt-2 text-text-muted hover:text-text-main font-medium text-sm transition-colors">Comments</button>
+              <div className="flex gap-6">
+                <button className="pb-3 pt-1 border-b-2 border-indigo-500 text-indigo-600 font-bold text-sm">General</button>
+                {["Properties","Runs","History","Defects","Comments"].map(tab => (
+                  <button key={tab} className="pb-3 pt-1 border-b-2 border-transparent text-slate-400 hover:text-slate-600 font-medium text-sm transition-colors">{tab}</button>
+                ))}
               </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto bg-background p-6 space-y-8 transition-colors">
+            <div className="flex-1 overflow-y-auto bg-[#f0f2f8] p-5 space-y-4">
               {activeTestCase.isOutdated && (
                 <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl flex flex-col space-y-3 shadow-sm mb-4">
                   <div className="flex items-start">
@@ -443,38 +443,38 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                   </button>
                 </div>
               )}
-               <div className="bg-surface p-6 rounded-xl border border-border shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-colors">
-                  <h3 className="text-sm font-bold text-text-main mb-2">Description</h3>
-                  <div className="text-[15px] text-text-muted">
-                    {activeTestCase.description || "Not set"}
+               <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm" style={{ borderLeft: "3px solid #6366f1" }}>
+                  <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Description</h3>
+                  <div className="text-sm text-slate-700 leading-relaxed">
+                    {activeTestCase.description || <span className="text-slate-400 italic">Not set</span>}
                   </div>
                </div>
 
-               <div className="bg-surface p-6 rounded-xl border border-border shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-colors">
-                  <h3 className="text-sm font-bold text-text-main mb-2">Pre-conditions</h3>
-                  <div className="text-[15px] text-text-muted">
+               <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm" style={{ borderLeft: "3px solid #06b6d4" }}>
+                  <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Pre-conditions</h3>
+                  <div className="text-sm text-slate-700 leading-relaxed">
                     {activeTestCase.preconditions ? (
                       <div dangerouslySetInnerHTML={{ __html: activeTestCase.preconditions }} />
                     ) : (
-                      "Not set"
+                      <span className="text-slate-400 italic">Not set</span>
                     )}
                   </div>
                </div>
 
-               <div className="bg-surface p-6 rounded-xl border border-border shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-colors">
-                  <h3 className="text-sm font-bold text-text-main mb-2">Post-conditions</h3>
-                  <div className="text-[15px] text-text-muted">
+               <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm" style={{ borderLeft: "3px solid #10b981" }}>
+                  <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Post-conditions</h3>
+                  <div className="text-sm text-slate-700 leading-relaxed">
                     {activeTestCase.postconditions ? (
                       <div dangerouslySetInnerHTML={{ __html: activeTestCase.postconditions }} />
                     ) : (
-                      "Not set"
+                      <span className="text-slate-400 italic">Not set</span>
                     )}
                   </div>
                </div>
 
                {activeTestCase.customFields && Object.keys(activeTestCase.customFields).length > 0 && (
-                 <div className="bg-surface p-6 rounded-xl border border-border shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-colors">
-                    <h3 className="text-sm font-bold text-text-main mb-4">Custom Fields</h3>
+                 <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm" style={{ borderLeft: "3px solid #a855f7" }}>
+                    <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-4">Custom Fields</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {Object.entries(activeTestCase.customFields).map(([fieldId, value]) => {
                         if (!value || (typeof value === 'boolean' && !value)) return null;
@@ -482,8 +482,8 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                         const label = fieldDef ? fieldDef.name : fieldId;
                         return (
                           <div key={fieldId}>
-                            <div className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-1">{label}</div>
-                            <div className="text-[14px] text-text-main font-medium">
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{label}</div>
+                            <div className="text-sm text-slate-700 font-medium">
                               {typeof value === 'boolean' ? 'Yes' : String(value)}
                             </div>
                           </div>
@@ -493,28 +493,29 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                  </div>
                )}
 
-               <div className="bg-surface p-6 rounded-xl border border-border shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-colors">
+               <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm" style={{ borderLeft: "3px solid #f59e0b" }}>
                   <div className="flex items-center justify-between mb-4">
-                     <h3 className="text-sm font-bold text-text-main">Steps</h3>
-                     <button onClick={() => router.push(`/projects/${projectCode}/cases/${activeTestCase.id}/edit`)} className="text-primary hover:underline text-sm font-semibold flex items-center transition-colors">
-                        <Edit3 size={14} className="mr-1" /> Edit
+                     <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Steps</h3>
+                     <button onClick={() => router.push(`/projects/${projectCode}/cases/${activeTestCase.id}/edit`)} className="text-indigo-500 hover:text-indigo-700 text-xs font-bold flex items-center transition-colors">
+                        <Edit3 size={12} className="mr-1" /> Edit
                      </button>
                   </div>
-                  
+
                   {activeTestCase.steps && activeTestCase.steps.length > 0 ? (
                     <div className="space-y-4">
                       {activeTestCase.steps.map((step: any, idx: number) => (
                         <div key={step.id || idx} className="flex">
                            <div className="w-8 shrink-0 flex justify-center mt-0.5">
-                             <div className="w-5 h-5 rounded-full bg-background flex items-center justify-center text-text-muted font-bold text-xs border border-border">
+                             <div className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-[11px] shadow-sm"
+                               style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
                                {idx + 1}
                              </div>
                            </div>
-                           <div className="flex-1 ml-2 text-[15px] text-text-main whitespace-pre-wrap">
+                           <div className="flex-1 ml-2 text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
                              {step.action}
                              {step.expectedResult && (
-                               <div className="mt-2 text-text-muted text-sm border-l-2 border-border pl-3">
-                                 <span className="font-semibold text-text-main">Expected: </span>
+                               <div className="mt-2 text-[13px] bg-emerald-50/60 border-l-2 border-emerald-400 rounded-r-lg pl-3 pr-3 py-2 text-slate-600">
+                                 <span className="font-bold text-emerald-700">Expected: </span>
                                  {step.expectedResult}
                                </div>
                              )}
@@ -523,7 +524,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                       ))}
                     </div>
                   ) : (
-                    <div className="text-[15px] text-text-muted">Not set</div>
+                    <div className="text-sm text-slate-400 italic">Not set</div>
                   )}
                </div>
 
