@@ -24,7 +24,8 @@ export default async function RunExecutionPage({ params }: { params: Promise<{ c
           testCase: {
             include: { steps: true }
           },
-          assignee: { select: { id: true, name: true, email: true } }
+          assignee: { select: { id: true, name: true, email: true } },
+          linkedIssues: { orderBy: { createdAt: "desc" } }
         }
       }
     }

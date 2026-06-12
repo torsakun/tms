@@ -608,10 +608,29 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
                   )}
                </div>
 
-               <TestCaseAutomationPanel 
-                 testCase={activeTestCase} 
-                 projectCode={projectCode} 
-                 onUpdate={() => window.location.reload()} 
+               {activeTestCase.linkedIssues && activeTestCase.linkedIssues.length > 0 && (
+                 <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm" style={{ borderLeft: "3px solid #e11d48" }}>
+                   <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                     <Ticket size={12} className="text-rose-500" /> Linked Defects ({activeTestCase.linkedIssues.length})
+                   </h3>
+                   <div className="space-y-2">
+                     {activeTestCase.linkedIssues.map((iss: any) => (
+                       <a key={iss.id} href={iss.url} target="_blank" rel="noopener noreferrer"
+                         className="flex items-center gap-3 p-3 rounded-lg border border-slate-100 hover:border-rose-200 hover:bg-rose-50/40 transition-colors group">
+                         <span className="text-[10px] font-extrabold text-rose-600 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded shrink-0">{iss.key}</span>
+                         <span className="flex-1 text-sm text-slate-700 truncate">{iss.summary}</span>
+                         {iss.severity && <span className="text-[10px] font-bold text-slate-400 uppercase shrink-0">{iss.severity}</span>}
+                         <ExternalLink size={13} className="text-slate-300 group-hover:text-rose-400 shrink-0" />
+                       </a>
+                     ))}
+                   </div>
+                 </div>
+               )}
+
+               <TestCaseAutomationPanel
+                 testCase={activeTestCase}
+                 projectCode={projectCode}
+                 onUpdate={() => window.location.reload()}
                />
             </div>
           </>

@@ -16,6 +16,7 @@ export default function WorkspaceSettingsPage() {
   const [jiraDomain, setJiraDomain] = useState("");
   const [jiraEmail, setJiraEmail] = useState("");
   const [jiraToken, setJiraToken] = useState("");
+  const [jiraProjectKey, setJiraProjectKey] = useState("");
 
   useEffect(() => {
     fetch("/api/workspace/settings")
@@ -28,6 +29,7 @@ export default function WorkspaceSettingsPage() {
         if (data.JIRA_DOMAIN) setJiraDomain(data.JIRA_DOMAIN);
         if (data.JIRA_EMAIL) setJiraEmail(data.JIRA_EMAIL);
         if (data.JIRA_API_TOKEN) setJiraToken(data.JIRA_API_TOKEN);
+        if (data.JIRA_PROJECT_KEY) setJiraProjectKey(data.JIRA_PROJECT_KEY);
         setLoading(false);
       })
       .catch(err => {
@@ -51,7 +53,8 @@ export default function WorkspaceSettingsPage() {
           CLAUDE_API_KEY: claudeKey,
           JIRA_DOMAIN: jiraDomain,
           JIRA_EMAIL: jiraEmail,
-          JIRA_API_TOKEN: jiraToken
+          JIRA_API_TOKEN: jiraToken,
+          JIRA_PROJECT_KEY: jiraProjectKey
         })
       });
 
@@ -197,6 +200,18 @@ export default function WorkspaceSettingsPage() {
                   className="w-full px-4 py-2.5 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
                 />
                 <p className="text-xs text-text-muted mt-1">Generate an API token from your Atlassian account settings.</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-text-main mb-1">Jira Project Key</label>
+                <input
+                  type="text"
+                  value={jiraProjectKey}
+                  onChange={e => setJiraProjectKey(e.target.value)}
+                  placeholder="e.g. QA"
+                  className="w-full px-4 py-2.5 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
+                />
+                <p className="text-xs text-text-muted mt-1">Default project where AI-drafted bug reports will be created (from failed test runs).</p>
               </div>
             </div>
           </section>

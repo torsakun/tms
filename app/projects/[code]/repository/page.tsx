@@ -35,7 +35,7 @@ export default async function RepositoryPage({
       // Fetch cases (all for the project to build the tree)
       cases = await prisma.testCase.findMany({
         where: { projectId: project.id },
-        include: { tags: true, steps: true },
+        include: { tags: true, steps: true, linkedIssues: { orderBy: { createdAt: "desc" } } },
         orderBy: { createdAt: 'desc' }
       });
     }

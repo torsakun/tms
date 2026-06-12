@@ -2,7 +2,8 @@
 
 import React, { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, XCircle, MinusCircle, RefreshCw, ArrowLeft, Eye, Edit3, VolumeX, Settings, ChevronRight, ChevronDown, Clock, X, PlayCircle, Check, Share, Download, MoreHorizontal, Loader2, Terminal, BarChart2, Edit, FileText } from "lucide-react";
+import { CheckCircle2, XCircle, MinusCircle, RefreshCw, ArrowLeft, Eye, Edit3, VolumeX, Settings, ChevronRight, ChevronDown, Clock, X, PlayCircle, Check, Share, Download, MoreHorizontal, Loader2, Terminal, BarChart2, Edit, FileText, Bug } from "lucide-react";
+import { ReportBugModal } from "./ReportBugModal";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -186,6 +187,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
   const [run, setRun] = useState(initialRun);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeResultId, setActiveResultId] = useState<string | null>(null);
+  const [reportingResult, setReportingResult] = useState<any | null>(null);
   const [stepResults, setStepResults] = useState<Record<string, any>>({});
   const [uploadingStepId, setUploadingStepId] = useState<string | null>(null);
   const [viewingAttachment, setViewingAttachment] = useState<{url: string, name: string, isTrace?: boolean} | null>(null);
@@ -1232,7 +1234,15 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                 <h2 className="text-lg font-bold text-slate-800 truncate">{activeResult.testCase.title}</h2>
                 <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded shadow-sm shrink-0">{projectCode}-{activeResult.testCase.id.substring(0,4).toUpperCase()}</span>
               </div>
-              <div className="flex items-center gap-1 ml-4 shrink-0">
+              <div className="flex items-center gap-2 ml-4 shrink-0">
+                 {(activeResult.status === "FAILED" || activeResult.status === "BLOCKED") && (
+                   <button
+                     onClick={() => setReportingResult(activeResult)}
+                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 rounded-lg shadow-sm hover:-translate-y-0.5 transition-all"
+                     style={{ background: "linear-gradient(135deg, #e11d48, #f43f5e)" }}>
+                     <Bug size={13} /> Report bug
+                   </button>
+                 )}
                  <button onClick={() => setActiveResultId(null)} className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"><X size={18}/></button>
               </div>
             </header>
@@ -1716,6 +1726,22 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
           </div>
         </div>
       )}
+
+      <ReportBugModal
+        isOpen={!!reportingResult}
+        onClose={() => setReportingResult(null)}
+        projectCode={projectCode}
+        runId={runId}
+        result={reportingResult}
+        onReported={(issue) => {
+          setRun((prev: any) => ({
+            ...prev,
+            results: prev.results.map((r: any) =>
+              r.id === reportingResult?.id ? { ...r, linkedIssues: [...(r.linkedIssues || []), issue] } : r
+            ),
+          }));
+        }}
+      />
     </div>
     </>
   );

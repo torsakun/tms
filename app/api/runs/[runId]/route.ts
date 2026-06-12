@@ -18,7 +18,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ runId: s
             testCase: {
               include: { steps: true }
             },
-            assignee: { select: { id: true, name: true, email: true } }
+            assignee: { select: { id: true, name: true, email: true } },
+            linkedIssues: { orderBy: { createdAt: "desc" } }
           }
         }
       }

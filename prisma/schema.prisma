@@ -107,6 +107,31 @@ model User {
   @@index([workspaceRoleId])
 }
 
+model LinkedIssue {
+  id         String   @id @default(uuid())
+  provider   String   @default("JIRA") // JIRA | GITHUB
+  key        String   // e.g. "PROJ-123" or issue number
+  url        String   @db.Text
+  summary    String   @db.Text
+  status     String?  // synced issue status, optional
+  severity   String?  // severity captured at creation time
+
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  caseId     String?
+  testCase   TestCase? @relation(fields: [caseId], references: [id], onDelete: SetNull)
+
+  resultId   String?
+  result     TestRunResult? @relation(fields: [resultId], references: [id], onDelete: SetNull)
+
+  createdAt  DateTime @default(now())
+
+  @@index([projectId])
+  @@index([caseId])
+  @@index([resultId])
+}
+
 model Group {
   id          String   @id @default(uuid())
   title       String
@@ -177,6 +202,7 @@ model Project {
   sharedSteps  SharedStep[]
   pipelines    PipelineSchedule[]
   groups       Group[] @relation("GroupProjects")
+  linkedIssues LinkedIssue[]
 
   @@index([code])
 }
@@ -229,6 +255,7 @@ model TestCase {
 
   authorId         String?
   author           User?            @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  linkedIssues     LinkedIssue[]
 
   steps            TestStep[]
   runResults       TestRunResult[]
@@ -327,6 +354,7 @@ model TestRunResult {
   assignee     User?            @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
 
   attachments  Attachment[]
+  linkedIssues LinkedIssue[]
 
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
