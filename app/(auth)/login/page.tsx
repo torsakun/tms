@@ -1,7 +1,7 @@
 "use client";
 
 export const dynamic = "force-dynamic";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -17,6 +17,16 @@ function LoginPageContent() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [msEnabled, setMsEnabled] = useState(false);
+
+  // Only show the Microsoft button when the azure-ad provider is actually
+  // registered (env configured on this environment).
+  useEffect(() => {
+    fetch("/api/auth/providers")
+      .then((r) => r.json())
+      .then((d) => setMsEnabled(!!d?.["azure-ad"]))
+      .catch(() => setMsEnabled(false));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,26 +220,30 @@ function LoginPageContent() {
             </div>
           </form>
 
-          {/* SSO */}
-          <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-slate-200" />
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">or</span>
-            <div className="flex-1 h-px bg-slate-200" />
-          </div>
+          {/* SSO — only shown when Microsoft Entra is configured on this environment */}
+          {msEnabled && (
+            <>
+              <div className="flex items-center gap-3 my-6">
+                <div className="flex-1 h-px bg-slate-200" />
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">or</span>
+                <div className="flex-1 h-px bg-slate-200" />
+              </div>
 
-          <button
-            type="button"
-            onClick={() => signIn("azure-ad", { callbackUrl: "/" })}
-            className="w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all"
-          >
-            <svg width="16" height="16" viewBox="0 0 23 23" aria-hidden="true">
-              <rect x="1" y="1" width="10" height="10" fill="#f25022" />
-              <rect x="12" y="1" width="10" height="10" fill="#7fba00" />
-              <rect x="1" y="12" width="10" height="10" fill="#00a4ef" />
-              <rect x="12" y="12" width="10" height="10" fill="#ffb900" />
-            </svg>
-            Sign in with Microsoft
-          </button>
+              <button
+                type="button"
+                onClick={() => signIn("azure-ad", { callbackUrl: "/" })}
+                className="w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all"
+              >
+                <svg width="16" height="16" viewBox="0 0 23 23" aria-hidden="true">
+                  <rect x="1" y="1" width="10" height="10" fill="#f25022" />
+                  <rect x="12" y="1" width="10" height="10" fill="#7fba00" />
+                  <rect x="1" y="12" width="10" height="10" fill="#00a4ef" />
+                  <rect x="12" y="12" width="10" height="10" fill="#ffb900" />
+                </svg>
+                Sign in with Microsoft
+              </button>
+            </>
+          )}
 
           <p className="mt-8 text-center text-sm text-slate-500">
             Access is invite-only. Need an account?{" "}
