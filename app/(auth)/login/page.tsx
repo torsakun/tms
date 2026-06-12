@@ -171,9 +171,9 @@ function LoginPageContent() {
             <div className="space-y-1.5">
               <div className="flex justify-between items-center">
                 <label className="block text-sm font-semibold text-slate-700">Password</label>
-                <a href="mailto:support@qmaster.app?subject=Password%20reset%20request" className="text-sm font-semibold text-indigo-500 hover:text-indigo-700 transition-colors">
+                <Link href="/forgot-password" className="text-sm font-semibold text-indigo-500 hover:text-indigo-700 transition-colors">
                   Forgot password?
-                </a>
+                </Link>
               </div>
               <input
                 type="password"
@@ -211,10 +211,10 @@ function LoginPageContent() {
           </form>
 
           <p className="mt-8 text-center text-sm text-slate-500">
-            Don&apos;t have an account yet?{" "}
-            <Link href="/signup" className="font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
-              Request access
-            </Link>
+            Access is invite-only. Need an account?{" "}
+            <a href="mailto:support@qmaster.app?subject=Workspace%20access%20request" className="font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
+              Contact your admin
+            </a>
           </p>
 
           {/* Decorative divider */}

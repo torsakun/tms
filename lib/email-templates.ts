@@ -97,3 +97,40 @@ export function generateInviteEmailHtml({
 </html>
   `;
 }
+
+export function generateResetEmailHtml({
+  greeting,
+  resetLink,
+  projectName = "TESSA TMS",
+  expiresHours = 2,
+}: {
+  greeting: string;
+  resetLink: string;
+  projectName?: string;
+  expiresHours?: number;
+}) {
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Reset your ${projectName} password</title></head>
+<body style="background-color:#f0f2f8;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1a1d2e;">
+  <table width="100%" cellspacing="0" cellpadding="0" style="background-color:#f0f2f8;padding:40px 20px;"><tr><td align="center">
+    <table width="600" cellspacing="0" cellpadding="0" style="background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #e4e7f0;">
+      <tr><td style="padding:32px 40px 0;">
+        <div style="font-size:20px;font-weight:800;background:linear-gradient(135deg,#4f46e5,#7c3aed);-webkit-background-clip:text;background-clip:text;color:transparent;">⚡ ${projectName}</div>
+      </td></tr>
+      <tr><td style="padding:24px 40px;">
+        <h1 style="font-size:22px;font-weight:800;margin:0 0 12px;color:#1a1d2e;">Reset your password</h1>
+        <p style="font-size:15px;line-height:1.6;color:#52597a;margin:0 0 8px;">${greeting}</p>
+        <p style="font-size:15px;line-height:1.6;color:#52597a;margin:0 0 24px;">We received a request to reset your password. Click the button below to choose a new one. This link expires in ${expiresHours} hours.</p>
+        <a href="${resetLink}" style="display:inline-block;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:14px 28px;border-radius:12px;">Reset password</a>
+        <p style="font-size:13px;line-height:1.6;color:#7880a0;margin:24px 0 0;">If you didn't request this, you can safely ignore this email — your password won't change.</p>
+        <p style="font-size:12px;color:#9aa0bd;margin:16px 0 0;word-break:break-all;">Or paste this link into your browser:<br>${resetLink}</p>
+      </td></tr>
+      <tr><td style="padding:0 40px 32px;"><hr style="border:none;border-top:1px solid #eef0f6;margin:0 0 16px;"><p style="font-size:12px;color:#9aa0bd;margin:0;">© 2026 ${projectName}</p></td></tr>
+    </table>
+  </td></tr></table>
+</body>
+</html>
+  `;
+}

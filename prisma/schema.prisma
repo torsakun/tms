@@ -101,10 +101,23 @@ model User {
   authoredRuns    TestRun[]       @relation("RunAuthor")
   auditLogs       AuditLog[]
   groups          Group[]         @relation("GroupMembers")
+  passwordResetTokens PasswordResetToken[]
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
   @@index([workspaceRoleId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model LinkedIssue {

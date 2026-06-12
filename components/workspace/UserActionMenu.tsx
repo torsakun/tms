@@ -22,8 +22,32 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
   const [isLoading, setIsLoading] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [selectedRoleId, setSelectedRoleId] = useState(currentRoleId || "");
+  const [resetLink, setResetLink] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  const handleSendResetLink = async () => {
+    setIsOpen(false);
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/workspace/users/${userId}/reset-password`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        if (data.emailed) {
+          toast.success("Password reset link sent to the user's email.", { duration: 5000 });
+        } else {
+          // Email not configured — surface the link so the admin can share it manually
+          setResetLink(data.resetLink);
+        }
+      } else {
+        toast.error(data.error || "Failed to generate reset link");
+      }
+    } catch (error: any) {
+      toast.error(`Failed: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -122,11 +146,11 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
               <span>Edit Role</span>
             </button>
             <button
-              onClick={() => handleAction("reset_password")}
+              onClick={handleSendResetLink}
               className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center space-x-2"
             >
               <Key size={16} className="text-amber-500" />
-              <span>Reset Password</span>
+              <span>Send password reset</span>
             </button>
             
             <div className="h-px bg-slate-200 my-1 mx-2" />
@@ -151,6 +175,35 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
           </div>
         )}
       </div>
+
+      {/* Reset link modal (email not configured — share manually) */}
+      {resetLink && (
+        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4" onClick={() => setResetLink(null)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+              <Key size={18} className="text-amber-500" /> Password reset link
+            </h3>
+            <p className="text-sm text-slate-500 mb-4">
+              Email isn&apos;t configured, so share this link with the user directly. It expires in 24 hours.
+            </p>
+            <div className="flex items-center gap-2">
+              <input readOnly value={resetLink} className="flex-1 px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-600 truncate" />
+              <button
+                onClick={() => { navigator.clipboard?.writeText(resetLink); toast.success("Link copied"); }}
+                className="px-3 py-2 text-sm font-semibold text-white rounded-lg shadow-sm shrink-0"
+                style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
+              >
+                Copy
+              </button>
+            </div>
+            <div className="flex justify-end mt-5">
+              <button onClick={() => setResetLink(null)} className="px-4 py-2 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Role Edit Modal */}
       {showRoleModal && (
