@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { v4 as uuidv4 } from "uuid";
 import { sendEmail } from "@/lib/mailer";
 import { generateResetEmailHtml } from "@/lib/email-templates";
+import { canManageWorkspace } from "@/lib/permissions";
 
 // Admin-initiated password reset: generates a reset link for a user, emails it,
 // and returns the link so the admin can share it manually if email is unavailable.
@@ -14,8 +15,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const currentUser = await prisma.user.findUnique({ where: { email: session.user.email } });
-    if (currentUser?.role !== "ADMIN") {
+    const currentUser = await prisma.user.findUnique({ where: { email: session.user.email }, include: { workspaceRole: true } });
+    if (!canManageWorkspace(currentUser)) {
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 

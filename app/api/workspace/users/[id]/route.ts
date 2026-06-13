@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { canManageWorkspace } from "@/lib/permissions";
 import bcrypt from "bcrypt";
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -11,12 +12,13 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Verify current user is admin
+    // Verify current user can manage the workspace (SystemRole ADMIN or Owner/Administrator workspace role)
     const currentUser = await prisma.user.findUnique({
       where: { email: session.user.email },
+      include: { workspaceRole: true },
     });
 
-    if (currentUser?.role !== "ADMIN") {
+    if (!canManageWorkspace(currentUser)) {
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 
