@@ -80,10 +80,19 @@ export const authOptions: NextAuthOptions = {
 
       if (!email) return false;
 
-      const existing = await prisma.user.findUnique({ where: { email } });
+      const azureName = user?.name || (profile as any)?.name || email.split("@")[0];
+
+      // Case-insensitive match so an invite stored as "Foo@x.com" links to SSO "foo@x.com"
+      const existing = await prisma.user.findFirst({
+        where: { email: { equals: email, mode: "insensitive" } },
+      });
 
       if (existing) {
         if (!existing.isActive) return false; // deactivated users cannot sign in
+        // Azure is the source of truth for profile — keep the DB name in sync
+        if (azureName && azureName !== existing.name) {
+          await prisma.user.update({ where: { id: existing.id }, data: { name: azureName } });
+        }
         return true;
       }
 
@@ -91,16 +100,28 @@ export const authOptions: NextAuthOptions = {
       const autoProvision = process.env.MS_SSO_AUTO_PROVISION !== "false";
       if (!autoProvision) return false;
 
+      // If this email was invited, honour the invite's role and mark it accepted
+      const invite = await prisma.invitation.findFirst({
+        where: { email: { equals: email, mode: "insensitive" }, status: "PENDING" },
+        orderBy: { createdAt: "desc" },
+      });
       const defaultRole = await prisma.workspaceRole.findFirst({ where: { isDefault: true } });
+      const workspaceRoleId = invite?.roleId || defaultRole?.id;
+
       await prisma.user.create({
         data: {
           email,
-          name: user?.name || (profile as any)?.name || email.split("@")[0],
+          name: azureName,
           passwordHash: "", // SSO-only account (no local password)
           role: "USER",
-          workspaceRoleId: defaultRole?.id,
+          workspaceRoleId,
         },
       });
+
+      if (invite) {
+        await prisma.invitation.update({ where: { id: invite.id }, data: { status: "ACCEPTED" } });
+      }
+
       return true;
     },
 
@@ -109,10 +130,13 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         if (account?.provider === "azure-ad") {
           const email = (user.email || token.email || "").toLowerCase();
-          const dbUser = email ? await prisma.user.findUnique({ where: { email } }) : null;
+          const dbUser = email
+            ? await prisma.user.findFirst({ where: { email: { equals: email, mode: "insensitive" } } })
+            : null;
           if (dbUser) {
             token.id = dbUser.id;
             token.role = dbUser.role;
+            token.name = dbUser.name; // keep session name aligned with synced DB name
           }
         } else {
           token.id = (user as any).id;
