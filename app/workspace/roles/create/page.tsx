@@ -2,9 +2,116 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
+const PERMISSION_BLOCKS = [
+  {
+    id: "test-cases", title: "Test cases", description: "Rules for managing test cases.",
+    rules: [
+      { id: "tc-repository", name: "Repository", desc: "View test cases in the repository." },
+      { id: "tc-create", name: "Create/update", desc: "Create or update test cases." },
+      { id: "tc-remove", name: "Remove", desc: "Delete a test case." },
+      { id: "tc-sort", name: "Change sort order", desc: "Drag and drop test cases on the repository page." },
+      { id: "tc-approve", name: "Approve/Decline", desc: "Approve or decline test case changes during review." },
+      { id: "tc-rollback", name: "Rollback", desc: "Undo changes done to test cases." },
+      { id: "tc-mute", name: "Mute/Unmute", desc: "Mute or unmute a test case." },
+    ]
+  },
+  {
+    id: "dashboards", title: "Dashboards", description: "Rules for managing dashboards.",
+    rules: [
+      { id: "db-view", name: "View", desc: "View existing dashboards." },
+      { id: "db-create", name: "Create", desc: "Create, update, and remove dashboards." },
+      { id: "db-update", name: "Update", desc: "Update any dashboards." },
+      { id: "db-remove", name: "Remove", desc: "Delete any dashboards." },
+    ]
+  },
+  {
+    id: "defects", title: "Defects", description: "Rules for managing defects.",
+    rules: [
+      { id: "df-view", name: "View", desc: "View a list of existing defects." },
+      { id: "df-create", name: "Create/update", desc: "Create or update defects." },
+      { id: "df-remove", name: "Remove", desc: "Delete defects." },
+      { id: "df-resolve", name: "Resolve", desc: "Resolve open defects." },
+    ]
+  },
+  {
+    id: "environments", title: "Environments", description: "Rules for managing environments.",
+    rules: [
+      { id: "env-view", name: "View", desc: "View a list of existing environments." },
+      { id: "env-create", name: "Create/update", desc: "Create or update environments." },
+      { id: "env-remove", name: "Remove", desc: "Delete environments." },
+    ]
+  },
+  {
+    id: "fields", title: "Fields", description: "Rules for managing fields.",
+    rules: [
+      { id: "fld-view", name: "View", desc: "View a list of existing fields." },
+      { id: "fld-update", name: "Update", desc: "Update fields." },
+      { id: "fld-create", name: "Create", desc: "Create custom fields." },
+      { id: "fld-remove", name: "Remove", desc: "Delete custom fields." },
+    ]
+  },
+  {
+    id: "test-plans", title: "Test plans", description: "Rules for managing test plans.",
+    rules: [
+      { id: "tp-view", name: "View", desc: "View a list of existing test plans." },
+      { id: "tp-create", name: "Create/update", desc: "Create or update test plans." },
+      { id: "tp-remove", name: "Remove", desc: "Delete test plans." },
+    ]
+  },
+  {
+    id: "projects", title: "Projects", description: "Rules for managing projects.",
+    rules: [
+      { id: "prj-create", name: "Create/update", desc: "Create new projects and update their settings." },
+      { id: "prj-remove", name: "Remove", desc: "Delete and archive projects." },
+      { id: "prj-access", name: "Access control", desc: "Manage access to the project: add or remove members." },
+      { id: "prj-owner", name: "Change ownership", desc: "Change the project owner." },
+      { id: "prj-import", name: "Import", desc: "Import test cases from various sources." },
+      { id: "prj-export", name: "Export", desc: "Export test cases." },
+    ]
+  },
+  {
+    id: "test-runs", title: "Test runs", description: "Rules for managing test runs.",
+    rules: [
+      { id: "tr-view", name: "View", desc: "View a list of existing test runs." },
+      { id: "tr-create", name: "Create/update", desc: "Create or update test runs." },
+      { id: "tr-remove", name: "Remove", desc: "Delete test runs." },
+      { id: "tr-submit", name: "Submit results", desc: "Submit run results." },
+      { id: "tr-assign", name: "Assign", desc: "Set assignee." },
+      { id: "tr-config", name: "Manage configurations", desc: "Create, update, or delete configurations." },
+    ]
+  },
+  {
+    id: "test-suites", title: "Test suites", description: "Rules for managing test suites.",
+    rules: [
+      { id: "ts-create", name: "Create/update", desc: "Create or update test suites." },
+      { id: "ts-remove", name: "Remove", desc: "Delete test suites and move their content to another suite." },
+      { id: "ts-position", name: "Change suite position", desc: "Drag and drop test suites on the repository page." },
+    ]
+  },
+  {
+    id: "tags", title: "Tags", description: "Rules for managing tags.",
+    rules: [
+      { id: "tg-view", name: "View", desc: "View a list of existing tags in the workspace." },
+      { id: "tg-create", name: "Create/update", desc: "Create tags on the fly." },
+      { id: "tg-remove", name: "Remove", desc: "Delete tags in the workspace." },
+    ]
+  },
+  {
+    id: "workspace", title: "Workspace", description: "Rules for managing workspace.",
+    rules: [
+      { id: "ws-update", name: "Update settings", desc: "Update workspace settings." },
+      { id: "ws-invite", name: "Invite", desc: "Invite new members to the workspace." },
+      { id: "ws-activate", name: "Activate/deactivate", desc: "Activate or deactivate workspace users." },
+      { id: "ws-user-update", name: "User update", desc: "Change user details and roles." },
+      { id: "ws-users-view", name: "View users", desc: "View users." },
+      { id: "ws-logs", name: "Logs", desc: "View logs." },
+    ]
+  }
+];
 
 export default function CreateRolePage() {
   const router = useRouter();
@@ -19,23 +126,15 @@ export default function CreateRolePage() {
       toast.error("Role title and description are required");
       return;
     }
-    
     setIsSubmitting(true);
-    
     try {
       const activePermissions = Object.entries(selectedPermissions)
-        .filter(([_, value]) => value)
-        .map(([key]) => key);
+        .filter(([_, v]) => v).map(([k]) => k);
 
       const res = await fetch("/api/workspace/roles", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title,
-          description,
-          isDefault,
-          permissions: activePermissions
-        })
+        body: JSON.stringify({ title, description, isDefault, permissions: activePermissions }),
       });
 
       if (res.ok) {
@@ -46,8 +145,7 @@ export default function CreateRolePage() {
         const data = await res.json();
         toast.error(data.error || "Failed to create role");
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("Something went wrong");
     } finally {
       setIsSubmitting(false);
@@ -61,281 +159,136 @@ export default function CreateRolePage() {
   const toggleBlock = (ruleIds: string[]) => {
     setSelectedPermissions(prev => {
       const allChecked = ruleIds.every(id => prev[id]);
-      const newState = { ...prev };
-      ruleIds.forEach(id => {
-        newState[id] = !allChecked;
-      });
-      return newState;
+      const next = { ...prev };
+      ruleIds.forEach(id => { next[id] = !allChecked; });
+      return next;
     });
   };
 
-  // We could use a state object to track all permissions, but for UI mockup we just need the structure.
-  
-  const permissionBlocks = [
-    {
-      id: "test-cases",
-      title: "Test cases",
-      description: "This block contains rules which allow to manage test cases.",
-      rules: [
-        { id: "tc-repository", name: "Repository", desc: "This rule allows to view test cases in the test case repository." },
-        { id: "tc-create", name: "Create/update", desc: "This rule allows to create or update test cases in the test case repository." },
-        { id: "tc-remove", name: "Remove", desc: "This rule allows to delete a test case." },
-        { id: "tc-sort", name: "Change sort order", desc: "This rule allows to drag and drop test cases on the repository page." },
-        { id: "tc-approve", name: "Approve/Decline", desc: "This rule allows to approve or decline test case changes during the review process." },
-        { id: "tc-rollback", name: "Rollback", desc: "This rule allows to undo changes done to test cases." },
-        { id: "tc-mute", name: "Mute/Unmute", desc: "This rule allows to mute or unmute a test case." },
-      ]
-    },
-    {
-      id: "dashboards",
-      title: "Dashboards",
-      description: "This block contains rules which allow to manage dashboards.",
-      rules: [
-        { id: "db-view", name: "View", desc: "This rule allows you to view existing dashboards." },
-        { id: "db-create", name: "Create", desc: "This rule allows you to create dashboards, update, and remove them." },
-        { id: "db-update", name: "Update", desc: "This rule allows to update any dashboards." },
-        { id: "db-remove", name: "Remove", desc: "This rule allows to delete any dashboards." },
-      ]
-    },
-    {
-      id: "defects",
-      title: "Defects",
-      description: "This block contains rules which allow to manage defects.",
-      rules: [
-        { id: "df-view", name: "View", desc: "This rule allows to view a list of existing defects." },
-        { id: "df-create", name: "Create/update", desc: "This rule allows to create or update defects." },
-        { id: "df-remove", name: "Remove", desc: "This rule allows to delete defects." },
-        { id: "df-resolve", name: "Resolve", desc: "This rule allows to resolve open defects." },
-      ]
-    },
-    {
-      id: "environments",
-      title: "Environments",
-      description: "This block contains rules which allow to manage environments.",
-      rules: [
-        { id: "env-view", name: "View", desc: "This rule allows to view a list of existing environments." },
-        { id: "env-create", name: "Create/update", desc: "This rule allows to create or update environments." },
-        { id: "env-remove", name: "Remove", desc: "This rule allows to delete environments." },
-      ]
-    },
-    {
-      id: "fields",
-      title: "Fields",
-      description: "This block contains rules which allow to manage fields.",
-      rules: [
-        { id: "fld-view", name: "View", desc: "This rule allows to view a list of existing fields." },
-        { id: "fld-update", name: "Update", desc: "This rule allows to update fields." },
-        { id: "fld-create", name: "Create", desc: "This rule allows to create custom fields." },
-        { id: "fld-remove", name: "Remove", desc: "This rule allows to delete custom fields." },
-      ]
-    },
-    {
-      id: "test-plans",
-      title: "Test plans",
-      description: "This block contains rules which allow to manage test plans.",
-      rules: [
-        { id: "tp-view", name: "View", desc: "This rule allows to view a list of existing test plans." },
-        { id: "tp-create", name: "Create/update", desc: "This rule allows to create or update test plans." },
-        { id: "tp-remove", name: "Remove", desc: "This rule allows to delete test plans." },
-      ]
-    },
-    {
-      id: "projects",
-      title: "Projects",
-      description: "This block contains rules which allow to manage projects.",
-      rules: [
-        { id: "prj-create", name: "Create/update", desc: "This rule allows to create new projects and update their settings." },
-        { id: "prj-remove", name: "Remove", desc: "This rule allows to delete and archive projects." },
-        { id: "prj-access", name: "Access control", desc: "This rule allows to manage access to the project: add or remove members." },
-        { id: "prj-owner", name: "Change ownership", desc: "This rule allows to change the project owner." },
-        { id: "prj-import", name: "Import", desc: "This rule allows to import test cases from various sources." },
-        { id: "prj-export", name: "Export", desc: "This rule allows to export test cases." },
-      ]
-    },
-    {
-      id: "test-runs",
-      title: "Test runs",
-      description: "This block contains rules which allow to manage test runs.",
-      rules: [
-        { id: "tr-view", name: "View", desc: "This rule allows to view a list of existing test runs." },
-        { id: "tr-create", name: "Create/update", desc: "This rule allows to create or update test runs." },
-        { id: "tr-remove", name: "Remove", desc: "This rule allows to delete test runs." },
-        { id: "tr-submit", name: "Submit results", desc: "This rule allows to submit run results." },
-        { id: "tr-assign", name: "Assign", desc: "This rule allows to set assignee." },
-        { id: "tr-config", name: "Manage configurations", desc: "This rule allows to create, update, or delete configurations." },
-      ]
-    },
-    {
-      id: "test-suites",
-      title: "Test suites",
-      description: "This block contains rules which allow to manage test suites.",
-      rules: [
-        { id: "ts-create", name: "Create/update", desc: "This rule allows to create or update test suites." },
-        { id: "ts-remove", name: "Remove", desc: "This rule allows to delete test suites and move their content to another suite." },
-        { id: "ts-position", name: "Change suite position", desc: "This rule allows to drag and drop test suites on the repository page." },
-      ]
-    },
-    {
-      id: "tags",
-      title: "Tags",
-      description: "This block contains rules which allow to manage tags.",
-      rules: [
-        { id: "tg-view", name: "View", desc: "This rule allows to view a list of existing tags in the workspace." },
-        { id: "tg-create", name: "Create/update", desc: "This rule allows to create tags on the fly." },
-        { id: "tg-remove", name: "Remove", desc: "This rule allows to delete tags in the workspace." },
-      ]
-    },
-    {
-      id: "workspace",
-      title: "Workspace",
-      description: "This block contains rules which allow to manage workspace.",
-      rules: [
-        { id: "ws-update", name: "Update settings", desc: "This rule allows to update workspace settings." },
-        { id: "ws-invite", name: "Invite", desc: "This rule allows to invite new members to the workspace." },
-        { id: "ws-activate", name: "Activate/deactivate", desc: "This rule allows to activate or deactivate workspace users." },
-        { id: "ws-user-update", name: "Workspace user update", desc: "This rule allows to change user details and roles." },
-        { id: "ws-users-view", name: "Users view", desc: "This rule allows to view users." },
-        { id: "ws-logs", name: "Logs", desc: "This rule allows to view logs." },
-      ]
-    }
-  ];
-
   return (
-    <div className="w-full flex flex-col h-full overflow-hidden">
+    <div className="w-full max-w-[900px] mx-auto px-6 py-6">
       {/* Header */}
-      <header className="px-8 py-6 border-b border-border shrink-0">
-        <div className="flex items-center text-text-main">
-          <Link href="/workspace/roles" className="mr-4 text-text-muted hover:text-text-muted transition-colors">
-            <ArrowLeft size={24} />
-          </Link>
-          <h1 className="text-2xl font-bold">Create Role</h1>
+      <div className="flex items-center gap-3 mb-6">
+        <Link href="/workspace/roles" className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
+          <ArrowLeft size={18} />
+        </Link>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
+            <Shield size={15} className="text-indigo-500" />
+          </div>
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">New role</h1>
         </div>
-      </header>
+      </div>
 
-      {/* Main Form Content */}
-      <div className="flex-1 overflow-y-auto px-8 py-8">
-        <div className="max-w-4xl mx-auto space-y-10">
-          
-          {/* Role Settings */}
-          <section>
-            <h2 className="text-xl font-bold text-text-main mb-4 pb-2 border-b border-border">
-              Role settings
-            </h2>
-            
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-bold text-text-main mb-2">
-                  Role title <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-text-muted rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
-                />
-              </div>
+      <div className="space-y-6">
+        {/* Role Settings Card */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <h2 className="text-sm font-bold text-slate-700 uppercase tracking-wider mb-4">Role settings</h2>
 
-              <div>
-                <label className="block text-sm font-bold text-text-main mb-2">
-                  Description <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                  className="w-full px-3 py-2 text-sm border border-text-muted rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors resize-none"
-                />
-              </div>
-
-              <div>
-                <label className="flex items-center space-x-3 cursor-pointer">
-                  <div className="relative flex items-center justify-center w-4 h-4">
-                    <input 
-                      type="checkbox" 
-                      checked={isDefault}
-                      onChange={(e) => setIsDefault(e.target.checked)}
-                      className="peer sr-only"
-                    />
-                    <div className="w-4 h-4 border border-text-muted rounded peer-checked:bg-primary peer-checked:border-blue-600 transition-colors"></div>
-                    <svg className="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  </div>
-                  <span className="text-sm font-bold text-text-main">Set as default role</span>
-                </label>
-              </div>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                Role title <span className="text-rose-400">*</span>
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. QA Lead"
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all"
+              />
             </div>
-          </section>
 
-          {/* Role access rights */}
-          <section>
-            <h2 className="text-xl font-bold text-text-main mb-6 pb-2 border-b border-border">
-              Role access rights
-            </h2>
-            
-            <div className="space-y-6">
-              {permissionBlocks.map((block) => (
-                <div key={block.id} className="border border-border rounded-lg overflow-hidden">
-                  {/* Block Header */}
-                  <label className="bg-surface-hover px-4 py-3 flex items-start border-b border-border cursor-pointer">
-                    <div className="relative flex items-center justify-center w-4 h-4 mt-1 mr-4 shrink-0">
-                      <input 
-                        type="checkbox" 
-                        className="peer sr-only" 
-                        checked={block.rules.length > 0 && block.rules.every(r => selectedPermissions[r.id])}
-                        onChange={() => toggleBlock(block.rules.map(r => r.id))}
-                      />
-                      <div className="w-4 h-4 border border-text-muted rounded peer-checked:bg-primary peer-checked:border-blue-600 transition-colors"></div>
-                      <svg className="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    </div>
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                Description <span className="text-rose-400">*</span>
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={2}
+                placeholder="Describe what this role can do…"
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 resize-none transition-all"
+              />
+            </div>
+
+            <label className="flex items-center gap-2.5 cursor-pointer select-none w-fit">
+              <input
+                type="checkbox"
+                checked={isDefault}
+                onChange={(e) => setIsDefault(e.target.checked)}
+                className="w-4 h-4 rounded accent-indigo-600"
+              />
+              <span className="text-sm font-semibold text-slate-700">Set as default role</span>
+              <span className="text-xs text-slate-400">New invited members get this role</span>
+            </label>
+          </div>
+        </div>
+
+        {/* Permissions Card */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+          <div className="px-6 py-4 border-b border-slate-100">
+            <h2 className="text-sm font-bold text-slate-700 uppercase tracking-wider">Access rights</h2>
+            <p className="text-xs text-slate-400 mt-0.5">Select which actions this role can perform</p>
+          </div>
+
+          <div className="divide-y divide-slate-100">
+            {PERMISSION_BLOCKS.map((block) => {
+              const ruleIds = block.rules.map(r => r.id);
+              const allChecked = ruleIds.every(id => selectedPermissions[id]);
+              const someChecked = ruleIds.some(id => selectedPermissions[id]);
+
+              return (
+                <div key={block.id}>
+                  <div className="px-6 py-3 bg-slate-50/60 flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={allChecked}
+                      ref={el => { if (el) el.indeterminate = !allChecked && someChecked; }}
+                      onChange={() => toggleBlock(ruleIds)}
+                      className="w-4 h-4 rounded accent-indigo-600"
+                    />
                     <div>
-                      <h3 className="text-sm font-bold text-text-main">{block.title}</h3>
-                      <p className="text-sm text-text-muted mt-0.5">{block.description}</p>
+                      <span className="text-sm font-bold text-slate-700">{block.title}</span>
+                      <span className="text-xs text-slate-400 ml-2">{block.description}</span>
                     </div>
-                  </label>
-
-                  {/* Rules List */}
-                  <div className="bg-surface divide-y divide-slate-100">
+                  </div>
+                  <div className="divide-y divide-slate-50">
                     {block.rules.map((rule) => (
-                      <label key={rule.id} className="px-4 py-3 flex items-start hover:bg-surface-hover transition-colors cursor-pointer">
-                        <div className="relative flex items-center justify-center w-4 h-4 mt-0.5 mr-4 shrink-0">
-                          <input 
-                            type="checkbox" 
-                            className="peer sr-only" 
-                            checked={!!selectedPermissions[rule.id]}
-                            onChange={() => togglePermission(rule.id)}
-                          />
-                          <div className="w-4 h-4 border border-text-muted rounded peer-checked:bg-primary peer-checked:border-blue-600 transition-colors"></div>
-                          <svg className="absolute w-3 h-3 text-white scale-0 peer-checked:scale-100 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                        </div>
-                        <div className="flex-1 grid grid-cols-12 gap-4">
-                          <div className="col-span-4 sm:col-span-3">
-                            <span className="text-sm font-bold text-text-main">{rule.name}</span>
-                          </div>
-                          <div className="col-span-8 sm:col-span-9">
-                            <span className="text-sm text-text-muted">{rule.desc}</span>
-                          </div>
+                      <label key={rule.id} className="flex items-start gap-3 px-6 py-2.5 cursor-pointer hover:bg-indigo-50/30 transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={!!selectedPermissions[rule.id]}
+                          onChange={() => togglePermission(rule.id)}
+                          className="w-4 h-4 rounded accent-indigo-600 mt-0.5 shrink-0"
+                        />
+                        <div className="flex items-baseline gap-3 flex-1 min-w-0">
+                          <span className="text-sm font-semibold text-slate-700 w-44 shrink-0">{rule.name}</span>
+                          <span className="text-sm text-slate-400 truncate">{rule.desc}</span>
                         </div>
                       </label>
                     ))}
                   </div>
                 </div>
-              ))}
-            </div>
-            
-            {/* Form Actions */}
-            <div className="mt-10 pt-6 border-t border-border flex items-center space-x-4">
-              <button 
-                onClick={handleSubmit} 
-                disabled={isSubmitting}
-                className="px-6 py-2 bg-[#2563eb] hover:bg-primary-hover disabled:opacity-50 text-white text-sm font-medium rounded-md transition-colors"
-              >
-                {isSubmitting ? "Creating..." : "Create"}
-              </button>
-              <Link href="/workspace/roles" className="px-6 py-2 bg-surface border border-text-muted text-text-main hover:bg-surface-hover text-sm font-medium rounded-md transition-colors">
-                Cancel
-              </Link>
-            </div>
-            
-          </section>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center gap-3 pb-8">
+          <button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="px-5 py-2.5 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
+            style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
+          >
+            {isSubmitting && <Loader2 size={14} className="animate-spin" />}
+            {isSubmitting ? "Creating…" : "Create role"}
+          </button>
+          <Link href="/workspace/roles" className="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+            Cancel
+          </Link>
         </div>
       </div>
     </div>

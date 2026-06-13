@@ -31,8 +31,8 @@
   --primary-light:      #eef2ff;
 
   /* sidebar */
-  --sidebar-bg:      #ffffff;
-  --sidebar-border:  #e8eaf2;
+  --sidebar-bg:      #1e1b4b;
+  --sidebar-border:  rgba(255,255,255,0.08);
 }
 
 /* ── Base ──────────────────────────────────────────────── */

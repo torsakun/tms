@@ -34,44 +34,35 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { email, firstName, lastName, roleTitle, roleId } = body;
+    const { email, firstName, lastName, roleId } = body;
 
-    if (!email || !firstName || !lastName || !roleTitle || !roleId) {
+    if (!email || !firstName || !lastName || !roleId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
-
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return NextResponse.json({ error: "User already exists with this email" }, { status: 400 });
     }
 
+    // Resolve role title from DB
+    const role = await prisma.workspaceRole.findUnique({ where: { id: roleId } });
+    const roleTitle = role?.title || "Member";
+
     const token = uuidv4();
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days expiration
+    expiresAt.setDate(expiresAt.getDate() + 7);
 
     const invitation = await prisma.invitation.create({
-      data: {
-        email,
-        firstName,
-        lastName,
-        token,
-        roleTitle,
-        roleId,
-        expiresAt,
-        status: "PENDING"
-      }
+      data: { email, firstName, lastName, token, roleTitle, roleId, expiresAt, status: "PENDING" }
     });
 
-    // Send email via Nodemailer
     const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
     const host = req.headers.get("host");
     const baseUrl = process.env.NEXTAUTH_URL || `${protocol}://${host}`;
     const inviteLink = `${baseUrl}/invite/accept?token=${token}`;
-    
+
     const emailResult = await sendEmail({
       to: email,
       subject: `You have been invited to join the TESSA workspace`,
@@ -79,7 +70,7 @@ export async function POST(req: Request) {
         title: "Welcome to TESSA! 🚀",
         greeting: `${firstName} ${lastName}`,
         roleText: roleTitle,
-        inviteLink: inviteLink,
+        inviteLink,
         projectName: "TESSA Workspace"
       })
     });

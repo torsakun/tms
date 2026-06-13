@@ -1,9 +1,35 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MoreHorizontal, UserX, UserCheck, Key, Shield, ChevronDown, Loader2 } from "lucide-react";
+import { MoreHorizontal, UserX, UserCheck, Key, Shield, ChevronDown, Loader2, AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+
+function ConfirmDialog({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4" onClick={onCancel}>
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start gap-3 mb-5">
+          <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
+            <AlertTriangle size={18} className="text-amber-500" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-slate-800 mb-1">Confirm action</h3>
+            <p className="text-sm text-slate-500">{message}</p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2">
+          <button onClick={onCancel} className="px-4 py-2 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button onClick={onConfirm} className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors" style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface WorkspaceRole {
   id: string;
@@ -23,6 +49,7 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [selectedRoleId, setSelectedRoleId] = useState(currentRoleId || "");
   const [resetLink, setResetLink] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState<{ message: string; action: string } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -59,18 +86,21 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleAction = async (action: string) => {
+  const handleActionRequest = (action: string) => {
+    setIsOpen(false);
     if (action === "reset_password") {
-      const confirmReset = window.confirm("Are you sure you want to reset this user's password to 'password123'?");
-      if (!confirmReset) return;
+      setConfirm({ message: "Reset this user's password to 'password123'?", action });
+    } else if (action === "deactivate") {
+      setConfirm({ message: "Deactivate this user? They will lose access to the workspace.", action });
+    } else if (action === "activate") {
+      setConfirm({ message: "Activate this user?", action });
+    } else {
+      handleAction(action);
     }
+  };
 
-    if (action === "deactivate" || action === "activate") {
-      const actionText = action === "deactivate" ? "deactivate" : "activate";
-      const confirmAction = window.confirm(`Are you sure you want to ${actionText} this user?`);
-      if (!confirmAction) return;
-    }
-
+  const handleAction = async (action: string) => {
+    setConfirm(null);
     setIsLoading(true);
     setIsOpen(false);
     try {
@@ -157,7 +187,7 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
             
             {isActive ? (
               <button
-                onClick={() => handleAction("deactivate")}
+                onClick={() => handleActionRequest("deactivate")}
                 className="w-full text-left px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 flex items-center space-x-2 font-medium"
               >
                 <UserX size={16} className="text-rose-500" />
@@ -165,7 +195,7 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
               </button>
             ) : (
               <button
-                onClick={() => handleAction("activate")}
+                onClick={() => handleActionRequest("activate")}
                 className="w-full text-left px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 flex items-center space-x-2 font-medium"
               >
                 <UserCheck size={16} className="text-emerald-500" />
@@ -175,6 +205,15 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
           </div>
         )}
       </div>
+
+      {/* Custom confirm dialog */}
+      {confirm && (
+        <ConfirmDialog
+          message={confirm.message}
+          onConfirm={() => handleAction(confirm.action)}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
 
       {/* Reset link modal (email not configured — share manually) */}
       {resetLink && (
@@ -213,7 +252,7 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
             
             <div className="mb-6 relative">
               <label className="block text-sm font-medium text-text-main mb-2">
-                Workspace Role
+                Role
               </label>
               <div className="relative">
                 <select

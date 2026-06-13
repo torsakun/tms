@@ -11,20 +11,18 @@ interface UserRow {
   initials: string;
   avatarBg: string;
   isActive: boolean;
-  type: "Admin" | "Regular";
+  isSysAdmin: boolean;
   role: string;
   roleId: string | null;
   lastAction: string;
 }
 
 type StatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
-type TypeFilter = "ALL" | "Admin" | "Regular";
 
 export default function UsersTable({ users, roles, isAdmin = false }: { users: UserRow[]; roles: { id: string; title: string }[]; isAdmin?: boolean }) {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<StatusFilter>("ALL");
-  const [type, setType] = useState<TypeFilter>("ALL");
-  const [openMenu, setOpenMenu] = useState<"status" | "type" | null>(null);
+  const [openMenu, setOpenMenu] = useState<"status" | null>(null);
   const filterRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,13 +38,11 @@ export default function UsersTable({ users, roles, isAdmin = false }: { users: U
     return users.filter((u) => {
       const matchesSearch = !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
       const matchesStatus = status === "ALL" || (status === "ACTIVE" ? u.isActive : !u.isActive);
-      const matchesType = type === "ALL" || u.type === type;
-      return matchesSearch && matchesStatus && matchesType;
+      return matchesSearch && matchesStatus;
     });
-  }, [users, search, status, type]);
+  }, [users, search, status]);
 
   const STATUS_LABEL: Record<StatusFilter, string> = { ALL: "All", ACTIVE: "Active", INACTIVE: "Inactive" };
-  const TYPE_LABEL: Record<TypeFilter, string> = { ALL: "All", Admin: "Admin", Regular: "Regular" };
 
   const chip = (active: boolean) =>
     `h-8 flex items-center gap-1.5 px-3 rounded-lg border text-xs font-semibold transition-colors ${
@@ -85,24 +81,7 @@ export default function UsersTable({ users, roles, isAdmin = false }: { users: U
           )}
         </div>
 
-        {/* Type filter */}
-        <div className="relative">
-          <button onClick={() => setOpenMenu(openMenu === "type" ? null : "type")} className={chip(type !== "ALL")}>
-            Type: {TYPE_LABEL[type]} <ChevronDown size={12} />
-          </button>
-          {openMenu === "type" && (
-            <div className="absolute left-0 mt-1 w-40 bg-white rounded-xl py-1 z-30 overflow-hidden" style={{ border: "1px solid #f1f3f9", boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }}>
-              {(["ALL", "Admin", "Regular"] as TypeFilter[]).map((t) => (
-                <button key={t} onClick={() => { setType(t); setOpenMenu(null); }}
-                  className={`w-full text-left px-4 py-2 text-sm font-medium transition-colors flex items-center justify-between ${type === t ? "bg-indigo-50 text-indigo-600" : "text-slate-600 hover:bg-slate-50"}`}>
-                  {TYPE_LABEL[t]} {type === t && <Check size={13} strokeWidth={3} />}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {(search || status !== "ALL" || type !== "ALL") && (
+        {(search || status !== "ALL") && (
           <span className="text-xs text-slate-400 ml-1">{filtered.length} of {users.length}</span>
         )}
       </div>
@@ -114,8 +93,7 @@ export default function UsersTable({ users, roles, isAdmin = false }: { users: U
             <tr className="border-b border-slate-100 bg-slate-50/80">
               <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">User</th>
               <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-28">Status</th>
-              <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-28">Type</th>
-              <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-40">Workspace Role</th>
+              <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-44">Role</th>
               <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-36">Last Seen</th>
               <th className="pr-4 py-3 w-10" />
             </tr>
@@ -143,13 +121,15 @@ export default function UsersTable({ users, roles, isAdmin = false }: { users: U
                   )}
                 </td>
                 <td className="px-5 py-3.5 align-middle">
-                  {user.type === "Admin" ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-600">Admin</span>
-                  ) : (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500">Regular</span>
-                  )}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm text-slate-700 font-medium">{user.role}</span>
+                    {user.isSysAdmin && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-500 border border-indigo-100">
+                        SYS
+                      </span>
+                    )}
+                  </div>
                 </td>
-                <td className="px-5 py-3.5 align-middle"><span className="text-sm text-slate-600">{user.role}</span></td>
                 <td className="px-5 py-3.5 align-middle"><span className="text-sm text-slate-400">{user.lastAction}</span></td>
                 <td className="pr-4 py-3.5 align-middle text-right">
                   {isAdmin && (
@@ -162,7 +142,7 @@ export default function UsersTable({ users, roles, isAdmin = false }: { users: U
             ))}
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-5 py-16 text-center">
+                <td colSpan={5} className="px-5 py-16 text-center">
                   <UsersIcon size={28} className="mx-auto mb-2 text-slate-200" />
                   <p className="text-sm text-slate-400">No members match your filters.</p>
                 </td>

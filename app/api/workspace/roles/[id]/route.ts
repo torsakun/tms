@@ -39,7 +39,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const updatedRole = await prisma.workspaceRole.update({
       where: { id },
       data: {
-        title: existingRole.isSystem ? existingRole.title : title,
+        title: title || existingRole.title,
         description,
         isDefault,
         permissions: permissions || existingRole.permissions
@@ -60,10 +60,6 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const existingRole = await prisma.workspaceRole.findUnique({ where: { id } });
     if (!existingRole) {
       return NextResponse.json({ error: "Role not found" }, { status: 404 });
-    }
-
-    if (existingRole.isSystem) {
-      return NextResponse.json({ error: "Cannot delete system roles" }, { status: 403 });
     }
 
     if (existingRole.isDefault) {

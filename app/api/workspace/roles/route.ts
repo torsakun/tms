@@ -3,37 +3,41 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    // Lazy seeding for system roles if none exist
-    const systemRoleCount = await prisma.workspaceRole.count({
-      where: { isSystem: true }
-    });
-    
-    if (systemRoleCount === 0) {
-      await prisma.workspaceRole.createMany({
-        data: [
-          {
-            title: "Owner",
-            description: "Team owner has access to all features and available to manage all aspects of application.",
-            isSystem: true,
-            isDefault: false,
-            permissions: ["all"]
-          },
-          {
-            title: "Administrator",
-            description: "A administrative role that is similar to owner.",
-            isSystem: true,
-            isDefault: false,
-            permissions: ["all"]
-          },
-          {
-            title: "Member",
-            description: "A common role that grants access to basic Qase features.",
-            isSystem: true,
-            isDefault: true,
-            permissions: ["tc-repository", "tc-create"] // Example default permissions
-          }
-        ]
-      });
+    // Ensure all system roles exist (upsert by title)
+    const systemRoleDefs = [
+      {
+        title: "Owner",
+        description: "Full access to all features and workspace management.",
+        isDefault: false,
+        permissions: ["all"]
+      },
+      {
+        title: "Administrator",
+        description: "Administrative access, similar to Owner.",
+        isDefault: false,
+        permissions: ["all"]
+      },
+      {
+        title: "Member",
+        description: "Standard access to core features.",
+        isDefault: true,
+        permissions: ["tc-repository", "tc-create", "tr-view", "db-view"]
+      },
+      {
+        title: "Read-only",
+        description: "Can view content but cannot create, edit, or delete anything.",
+        isDefault: false,
+        permissions: ["tc-repository", "tr-view", "db-view", "df-view", "env-view", "tp-view", "tg-view", "ws-users-view"]
+      }
+    ];
+
+    for (const def of systemRoleDefs) {
+      const existing = await prisma.workspaceRole.findFirst({ where: { title: def.title, isSystem: true } });
+      if (!existing) {
+        await prisma.workspaceRole.create({ data: { ...def, isSystem: true } });
+      } else if (existing.description?.toLowerCase().includes("qase")) {
+        await prisma.workspaceRole.update({ where: { id: existing.id }, data: { description: def.description } });
+      }
     }
 
     const roles = await prisma.workspaceRole.findMany({

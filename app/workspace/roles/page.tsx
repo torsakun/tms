@@ -2,13 +2,40 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Check, MoreHorizontal, Loader2 } from "lucide-react";
+import { Check, MoreHorizontal, Loader2, Plus, Shield, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+
+function ConfirmDialog({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4" onClick={onCancel}>
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start gap-3 mb-5">
+          <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
+            <AlertTriangle size={18} className="text-rose-500" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-slate-800 mb-1">Delete role</h3>
+            <p className="text-sm text-slate-500">{message}</p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2">
+          <button onClick={onCancel} className="px-4 py-2 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button onClick={onConfirm} className="px-4 py-2 text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-lg transition-colors">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function WorkspaceRolesPage() {
   const [roles, setRoles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     const handleClickOutside = () => setOpenMenuId(null);
@@ -20,154 +47,124 @@ export default function WorkspaceRolesPage() {
     fetch("/api/workspace/roles")
       .then(res => res.json())
       .then(data => {
-        if (data.success) {
-          setRoles(data.roles);
-        }
+        if (data.success) setRoles(data.roles);
         setIsLoading(false);
       })
-      .catch(err => {
-        console.error(err);
-        setIsLoading(false);
-      });
+      .catch(() => setIsLoading(false));
   };
 
-  useEffect(() => {
-    fetchRoles();
-  }, []);
+  useEffect(() => { fetchRoles(); }, []);
 
   const handleSetDefault = async (id: string) => {
     try {
-      const res = await fetch(`/api/workspace/roles/${id}/default`, {
-        method: "POST"
-      });
-      if (res.ok) {
-        fetchRoles();
-        toast.success("Default role updated");
-      }
-    } catch (e) {
-      console.error("Error setting default role", e);
-      toast.error("Failed to update default role");
-    }
+      const res = await fetch(`/api/workspace/roles/${id}/default`, { method: "POST" });
+      if (res.ok) { fetchRoles(); toast.success("Default role updated"); }
+      else toast.error("Failed to update default role");
+    } catch { toast.error("Failed to update default role"); }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this role?")) return;
+    setConfirmDelete(null);
     try {
       const res = await fetch(`/api/workspace/roles/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        fetchRoles();
-        toast.success("Role deleted successfully");
-      } else {
-        const data = await res.json();
-        toast.error(data.error || "Failed to delete role");
-      }
-    } catch (err) {
-      console.error("Error deleting role", err);
-      toast.error("Something went wrong");
-    }
+      if (res.ok) { fetchRoles(); toast.success("Role deleted successfully"); }
+      else { const d = await res.json(); toast.error(d.error || "Failed to delete role"); }
+    } catch { toast.error("Something went wrong"); }
   };
 
   if (isLoading) {
     return (
       <div className="w-full h-[500px] flex items-center justify-center">
-        <Loader2 className="animate-spin text-primary" size={32} />
+        <Loader2 className="animate-spin text-indigo-500" size={32} />
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto px-8 py-8">
-      <h1 className="text-2xl font-bold text-text-main mb-6">User Roles</h1>
-
-      {/* Toolbar */}
-      <div className="flex items-center mb-6">
-        <Link 
+    <div className="w-full max-w-[1400px] mx-auto px-6 py-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">Roles</h1>
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">{roles.length}</span>
+        </div>
+        <Link
           href="/workspace/roles/create"
-          className="bg-[#2563eb] hover:bg-primary-hover text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+          className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:opacity-90"
+          style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
         >
-          Create a new role
+          <Plus size={15} /> New role
         </Link>
       </div>
 
-      {/* Roles Table */}
-      <div className="overflow-visible pb-32">
+      {/* Table */}
+      <div className="rounded-xl overflow-visible bg-white border border-slate-200 shadow-sm">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-border">
-              <th className="px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Title</th>
-              <th className="px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider text-center w-24">System</th>
-              <th className="px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider text-center w-24">Default</th>
-              <th className="px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider w-32">Users</th>
-              <th className="px-4 py-3 w-10"></th>
+            <tr className="border-b border-slate-100 bg-slate-50/80">
+              <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Role</th>
+              <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-24 text-center">System</th>
+              <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-24 text-center">Default</th>
+              <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider w-28">Members</th>
+              <th className="pr-4 py-3 w-10" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody>
             {roles.map((role) => (
-              <tr key={role.id} className="hover:bg-surface-hover transition-colors">
-                <td className="px-4 py-4">
-                  <div className="flex flex-col">
-                    <span className="font-bold text-text-main text-sm">{role.title}</span>
-                    <span className="text-xs text-text-muted mt-1">{role.description}</span>
+              <tr key={role.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors group">
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
+                      <Shield size={15} className="text-indigo-500" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-slate-800">{role.title}</div>
+                      <div className="text-[11px] text-slate-400 mt-0.5 max-w-md truncate">{role.description}</div>
+                    </div>
                   </div>
                 </td>
-                <td className="px-4 py-4 text-center">
-                  {role.isSystem && (
-                    <Check size={16} className="text-emerald-500 mx-auto" />
-                  )}
+                <td className="px-5 py-4 text-center">
+                  {role.isSystem && <Check size={15} className="text-emerald-500 mx-auto" strokeWidth={3} />}
                 </td>
-                <td className="px-4 py-4 text-center">
-                  {role.isDefault && (
-                    <Check size={16} className="text-emerald-500 mx-auto" />
-                  )}
+                <td className="px-5 py-4 text-center">
+                  {role.isDefault && <Check size={15} className="text-emerald-500 mx-auto" strokeWidth={3} />}
                 </td>
-                <td className="px-4 py-4 text-sm text-text-main font-medium">
-                  {role._count?.users || 0} {(role._count?.users || 0) === 1 ? "user" : "users"}
+                <td className="px-5 py-4">
+                  <span className="text-sm text-slate-600 font-medium">
+                    {role._count?.users || 0} {(role._count?.users || 0) === 1 ? "member" : "members"}
+                  </span>
                 </td>
-                <td className="px-4 py-4 text-right relative">
-                  <button 
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      e.nativeEvent.stopImmediatePropagation();
-                      setOpenMenuId(openMenuId === role.id ? null : role.id);
-                    }}
-                    className="text-text-muted hover:text-text-muted p-1 rounded hover:bg-slate-200"
+                <td className="pr-4 py-4 text-right relative">
+                  <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setOpenMenuId(openMenuId === role.id ? null : role.id); }}
+                    className="p-1.5 rounded-md text-slate-300 group-hover:text-slate-500 hover:bg-slate-100 transition-colors"
                   >
                     <MoreHorizontal size={16} />
                   </button>
-                  
+
                   {openMenuId === role.id && (
-                    <div className="absolute right-8 top-10 w-48 bg-surface rounded-md shadow-lg border border-border z-50 py-1 text-left">
-                      <Link 
+                    <div className="absolute right-8 top-10 w-48 bg-white rounded-xl py-1 z-50 overflow-hidden" style={{ border: "1px solid #f1f3f9", boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }}>
+                      <Link
                         href={`/workspace/roles/${role.id}`}
-                        className="block px-4 py-2 text-sm text-text-main hover:bg-surface-hover transition-colors"
+                        className="block px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors text-left"
                       >
-                        View
+                        Edit
                       </Link>
-                      {!role.isSystem && (
-                        <Link 
-                          href={`/workspace/roles/${role.id}`}
-                          className="block px-4 py-2 text-sm text-text-main hover:bg-surface-hover transition-colors"
-                        >
-                          Update
-                        </Link>
-                      )}
-                      {!role.isDefault && !role.isSystem && (
-                        <button 
+                      {!role.isDefault && (
+                        <button
                           onClick={() => handleSetDefault(role.id)}
-                          className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover transition-colors"
+                          className="w-full text-left px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                         >
-                          Set default role
+                          Set as default
                         </button>
                       )}
-                      {!role.isSystem && (
-                        <button 
-                          onClick={() => handleDelete(role.id)}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors mt-1 border-t border-border pt-1"
-                        >
-                          Delete role
-                        </button>
-                      )}
+                      <div className="h-px bg-slate-100 mx-2 my-1" />
+                      <button
+                        onClick={() => { setOpenMenuId(null); setConfirmDelete({ id: role.id, title: role.title }); }}
+                        className="w-full text-left px-4 py-2 text-sm font-medium text-rose-500 hover:bg-rose-50 transition-colors"
+                      >
+                        Delete
+                      </button>
                     </div>
                   )}
                 </td>
@@ -176,6 +173,14 @@ export default function WorkspaceRolesPage() {
           </tbody>
         </table>
       </div>
+
+      {confirmDelete && (
+        <ConfirmDialog
+          message={`Delete "${confirmDelete.title}"? Users assigned this role will be moved to the default role.`}
+          onConfirm={() => handleDelete(confirmDelete.id)}
+          onCancel={() => setConfirmDelete(null)}
+        />
+      )}
     </div>
   );
 }

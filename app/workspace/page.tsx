@@ -49,7 +49,7 @@ export default async function WorkspaceUsersPage() {
     initials:   getInitials(user.name),
     avatarBg:   avatarColor(user.name || user.email.split("@")[0]),
     isActive:   user.isActive,
-    type:       (user.role === "ADMIN" ? "Admin" : "Regular") as "Admin" | "Regular",
+    isSysAdmin: user.role === "ADMIN",
     role:       user.workspaceRole?.title || "Member",
     roleId:     user.workspaceRoleId,
     lastAction: new Date(user.updatedAt).toLocaleDateString("en-GB", {
