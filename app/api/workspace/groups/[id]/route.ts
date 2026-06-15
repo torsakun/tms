@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSessionUser, unauthorized, forbidden } from "@/lib/api-auth";
+import { canManageWorkspace } from "@/lib/permissions";
 
 // Update a group: title/description and/or full member set
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const actor = await getSessionUser();
+  if (!actor) return unauthorized();
+  if (!canManageWorkspace(actor)) return forbidden();
   const { id } = await params;
   try {
     const body = await req.json();
@@ -42,6 +47,9 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const actor = await getSessionUser();
+  if (!actor) return unauthorized();
+  if (!canManageWorkspace(actor)) return forbidden();
   const { id } = await params;
   try {
     await prisma.group.delete({ where: { id } });

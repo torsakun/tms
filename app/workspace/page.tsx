@@ -52,9 +52,11 @@ export default async function WorkspaceUsersPage() {
     isSysAdmin: user.role === "ADMIN",
     role:       user.workspaceRole?.title || "Member",
     roleId:     user.workspaceRoleId,
-    lastAction: new Date(user.updatedAt).toLocaleDateString("en-GB", {
-      day: "2-digit", month: "short", year: "numeric",
-    }),
+    lastAction: user.lastSeenAt
+      ? new Date(user.lastSeenAt).toLocaleDateString("en-GB", {
+          day: "2-digit", month: "short", year: "numeric",
+        })
+      : "Never",
   }));
 
   return (

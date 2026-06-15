@@ -37,6 +37,8 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Invalid password");
           }
 
+          await prisma.user.update({ where: { id: user.id }, data: { lastSeenAt: new Date() } });
+
           return {
             id: user.id,
             email: user.email,
@@ -89,10 +91,13 @@ export const authOptions: NextAuthOptions = {
 
       if (existing) {
         if (!existing.isActive) return false; // deactivated users cannot sign in
-        // Azure is the source of truth for profile — keep the DB name in sync
-        if (azureName && azureName !== existing.name) {
-          await prisma.user.update({ where: { id: existing.id }, data: { name: azureName } });
-        }
+        await prisma.user.update({
+          where: { id: existing.id },
+          data: {
+            lastSeenAt: new Date(),
+            ...(azureName && azureName !== existing.name ? { name: azureName } : {}),
+          },
+        });
         return true;
       }
 

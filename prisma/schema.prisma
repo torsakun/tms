@@ -14,6 +14,11 @@ datasource db {
 
 // --- Auth Enums ---
 
+enum ProjectAccessType {
+  PUBLIC
+  PRIVATE
+}
+
 enum SystemRole {
   ADMIN
   USER
@@ -102,6 +107,7 @@ model User {
   auditLogs       AuditLog[]
   groups          Group[]         @relation("GroupMembers")
   passwordResetTokens PasswordResetToken[]
+  lastSeenAt      DateTime?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -189,9 +195,10 @@ model Project {
   name        String
   code        String   @unique // e.g., "PROJ"
   description String?
-  isArchived  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isArchived  Boolean           @default(false)
+  accessType  ProjectAccessType @default(PUBLIC)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
   
   // Integrations
   githubOwner      String?

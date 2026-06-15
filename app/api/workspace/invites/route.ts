@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { v4 as uuidv4 } from "uuid";
+import { getSessionUser, unauthorized, forbidden } from "@/lib/api-auth";
+import { canManageUsers } from "@/lib/permissions";
 import { generateInviteEmailHtml } from "@/lib/email-templates";
 import { sendEmail } from "@/lib/mailer";
 
@@ -32,6 +34,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const actor = await getSessionUser();
+  if (!actor) return unauthorized();
+  if (!canManageUsers(actor)) return forbidden();
   try {
     const body = await req.json();
     const { email, firstName, lastName, roleId } = body;

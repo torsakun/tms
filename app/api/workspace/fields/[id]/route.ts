@@ -1,13 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSessionUser, unauthorized, forbidden } from "@/lib/api-auth";
+import { canManageWorkspace } from "@/lib/permissions";
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const actor = await getSessionUser();
+  if (!actor) return unauthorized();
+  if (!canManageWorkspace(actor)) return forbidden();
   try {
     const { id } = await params;
     const body = await req.json();
-    const { name, type, options, isRequired, isGlobal, projectIds } = body;
+    const { name, type, options, isRequired, isGlobal, projectIds, order } = body;
 
     const isGlobalVal = isGlobal !== false;
+    const isSystemField = id.startsWith('sys-');
+
+    if (isSystemField) {
+      // Upsert system field override into DB — create on first edit, update thereafter
+      const field = await prisma.customField.upsert({
+        where: { id },
+        create: {
+          id,
+          name: name || id,
+          type: type || 'SELECT',
+          options: options || null,
+          isRequired: !!isRequired,
+          isGlobal: true,
+          isSystem: true,
+          order: order ?? 0,
+          entity: 'TestCase',
+        },
+        update: {
+          name,
+          isRequired: !!isRequired,
+          order: order ?? undefined,
+        },
+      });
+      return NextResponse.json(field);
+    }
 
     const field = await prisma.customField.update({
       where: { id },
@@ -17,9 +47,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         options: options || null,
         isRequired: !!isRequired,
         isGlobal: isGlobalVal,
+        order: order ?? undefined,
         projects: {
-          set: (!isGlobalVal && Array.isArray(projectIds)) 
-            ? projectIds.map((pid: string) => ({ id: pid })) 
+          set: (!isGlobalVal && Array.isArray(projectIds))
+            ? projectIds.map((pid: string) => ({ id: pid }))
             : []
         }
       }
@@ -33,6 +64,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const actor = await getSessionUser();
+  if (!actor) return unauthorized();
+  if (!canManageWorkspace(actor)) return forbidden();
   try {
     const { id } = await params;
 

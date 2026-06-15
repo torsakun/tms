@@ -25,7 +25,11 @@ export default async function ProjectMembersPage({ params }: { params: Promise<{
       where: { code },
       include: {
         members: {
-          include: { user: true }
+          include: {
+            user: {
+              include: { workspaceRole: { select: { title: true } } }
+            }
+          }
         }
       }
     });

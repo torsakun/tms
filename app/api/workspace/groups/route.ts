@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSessionUser, unauthorized, forbidden } from "@/lib/api-auth";
+import { canManageWorkspace } from "@/lib/permissions";
 
 // List all groups with counts + members
 export async function GET() {
@@ -9,6 +11,7 @@ export async function GET() {
       include: {
         _count: { select: { members: true, projects: true } },
         members: { select: { id: true, name: true, email: true } },
+        projects: { select: { id: true, name: true, code: true } },
       },
     });
 
@@ -19,6 +22,7 @@ export async function GET() {
       members: g._count.members,
       projects: g._count.projects,
       memberList: g.members,
+      projectList: g.projects,
     }));
 
     return NextResponse.json(result);
@@ -30,6 +34,9 @@ export async function GET() {
 
 // Create a group
 export async function POST(req: NextRequest) {
+  const actor = await getSessionUser();
+  if (!actor) return unauthorized();
+  if (!canManageWorkspace(actor)) return forbidden();
   try {
     const body = await req.json();
     const title = (body.title || "").trim();

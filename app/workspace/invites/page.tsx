@@ -1,14 +1,43 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Loader2, MoreHorizontal, Mail, Clock } from "lucide-react";
+import { Search, Loader2, MoreHorizontal, Mail, Clock, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 import { InviteUserModal } from "@/components/workspace/InviteUserModal";
+
+function ConfirmDialog({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4" onClick={onCancel}>
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start gap-3 mb-5">
+          <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
+            <AlertTriangle size={18} className="text-rose-500" />
+          </div>
+          <div>
+            <h3 className="text-sm font-semibold text-slate-800 mb-1">Confirm action</h3>
+            <p className="text-sm text-slate-500">{message}</p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2">
+          <button onClick={onCancel} className="px-4 py-2 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button onClick={onConfirm} className="px-4 py-2 text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-lg transition-colors">
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function WorkspaceInvitesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [invites, setInvites] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [confirm, setConfirm] = useState<{ id: string; action: "delete" } | null>(null);
 
   useEffect(() => {
     const handleClickOutside = () => setOpenMenuId(null);
@@ -21,9 +50,7 @@ export default function WorkspaceInvitesPage() {
       setIsLoading(true);
       const res = await fetch("/api/workspace/invites");
       const data = await res.json();
-      if (data.success) {
-        setInvites(data.invites);
-      }
+      if (data.success) setInvites(data.invites);
     } catch (err) {
       console.error(err);
     } finally {
@@ -31,152 +58,182 @@ export default function WorkspaceInvitesPage() {
     }
   };
 
-  useEffect(() => {
-    fetchInvites();
-  }, []);
+  useEffect(() => { fetchInvites(); }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this invitation?")) return;
+    setConfirm(null);
     try {
       const res = await fetch(`/api/workspace/invites/${id}`, { method: "DELETE" });
       if (res.ok) {
+        toast.success("Invitation deleted");
         fetchInvites();
+      } else {
+        toast.error("Failed to delete invitation");
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
+      toast.error("Something went wrong");
     }
   };
 
   const handleResend = async (id: string) => {
+    setOpenMenuId(null);
     try {
       const res = await fetch(`/api/workspace/invites/${id}/resend`, { method: "POST" });
       if (res.ok) {
-        alert("Invitation resent! Check terminal for the link.");
+        toast.success("Invitation resent successfully");
         fetchInvites();
+      } else {
+        toast.error("Failed to resend invitation");
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
+      toast.error("Something went wrong");
     }
   };
 
-  return (
-    <div className="w-full max-w-[1400px] mx-auto px-8 py-8 relative">
-      <h1 className="text-2xl font-bold text-text-main mb-6">Invites</h1>
+  const now = new Date();
+  const filtered = invites.filter(inv =>
+    !search.trim() ||
+    inv.email.toLowerCase().includes(search.toLowerCase()) ||
+    (inv.accessRoleName || "").toLowerCase().includes(search.toLowerCase())
+  );
 
-      {/* Toolbar */}
-      <div className="flex items-center mb-6 space-x-4">
-        <button 
+  return (
+    <div className="w-full max-w-[1400px] mx-auto px-6 py-6 relative">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold text-slate-800 tracking-tight">Invites</h1>
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">{invites.length}</span>
+        </div>
+        <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#4338ca] hover:bg-[#3730a3] text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+          className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:opacity-90"
+          style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
         >
           Invite new member
         </button>
-        
-        <div className="relative w-64">
-          <Search className="absolute left-3 top-2.5 text-text-muted" size={16} />
-          <input 
-            type="text" 
-            placeholder="Search invites"
-            className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-surface-hover"
+      </div>
+
+      {/* Search */}
+      <div className="flex items-center gap-3 mb-5">
+        <div className="relative w-72">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by email or role…"
+            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition-all"
           />
         </div>
       </div>
 
-      {/* Table Content */}
-      <div className="mt-8">
-        {isLoading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="animate-spin text-primary" size={24} />
-          </div>
-        ) : invites.length === 0 ? (
-          <p className="text-sm text-text-muted text-center py-12 bg-surface border border-border rounded-lg border-dashed">
-            No pending invites.
+      {/* Table */}
+      {isLoading ? (
+        <div className="flex justify-center items-center py-16">
+          <Loader2 className="animate-spin text-indigo-500" size={28} />
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
+          <Mail size={28} className="text-slate-200 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-slate-500">
+            {search ? "No invites match your search" : "No pending invites"}
           </p>
-        ) : (
-          <div className="border border-border rounded-lg">
-            <table className="w-full text-left border-collapse bg-surface">
-              <thead>
-                <tr className="bg-surface-hover border-b border-border">
-                  <th className="px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Email</th>
-                  <th className="px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Role</th>
-                  <th className="px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Sent At</th>
-                  <th className="px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">Expires At</th>
-                  <th className="px-4 py-3 w-10"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {invites.map((invite) => (
-                  <tr key={invite.id} className="hover:bg-surface-hover transition-colors">
-                    <td className="px-4 py-4">
-                      <div className="flex items-center space-x-3">
-                        <Mail size={16} className="text-text-muted" />
-                        <span className="font-medium text-text-main text-sm">{invite.email}</span>
+          {!search && (
+            <p className="text-xs text-slate-400 mt-1">Invited members will appear here until they accept.</p>
+          )}
+        </div>
+      ) : (
+        <div className="rounded-xl overflow-visible bg-white border border-slate-200 shadow-sm">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-100 bg-slate-50/80">
+                <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Email</th>
+                <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Role</th>
+                <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Sent</th>
+                <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Expires</th>
+                <th className="px-5 py-3 w-10" />
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((invite, i) => {
+                const isExpired = new Date(invite.expiresAt) < now;
+                return (
+                  <tr key={invite.id} className={`border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors ${i === 0 ? "" : ""}`}>
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
+                          <Mail size={13} className="text-indigo-400" />
+                        </div>
+                        <span className="text-sm font-semibold text-slate-800">{invite.email}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-4">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-text-main">{invite.accessRoleName || "Member"}</span>
-                        {invite.roleTitle && (
-                          <span className="text-xs text-text-muted mt-0.5">{invite.roleTitle}</span>
-                        )}
-                      </div>
+                    <td className="px-5 py-4">
+                      <span className="text-sm text-slate-600">{invite.accessRoleName || "Member"}</span>
                     </td>
-                    <td className="px-4 py-4">
-                      <span className="text-sm text-text-muted">
-                        {new Date(invite.createdAt).toLocaleDateString()}
-                      </span>
+                    <td className="px-5 py-4">
+                      <span className="text-sm text-slate-400">{new Date(invite.createdAt).toLocaleDateString()}</span>
                     </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center text-amber-600 text-sm space-x-1.5 font-medium">
-                        <Clock size={14} />
-                        <span>{new Date(invite.expiresAt).toLocaleDateString()}</span>
-                      </div>
+                    <td className="px-5 py-4">
+                      {isExpired ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-500 border border-rose-100">
+                          <Clock size={11} /> Expired
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-sm text-amber-600">
+                          <Clock size={13} />
+                          {new Date(invite.expiresAt).toLocaleDateString()}
+                        </span>
+                      )}
                     </td>
-                    <td className="px-4 py-4 text-right">
-                      <div className="relative inline-block text-left">
-                        <button 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.nativeEvent.stopImmediatePropagation();
-                            setOpenMenuId(openMenuId === invite.id ? null : invite.id);
-                          }}
-                          className="text-text-muted hover:text-text-muted p-1 rounded hover:bg-slate-200 focus:outline-none"
-                        >
-                          <MoreHorizontal size={16} />
-                        </button>
-                        
-                        {openMenuId === invite.id && (
-                          <div className="absolute right-0 mt-2 w-48 bg-surface rounded-md shadow-lg border border-border z-10 py-1">
-                            <button 
-                              onClick={() => handleResend(invite.id)}
-                              className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover transition-colors"
-                            >
-                              Resend invitation
-                            </button>
-                            <button 
-                              onClick={() => handleDelete(invite.id)}
-                              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                            >
-                              Delete invitation
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                    <td className="pr-4 py-4 text-right relative">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          e.nativeEvent.stopImmediatePropagation();
+                          setOpenMenuId(openMenuId === invite.id ? null : invite.id);
+                        }}
+                        className="p-1.5 rounded-md text-slate-300 hover:text-slate-500 hover:bg-slate-100 transition-colors"
+                      >
+                        <MoreHorizontal size={16} />
+                      </button>
+                      {openMenuId === invite.id && (
+                        <div className="absolute right-8 top-10 w-48 bg-white rounded-xl py-1 z-50 overflow-hidden" style={{ border: "1px solid #f1f3f9", boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }}>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleResend(invite.id); }}
+                            className="w-full text-left px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors flex items-center gap-2"
+                          >
+                            <CheckCircle2 size={14} className="text-indigo-400" /> Resend invitation
+                          </button>
+                          <div className="h-px bg-slate-100 mx-2 my-1" />
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); setConfirm({ id: invite.id, action: "delete" }); }}
+                            className="w-full text-left px-4 py-2 text-sm font-medium text-rose-500 hover:bg-rose-50 transition-colors"
+                          >
+                            Delete invitation
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {isModalOpen && (
-        <InviteUserModal onClose={() => {
-          setIsModalOpen(false);
-          fetchInvites(); // Refresh list after modal closes
-        }} />
+        <InviteUserModal onClose={() => { setIsModalOpen(false); fetchInvites(); }} />
+      )}
+
+      {confirm && (
+        <ConfirmDialog
+          message="Delete this invitation? The invite link will no longer work."
+          onConfirm={() => handleDelete(confirm.id)}
+          onCancel={() => setConfirm(null)}
+        />
       )}
     </div>
   );

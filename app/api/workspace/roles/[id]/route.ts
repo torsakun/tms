@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSessionUser, unauthorized, forbidden } from "@/lib/api-auth";
+import { canManageRoles } from "@/lib/permissions";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -18,6 +20,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const actor = await getSessionUser();
+  if (!actor) return unauthorized();
+  if (!canManageRoles(actor)) return forbidden();
   try {
     const resolvedParams = await params;
     const { id } = resolvedParams;
@@ -53,6 +58,9 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 }
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const actor = await getSessionUser();
+  if (!actor) return unauthorized();
+  if (!canManageRoles(actor)) return forbidden();
   try {
     const resolvedParams = await params;
     const { id } = resolvedParams;

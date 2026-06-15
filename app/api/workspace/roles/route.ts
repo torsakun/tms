@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSessionUser, unauthorized, forbidden } from "@/lib/api-auth";
+import { canManageRoles } from "@/lib/permissions";
 
 export async function GET() {
   try {
@@ -60,6 +62,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const actor = await getSessionUser();
+  if (!actor) return unauthorized();
+  if (!canManageRoles(actor)) return forbidden();
   try {
     const body = await req.json();
     const { title, description, isDefault, permissions } = body;
