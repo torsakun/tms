@@ -1,0 +1,30 @@
+[
+  {
+    "id": "seed-u-owner",
+    "email": "owner@testpilot.io",
+    "name": "Alex Rivera",
+    "role": "ADMIN",
+    "password": "Demo1234!"
+  },
+  {
+    "id": "seed-u-manager",
+    "email": "qa.manager@testpilot.io",
+    "name": "Jordan Lee",
+    "role": "USER",
+    "password": "Demo1234!"
+  },
+  {
+    "id": "seed-u-engineer",
+    "email": "qa.engineer@testpilot.io",
+    "name": "Sam Chen",
+    "role": "USER",
+    "password": "Demo1234!"
+  },
+  {
+    "id": "seed-u-viewer",
+    "email": "viewer@testpilot.io",
+    "name": "Morgan Kim",
+    "role": "USER",
+    "password": "Demo1234!"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "id": "seed-p-med",
+  "name": "MediTrack",
+  "code": "MED",
+  "description": "HIPAA-compliant electronic health records and patient management system for outpatient clinics",
+  "members": [
+    { "userEmail": "owner@testpilot.io",       "role": "ADMIN"  },
+    { "userEmail": "qa.manager@testpilot.io",   "role": "ADMIN"  },
+    { "userEmail": "qa.engineer@testpilot.io",  "role": "EDITOR" },
+    { "userEmail": "viewer@testpilot.io",        "role": "VIEWER" }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "seed-p-fin",
+  "name": "FinPay",
+  "code": "FIN",
+  "description": "Core payment processing and financial transaction platform for retail banking clients",
+  "members": [
+    { "userEmail": "owner@testpilot.io",       "role": "ADMIN"  },
+    { "userEmail": "qa.manager@testpilot.io",   "role": "ADMIN"  },
+    { "userEmail": "qa.engineer@testpilot.io",  "role": "EDITOR" },
+    { "userEmail": "viewer@testpilot.io",        "role": "VIEWER" }
+  ]
+}

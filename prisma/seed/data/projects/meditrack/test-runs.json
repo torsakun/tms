@@ -1,0 +1,43 @@
+[
+  {
+    "id": "seed-med-tr-01",
+    "title": "v3.1 Release Validation Run",
+    "description": "Full validation against staging before v3.1 goes to production.",
+    "status": "COMPLETED",
+    "planId": "seed-med-tp-01",
+    "environmentSlug": "staging",
+    "results": [
+      { "caseId": "seed-med-tc-01", "status": "PASSED",  "timeSpent": 7800,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-med-tc-02", "status": "PASSED",  "timeSpent": 3400,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-med-tc-03", "status": "PASSED",  "timeSpent": 5200,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-med-tc-04", "status": "PASSED",  "timeSpent": 2900,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-med-tc-05", "status": "FAILED",  "timeSpent": 6600,  "assigneeEmail": "qa.engineer@testpilot.io", "comment": "FHIR bundle missing Condition resources. Schema validation fails with 3 errors. Bug: MED-117." },
+      { "caseId": "seed-med-tc-06", "status": "PASSED",  "timeSpent": 4100,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-med-tc-07", "status": "PASSED",  "timeSpent": 3300,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-med-tc-08", "status": "SKIPPED", "timeSpent": null,  "assigneeEmail": "qa.engineer@testpilot.io", "comment": "Clock manipulation not supported in current staging environment." },
+      { "caseId": "seed-med-tc-10", "status": "PASSED",  "timeSpent": 5500,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-med-tc-11", "status": "PASSED",  "timeSpent": 6900,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-med-tc-12", "status": "PASSED",  "timeSpent": 4700,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-med-tc-13", "status": "PASSED",  "timeSpent": 3600,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-med-tc-14", "status": "PASSED",  "timeSpent": 2800,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-med-tc-18", "status": "PASSED",  "timeSpent": 3200,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-med-tc-19", "status": "FAILED",  "timeSpent": 8100,  "assigneeEmail": "qa.manager@testpilot.io", "comment": "Insurer gateway returns 500 on test claim submission. Gateway team notified." }
+    ]
+  },
+  {
+    "id": "seed-med-tr-02",
+    "title": "HIPAA Compliance Audit Run",
+    "description": "Targeted compliance run for the quarterly HIPAA audit.",
+    "status": "ACTIVE",
+    "planId": "seed-med-tp-02",
+    "environmentSlug": "production",
+    "results": [
+      { "caseId": "seed-med-tc-03", "status": "PASSED",  "timeSpent": 5400,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-med-tc-12", "status": "PASSED",  "timeSpent": 4900,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-med-tc-14", "status": "PASSED",  "timeSpent": 3100,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-med-tc-18", "status": "PASSED",  "timeSpent": 3800,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-med-tc-19", "status": "FAILED",  "timeSpent": 7700,  "assigneeEmail": "qa.manager@testpilot.io", "comment": "Insurer gateway still failing. Blocker for audit sign-off." },
+      { "caseId": "seed-med-tc-20", "status": "PASSED",  "timeSpent": 6200,  "assigneeEmail": "qa.manager@testpilot.io" }
+    ]
+  }
+]

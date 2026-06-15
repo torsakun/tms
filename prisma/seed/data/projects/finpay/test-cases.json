@@ -1,0 +1,316 @@
+[
+  {
+    "id": "seed-fin-tc-01",
+    "title": "Login with valid credentials",
+    "description": "Verify that a registered user can log in using correct email and password.",
+    "preconditions": "User account exists and is active.",
+    "suite": "Authentication",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Navigate to the login page.", "expectedResult": "Login form is displayed." },
+      { "action": "Enter valid email and password, then click Sign In.", "expectedResult": "User is redirected to the dashboard." },
+      { "action": "Check the navigation bar for the user avatar.", "expectedResult": "User name is displayed in the header." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-02",
+    "title": "Login with invalid password shows error",
+    "description": "Verify that an incorrect password surfaces a clear error without revealing account existence.",
+    "preconditions": "User account exists.",
+    "suite": "Authentication",
+    "severity": "MAJOR",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Navigate to the login page.", "expectedResult": "Login form is displayed." },
+      { "action": "Enter valid email and a wrong password, then click Sign In.", "expectedResult": "Error message 'Invalid email or password' is shown." },
+      { "action": "Verify the password field is cleared.", "expectedResult": "Password field is empty; email field retains value." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-03",
+    "title": "Two-factor authentication via SMS OTP",
+    "description": "Verify that users with 2FA enabled must enter a valid OTP before accessing the account.",
+    "preconditions": "User has 2FA enabled with a registered phone number.",
+    "suite": "Authentication",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Log in with valid credentials.", "expectedResult": "OTP entry screen is displayed." },
+      { "action": "Enter the 6-digit OTP received via SMS.", "expectedResult": "User is redirected to the dashboard." },
+      { "action": "Attempt to use an expired OTP.", "expectedResult": "Error: 'OTP has expired. Please request a new one.'" }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-04",
+    "title": "Session expires after 15 minutes of inactivity",
+    "description": "Ensure the session is terminated automatically after the inactivity timeout.",
+    "preconditions": "User is logged in.",
+    "suite": "Authentication",
+    "severity": "MAJOR",
+    "priority": "MEDIUM",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Log in and remain idle for 16 minutes.", "expectedResult": "Session timeout modal appears at 14 minutes." },
+      { "action": "Ignore the modal warning.", "expectedResult": "User is logged out and redirected to the login page." },
+      { "action": "Attempt to navigate to the dashboard directly.", "expectedResult": "User is redirected to login." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-05",
+    "title": "Forgot password email recovery flow",
+    "description": "Verify users can reset their password via a secure email link.",
+    "preconditions": "User has a registered email address.",
+    "suite": "Authentication",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Click 'Forgot Password' on the login page and enter registered email.", "expectedResult": "Confirmation message shown: 'Reset link sent if account exists.'" },
+      { "action": "Open the reset email and click the link.", "expectedResult": "Password reset form is displayed." },
+      { "action": "Enter and confirm a new password meeting complexity requirements.", "expectedResult": "Password updated; user is redirected to login." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-06",
+    "title": "Fund transfer to internal account",
+    "description": "Verify a user can transfer funds between their own accounts within the platform.",
+    "preconditions": "User has at least two active accounts with sufficient balance.",
+    "suite": "Payments",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Transfer > Internal Transfer.", "expectedResult": "Transfer form is displayed." },
+      { "action": "Select source account, destination account, and enter amount 500.00.", "expectedResult": "Transfer summary with fee breakdown is shown." },
+      { "action": "Confirm the transfer.", "expectedResult": "Success message; both account balances updated immediately." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-07",
+    "title": "Transfer blocked when balance is insufficient",
+    "description": "Verify the system prevents transfers that would overdraw the account.",
+    "preconditions": "Source account balance is less than the requested transfer amount.",
+    "suite": "Payments",
+    "severity": "BLOCKER",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Attempt to transfer an amount exceeding the current balance.", "expectedResult": "Error: 'Insufficient funds. Available balance: $X.XX'" },
+      { "action": "Verify the account balance remains unchanged.", "expectedResult": "Account balance is the same as before." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-08",
+    "title": "International wire transfer with SWIFT code",
+    "description": "Verify the international wire transfer flow including SWIFT/BIC validation.",
+    "preconditions": "User account supports international transfers; SWIFT code is valid.",
+    "suite": "Payments",
+    "severity": "MAJOR",
+    "priority": "MEDIUM",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Transfer > International Wire.", "expectedResult": "International wire form is displayed." },
+      { "action": "Enter recipient IBAN, SWIFT code, and amount.", "expectedResult": "FX rate and fee breakdown are shown." },
+      { "action": "Confirm transfer; check status in transaction history.", "expectedResult": "Transfer status shows 'Processing'; user receives email confirmation." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-09",
+    "title": "Set up recurring payment schedule",
+    "description": "Verify users can schedule automatic recurring payments on a defined cadence.",
+    "preconditions": "User is logged in with an active payment account.",
+    "suite": "Payments",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Payments > Recurring and click New Schedule.", "expectedResult": "Recurring payment form is displayed." },
+      { "action": "Configure recipient, amount, frequency (monthly), and start date.", "expectedResult": "Schedule preview shows next three payment dates." },
+      { "action": "Save the schedule; verify it appears in the recurring payments list.", "expectedResult": "Schedule is listed with correct next-run date." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-10",
+    "title": "Cancel a pending transfer",
+    "description": "Verify that a transfer in PENDING state can be cancelled before processing.",
+    "preconditions": "A transfer is in PENDING status (within cancellation window).",
+    "suite": "Payments",
+    "severity": "MINOR",
+    "priority": "LOW",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Open the pending transfer from transaction history.", "expectedResult": "Transfer details and Cancel button are shown." },
+      { "action": "Click Cancel and confirm in the dialog.", "expectedResult": "Transfer status changes to CANCELLED; funds are returned." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-11",
+    "title": "Account balance displays correctly on dashboard",
+    "description": "Verify that the dashboard shows the correct real-time balance for all accounts.",
+    "preconditions": "User has at least one active account.",
+    "suite": "Account Management",
+    "severity": "NORMAL",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Log in and navigate to the dashboard.", "expectedResult": "All account cards are displayed with balances." },
+      { "action": "Compare displayed balance against the account ledger via API.", "expectedResult": "Balance matches the API response to 2 decimal places." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-12",
+    "title": "Download account statement as PDF",
+    "description": "Verify the account statement export generates a correctly formatted PDF.",
+    "preconditions": "Account has at least 5 transactions in the selected date range.",
+    "suite": "Account Management",
+    "severity": "MINOR",
+    "priority": "MEDIUM",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Account > Statements and select a date range.", "expectedResult": "Statement preview is rendered." },
+      { "action": "Click Export PDF.", "expectedResult": "PDF download starts within 3 seconds." },
+      { "action": "Open the PDF and verify transaction count matches the preview.", "expectedResult": "PDF contains correct transactions, header, and account number." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-13",
+    "title": "Update billing address",
+    "description": "Verify users can update their billing address and the change persists.",
+    "preconditions": "User is logged in.",
+    "suite": "Account Management",
+    "severity": "TRIVIAL",
+    "priority": "LOW",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Profile > Billing Address and click Edit.", "expectedResult": "Address form is in editable state." },
+      { "action": "Update address fields and save.", "expectedResult": "Success toast; new address is displayed." },
+      { "action": "Reload the page and verify the address persisted.", "expectedResult": "Updated address is shown after page reload." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-14",
+    "title": "Payment card activation via PIN entry",
+    "description": "Verify a newly issued card can be activated by setting a PIN.",
+    "preconditions": "A new physical card has been issued and is in INACTIVE status.",
+    "suite": "Account Management",
+    "severity": "MAJOR",
+    "priority": "HIGH",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Cards > Activate Card.", "expectedResult": "Card activation form is displayed." },
+      { "action": "Enter the last 4 digits of the card and set a 4-digit PIN.", "expectedResult": "Card status changes to ACTIVE." },
+      { "action": "Verify card appears in active cards list.", "expectedResult": "Card is listed with ACTIVE badge." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-15",
+    "title": "Configure daily spending limit",
+    "description": "Verify users can set and enforce a daily spending limit on their card.",
+    "preconditions": "User has an active payment card.",
+    "suite": "Account Management",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Cards > Spending Limits and set limit to $200/day.", "expectedResult": "Limit is saved; confirmation shown." },
+      { "action": "Attempt a transaction exceeding the daily limit.", "expectedResult": "Transaction is declined with 'Daily limit reached' message." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-16",
+    "title": "Real-time fraud alert triggered on suspicious transaction",
+    "description": "Verify the fraud detection engine triggers an alert for anomalous transaction patterns.",
+    "preconditions": "Fraud rules are active; test transaction matches a known fraud pattern.",
+    "suite": "Compliance",
+    "severity": "BLOCKER",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Simulate a transaction from an unusual geographic location via test harness.", "expectedResult": "Transaction is flagged; push notification sent to user." },
+      { "action": "User confirms the transaction is fraudulent.", "expectedResult": "Card is temporarily frozen; ticket is created in the fraud queue." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-17",
+    "title": "KYC document upload and verification",
+    "description": "Verify users can upload identity documents and the system validates them.",
+    "preconditions": "User account is pending KYC verification.",
+    "suite": "Compliance",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Compliance > KYC and upload a passport image.", "expectedResult": "Upload progress shown; document queued for review." },
+      { "action": "Verify OCR extraction returns the correct name and date of birth.", "expectedResult": "Extracted data matches the expected values." },
+      { "action": "Approve the document in the admin panel.", "expectedResult": "User account status changes to KYC_VERIFIED." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-18",
+    "title": "AML transaction screening flags high-risk transfers",
+    "description": "Verify the AML engine screens transactions against sanction lists and blocks matches.",
+    "preconditions": "Test beneficiary appears on the OFAC sanctions list in test data.",
+    "suite": "Compliance",
+    "severity": "BLOCKER",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Initiate a transfer to a beneficiary on the test sanctions list.", "expectedResult": "Transfer is blocked; AML alert is raised in the compliance dashboard." },
+      { "action": "Verify the alert contains the matched list name and rule ID.", "expectedResult": "Alert record contains correct metadata." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-19",
+    "title": "Audit log captures all fund movement events",
+    "description": "Verify that every fund transfer creates an immutable audit log entry.",
+    "preconditions": "Audit log service is active.",
+    "suite": "Compliance",
+    "severity": "CRITICAL",
+    "priority": "MEDIUM",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Complete a fund transfer.", "expectedResult": "Transfer succeeds." },
+      { "action": "Query the audit log API for the transaction ID.", "expectedResult": "Log entry contains userId, amount, timestamp, source, and destination." },
+      { "action": "Attempt to delete the audit log entry.", "expectedResult": "API returns 403 Forbidden — entries are immutable." }
+    ]
+  },
+  {
+    "id": "seed-fin-tc-20",
+    "title": "Account closure request initiates 30-day hold",
+    "description": "Verify that requesting account closure places a 30-day hold before finalisation.",
+    "preconditions": "User has a zero balance account.",
+    "suite": "Compliance",
+    "severity": "MAJOR",
+    "priority": "LOW",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Account Settings > Close Account and submit the request.", "expectedResult": "Confirmation email sent; account status shows 'CLOSURE_PENDING'." },
+      { "action": "Verify the account is still accessible during the 30-day hold.", "expectedResult": "Read-only access is available; transactions are blocked." },
+      { "action": "After 30 days (simulated), verify account is CLOSED.", "expectedResult": "Account status is CLOSED; login is rejected with a clear message." }
+    ]
+  }
+]

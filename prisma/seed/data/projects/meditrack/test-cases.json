@@ -1,0 +1,305 @@
+[
+  {
+    "id": "seed-med-tc-01",
+    "title": "Register new patient with valid National Health ID",
+    "description": "Verify the patient registration flow validates the NHID and creates a complete patient record.",
+    "preconditions": "NHID lookup service is operational; test NHID is available.",
+    "suite": "Patient Records",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Patients > New Patient and enter a valid NHID.", "expectedResult": "Patient demographics are auto-populated from the NHID lookup." },
+      { "action": "Review and confirm the populated data, then submit.", "expectedResult": "Patient record is created with a unique MRN." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-02",
+    "title": "Duplicate patient detection prevents double registration",
+    "description": "Verify the system alerts staff when registering a patient who already exists.",
+    "preconditions": "Patient with NHID '12345678' already exists in the system.",
+    "suite": "Patient Records",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Attempt to register a new patient using an already-registered NHID.", "expectedResult": "Warning: 'A patient record already exists for this NHID' with a link to the existing record." },
+      { "action": "Verify no duplicate record is created.", "expectedResult": "Database contains only one record for the NHID." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-03",
+    "title": "Update patient allergy information",
+    "description": "Verify clinicians can add, edit, and remove allergy entries from the patient record.",
+    "preconditions": "Patient record exists.",
+    "suite": "Patient Records",
+    "severity": "BLOCKER",
+    "priority": "HIGH",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Open patient record and navigate to Allergies section.", "expectedResult": "Current allergy list is displayed." },
+      { "action": "Add a new allergy 'Penicillin' with severity 'Severe'.", "expectedResult": "Allergy is added and prominently displayed in the record header." },
+      { "action": "Mark the allergy as resolved.", "expectedResult": "Allergy moves to the 'Inactive' section." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-04",
+    "title": "View complete patient medical history",
+    "description": "Verify the medical history timeline shows all past encounters in chronological order.",
+    "preconditions": "Patient has at least 3 past visits on record.",
+    "suite": "Patient Records",
+    "severity": "MAJOR",
+    "priority": "HIGH",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Open a patient record and navigate to Medical History.", "expectedResult": "Timeline of visits is shown newest first." },
+      { "action": "Expand a past visit entry.", "expectedResult": "Diagnoses, procedures, and notes for that visit are displayed." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-05",
+    "title": "Export patient record as HL7 FHIR bundle",
+    "description": "Verify the FHIR export produces a valid R4-compliant bundle for the patient record.",
+    "preconditions": "Patient record is complete with at least one encounter.",
+    "suite": "Patient Records",
+    "severity": "MAJOR",
+    "priority": "MEDIUM",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Open patient record and click Export > FHIR R4.", "expectedResult": "FHIR bundle JSON file download starts." },
+      { "action": "Validate the exported JSON against the FHIR R4 schema.", "expectedResult": "Validation passes with zero errors." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-06",
+    "title": "Book appointment with an available doctor",
+    "description": "Verify the appointment booking flow checks availability and confirms the slot.",
+    "preconditions": "At least one doctor has open slots in the next 7 days.",
+    "suite": "Appointments",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Appointments > New and select a doctor and available time slot.", "expectedResult": "Slot is highlighted as available." },
+      { "action": "Confirm the booking.", "expectedResult": "Appointment confirmation is shown; slot is marked BOOKED in the calendar." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-07",
+    "title": "Cancel appointment within 24 hours notice",
+    "description": "Verify appointments can be cancelled with at least 24 hours notice and the slot is freed.",
+    "preconditions": "A booked appointment exists for a time > 24 hours in the future.",
+    "suite": "Appointments",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Open the appointment and click Cancel.", "expectedResult": "Cancellation confirmation is shown." },
+      { "action": "Verify the slot is available for booking again.", "expectedResult": "Slot appears as available in the doctor's calendar." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-08",
+    "title": "Appointment reminder SMS sent 1 hour before",
+    "description": "Verify the automated SMS reminder is dispatched 1 hour before the appointment time.",
+    "preconditions": "Patient has a valid mobile number; SMS gateway is configured.",
+    "suite": "Appointments",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Create an appointment 2 hours from now.", "expectedResult": "Appointment is created." },
+      { "action": "Advance system clock by 1 hour and check SMS gateway logs.", "expectedResult": "SMS reminder with appointment details is logged as sent." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-09",
+    "title": "Doctor availability calendar displays correctly",
+    "description": "Verify the calendar accurately reflects working hours, leaves, and booked slots.",
+    "preconditions": "Doctor has working hours configured and at least one booked appointment.",
+    "suite": "Appointments",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Open the doctor's availability calendar.", "expectedResult": "Calendar loads with correct working hours highlighted." },
+      { "action": "Verify booked slots appear as unavailable and are not selectable.", "expectedResult": "Booked slots are greyed out and cannot be selected." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-10",
+    "title": "Overbooking prevention blocks double-booking a slot",
+    "description": "Verify concurrent booking attempts for the same slot result in only one successful booking.",
+    "preconditions": "Exactly one slot remains for a doctor.",
+    "suite": "Appointments",
+    "severity": "BLOCKER",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Simulate two concurrent booking requests for the same slot.", "expectedResult": "Only one booking succeeds; the second receives 'Slot no longer available'." },
+      { "action": "Verify the doctor's calendar shows exactly one booking for the slot.", "expectedResult": "No duplicate appointments exist in the database." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-11",
+    "title": "Prescribe medication with dosage instructions",
+    "description": "Verify a doctor can issue a prescription with complete dosage details.",
+    "preconditions": "Doctor is logged in and has an active patient encounter open.",
+    "suite": "Prescriptions",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Navigate to the patient encounter and click Add Prescription.", "expectedResult": "Prescription form is displayed." },
+      { "action": "Search for 'Metformin 500mg', set dose 1 tablet twice daily for 30 days.", "expectedResult": "Prescription is added to the encounter with correct details." },
+      { "action": "Sign and submit the prescription.", "expectedResult": "Prescription status is ACTIVE; pharmacy notification sent." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-12",
+    "title": "Drug interaction warning displayed for conflicting medications",
+    "description": "Verify the system warns clinicians when a new prescription conflicts with an existing one.",
+    "preconditions": "Patient is on Warfarin; clinician prescribes Aspirin.",
+    "suite": "Prescriptions",
+    "severity": "BLOCKER",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Add Aspirin prescription to a patient already on Warfarin.", "expectedResult": "Drug interaction alert: 'Aspirin + Warfarin: increased bleeding risk (MAJOR)'." },
+      { "action": "Verify the alert cannot be dismissed without a clinician override note.", "expectedResult": "Override dialog requires free-text justification." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-13",
+    "title": "Prescription refill request submitted by patient",
+    "description": "Verify patients can request a refill for an existing prescription via the portal.",
+    "preconditions": "Patient has an active repeatable prescription.",
+    "suite": "Prescriptions",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Log in to patient portal and navigate to Prescriptions.", "expectedResult": "Active prescriptions are listed." },
+      { "action": "Click Request Refill on a repeatable prescription.", "expectedResult": "Refill request is sent to the prescribing doctor; patient receives confirmation." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-14",
+    "title": "Expired prescription cannot be refilled",
+    "description": "Verify the system prevents refill of prescriptions past their validity date.",
+    "preconditions": "Patient has a prescription with an expiry date in the past.",
+    "suite": "Prescriptions",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Attempt to refill an expired prescription.", "expectedResult": "Error: 'This prescription expired on [date]. Please contact your doctor for a renewal.'" },
+      { "action": "Verify no refill request is created in the system.", "expectedResult": "No pending refill request exists for the expired prescription." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-15",
+    "title": "Print prescription label with barcode",
+    "description": "Verify the label printer produces a correctly formatted label with medication barcode.",
+    "preconditions": "Label printer is connected and configured.",
+    "suite": "Prescriptions",
+    "severity": "MINOR",
+    "priority": "LOW",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Open an active prescription and click Print Label.", "expectedResult": "Print preview shows medication name, dosage, patient name, and barcode." },
+      { "action": "Confirm print and scan the barcode.", "expectedResult": "Barcode scanner resolves to the correct prescription ID." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-16",
+    "title": "Generate patient visit summary report",
+    "description": "Verify the visit summary report includes all encounter data in a readable format.",
+    "preconditions": "Patient has at least one completed encounter.",
+    "suite": "Reporting",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Reporting > Visit Summary and select a patient and date range.", "expectedResult": "Report preview is generated." },
+      { "action": "Verify the report includes diagnoses, medications, and notes.", "expectedResult": "All encounter sections are present in the report." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-17",
+    "title": "Monthly billing report export to CSV",
+    "description": "Verify the billing module generates a correct CSV export for a full calendar month.",
+    "preconditions": "Billing records exist for the selected month.",
+    "suite": "Reporting",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Billing > Reports, select current month, and click Export CSV.", "expectedResult": "CSV file downloads within 5 seconds." },
+      { "action": "Open the CSV and verify column headers and row counts.", "expectedResult": "All expected columns are present; row count matches the on-screen total." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-18",
+    "title": "HIPAA compliance audit log records all data access",
+    "description": "Verify every access to a patient record creates an immutable audit log entry.",
+    "preconditions": "Audit logging is enabled in system settings.",
+    "suite": "Reporting",
+    "severity": "BLOCKER",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Open a patient record while authenticated as a nurse.", "expectedResult": "Patient record is displayed." },
+      { "action": "Query the audit log for the patient's MRN.", "expectedResult": "Audit entry contains userId, timestamp, IP address, and action 'VIEW_RECORD'." },
+      { "action": "Attempt to delete the audit log entry via API.", "expectedResult": "API returns 403 Forbidden." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-19",
+    "title": "Insurance claim submission with correct procedure codes",
+    "description": "Verify the claim submission flow validates ICD-10 and CPT codes before sending to insurer.",
+    "preconditions": "Encounter with diagnosis and procedure codes is finalised.",
+    "suite": "Reporting",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Billing > New Claim and link to the encounter.", "expectedResult": "Claim is pre-populated with diagnosis and procedure codes." },
+      { "action": "Submit the claim.", "expectedResult": "Claim is accepted by the insurer gateway; status shows 'Submitted'." }
+    ]
+  },
+  {
+    "id": "seed-med-tc-20",
+    "title": "Data anonymisation for research export",
+    "description": "Verify the research export feature removes all PII and produces a de-identified dataset.",
+    "preconditions": "Admin has research export permission.",
+    "suite": "Reporting",
+    "severity": "MAJOR",
+    "priority": "MEDIUM",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Admin > Research Export and select a cohort.", "expectedResult": "Export preview shows de-identified fields." },
+      { "action": "Download and inspect the CSV for any PII.", "expectedResult": "No names, NHIDs, DOBs, or contact details are present in the export." }
+    ]
+  }
+]

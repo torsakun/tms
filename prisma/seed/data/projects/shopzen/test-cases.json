@@ -1,0 +1,305 @@
+[
+  {
+    "id": "seed-shz-tc-01",
+    "title": "Search product by keyword returns relevant results",
+    "description": "Verify the search engine returns products matching the keyword in title or description.",
+    "preconditions": "Product catalog contains at least 50 active listings.",
+    "suite": "Catalog",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Navigate to the homepage and type 'wireless headphones' in the search bar.", "expectedResult": "Search results page loads with relevant products." },
+      { "action": "Verify at least one result contains the keyword in title or description.", "expectedResult": "Products contain 'wireless' or 'headphones' in their metadata." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-02",
+    "title": "Filter products by category and price range",
+    "description": "Verify the filter panel correctly narrows results by category and price.",
+    "preconditions": "Product catalog has items across multiple categories and price points.",
+    "suite": "Catalog",
+    "severity": "MAJOR",
+    "priority": "MEDIUM",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Apply the 'Electronics' category filter and set price range $50–$200.", "expectedResult": "Only electronics products priced $50–$200 are shown." },
+      { "action": "Verify the results count updates after each filter change.", "expectedResult": "Result count reflects the active filter combination." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-03",
+    "title": "Product detail page displays correct information",
+    "description": "Verify all product details (title, price, SKU, images, ratings) render correctly.",
+    "preconditions": "A published product with at least 3 images and 5 reviews exists.",
+    "suite": "Catalog",
+    "severity": "MAJOR",
+    "priority": "HIGH",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Click on a product from the search results.", "expectedResult": "Product detail page loads with title, price, and images." },
+      { "action": "Verify the image gallery cycles through all images.", "expectedResult": "All product images are navigable." },
+      { "action": "Check the rating section shows the average score.", "expectedResult": "Star rating and review count are displayed correctly." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-04",
+    "title": "Out-of-stock product shows unavailable state",
+    "description": "Verify products with zero inventory display the correct unavailable status.",
+    "preconditions": "A product exists with stock quantity = 0.",
+    "suite": "Catalog",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Open the detail page of an out-of-stock product.", "expectedResult": "'Out of Stock' badge is shown; Add to Cart button is disabled." },
+      { "action": "Verify the 'Notify Me' option is available.", "expectedResult": "Email notification signup form is displayed." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-05",
+    "title": "Product image gallery loads without broken images",
+    "description": "Verify all images in the gallery load correctly with no broken image placeholders.",
+    "preconditions": "Product has at least 3 associated images stored in the CDN.",
+    "suite": "Catalog",
+    "severity": "MINOR",
+    "priority": "LOW",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Open a product detail page.", "expectedResult": "Primary image renders without error." },
+      { "action": "Click through all thumbnail images.", "expectedResult": "Each image loads correctly; no broken image icon appears." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-06",
+    "title": "Add item to cart from product detail page",
+    "description": "Verify the add-to-cart action updates the cart count and persists the item.",
+    "preconditions": "User is logged in; product is in stock.",
+    "suite": "Cart & Checkout",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Click 'Add to Cart' on a product detail page.", "expectedResult": "Cart icon count increments by 1; success toast is shown." },
+      { "action": "Open the cart.", "expectedResult": "The added product appears with correct name, price, and quantity 1." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-07",
+    "title": "Update item quantity in cart",
+    "description": "Verify users can increase or decrease the quantity of items already in the cart.",
+    "preconditions": "Cart contains at least one item.",
+    "suite": "Cart & Checkout",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Open cart and increase item quantity to 3.", "expectedResult": "Subtotal updates to reflect 3× the unit price." },
+      { "action": "Decrease quantity back to 1.", "expectedResult": "Subtotal recalculates correctly." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-08",
+    "title": "Remove item from cart",
+    "description": "Verify the remove action correctly deletes the item and updates the cart total.",
+    "preconditions": "Cart contains at least two items.",
+    "suite": "Cart & Checkout",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Click the remove icon for one item.", "expectedResult": "Item is removed from cart; cart total decreases accordingly." },
+      { "action": "Verify cart header count updates.", "expectedResult": "Cart icon count decrements by the removed item's quantity." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-09",
+    "title": "Apply valid discount coupon reduces order total",
+    "description": "Verify a valid coupon code is accepted and the discount is applied correctly.",
+    "preconditions": "Active coupon code 'SAVE20' gives 20% off orders above $50.",
+    "suite": "Cart & Checkout",
+    "severity": "MAJOR",
+    "priority": "HIGH",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Add a $60 item to cart and proceed to checkout.", "expectedResult": "Order summary shows $60 subtotal." },
+      { "action": "Enter coupon code 'SAVE20' and apply.", "expectedResult": "Discount of $12.00 (20%) is shown; total becomes $48.00." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-10",
+    "title": "Expired coupon code shows error message",
+    "description": "Verify that entering an expired coupon surfaces a helpful error message.",
+    "preconditions": "Coupon code 'EXPIRED10' is past its expiry date.",
+    "suite": "Cart & Checkout",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Enter coupon code 'EXPIRED10' in the promo field.", "expectedResult": "Error: 'This coupon has expired.'" },
+      { "action": "Verify the order total remains unchanged.", "expectedResult": "No discount is applied to the order." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-11",
+    "title": "Checkout completes with saved credit card",
+    "description": "Verify the full checkout flow using a previously saved payment method.",
+    "preconditions": "User has a saved Visa card on file.",
+    "suite": "Cart & Checkout",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Proceed through checkout and select the saved card.", "expectedResult": "Saved card is shown with masked number." },
+      { "action": "Click Place Order.", "expectedResult": "Order confirmation page loads with order ID." },
+      { "action": "Verify order appears in order history.", "expectedResult": "Order status is 'Processing' in order history." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-12",
+    "title": "Checkout with new credit card and 3DS authentication",
+    "description": "Verify adding a new card during checkout triggers 3D Secure and completes the order.",
+    "preconditions": "Test card with 3DS challenge is available in the test gateway.",
+    "suite": "Cart & Checkout",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Enter new card details at checkout.", "expectedResult": "3DS challenge popup appears." },
+      { "action": "Complete the 3DS challenge.", "expectedResult": "Payment is authorised; order confirmation is shown." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-13",
+    "title": "Order confirmation email is sent after successful checkout",
+    "description": "Verify the transactional email is sent to the customer with correct order details.",
+    "preconditions": "Email service is connected to the test inbox.",
+    "suite": "Orders",
+    "severity": "MAJOR",
+    "priority": "HIGH",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Complete a checkout.", "expectedResult": "Order is created." },
+      { "action": "Check the test inbox for the confirmation email.", "expectedResult": "Email arrives within 1 minute with the correct order ID and total." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-14",
+    "title": "Order status updates in real time after dispatch",
+    "description": "Verify that the order status progresses from Processing → Dispatched → Delivered.",
+    "preconditions": "Order is in Processing state.",
+    "suite": "Orders",
+    "severity": "MAJOR",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Trigger dispatch event via the admin panel.", "expectedResult": "Order status changes to 'Dispatched' and tracking number is assigned." },
+      { "action": "Verify status update is reflected on the customer order page.", "expectedResult": "Customer sees 'Dispatched' status without page refresh." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-15",
+    "title": "Return merchandise authorisation (RMA) request",
+    "description": "Verify customers can submit an RMA request for a delivered order.",
+    "preconditions": "Order is in 'Delivered' status and within the 30-day return window.",
+    "suite": "Orders",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Open the order and click 'Request Return'.", "expectedResult": "RMA form is displayed." },
+      { "action": "Select a return reason and submit.", "expectedResult": "RMA is created with status 'Pending Approval'; email confirmation is sent." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-16",
+    "title": "Refund is processed within SLA after RMA approval",
+    "description": "Verify the refund is issued to the original payment method within 5 business days.",
+    "preconditions": "RMA is approved.",
+    "suite": "Orders",
+    "severity": "MAJOR",
+    "priority": "HIGH",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Approve the RMA in the admin panel.", "expectedResult": "Refund is queued in the payment gateway." },
+      { "action": "Verify order status changes to 'Refunded'.", "expectedResult": "Order status is 'Refunded'; customer receives confirmation email." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-17",
+    "title": "User registration and email verification",
+    "description": "Verify new user sign-up flow including email verification before account activation.",
+    "preconditions": "Email address not already registered.",
+    "suite": "User Account",
+    "severity": "CRITICAL",
+    "priority": "HIGH",
+    "automationStatus": "AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Complete the registration form with valid details.", "expectedResult": "Account created; verification email is sent." },
+      { "action": "Click the verification link in the email.", "expectedResult": "Account is activated; user is redirected to the dashboard." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-18",
+    "title": "Update default shipping address",
+    "description": "Verify users can add and set a new default shipping address.",
+    "preconditions": "User is logged in.",
+    "suite": "User Account",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Profile > Addresses and add a new address.", "expectedResult": "New address is saved." },
+      { "action": "Mark the new address as default.", "expectedResult": "Default badge moves to the new address." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-19",
+    "title": "View order history lists all past orders",
+    "description": "Verify the order history page correctly displays all completed orders with key details.",
+    "preconditions": "User has at least 3 past orders.",
+    "suite": "User Account",
+    "severity": "NORMAL",
+    "priority": "MEDIUM",
+    "automationStatus": "TO_BE_AUTOMATED",
+    "authorEmail": "qa.engineer@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Profile > Orders.", "expectedResult": "Order history list is displayed." },
+      { "action": "Verify each order shows order ID, date, total, and status.", "expectedResult": "All required fields are present for each order." }
+    ]
+  },
+  {
+    "id": "seed-shz-tc-20",
+    "title": "Delete account removes personal data per GDPR",
+    "description": "Verify account deletion anonymises personal data and prevents re-login.",
+    "preconditions": "User has no open orders.",
+    "suite": "User Account",
+    "severity": "MAJOR",
+    "priority": "LOW",
+    "automationStatus": "MANUAL",
+    "authorEmail": "qa.manager@testpilot.io",
+    "steps": [
+      { "action": "Navigate to Account Settings > Delete Account and confirm.", "expectedResult": "Confirmation email sent; account scheduled for deletion." },
+      { "action": "After deletion, attempt to log in with the same credentials.", "expectedResult": "Login fails with 'Account not found' message." },
+      { "action": "Verify the user record is anonymised in the database.", "expectedResult": "PII fields are replaced with anonymised values." }
+    ]
+  }
+]

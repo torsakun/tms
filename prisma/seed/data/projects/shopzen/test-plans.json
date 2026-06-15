@@ -1,0 +1,20 @@
+[
+  {
+    "id": "seed-shz-tp-01",
+    "title": "Black Friday Readiness Suite",
+    "description": "End-to-end test plan verifying the platform can handle peak traffic scenarios for Black Friday.",
+    "testCaseIds": [
+      "seed-shz-tc-01","seed-shz-tc-02","seed-shz-tc-03","seed-shz-tc-04",
+      "seed-shz-tc-06","seed-shz-tc-07","seed-shz-tc-08","seed-shz-tc-09",
+      "seed-shz-tc-11","seed-shz-tc-12","seed-shz-tc-13","seed-shz-tc-14"
+    ]
+  },
+  {
+    "id": "seed-shz-tp-02",
+    "title": "Checkout & Returns Smoke Test",
+    "description": "Quick smoke test focused on the checkout funnel and returns process.",
+    "testCaseIds": [
+      "seed-shz-tc-06","seed-shz-tc-09","seed-shz-tc-11","seed-shz-tc-15","seed-shz-tc-16"
+    ]
+  }
+]

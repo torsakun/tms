@@ -1,0 +1,39 @@
+[
+  {
+    "id": "seed-shz-tr-01",
+    "title": "Black Friday Readiness — Pre-event Run",
+    "description": "Full readiness check on staging 2 weeks before the Black Friday sale period.",
+    "status": "COMPLETED",
+    "planId": "seed-shz-tp-01",
+    "environmentSlug": "staging",
+    "results": [
+      { "caseId": "seed-shz-tc-01", "status": "PASSED",  "timeSpent": 2400,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-shz-tc-02", "status": "PASSED",  "timeSpent": 3100,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-shz-tc-03", "status": "PASSED",  "timeSpent": 2900,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-shz-tc-04", "status": "FAILED",  "timeSpent": 4400,  "assigneeEmail": "qa.engineer@testpilot.io", "comment": "'Notify Me' button does not appear when stock = 0. Bug: SHZ-231." },
+      { "caseId": "seed-shz-tc-06", "status": "PASSED",  "timeSpent": 2100,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-shz-tc-07", "status": "PASSED",  "timeSpent": 1900,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-shz-tc-08", "status": "PASSED",  "timeSpent": 2200,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-shz-tc-09", "status": "PASSED",  "timeSpent": 3300,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-shz-tc-11", "status": "PASSED",  "timeSpent": 4800,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-shz-tc-12", "status": "FAILED",  "timeSpent": 6100,  "assigneeEmail": "qa.manager@testpilot.io", "comment": "3DS popup blocked by staging CSP header. Needs whitelist update." },
+      { "caseId": "seed-shz-tc-13", "status": "PASSED",  "timeSpent": 3500,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-shz-tc-14", "status": "PASSED",  "timeSpent": 2700,  "assigneeEmail": "qa.engineer@testpilot.io" }
+    ]
+  },
+  {
+    "id": "seed-shz-tr-02",
+    "title": "Checkout Smoke — Post-patch v4.2.1",
+    "description": "Smoke test for the checkout and returns flow after a critical patch deployment.",
+    "status": "ACTIVE",
+    "planId": "seed-shz-tp-02",
+    "environmentSlug": "staging",
+    "results": [
+      { "caseId": "seed-shz-tc-06", "status": "PASSED",  "timeSpent": 2300,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-shz-tc-09", "status": "PASSED",  "timeSpent": 3000,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-shz-tc-11", "status": "PASSED",  "timeSpent": 4200,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-shz-tc-15", "status": "SKIPPED", "timeSpent": null,   "assigneeEmail": "qa.engineer@testpilot.io", "comment": "Returns module under maintenance; rescheduled for tomorrow." },
+      { "caseId": "seed-shz-tc-16", "status": "SKIPPED", "timeSpent": null,   "assigneeEmail": "qa.engineer@testpilot.io", "comment": "Depends on SHZ-tc-15 completion." }
+    ]
+  }
+]

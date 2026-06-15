@@ -1,0 +1,47 @@
+[
+  {
+    "id": "seed-fin-tr-01",
+    "title": "Sprint 12 Regression — v2.4.0",
+    "description": "Full regression run on staging before the v2.4.0 production deployment.",
+    "status": "COMPLETED",
+    "planId": "seed-fin-tp-01",
+    "environmentSlug": "staging",
+    "results": [
+      { "caseId": "seed-fin-tc-01", "status": "PASSED",  "timeSpent": 3200,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-fin-tc-02", "status": "PASSED",  "timeSpent": 2800,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-fin-tc-03", "status": "PASSED",  "timeSpent": 5100,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-fin-tc-04", "status": "FAILED",  "timeSpent": 7200,  "assigneeEmail": "qa.engineer@testpilot.io", "comment": "Session expires at 12 min, not 15. Likely a config issue in staging." },
+      { "caseId": "seed-fin-tc-05", "status": "PASSED",  "timeSpent": 4500,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-fin-tc-06", "status": "PASSED",  "timeSpent": 3900,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-fin-tc-07", "status": "PASSED",  "timeSpent": 2600,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-fin-tc-08", "status": "FAILED",  "timeSpent": 8800,  "assigneeEmail": "qa.manager@testpilot.io", "comment": "SWIFT validation rejects valid BIC codes with spaces. Bug filed: FIN-442." },
+      { "caseId": "seed-fin-tc-09", "status": "PASSED",  "timeSpent": 4200,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-fin-tc-10", "status": "SKIPPED", "timeSpent": null,  "assigneeEmail": "qa.engineer@testpilot.io", "comment": "Cancellation window feature is behind a flag, not enabled in this build." },
+      { "caseId": "seed-fin-tc-11", "status": "PASSED",  "timeSpent": 1800,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-fin-tc-12", "status": "PASSED",  "timeSpent": 5500,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-fin-tc-13", "status": "PASSED",  "timeSpent": 2200,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-fin-tc-14", "status": "PASSED",  "timeSpent": 3700,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-fin-tc-15", "status": "PASSED",  "timeSpent": 3100,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-fin-tc-16", "status": "PASSED",  "timeSpent": 4400,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-fin-tc-17", "status": "PASSED",  "timeSpent": 6200,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-fin-tc-18", "status": "PASSED",  "timeSpent": 3300,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-fin-tc-19", "status": "PASSED",  "timeSpent": 2900,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-fin-tc-20", "status": "SKIPPED", "timeSpent": null,  "assigneeEmail": "qa.manager@testpilot.io", "comment": "Test environment does not support 30-day simulation." }
+    ]
+  },
+  {
+    "id": "seed-fin-tr-02",
+    "title": "Payment Smoke — v2.5.0 Deployment Check",
+    "description": "Post-deployment smoke test on production to verify critical payment paths.",
+    "status": "ACTIVE",
+    "planId": "seed-fin-tp-02",
+    "environmentSlug": "production",
+    "results": [
+      { "caseId": "seed-fin-tc-06", "status": "PASSED",  "timeSpent": 4100,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-fin-tc-07", "status": "PASSED",  "timeSpent": 2700,  "assigneeEmail": "qa.engineer@testpilot.io" },
+      { "caseId": "seed-fin-tc-08", "status": "FAILED",  "timeSpent": 9200,  "assigneeEmail": "qa.manager@testpilot.io", "comment": "SWIFT bug still present in v2.5.0. Escalated to dev team." },
+      { "caseId": "seed-fin-tc-16", "status": "PASSED",  "timeSpent": 3800,  "assigneeEmail": "qa.manager@testpilot.io" },
+      { "caseId": "seed-fin-tc-18", "status": "PASSED",  "timeSpent": 3500,  "assigneeEmail": "qa.manager@testpilot.io" }
+    ]
+  }
+]

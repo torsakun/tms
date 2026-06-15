@@ -1,0 +1,21 @@
+[
+  {
+    "id": "seed-fin-tp-01",
+    "title": "Sprint 12 Full Regression",
+    "description": "Complete regression suite covering all modules for the v2.5.0 release.",
+    "testCaseIds": [
+      "seed-fin-tc-01","seed-fin-tc-02","seed-fin-tc-03","seed-fin-tc-04","seed-fin-tc-05",
+      "seed-fin-tc-06","seed-fin-tc-07","seed-fin-tc-08","seed-fin-tc-09","seed-fin-tc-10",
+      "seed-fin-tc-11","seed-fin-tc-12","seed-fin-tc-13","seed-fin-tc-14","seed-fin-tc-15",
+      "seed-fin-tc-16","seed-fin-tc-17","seed-fin-tc-18","seed-fin-tc-19","seed-fin-tc-20"
+    ]
+  },
+  {
+    "id": "seed-fin-tp-02",
+    "title": "Payment Flow Smoke Test",
+    "description": "Critical-path smoke test for payment flows run before every deployment to production.",
+    "testCaseIds": [
+      "seed-fin-tc-06","seed-fin-tc-07","seed-fin-tc-08","seed-fin-tc-16","seed-fin-tc-18"
+    ]
+  }
+]

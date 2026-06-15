@@ -1,0 +1,21 @@
+[
+  {
+    "id": "seed-med-tp-01",
+    "title": "v3.1 Release Validation",
+    "description": "Full validation suite for the v3.1 release covering patient records, appointments, and prescriptions.",
+    "testCaseIds": [
+      "seed-med-tc-01","seed-med-tc-02","seed-med-tc-03","seed-med-tc-04","seed-med-tc-05",
+      "seed-med-tc-06","seed-med-tc-07","seed-med-tc-08","seed-med-tc-10",
+      "seed-med-tc-11","seed-med-tc-12","seed-med-tc-13","seed-med-tc-14",
+      "seed-med-tc-18","seed-med-tc-19"
+    ]
+  },
+  {
+    "id": "seed-med-tp-02",
+    "title": "HIPAA Compliance Check",
+    "description": "Targeted compliance suite to verify audit logging, data anonymisation, and access controls.",
+    "testCaseIds": [
+      "seed-med-tc-03","seed-med-tc-12","seed-med-tc-14","seed-med-tc-18","seed-med-tc-19","seed-med-tc-20"
+    ]
+  }
+]

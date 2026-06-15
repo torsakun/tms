@@ -1,0 +1,12 @@
+{
+  "id": "seed-p-shz",
+  "name": "ShopZen",
+  "code": "SHZ",
+  "description": "Multi-vendor e-commerce marketplace with integrated logistics and seller analytics",
+  "members": [
+    { "userEmail": "owner@testpilot.io",       "role": "ADMIN"  },
+    { "userEmail": "qa.manager@testpilot.io",   "role": "ADMIN"  },
+    { "userEmail": "qa.engineer@testpilot.io",  "role": "EDITOR" },
+    { "userEmail": "viewer@testpilot.io",        "role": "VIEWER" }
+  ]
+}

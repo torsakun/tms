@@ -1,0 +1,27 @@
+[
+  {
+    "title": "Local",
+    "slug": "local",
+    "description": "Local development environment on developer machines"
+  },
+  {
+    "title": "Staging",
+    "slug": "staging",
+    "description": "Pre-production environment mirroring production config"
+  },
+  {
+    "title": "Production",
+    "slug": "production",
+    "description": "Live production environment — exercise caution"
+  },
+  {
+    "title": "iOS",
+    "slug": "ios",
+    "description": "iOS mobile testing environment (iPhone/iPad simulators)"
+  },
+  {
+    "title": "Android",
+    "slug": "android",
+    "description": "Android mobile testing environment (emulators and real devices)"
+  }
+]
