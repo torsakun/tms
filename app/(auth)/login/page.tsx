@@ -40,7 +40,11 @@ function LoginPageContent() {
     });
 
     if (res?.error) {
-      setError("Invalid email or password");
+      // NextAuth encodes the thrown Error message in res.error for CredentialsProvider
+      const msg = res.error === "CredentialsSignin"
+        ? "Invalid email or password"
+        : res.error;
+      setError(msg);
       setLoading(false);
     } else {
       router.push("/");
