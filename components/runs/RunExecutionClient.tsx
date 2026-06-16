@@ -129,7 +129,7 @@ function ResultRow({ result, depth, isSelected, openResult, projectCode, runId, 
         <input type="checkbox" className="w-4 h-4 mr-4 rounded border-border text-primary focus:ring-primary/20" onClick={e => e.stopPropagation()} />
         <div className="w-12 text-text-muted text-xs font-mono mr-2 flex items-center">
            <div className={`w-1.5 h-4 rounded-sm mr-2 ${result.status === 'PASSED' ? 'bg-emerald-500' : result.status === 'FAILED' ? 'bg-red-500' : result.status === 'BLOCKED' ? 'bg-orange-500' : result.status === 'SKIPPED' ? 'bg-slate-400' : 'bg-background border border-border'}`} />
-           {result.testCase.id.substring(0,4).toUpperCase()}
+           {result.testCase.sequenceNumber || result.testCase.id.substring(0,4).toUpperCase()}
         </div>
         <div className="flex-1 flex items-center">
           <span className={`inline-flex px-2 py-0.5 text-[11px] font-bold rounded mr-3 ${getStatusColor(result.status)}`}>
@@ -474,7 +474,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
     run.results.forEach((r: any) => {
       if (q) {
         const title = (r.testCase?.title || "").toLowerCase();
-        const code = `${projectCode}-${r.testCase?.id?.substring(0, 4) || ""}`.toLowerCase();
+        const code = `${projectCode}-${r.testCase?.sequenceNumber || r.testCase?.id?.substring(0, 4) || ""}`.toLowerCase();
         if (!title.includes(q) && !code.includes(q)) return;
       }
       const sId = r.testCase?.suiteId || 'unassigned';
@@ -799,7 +799,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
 
     const rows = run.results.map((res: any) => {
       const tc = res.testCase;
-      const code = tc.code || `${projectCode}-${tc.id.substring(0, 4)}`;
+      const code = `${projectCode}-${tc.sequenceNumber || tc.id.substring(0, 4)}`;
 
       const expected = (tc.steps || []).map((step: any, idx: number) => {
         const stepNum = idx + 1;
@@ -1232,7 +1232,7 @@ export default function RunExecutionClient({ run: initialRun, suites, projectCod
                   {activeResult.status === "BLOCKED" && <MinusCircle size={12} />}
                 </div>
                 <h2 className="text-lg font-bold text-slate-800 truncate">{activeResult.testCase.title}</h2>
-                <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded shadow-sm shrink-0">{projectCode}-{activeResult.testCase.id.substring(0,4).toUpperCase()}</span>
+                <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded shadow-sm shrink-0">{projectCode}-{activeResult.testCase.sequenceNumber || activeResult.testCase.id.substring(0,4).toUpperCase()}</span>
               </div>
               <div className="flex items-center gap-2 ml-4 shrink-0">
                  {(activeResult.status === "FAILED" || activeResult.status === "BLOCKED") && (

@@ -195,9 +195,10 @@ model Project {
   name        String
   code        String   @unique // e.g., "PROJ"
   description String?
-  isArchived  Boolean           @default(false)
-  accessType  ProjectAccessType @default(PUBLIC)
-  createdAt   DateTime          @default(now())
+  isArchived    Boolean           @default(false)
+  accessType    ProjectAccessType @default(PUBLIC)
+  caseSequence  Int               @default(0)
+  createdAt     DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   
   // Integrations
@@ -284,12 +285,14 @@ model TestCase {
   testPlans        TestPlan[]      @relation("TestPlanToTestCase")
 
   customFields     Json?           // Stores custom field values
+  sequenceNumber   Int              @default(0)
 
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
   @@index([projectId])
   @@index([suiteId])
+  @@unique([projectId, sequenceNumber])
 }
 
 model Tag {

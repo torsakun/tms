@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { 
@@ -73,11 +74,11 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
         setActiveDropdown(null);
         router.refresh();
       } else {
-        alert("Failed to delete test plan.");
+        toast.error("Failed to delete test plan.");
       }
     } catch (err) {
       console.error(err);
-      alert("An error occurred while deleting the test plan.");
+      toast.error("An error occurred while deleting the test plan.");
     }
   };
 

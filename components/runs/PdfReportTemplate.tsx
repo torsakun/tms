@@ -102,7 +102,7 @@ export function PdfReportTemplate({ run, projectCode }: PdfReportTemplateProps) 
             <tbody>
               {run.results?.map((res: any, index: number) => {
                 const tc = res.testCase;
-                const code = tc.code || `${projectCode}-${tc.id.substring(0, 4)}`;
+                const code = `${projectCode}-${tc.sequenceNumber || tc.id.substring(0, 4)}`;
                 const rowBgColor = index % 2 === 0 ? '#ffffff' : '#f8fafc';
 
                 // Status Badge styling

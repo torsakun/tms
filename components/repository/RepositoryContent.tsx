@@ -21,9 +21,11 @@ interface RepositoryContentProps {
   suites: any[];
   cases: any[];
   activeSuiteId: string | null;
+  totalCases?: number;
+  totalSuites?: number;
 }
 
-export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }: RepositoryContentProps) {
+export function RepositoryContent({ projectCode, suites, cases, activeSuiteId, totalCases, totalSuites }: RepositoryContentProps) {
   const router = useRouter();
   const { role } = useProjectRole();
   const [activeTestCaseId, setActiveTestCaseId] = useState<string | null>(null);
@@ -239,163 +241,124 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
 
   return (
     <>
-      <div className="flex-1 flex flex-col min-w-0 relative h-full overflow-hidden bg-[#f0f2f8] transition-colors">
-        {/* Toolbar */}
-        <header className="h-14 border-b flex items-center justify-between px-6 bg-white shrink-0 transition-colors" style={{ borderColor: "#e8eaf2", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+      <div className="flex-1 flex flex-col min-w-0 relative h-full overflow-hidden bg-white transition-colors">
+        {/* ── Page header row: title + action buttons ── */}
+        <div className="flex items-center justify-between px-6 py-3 bg-white border-b shrink-0" style={{ borderColor: "#e8eaf2", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+          {/* Left: title + counts */}
           {hasSelection ? (
-            <div className="flex items-center space-x-4 w-full">
-              <div className="flex items-center space-x-1 bg-slate-100 border border-slate-200 rounded-lg px-1 py-1 h-9">
-                <button onClick={handleBulkEdit} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-md transition-colors" title="Edit">
-                  <Edit3 size={15} />
+            <div className="flex items-center gap-2">
+              <span className="text-[15px] font-bold text-slate-800">{projectCode}</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-[15px] font-bold text-slate-800">Repository</span>
+              <span className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full ml-1">
+                {selectedCases.size} selected
+                <button onClick={clearSelection} className="ml-0.5 text-indigo-400 hover:text-indigo-600 rounded-full hover:bg-indigo-100 p-0.5 transition-colors">
+                  <X size={12} />
                 </button>
-                <div className="w-px h-4 bg-slate-200"></div>
-                <button onClick={handleBulkClone} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-md transition-colors" title="Clone">
-                  <Copy size={15} />
-                </button>
-                <div className="w-px h-4 bg-slate-200"></div>
-                <button onClick={handleBulkRun} className="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-white rounded-md transition-colors" title="Run">
-                  <PlayCircle size={15} />
-                </button>
-                <div className="w-px h-4 bg-slate-200"></div>
-                <button
-                  onClick={handleBulkDelete}
-                  className="p-1.5 text-slate-500 hover:text-red-500 hover:bg-white rounded-md transition-colors"
-                  title="Delete"
-                >
-                  <Trash2 size={15} />
-                </button>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <button className="flex items-center px-3 py-1.5 h-9 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-[13px] font-medium rounded-lg transition-colors shadow-sm">
-                  <Sparkles size={14} className="mr-1.5 text-amber-500" />
-                  Run advisor
-                </button>
-                <button className="flex items-center px-3 py-1.5 h-9 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-[13px] font-medium rounded-lg transition-colors shadow-sm">
-                  <Cpu size={14} className="mr-1.5 text-indigo-500" />
-                  Automate
-                </button>
-              </div>
+              </span>
             </div>
           ) : (
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center space-x-2">
-                <div className="relative w-48">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={13} />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search cases…"
-                    className="w-full pl-8 pr-3 py-1.5 text-[13px] bg-slate-50 border border-slate-200 text-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all"
-                  />
-                </div>
-
-                <select
-                  value={searchScope}
-                  onChange={(e) => setSearchScope(e.target.value as "all" | "title")}
-                  className="px-3 py-1.5 text-[13px] bg-slate-50 border border-slate-200 text-slate-600 rounded-lg focus:outline-none focus:border-indigo-300 appearance-none cursor-pointer w-36">
-                  <option value="all">By all fields</option>
-                  <option value="title">By title</option>
-                </select>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                {lastSyncPr && (
-                  <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-2 py-1 rounded-lg mr-2">
-                    <a
-                      href={lastSyncPr.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="flex items-center text-xs font-medium text-slate-700 hover:text-indigo-600 hover:underline transition-colors px-2 py-1"
-                    >
-                      <ExternalLink size={13} className="mr-1" />
-                      View PR #{lastSyncPr.number}
-                    </a>
-                    {role !== 'VIEWER' && (
-                      <button
-                        onClick={handleQuickMerge}
-                        disabled={isMerging}
-                        className="flex items-center bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50"
-                      >
-                        {isMerging ? <Loader2 size={12} className="mr-1 animate-spin" /> : <GitMerge size={12} className="mr-1" />}
-                        Quick Merge
-                      </button>
-                    )}
-                  </div>
-                )}
-                
-                {role !== 'VIEWER' && (
-                  <>
-                    <button 
-                      onClick={handleSyncAll}
-                      disabled={isSyncing}
-                      title="Sync to GitHub"
-                      className="flex items-center shrink-0 bg-gradient-to-r from-sky-400 to-blue-500 text-white px-2.5 lg:px-3 py-1.5 rounded-md text-[13px] font-bold shadow-md disabled:opacity-50 hover:brightness-110 transition-all"
-                    >
-                      {isSyncing ? <Loader2 size={14} className="animate-spin lg:mr-1.5" /> : <CloudUpload size={14} className="lg:mr-1.5" />}
-                      <span className="hidden lg:inline">Sync</span>
-                    </button>
-                    <button 
-                      onClick={() => setIsBulkJiraModalOpen(true)}
-                      title="Story Impact Analysis"
-                      className="flex items-center shrink-0 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-2.5 lg:px-3 py-1.5 rounded-md text-[13px] font-bold shadow-md hover:brightness-110 transition-all"
-                    >
-                      <Ticket size={14} className="lg:mr-1.5" />
-                      <span className="hidden lg:inline">Impact</span>
-                    </button>
-                    <button 
-                      onClick={() => setIsAiModalOpen(true)}
-                      title="Generate AI Tests"
-                      className="flex items-center shrink-0 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2.5 lg:px-3 py-1.5 rounded-md text-[13px] font-bold shadow-md hover:brightness-110 transition-all"
-                    >
-                      <Sparkles size={14} className="lg:mr-1.5" />
-                      <span className="hidden lg:inline">AI Gen</span>
-                    </button>
-                    
-                    <Link href={`/projects/${projectCode}/cases/create`} className="flex items-center shrink-0 bg-primary text-primary-foreground hover:bg-primary-hover px-2.5 lg:px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors shadow-sm">
-                      <Plus size={14} className="lg:mr-1.5" />
-                      <span className="hidden lg:inline">Test Case</span>
-                    </Link>
-
-                    <div className="relative group shrink-0">
-                      <button className="flex items-center shrink-0 bg-surface border border-border hover:bg-surface-hover text-text-main px-2.5 lg:px-3 py-1.5 rounded-md text-[13px] font-medium transition-colors shadow-sm">
-                        <Settings size={14} className="xl:mr-1.5" />
-                        <span className="hidden xl:inline">Options</span>
-                      </button>
-                      <div className="absolute right-0 top-full mt-1 w-48 bg-surface border border-border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                        <div className="p-1 flex flex-col space-y-0.5">
-                          <button 
-                            onClick={handleSyncAll}
-                            className="lg:hidden flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-sm text-left"
-                          >
-                            <CloudUpload size={14} className="mr-2 text-text-muted" /> Sync to GitHub
-                          </button>
-                          <button 
-                            onClick={handleExportQase}
-                            className="flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-sm text-left"
-                          >
-                            <Download size={14} className="mr-2 text-text-muted" /> Export Qase
-                          </button>
-                          <button 
-                            onClick={() => setIsImportModalOpen(true)}
-                            className="flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-sm text-left"
-                          >
-                            <Upload size={14} className="mr-2 text-text-muted" /> Import Qase
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
+            <div className="flex items-center gap-2.5">
+              <span className="text-[15px] font-bold text-slate-800">{projectCode}</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-[15px] font-bold text-slate-800">Repository</span>
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">{totalCases ?? cases.length} cases</span>
+              <span className="text-[11px] font-medium text-slate-400">{totalSuites ?? suites.length} suites</span>
             </div>
           )}
-        </header>
+
+          {/* Right: action buttons */}
+          {hasSelection ? (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-0.5 bg-slate-100 border border-slate-200 rounded-lg px-1 py-1">
+                <button onClick={handleBulkEdit} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-md transition-colors" title="Edit"><Edit3 size={15} /></button>
+                <div className="w-px h-4 bg-slate-200" />
+                <button onClick={handleBulkClone} className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-md transition-colors" title="Clone"><Copy size={15} /></button>
+                <div className="w-px h-4 bg-slate-200" />
+                <button onClick={handleBulkRun} className="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-white rounded-md transition-colors" title="Run"><PlayCircle size={15} /></button>
+                <div className="w-px h-4 bg-slate-200" />
+                <button onClick={handleBulkDelete} className="p-1.5 text-slate-500 hover:text-red-500 hover:bg-white rounded-md transition-colors" title="Delete"><Trash2 size={15} /></button>
+              </div>
+              <button className="flex items-center px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-[13px] font-medium rounded-lg transition-colors shadow-sm">
+                <Sparkles size={14} className="mr-1.5 text-amber-500" /> Run advisor
+              </button>
+              <button className="flex items-center px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-[13px] font-medium rounded-lg transition-colors shadow-sm">
+                <Cpu size={14} className="mr-1.5 text-indigo-500" /> Automate
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              {lastSyncPr && (
+                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-2 py-1 rounded-lg">
+                  <a href={lastSyncPr.url} target="_blank" rel="noreferrer" className="flex items-center text-xs font-medium text-slate-700 hover:text-indigo-600 hover:underline transition-colors px-2 py-1">
+                    <ExternalLink size={13} className="mr-1" /> View PR #{lastSyncPr.number}
+                  </a>
+                  {role !== 'VIEWER' && (
+                    <button onClick={handleQuickMerge} disabled={isMerging} className="flex items-center bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50">
+                      {isMerging ? <Loader2 size={12} className="mr-1 animate-spin" /> : <GitMerge size={12} className="mr-1" />} Quick Merge
+                    </button>
+                  )}
+                </div>
+              )}
+              {role !== 'VIEWER' && (
+                <>
+                  <button onClick={handleSyncAll} disabled={isSyncing} title="Sync to GitHub" className="flex items-center gap-1.5 bg-gradient-to-r from-sky-400 to-blue-500 text-white px-3 py-1.5 rounded-lg text-[13px] font-bold shadow-sm disabled:opacity-50 hover:brightness-110 transition-all">
+                    {isSyncing ? <Loader2 size={14} className="animate-spin" /> : <CloudUpload size={14} />} Sync
+                  </button>
+                  <button onClick={() => setIsBulkJiraModalOpen(true)} title="Story Impact Analysis" className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1.5 rounded-lg text-[13px] font-bold shadow-sm hover:brightness-110 transition-all">
+                    <Ticket size={14} /> Impact
+                  </button>
+                  <button onClick={() => setIsAiModalOpen(true)} title="Generate AI Tests" className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1.5 rounded-lg text-[13px] font-bold shadow-sm hover:brightness-110 transition-all">
+                    <Sparkles size={14} /> AI Gen
+                  </button>
+                  <Link href={`/projects/${projectCode}/cases/create`} className="flex items-center gap-1.5 bg-primary text-primary-foreground hover:bg-primary-hover px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-colors shadow-sm">
+                    <Plus size={14} /> Test Case
+                  </Link>
+                  <div className="relative group">
+                    <button className="flex items-center gap-1.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors shadow-sm">
+                      <Settings size={14} /> Options
+                    </button>
+                    <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                      <div className="p-1 flex flex-col gap-0.5">
+                        <button onClick={handleExportQase} className="flex items-center w-full px-3 py-2 text-[13px] text-slate-700 hover:bg-slate-50 rounded-lg text-left">
+                          <Download size={14} className="mr-2 text-slate-400" /> Export Qase
+                        </button>
+                        <button onClick={() => setIsImportModalOpen(true)} className="flex items-center w-full px-3 py-2 text-[13px] text-slate-700 hover:bg-slate-50 rounded-lg text-left">
+                          <Upload size={14} className="mr-2 text-slate-400" /> Import Qase
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ── Search row ── */}
+        <div className="flex items-center gap-2 px-6 py-2.5 bg-white border-b shrink-0" style={{ borderColor: "#e8eaf2" }}>
+          <div className="relative flex-1 max-w-sm">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search cases…"
+              className="w-full pl-9 pr-3 py-2 text-[13px] bg-slate-50 border border-slate-200 text-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all"
+            />
+          </div>
+          <select
+            value={searchScope}
+            onChange={(e) => setSearchScope(e.target.value as "all" | "title")}
+            className="px-3 py-2 text-[13px] bg-slate-50 border border-slate-200 text-slate-600 rounded-lg focus:outline-none focus:border-indigo-300 appearance-none cursor-pointer w-36">
+            <option value="all">By all fields</option>
+            <option value="title">By title</option>
+          </select>
+        </div>
 
 
         {/* Hierarchical Content */}
-        <div className="flex-1 overflow-y-auto bg-[#f0f2f8] relative transition-colors">
+        <div className="flex-1 overflow-y-auto bg-white relative transition-colors">
           <div className="p-6 pb-32">
             <SuiteList
               suites={suites}
@@ -471,7 +434,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
             <header className="flex flex-col px-6 pt-5 pb-0 border-b bg-white shrink-0" style={{ borderColor: "#e8eaf2" }}>
               <div className="flex items-center justify-between mb-3">
                  <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded shadow-sm">
-                   {activeTestCase.code || `${projectCode}-${activeTestCase.id.substring(0,4)}`}
+                   {`${projectCode}-${activeTestCase.sequenceNumber || activeTestCase.id.substring(0,4)}`}
                  </span>
                  <div className="flex items-center gap-1">
                     <button className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg transition-colors"><Copy size={15}/></button>
@@ -508,7 +471,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId }:
               </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto bg-[#f0f2f8] p-5 space-y-4">
+            <div className="flex-1 overflow-y-auto bg-white p-5 space-y-4">
               {activeTestCase.isOutdated && (
                 <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl flex flex-col space-y-3 shadow-sm mb-4">
                   <div className="flex items-start">

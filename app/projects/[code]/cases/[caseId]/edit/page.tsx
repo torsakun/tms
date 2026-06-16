@@ -236,14 +236,15 @@ export default function TestCaseEditor() {
         }) 
       });
       if (res.ok) {
-        alert("Test case updated successfully!");
+        toast.success("Test case updated");
         router.back();
       } else {
-        alert("Failed to update");
+        const body = await res.json().catch(() => ({}));
+        toast.error(body.error || "Failed to update");
       }
     } catch (e) {
       console.error(e);
-      alert("Error saving");
+      toast.error("Error saving");
     }
   };
 

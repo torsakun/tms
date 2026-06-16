@@ -24,10 +24,21 @@ export function TopNav() {
     return () => document.removeEventListener("click", close);
   }, []);
 
+  const AVATAR_COLORS = ["#4f46e5","#7c3aed","#0891b2","#059669","#d97706","#e11d48","#0284c7","#9333ea"];
+
   const getInitials = (name?: string | null) => {
-    if (!name) return "U";
-    const p = name.split(" ");
-    return p.length >= 2 ? `${p[0][0]}${p[1][0]}`.toUpperCase() : name.slice(0, 2).toUpperCase();
+    if (!name) return "?";
+    // If it looks like an email, use the part before @
+    const display = name.includes("@") ? name.split("@")[0] : name;
+    const p = display.split(" ").filter(Boolean);
+    return p.length >= 2 ? `${p[0][0]}${p[1][0]}`.toUpperCase() : display.slice(0, 2).toUpperCase();
+  };
+
+  const getAvatarColor = (name?: string | null) => {
+    if (!name) return AVATAR_COLORS[0];
+    let sum = 0;
+    for (let i = 0; i < name.length; i++) sum += name.charCodeAt(i);
+    return AVATAR_COLORS[sum % AVATAR_COLORS.length];
   };
 
   return (
@@ -84,8 +95,8 @@ export function TopNav() {
             <button
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); e.nativeEvent.stopImmediatePropagation(); setDropdownOpen(!dropdownOpen); }}
               className="flex items-center gap-1.5 px-1.5 py-1 rounded-lg hover:bg-slate-50 transition-all">
-              <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm"
-                style={{ background: "linear-gradient(135deg, #4f46e5, #a855f7)" }}>
+              <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm select-none"
+                style={{ background: getAvatarColor(session?.user?.name || session?.user?.email) }}>
                 {getInitials(session?.user?.name || session?.user?.email)}
               </div>
               <ChevronDown size={12} className="text-slate-400" />

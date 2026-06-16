@@ -59,8 +59,8 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   const headerBgClass = "bg-white border border-slate-200 rounded-lg shadow-sm";
 
   const titleClass = depth === 0
-    ? "font-bold text-[14px] text-slate-800"
-    : "font-semibold text-[13px] text-slate-700";
+    ? "font-bold text-[15px] text-slate-800"
+    : "font-semibold text-[14px] text-slate-700";
                       
   const handleCreateQuickTest = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && quickTestTitle.trim() && !isCreating) {
@@ -332,7 +332,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                 return (
                 <div 
                   key={tc.id} 
-                  className={cn("group flex items-center px-4 py-2 border-b border-slate-100 last:border-0 hover:bg-indigo-50/40 transition-colors cursor-pointer", isSelected && "bg-indigo-50/60 hover:bg-indigo-50/80")}
+                  className={cn("group flex items-center px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-indigo-50/40 transition-colors cursor-pointer", isSelected && "bg-indigo-50/60 hover:bg-indigo-50/80")}
                   onClick={() => {
                     if (onSelectCase) {
                       onSelectCase(tc);
@@ -379,12 +379,12 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                   </div>
                   
                   <div className="w-20 shrink-0">
-                    <span className="text-[10px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-1.5 py-0.5 rounded shadow-sm">
-                      {tc.code || `${projectCode}-${tc.id.substring(0,2)}`}
+                    <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-2 py-0.5 rounded shadow-sm">
+                      {`${projectCode}-${tc.sequenceNumber || tc.id.substring(0,2)}`}
                     </span>
                   </div>
-                  
-                  <div className="flex-1 flex items-center text-sm font-normal text-text-main min-w-0">
+
+                  <div className="flex-1 flex items-center text-[14px] font-normal text-text-main min-w-0">
                     <span className="truncate">{tc.title}</span>
                     {tc.isOutdated && (
                       <span className="ml-2 flex shrink-0 items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700" title="Requirement Changed">

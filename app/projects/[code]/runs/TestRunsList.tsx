@@ -2,6 +2,7 @@
 // Force rebuild for TestRunsList
 
 import React, { useState, useRef, useEffect } from "react";
+import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { 
@@ -96,11 +97,11 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
         setActiveDropdown(null);
         router.refresh();
       } else {
-        alert("Failed to delete test run.");
+        toast.error("Failed to delete test run.");
       }
     } catch (err) {
       console.error(err);
-      alert("An error occurred while deleting the test run.");
+      toast.error("An error occurred while deleting the test run.");
     }
   };
 

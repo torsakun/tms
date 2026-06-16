@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, use } from "react";
+import { toast } from "sonner";
 import { 
   Bot, 
   Sparkles, 
@@ -173,7 +174,7 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
       });
       setReviewCase(null);
     } catch (err) {
-      alert("Failed to save script");
+      toast.error("Failed to save script");
     } finally {
       setIsSavingScript(false);
     }
@@ -184,7 +185,7 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
       await fetch(`/api/projects/${code}/cases/${id}/discard`, { method: "POST" });
       fetchData();
     } catch (err) {
-      alert("Failed to discard");
+      toast.error("Failed to discard");
     }
   };
 
@@ -247,10 +248,10 @@ export default function TESSAAutomationPage({ params }: { params: Promise<{ code
         method: "POST"
       });
       if (res.ok) {
-        alert("Pipeline triggered! A new Test Run has been created.");
+        toast.success("Pipeline triggered! A new Test Run has been created.");
       } else {
         const err = await res.json();
-        alert("Trigger failed: " + err.error);
+        toast.error("Trigger failed: " + err.error);
       }
     } catch (err) {
       console.error(err);

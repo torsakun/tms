@@ -1,10 +1,8 @@
-import Link from "next/link";
 import { SuiteTree } from "@/components/repository/SuiteTree";
 import { RepositoryContent } from "@/components/repository/RepositoryContent";
 import { ResizableLayout } from "@/components/repository/ResizableLayout";
 import { SuiteExpansionProvider } from "@/components/providers/SuiteExpansionProvider";
 import { SuiteSelectionProvider } from "@/components/providers/SuiteSelectionProvider";
-import { RepositoryHeader } from "@/components/repository/RepositoryHeader";
 import { prisma } from "@/lib/prisma";
 
 export default async function RepositoryPage({ 
@@ -49,17 +47,9 @@ export default async function RepositoryPage({
     <SuiteExpansionProvider initialExpandedIds={allSuiteIds} projectCode={code}>
       <SuiteSelectionProvider>
         <div className="flex flex-col flex-1 w-full bg-background overflow-hidden h-full">
-          
-          <RepositoryHeader 
-            projectCode={code} 
-            totalCases={cases.length} 
-            totalSuites={suites.length} 
-            cases={cases}
-          />
-
-          <ResizableLayout 
+          <ResizableLayout
             leftPane={<SuiteTree initialSuites={suites} cases={cases} projectCode={code} />}
-            rightPane={<RepositoryContent projectCode={code} suites={suites} cases={cases} activeSuiteId={activeSuiteId} />}
+            rightPane={<RepositoryContent projectCode={code} suites={suites} cases={cases} activeSuiteId={activeSuiteId} totalCases={cases.length} totalSuites={suites.length} />}
           />
         </div>
       </SuiteSelectionProvider>

@@ -4,6 +4,7 @@
 export const dynamic = "force-dynamic";
 
 import React, { useState, Suspense } from "react";
+import { toast } from "sonner";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -147,13 +148,15 @@ function CreateCaseContent({ params }: { params: any /* use React.use() if async
         body: JSON.stringify(payload)
       });
       if (res.ok) {
+        toast.success("Test case created");
         router.push(`/projects/${projectCode}/repository`);
       } else {
-        alert("Failed to save test case");
+        const body = await res.json().catch(() => ({}));
+        toast.error(body.error || "Failed to save test case");
       }
     } catch (err) {
       console.error(err);
-      alert("Error saving test case");
+      toast.error("Error saving test case");
     }
   };
 

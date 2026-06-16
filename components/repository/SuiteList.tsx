@@ -22,7 +22,7 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
       const title = (tc.title || "").toLowerCase();
       if (title.includes(q)) return true;
       if (searchScope === "title") return false;
-      const code = (tc.code || `${projectCode}-${tc.id?.substring(0, 2)}`).toLowerCase();
+      const code = (`${projectCode}-${tc.sequenceNumber || tc.id?.substring(0, 2)}`).toLowerCase();
       const desc = (tc.description || "").toLowerCase();
       return code.includes(q) || desc.includes(q);
     });

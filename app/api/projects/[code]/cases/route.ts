@@ -64,25 +64,33 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
     const validatedData = testCaseSchema.parse(body);
     const { tags, attachmentIds, steps, customFields, ...rest } = validatedData;
 
-    const testCase = await prisma.testCase.create({
-      data: {
-        ...rest,
-        projectId: projectId,
-        tags: tags && tags.length > 0 ? {
-          connectOrCreate: tags.map(tagName => ({
-            where: { name_projectId: { name: tagName, projectId: projectId } },
-            create: { name: tagName, projectId: projectId }
-          }))
-        } : undefined,
-        attachments: attachmentIds && attachmentIds.length > 0 ? {
-          connect: attachmentIds.map(id => ({ id }))
-        } : undefined,
-        customFields: customFields || undefined,
-        steps: {
-          create: steps || []
-        }
-      },
-      include: { steps: true, tags: true, attachments: true }
+    const testCase = await prisma.$transaction(async (tx) => {
+      const updatedProject = await tx.project.update({
+        where: { id: projectId },
+        data: { caseSequence: { increment: 1 } },
+        select: { caseSequence: true },
+      });
+      return tx.testCase.create({
+        data: {
+          ...rest,
+          projectId: projectId,
+          sequenceNumber: updatedProject.caseSequence,
+          tags: tags && tags.length > 0 ? {
+            connectOrCreate: tags.map(tagName => ({
+              where: { name_projectId: { name: tagName, projectId: projectId } },
+              create: { name: tagName, projectId: projectId }
+            }))
+          } : undefined,
+          attachments: attachmentIds && attachmentIds.length > 0 ? {
+            connect: attachmentIds.map(id => ({ id }))
+          } : undefined,
+          customFields: customFields || undefined,
+          steps: {
+            create: steps || []
+          }
+        },
+        include: { steps: true, tags: true, attachments: true }
+      });
     });
 
     await logAudit({
