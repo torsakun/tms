@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Plus, Edit2, Copy, Trash2, CheckSquare, Square, Sparkles, User, Check } from "lucide-react";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -40,6 +41,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   // Delete Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeletingSuite, setIsDeletingSuite] = useState(false);
+  const [confirmDeleteCaseId, setConfirmDeleteCaseId] = useState<string | null>(null);
 
   const router = useRouter();
   const { role } = useProjectRole();
@@ -397,24 +399,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                   <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     {role !== 'VIEWER' && (
                       <button
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          if (window.confirm("Are you sure you want to delete this test case?")) {
-                            try {
-                              const res = await fetch(`/api/projects/${projectCode}/cases/${tc.id}`, { method: 'DELETE' });
-                              if (res.ok) {
-                                router.refresh();
-                                toast.success("Test case deleted successfully");
-                              } else {
-                                const data = await res.json();
-                                toast.error("Failed to delete test case: " + (data.error || res.statusText));
-                              }
-                            } catch (err: any) {
-                              console.error(err);
-                              toast.error("Error: " + err.message);
-                            }
-                          }
-                        }}
+                        onClick={(e) => { e.stopPropagation(); setConfirmDeleteCaseId(tc.id); }}
                         className="p-1 text-text-muted hover:text-red-500 rounded transition-colors"
                         title="Delete test case"
                       >
@@ -469,7 +454,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
         isCloning={isCloning}
       />
 
-      <DeleteSuiteModal 
+      <DeleteSuiteModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         suite={suite}
@@ -478,6 +463,30 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
         onDelete={executeDeleteSuite}
         isDeleting={isDeletingSuite}
       />
+
+      {confirmDeleteCaseId && (
+        <ConfirmDialog
+          title="Delete test case"
+          message="This test case will be permanently deleted. This action cannot be undone."
+          onConfirm={async () => {
+            const id = confirmDeleteCaseId;
+            setConfirmDeleteCaseId(null);
+            try {
+              const res = await fetch(`/api/projects/${projectCode}/cases/${id}`, { method: "DELETE" });
+              if (res.ok) {
+                router.refresh();
+                toast.success("Test case deleted successfully");
+              } else {
+                const data = await res.json();
+                toast.error("Failed to delete test case: " + (data.error || res.statusText));
+              }
+            } catch (err: any) {
+              toast.error("Error: " + err.message);
+            }
+          }}
+          onCancel={() => setConfirmDeleteCaseId(null)}
+        />
+      )}
     </div>
   );
 }

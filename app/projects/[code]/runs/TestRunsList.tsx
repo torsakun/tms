@@ -3,6 +3,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { 
@@ -69,6 +70,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [showFilters, setShowFilters] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -86,21 +88,21 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
   }, []);
 
   const handleDelete = async (runId: string) => {
-    if (!window.confirm("Are you sure you want to delete this test run? This action cannot be undone.")) return;
+    const backup = [...runs];
+    setRuns(prev => prev.filter(r => r.id !== runId));
+    setActiveDropdown(null);
 
     try {
-      const res = await fetch(`/api/runs/${runId}`, {
-        method: "DELETE"
-      });
-      if (res.ok) {
-        setRuns(prev => prev.filter(r => r.id !== runId));
-        setActiveDropdown(null);
-        router.refresh();
-      } else {
+      const res = await fetch(`/api/runs/${runId}`, { method: "DELETE" });
+      if (!res.ok) {
+        setRuns(backup);
         toast.error("Failed to delete test run.");
+      } else {
+        router.refresh();
       }
     } catch (err) {
       console.error(err);
+      setRuns(backup);
       toast.error("An error occurred while deleting the test run.");
     }
   };
@@ -369,7 +371,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
                               <Edit size={13} className="mr-2 text-slate-400" /> Edit run
                             </Link>
                             <button
-                              onClick={() => handleDelete(run.id)}
+                              onClick={() => { setActiveDropdown(null); setConfirmDeleteId(run.id); }}
                               className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 flex items-center transition-colors"
                             >
                               <Trash2 size={13} className="mr-2" /> Delete run
@@ -426,6 +428,14 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
             </div>
           )}
         </div>
+      )}
+      {confirmDeleteId && (
+        <ConfirmDialog
+          title="Delete test run"
+          message="This test run and all its results will be permanently deleted. This action cannot be undone."
+          onConfirm={() => { const id = confirmDeleteId; setConfirmDeleteId(null); handleDelete(id); }}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
       )}
     </div>
   );

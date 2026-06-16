@@ -4,12 +4,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { 
-  Search, 
-  Filter, 
-  PlayCircle, 
-  MoreHorizontal, 
-  FileText, 
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import {
+  Search,
+  Filter,
+  PlayCircle,
+  MoreHorizontal,
+  FileText,
   Calendar,
   Edit2,
   Trash2
@@ -38,6 +39,7 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
   const [sortBy, setSortBy] = useState<"newest" | "oldest">("newest");
   const [showFilters, setShowFilters] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -63,21 +65,21 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
     });
 
   const handleDelete = async (planId: string) => {
-    if (!window.confirm("Are you sure you want to delete this test plan? This action cannot be undone.")) return;
+    const backup = [...plans];
+    setPlans(prev => prev.filter(p => p.id !== planId));
+    setActiveDropdown(null);
 
     try {
-      const res = await fetch(`/api/projects/${code}/plans/${planId}`, {
-        method: "DELETE"
-      });
-      if (res.ok) {
-        setPlans(prev => prev.filter(p => p.id !== planId));
-        setActiveDropdown(null);
-        router.refresh();
-      } else {
+      const res = await fetch(`/api/projects/${code}/plans/${planId}`, { method: "DELETE" });
+      if (!res.ok) {
+        setPlans(backup);
         toast.error("Failed to delete test plan.");
+      } else {
+        router.refresh();
       }
     } catch (err) {
       console.error(err);
+      setPlans(backup);
       toast.error("An error occurred while deleting the test plan.");
     }
   };
@@ -217,8 +219,8 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
                             >
                               <Edit2 size={14} className="mr-2 text-text-muted" /> Edit
                             </Link>
-                            <button 
-                              onClick={() => handleDelete(plan.id)}
+                            <button
+                              onClick={() => { setActiveDropdown(null); setConfirmDeleteId(plan.id); }}
                               className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10 flex items-center transition-colors"
                             >
                               <Trash2 size={14} className="mr-2" /> Delete
@@ -233,6 +235,14 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
             </tbody>
           </table>
         </div>
+      )}
+      {confirmDeleteId && (
+        <ConfirmDialog
+          title="Delete test plan"
+          message="This test plan will be permanently deleted. This action cannot be undone."
+          onConfirm={() => { const id = confirmDeleteId; setConfirmDeleteId(null); handleDelete(id); }}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
       )}
     </div>
   );

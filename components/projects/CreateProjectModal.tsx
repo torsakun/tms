@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, HelpCircle, AlertCircle } from "lucide-react";
+import { X, HelpCircle, AlertCircle, Loader2 } from "lucide-react";
 
 export function CreateProjectModal() {
   const router = useRouter();
@@ -244,13 +244,13 @@ export function CreateProjectModal() {
           >
             Cancel
           </button>
-          <button 
+          <button
             form="create-project-form"
             type="submit"
             disabled={loading || !name || !code}
-            className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Creating..." : "Create project"}
+            {loading ? <><Loader2 size={14} className="animate-spin" /> Creating…</> : "Create project"}
           </button>
         </footer>
       </div>

@@ -37,6 +37,10 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Invalid password");
           }
 
+          if (!user.isActive) {
+            throw new Error("Your account has been deactivated. Contact your workspace admin.");
+          }
+
           await prisma.user.update({ where: { id: user.id }, data: { lastSeenAt: new Date() } });
 
           return {

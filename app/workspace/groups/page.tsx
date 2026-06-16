@@ -162,16 +162,19 @@ export default function WorkspaceGroupsPage() {
 
   const handleDelete = async (id: string) => {
     setConfirmDeleteId(null);
+    const backup = [...groups];
+    setGroups(prev => prev.filter(g => g.id !== id));
     try {
       const res = await fetch(`/api/workspace/groups/${id}`, { method: "DELETE" });
       if (res.ok) {
-        setGroups((prev) => prev.filter((g) => g.id !== id));
         toast.success("Group deleted successfully");
       } else {
+        setGroups(backup);
         toast.error("Failed to delete group");
       }
     } catch (err) {
       console.error(err);
+      setGroups(backup);
       toast.error("Error deleting group");
     }
   };

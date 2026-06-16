@@ -65,11 +65,13 @@ export default function WorkspaceRolesPage() {
 
   const handleDelete = async (id: string) => {
     setConfirmDelete(null);
+    const backup = [...roles];
+    setRoles(prev => prev.filter(r => r.id !== id));
     try {
       const res = await fetch(`/api/workspace/roles/${id}`, { method: "DELETE" });
-      if (res.ok) { fetchRoles(); toast.success("Role deleted successfully"); }
-      else { const d = await res.json(); toast.error(d.error || "Failed to delete role"); }
-    } catch { toast.error("Something went wrong"); }
+      if (res.ok) { toast.success("Role deleted successfully"); }
+      else { const d = await res.json(); setRoles(backup); toast.error(d.error || "Failed to delete role"); }
+    } catch { setRoles(backup); toast.error("Something went wrong"); }
   };
 
   if (isLoading) {

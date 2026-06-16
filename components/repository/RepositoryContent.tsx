@@ -15,6 +15,7 @@ import { CloneSuiteModal } from "@/components/repository/CloneSuiteModal";
 import { ImportCasesModal } from "@/components/repository/ImportCasesModal";
 import { BulkEditModal } from "@/components/repository/BulkEditModal";
 import { useSuiteSelection } from "@/components/providers/SuiteSelectionProvider";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 interface RepositoryContentProps {
   projectCode: string;
@@ -44,14 +45,14 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId, t
   const [lastSyncPr, setLastSyncPr] = useState<{ url: string; number: number | null } | null>(null);
   const [customFieldsDef, setCustomFieldsDef] = useState<any[]>([]);
   const [isImporting, setIsImporting] = useState(false);
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
+  const [confirmSync, setConfirmSync] = useState(false);
+  const [confirmDeleteCase, setConfirmDeleteCase] = useState(false);
 
   const { selectedCases, clearSelection } = useSuiteSelection();
   const hasSelection = selectedCases.size > 0;
 
   const handleBulkDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete ${selectedCases.size} selected test case(s)?`)) {
-      return;
-    }
     
     try {
       const res = await fetch(`/api/projects/${projectCode}/cases/bulk`, {
@@ -152,7 +153,6 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId, t
   }, []);
 
   const handleSyncAll = async () => {
-    if (!window.confirm("This will export all automated test cases to a single GitHub Pull Request. Continue?")) return;
     
     setIsSyncing(true);
     setLastSyncPr(null);
@@ -222,7 +222,6 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId, t
 
   const handleDeleteActiveCase = async () => {
     if (!activeTestCase) return;
-    if (!window.confirm(`Delete test case "${activeTestCase.title}"? This cannot be undone.`)) return;
     try {
       const res = await fetch(`/api/projects/${projectCode}/cases/${activeTestCase.id}`, { method: "DELETE" });
       if (res.ok) {
@@ -277,7 +276,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId, t
                 <div className="w-px h-4 bg-slate-200" />
                 <button onClick={handleBulkRun} className="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-white rounded-md transition-colors" title="Run"><PlayCircle size={15} /></button>
                 <div className="w-px h-4 bg-slate-200" />
-                <button onClick={handleBulkDelete} className="p-1.5 text-slate-500 hover:text-red-500 hover:bg-white rounded-md transition-colors" title="Delete"><Trash2 size={15} /></button>
+                <button onClick={() => setConfirmBulkDelete(true)} className="p-1.5 text-slate-500 hover:text-red-500 hover:bg-white rounded-md transition-colors" title="Delete"><Trash2 size={15} /></button>
               </div>
               <button className="flex items-center px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-[13px] font-medium rounded-lg transition-colors shadow-sm">
                 <Sparkles size={14} className="mr-1.5 text-amber-500" /> Run advisor
@@ -302,7 +301,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId, t
               )}
               {role !== 'VIEWER' && (
                 <>
-                  <button onClick={handleSyncAll} disabled={isSyncing} title="Sync to GitHub" className="flex items-center gap-1.5 bg-gradient-to-r from-sky-400 to-blue-500 text-white px-3 py-1.5 rounded-lg text-[13px] font-bold shadow-sm disabled:opacity-50 hover:brightness-110 transition-all">
+                  <button onClick={() => setConfirmSync(true)} disabled={isSyncing} title="Sync to GitHub" className="flex items-center gap-1.5 bg-gradient-to-r from-sky-400 to-blue-500 text-white px-3 py-1.5 rounded-lg text-[13px] font-bold shadow-sm disabled:opacity-50 hover:brightness-110 transition-all">
                     {isSyncing ? <Loader2 size={14} className="animate-spin" /> : <CloudUpload size={14} />} Sync
                   </button>
                   <button onClick={() => setIsBulkJiraModalOpen(true)} title="Story Impact Analysis" className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1.5 rounded-lg text-[13px] font-bold shadow-sm hover:brightness-110 transition-all">
@@ -450,7 +449,7 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId, t
                  <button onClick={handleCloneCase} className="bg-white border border-slate-200 hover:bg-slate-50 hover:border-indigo-200 hover:text-indigo-600 text-slate-500 p-2 rounded-lg transition-colors shadow-sm" title="Clone case">
                     <Copy size={15} />
                  </button>
-                 <button onClick={handleDeleteActiveCase} className="bg-white border border-slate-200 hover:bg-red-50 hover:border-red-200 hover:text-red-500 text-slate-500 p-2 rounded-lg transition-colors shadow-sm" title="Delete case">
+                 <button onClick={() => setConfirmDeleteCase(true)} className="bg-white border border-slate-200 hover:bg-red-50 hover:border-red-200 hover:text-red-500 text-slate-500 p-2 rounded-lg transition-colors shadow-sm" title="Delete case">
                     <Trash2 size={15} />
                  </button>
                  <div className="w-px h-6 bg-slate-200 mx-1"></div>
@@ -612,9 +611,36 @@ export function RepositoryContent({ projectCode, suites, cases, activeSuiteId, t
 
       {/* Backdrop for sliding panel */}
       {activeTestCaseId && (
-        <div 
-          className="fixed inset-0 bg-slate-900/20 z-[50] transition-opacity" 
+        <div
+          className="fixed inset-0 bg-slate-900/20 z-[50] transition-opacity"
           onClick={() => setActiveTestCaseId(null)}
+        />
+      )}
+
+      {confirmBulkDelete && (
+        <ConfirmDialog
+          title={`Delete ${selectedCases.size} test case${selectedCases.size > 1 ? "s" : ""}`}
+          message="Selected test cases will be permanently deleted. This action cannot be undone."
+          onConfirm={() => { setConfirmBulkDelete(false); handleBulkDelete(); }}
+          onCancel={() => setConfirmBulkDelete(false)}
+        />
+      )}
+      {confirmSync && (
+        <ConfirmDialog
+          title="Sync to GitHub"
+          message="This will export all automated test cases to a single GitHub Pull Request. Continue?"
+          confirmLabel="Sync"
+          variant="warning"
+          onConfirm={() => { setConfirmSync(false); handleSyncAll(); }}
+          onCancel={() => setConfirmSync(false)}
+        />
+      )}
+      {confirmDeleteCase && activeTestCase && (
+        <ConfirmDialog
+          title="Delete test case"
+          message={`"${activeTestCase.title}" will be permanently deleted. This action cannot be undone.`}
+          onConfirm={() => { setConfirmDeleteCase(false); handleDeleteActiveCase(); }}
+          onCancel={() => setConfirmDeleteCase(false)}
         />
       )}
     </>
