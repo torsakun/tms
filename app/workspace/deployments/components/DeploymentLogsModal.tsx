@@ -3,7 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import { X, Loader2 } from "lucide-react";
 
-export default function DeploymentLogsModal({ deploymentId, onClose }: { deploymentId: string, onClose: () => void }) {
+export default function DeploymentLogsModal({
+  deploymentId,
+  onClose,
+}: {
+  deploymentId: string;
+  onClose: () => void;
+}) {
   const [deployment, setDeployment] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const logsEndRef = useRef<HTMLDivElement>(null);
@@ -24,10 +30,14 @@ export default function DeploymentLogsModal({ deploymentId, onClose }: { deploym
 
   useEffect(() => {
     fetchDeployment();
-    
+
     // Poll for updates if still building
     const interval = setInterval(() => {
-      if (!deployment || deployment.status === "BUILDING" || deployment.status === "PENDING") {
+      if (
+        !deployment ||
+        deployment.status === "BUILDING" ||
+        deployment.status === "PENDING"
+      ) {
         fetchDeployment();
       } else {
         clearInterval(interval);
@@ -49,10 +59,14 @@ export default function DeploymentLogsModal({ deploymentId, onClose }: { deploym
       <div className="bg-slate-950 w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden flex flex-col h-[80vh] border border-slate-800">
         <div className="flex justify-between items-center px-6 py-4 border-b border-slate-800 bg-slate-900">
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-mono font-semibold text-slate-200">Terminal Output</h2>
-            {deployment?.status === "BUILDING" && <Loader2 className="animate-spin text-blue-400" size={16} />}
+            <h2 className="text-lg font-mono font-semibold text-slate-200">
+              Terminal Output
+            </h2>
+            {deployment?.status === "BUILDING" && (
+              <Loader2 className="animate-spin text-blue-400" size={16} />
+            )}
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="text-text-muted hover:text-white transition-colors"
           >
@@ -62,7 +76,10 @@ export default function DeploymentLogsModal({ deploymentId, onClose }: { deploym
 
         <div className="flex-1 overflow-y-auto p-6 font-mono text-xs sm:text-sm text-emerald-400 bg-black leading-relaxed">
           {loading && !deployment ? (
-            <div className="text-text-muted flex items-center gap-2"><Loader2 className="animate-spin" size={14} /> Loading connection...</div>
+            <div className="text-text-muted flex items-center gap-2">
+              <Loader2 className="animate-spin" size={14} /> Loading
+              connection...
+            </div>
           ) : (
             <pre className="whitespace-pre-wrap break-words font-mono">
               {deployment.logs || "Waiting for output..."}

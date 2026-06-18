@@ -1,14 +1,18 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
 import RunExecutionClient from "@/components/runs/RunExecutionClient";
 import { notFound } from "next/navigation";
 
-export default async function RunExecutionPage({ params }: { params: Promise<{ code: string, runId: string }> }) {
+export default async function RunExecutionPage({
+  params,
+}: {
+  params: Promise<{ code: string; runId: string }>;
+}) {
   const { code, runId } = await params;
 
   const project = await prisma.project.findUnique({
-    where: { code }
+    where: { code },
   });
 
   if (!project) return notFound();
@@ -22,21 +26,28 @@ export default async function RunExecutionPage({ params }: { params: Promise<{ c
       results: {
         include: {
           testCase: {
-            include: { steps: true }
+            include: { steps: true },
           },
           assignee: { select: { id: true, name: true, email: true } },
-          linkedIssues: { orderBy: { createdAt: "desc" } }
-        }
-      }
-    }
+          linkedIssues: { orderBy: { createdAt: "desc" } },
+        },
+      },
+    },
   });
 
   if (!run) return notFound();
 
   const suites = await prisma.testSuite.findMany({
     where: { projectId: project.id },
-    orderBy: { position: 'asc' }
+    orderBy: { position: "asc" },
   });
 
-  return <RunExecutionClient run={run} suites={suites} projectCode={code} runId={runId} />;
+  return (
+    <RunExecutionClient
+      run={run}
+      suites={suites}
+      projectCode={code}
+      runId={runId}
+    />
+  );
 }

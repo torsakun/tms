@@ -5,7 +5,11 @@ import { MembersListClient } from "./MembersListClient";
 import { requireProjectRole } from "@/lib/project-auth";
 import { redirect } from "next/navigation";
 
-export default async function ProjectMembersPage({ params }: { params: Promise<{ code: string }> }) {
+export default async function ProjectMembersPage({
+  params,
+}: {
+  params: Promise<{ code: string }>;
+}) {
   const { code } = await params;
   const session = await getServerSession(authOptions);
 
@@ -14,8 +18,10 @@ export default async function ProjectMembersPage({ params }: { params: Promise<{
   }
 
   // Only ADMINs can manage members
-  const hasAccess = await requireProjectRole(code, (session.user as any).id, ['ADMIN']);
-  if (!hasAccess && (session.user as any).role !== 'ADMIN') {
+  const hasAccess = await requireProjectRole(code, (session.user as any).id, [
+    "ADMIN",
+  ]);
+  if (!hasAccess && (session.user as any).role !== "ADMIN") {
     redirect(`/projects/${code}/repository`);
   }
 
@@ -27,11 +33,11 @@ export default async function ProjectMembersPage({ params }: { params: Promise<{
         members: {
           include: {
             user: {
-              include: { workspaceRole: { select: { title: true } } }
-            }
-          }
-        }
-      }
+              include: { workspaceRole: { select: { title: true } } },
+            },
+          },
+        },
+      },
     });
     members = project?.members || [];
   } catch (error) {

@@ -3,41 +3,53 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ code: string, runId: string }> }
+  { params }: { params: Promise<{ code: string; runId: string }> },
 ) {
   const { code, runId } = await params;
-  
+
   try {
     const testRun = await prisma.testRun.findUnique({
       where: { id: runId },
-      include: { 
+      include: {
         project: true,
         results: {
-          include: { testCase: true }
-        }
-      }
+          include: { testCase: true },
+        },
+      },
     });
 
     if (!testRun) {
-      return NextResponse.json({ error: "Test run not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Test run not found" },
+        { status: 404 },
+      );
     }
 
-    const GITHUB_TOKEN = testRun.project.githubToken || process.env.GITHUB_TOKEN;
-    const GITHUB_OWNER = testRun.project.githubOwner || process.env.GITHUB_OWNER;
+    const GITHUB_TOKEN =
+      testRun.project.githubToken || process.env.GITHUB_TOKEN;
+    const GITHUB_OWNER =
+      testRun.project.githubOwner || process.env.GITHUB_OWNER;
     const GITHUB_REPO = testRun.project.githubRepo || process.env.GITHUB_REPO;
-    const GITHUB_WORKFLOW_ID = testRun.project.githubWorkflowId || process.env.GITHUB_WORKFLOW_ID || "playwright.yml";
+    const GITHUB_WORKFLOW_ID =
+      testRun.project.githubWorkflowId ||
+      process.env.GITHUB_WORKFLOW_ID ||
+      "playwright.yml";
 
     if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
-      return NextResponse.json({ 
-        error: "GitHub integration is not configured. Please set it in Project Settings -> Integrations." 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error:
+            "GitHub integration is not configured. Please set it in Project Settings -> Integrations.",
+        },
+        { status: 400 },
+      );
     }
 
     const headers = {
-      "Authorization": `Bearer ${GITHUB_TOKEN}`,
-      "Accept": "application/vnd.github.v3+json",
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      Accept: "application/vnd.github.v3+json",
       "X-GitHub-Api-Version": "2022-11-28",
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     };
 
     const baseUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`;
@@ -45,7 +57,7 @@ export async function POST(
 
     // Gather short IDs to pass to Playwright
     const automatedShortIds = testRun.results
-      .filter((r: any) => r.testCase.automationStatus === 'AUTOMATED')
+      .filter((r: any) => r.testCase.automationStatus === "AUTOMATED")
       .map((r: any) => `${code}-${r.testCase.id.substring(0, 4)}`)
       .join(" ");
 
@@ -55,16 +67,16 @@ export async function POST(
 
     // Assuming the workflow takes `run_id`, `case_ids`, and `api_url` as inputs
     const dispatchRes = await fetch(dispatchUrl, {
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify({
         ref: "main",
         inputs: {
           run_id: runId,
           case_ids: automatedShortIds,
-          api_url: apiUrl
-        }
-      })
+          api_url: apiUrl,
+        },
+      }),
     });
 
     if (!dispatchRes.ok) {
@@ -75,28 +87,33 @@ export async function POST(
     // Reset Run status to ACTIVE
     await prisma.testRun.update({
       where: { id: runId },
-      data: { status: 'ACTIVE' }
+      data: { status: "ACTIVE" },
     });
 
     // Reset automated test results to IN_PROGRESS
     const automatedResultIds = testRun.results
-      .filter((r: any) => r.testCase.automationStatus === 'AUTOMATED')
+      .filter((r: any) => r.testCase.automationStatus === "AUTOMATED")
       .map((r: any) => r.id);
 
     if (automatedResultIds.length > 0) {
       await prisma.testRunResult.updateMany({
         where: { id: { in: automatedResultIds } },
-        data: { 
-          status: 'IN_PROGRESS',
-          comment: null // Clear previous logs
-        }
+        data: {
+          status: "IN_PROGRESS",
+          comment: null, // Clear previous logs
+        },
       });
     }
 
-    return NextResponse.json({ success: true, message: "GitHub Actions workflow triggered successfully" });
-
+    return NextResponse.json({
+      success: true,
+      message: "GitHub Actions workflow triggered successfully",
+    });
   } catch (error: any) {
     console.error("GitHub Dispatch error:", error);
-    return NextResponse.json({ error: error.message || "An unexpected error occurred" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "An unexpected error occurred" },
+      { status: 500 },
+    );
   }
 }

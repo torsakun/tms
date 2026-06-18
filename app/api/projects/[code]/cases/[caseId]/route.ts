@@ -7,10 +7,10 @@ import { logAudit } from "@/lib/audit-logger";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: Promise<{ code: string; caseId: string }> }
+  { params }: { params: Promise<{ code: string; caseId: string }> },
 ) {
   const { code, caseId } = await params;
-  
+
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
@@ -18,7 +18,7 @@ export async function DELETE(
     }
 
     const project = await prisma.project.findFirst({
-      where: { code }
+      where: { code },
     });
 
     if (!project) {
@@ -26,16 +26,19 @@ export async function DELETE(
     }
 
     const testCase = await prisma.testCase.findUnique({
-      where: { id: caseId }
+      where: { id: caseId },
     });
 
     if (!testCase || testCase.projectId !== project.id) {
-      return NextResponse.json({ error: "Test case not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Test case not found" },
+        { status: 404 },
+      );
     }
 
     // Delete the test case
     await prisma.testCase.delete({
-      where: { id: caseId }
+      where: { id: caseId },
     });
 
     await logAudit({
@@ -44,12 +47,15 @@ export async function DELETE(
       action: "DELETED",
       entity: "TEST_CASE",
       entityId: caseId,
-      details: `Deleted Test Case: ${testCase.title}`
+      details: `Deleted Test Case: ${testCase.title}`,
     });
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("Failed to delete test case:", error);
-    return NextResponse.json({ error: error.message || "Failed to delete test case" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Failed to delete test case" },
+      { status: 500 },
+    );
   }
 }

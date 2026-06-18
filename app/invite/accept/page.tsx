@@ -64,8 +64,8 @@ function AcceptInviteContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token,
-          password
-        })
+          password,
+        }),
       });
 
       if (res.ok) {
@@ -86,9 +86,16 @@ function AcceptInviteContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface-hover px-4">
         <div className="max-w-md w-full bg-surface rounded-lg shadow-sm border border-border p-8 text-center">
-          <h2 className="text-xl font-bold text-text-main mb-2">Invalid Link</h2>
-          <p className="text-text-muted mb-6">{error || "No invitation token was provided."}</p>
-          <button onClick={() => router.push("/login")} className="w-full bg-[#2563eb] hover:bg-primary-hover text-white font-medium py-2 rounded-md transition-colors">
+          <h2 className="text-xl font-bold text-text-main mb-2">
+            Invalid Link
+          </h2>
+          <p className="text-text-muted mb-6">
+            {error || "No invitation token was provided."}
+          </p>
+          <button
+            onClick={() => router.push("/login")}
+            className="w-full bg-[#2563eb] hover:bg-primary-hover text-white font-medium py-2 rounded-md transition-colors"
+          >
             Go to Login
           </button>
         </div>
@@ -109,11 +116,29 @@ function AcceptInviteContent() {
       <div className="min-h-screen flex items-center justify-center bg-surface-hover px-4">
         <div className="max-w-md w-full bg-surface rounded-lg shadow-sm border border-border p-8 text-center">
           <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
           </div>
-          <h2 className="text-xl font-bold text-text-main mb-2">Invitation Unavailable</h2>
+          <h2 className="text-xl font-bold text-text-main mb-2">
+            Invitation Unavailable
+          </h2>
           <p className="text-text-muted mb-6">{error}</p>
-          <button onClick={() => router.push("/login")} className="w-full bg-[#2563eb] hover:bg-primary-hover text-white font-medium py-2 rounded-md transition-colors">
+          <button
+            onClick={() => router.push("/login")}
+            className="w-full bg-[#2563eb] hover:bg-primary-hover text-white font-medium py-2 rounded-md transition-colors"
+          >
             Go to Login
           </button>
         </div>
@@ -124,14 +149,15 @@ function AcceptInviteContent() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-surface-hover px-4">
       <div className="max-w-md w-full bg-surface rounded-lg shadow-sm border border-border p-8">
-        
         <div className="flex justify-center mb-6">
           <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center">
-             <span className="text-white font-bold text-xl">Q</span>
+            <span className="text-white font-bold text-xl">Q</span>
           </div>
         </div>
 
-        <h2 className="text-2xl font-bold text-text-main mb-2 text-center">Accept Invitation</h2>
+        <h2 className="text-2xl font-bold text-text-main mb-2 text-center">
+          Accept Invitation
+        </h2>
         <p className="text-text-muted text-center text-sm mb-8">
           Please provide your details and set a password to join the workspace.
         </p>
@@ -140,7 +166,9 @@ function AcceptInviteContent() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-text-main mb-1">Password</label>
+            <label className="block text-sm font-medium text-text-main mb-1">
+              Password
+            </label>
             <input
               type="password"
               required
@@ -152,7 +180,9 @@ function AcceptInviteContent() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-text-main mb-1">Confirm Password</label>
+            <label className="block text-sm font-medium text-text-main mb-1">
+              Confirm Password
+            </label>
             <input
               type="password"
               required
@@ -168,7 +198,9 @@ function AcceptInviteContent() {
             disabled={isSubmitting}
             className="w-full mt-6 bg-[#2563eb] hover:bg-primary-hover disabled:bg-blue-400 text-white font-medium py-2 rounded-md transition-colors flex items-center justify-center"
           >
-            {isSubmitting ? <Loader2 className="animate-spin mr-2" size={20} /> : null}
+            {isSubmitting ? (
+              <Loader2 className="animate-spin mr-2" size={20} />
+            ) : null}
             {isSubmitting ? "Processing..." : "Create Account"}
           </button>
         </form>

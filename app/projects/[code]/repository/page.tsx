@@ -5,51 +5,73 @@ import { SuiteExpansionProvider } from "@/components/providers/SuiteExpansionPro
 import { SuiteSelectionProvider } from "@/components/providers/SuiteSelectionProvider";
 import { prisma } from "@/lib/prisma";
 
-export default async function RepositoryPage({ 
+export default async function RepositoryPage({
   params,
-  searchParams
-}: { 
-  params: Promise<{ code: string }>,
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  searchParams,
+}: {
+  params: Promise<{ code: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { code } = await params;
   const resolvedSearchParams = await searchParams;
-  const activeSuiteId = typeof resolvedSearchParams.suite === 'string' ? resolvedSearchParams.suite : null;
-  
+  const activeSuiteId =
+    typeof resolvedSearchParams.suite === "string"
+      ? resolvedSearchParams.suite
+      : null;
+
   let cases: any[] = [];
   let suites: any[] = [];
   try {
     const project = await prisma.project.findFirst({
-      where: { code }
+      where: { code },
     });
-    
+
     if (project) {
       // Fetch suites
       suites = await prisma.testSuite.findMany({
         where: { projectId: project.id },
-        orderBy: { position: 'asc' }
+        orderBy: { position: "asc" },
       });
 
       // Fetch cases (all for the project to build the tree)
       cases = await prisma.testCase.findMany({
         where: { projectId: project.id },
-        include: { tags: true, steps: true, linkedIssues: { orderBy: { createdAt: "desc" } } },
-        orderBy: { createdAt: 'desc' }
+        include: {
+          tags: true,
+          steps: true,
+          linkedIssues: { orderBy: { createdAt: "desc" } },
+        },
+        orderBy: { createdAt: "desc" },
       });
     }
   } catch (err) {
     console.error("Failed to fetch cases:", err);
   }
 
-  const allSuiteIds = suites.map(s => s.id);
+  const allSuiteIds = suites.map((s) => s.id);
 
   return (
     <SuiteExpansionProvider initialExpandedIds={allSuiteIds} projectCode={code}>
       <SuiteSelectionProvider>
         <div className="flex flex-col flex-1 w-full bg-background overflow-hidden h-full">
           <ResizableLayout
-            leftPane={<SuiteTree initialSuites={suites} cases={cases} projectCode={code} />}
-            rightPane={<RepositoryContent projectCode={code} suites={suites} cases={cases} activeSuiteId={activeSuiteId} totalCases={cases.length} totalSuites={suites.length} />}
+            leftPane={
+              <SuiteTree
+                initialSuites={suites}
+                cases={cases}
+                projectCode={code}
+              />
+            }
+            rightPane={
+              <RepositoryContent
+                projectCode={code}
+                suites={suites}
+                cases={cases}
+                activeSuiteId={activeSuiteId}
+                totalCases={cases.length}
+                totalSuites={suites.length}
+              />
+            }
           />
         </div>
       </SuiteSelectionProvider>

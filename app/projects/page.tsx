@@ -1,13 +1,25 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { Search, Filter, LayoutList, Grid, MoreVertical, AlertTriangle, Check } from "lucide-react";
+import {
+  Search,
+  Filter,
+  LayoutList,
+  Grid,
+  MoreVertical,
+  AlertTriangle,
+  Check,
+} from "lucide-react";
 
 import { CreateProjectModal } from "@/components/projects/CreateProjectModal";
 import { ProjectList } from "./ProjectList";
 
-export default async function ProjectsPage({ searchParams }: { searchParams: Promise<{ create?: string }> }) {
+export default async function ProjectsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ create?: string }>;
+}) {
   const { create } = await searchParams;
   const isCreateModalOpen = create === "true";
 
@@ -16,7 +28,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
 
   try {
     const projects = await prisma.project.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: {
         _count: {
           select: {
@@ -25,56 +37,63 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
             testRuns: true,
             members: true,
             milestones: true,
-          }
+          },
         },
         testRuns: {
-          where: { status: 'ACTIVE' },
-          select: { id: true }
+          where: { status: "ACTIVE" },
+          select: { id: true },
         },
         testCases: {
           select: {
-            automationStatus: true
-          }
-        }
-      }
+            automationStatus: true,
+          },
+        },
+      },
     });
 
-    projectsWithLatestRuns = await Promise.all(projects.map(async (project) => {
-      // Get latest run
-      const latestRun = await prisma.testRun.findFirst({
-        where: { projectId: project.id },
-        orderBy: { createdAt: 'desc' },
-        include: { results: true }
-      });
+    projectsWithLatestRuns = await Promise.all(
+      projects.map(async (project) => {
+        // Get latest run
+        const latestRun = await prisma.testRun.findFirst({
+          where: { projectId: project.id },
+          orderBy: { createdAt: "desc" },
+          include: { results: true },
+        });
 
-      let passRate: number | null = null;
-      if (latestRun && latestRun.results.length > 0) {
-        const total = latestRun.results.length;
-        const passed = latestRun.results.filter(r => r.status === 'PASSED').length;
-        passRate = (passed / total) * 100;
-      }
+        let passRate: number | null = null;
+        if (latestRun && latestRun.results.length > 0) {
+          const total = latestRun.results.length;
+          const passed = latestRun.results.filter(
+            (r) => r.status === "PASSED",
+          ).length;
+          passRate = (passed / total) * 100;
+        }
 
-      // Automation calc
-      const totalCases = project.testCases.length;
-      const automatedCases = project.testCases.filter(c => c.automationStatus === 'AUTOMATED').length;
-      const automationPercent = totalCases > 0 ? (automatedCases / totalCases) * 100 : 0;
+        // Automation calc
+        const totalCases = project.testCases.length;
+        const automatedCases = project.testCases.filter(
+          (c) => c.automationStatus === "AUTOMATED",
+        ).length;
+        const automationPercent =
+          totalCases > 0 ? (automatedCases / totalCases) * 100 : 0;
 
-      return {
-        id: project.id,
-        name: project.name,
-        code: project.code,
-        testCasesCount: project._count.testCases,
-        suitesCount: project._count.suites,
-        activeRunsCount: project.testRuns.length,
-        testRunsCount: project._count.testRuns,
-        milestonesCount: project._count.milestones,
-        teamMembers: project._count.members,
-        automationPercent,
-        latestRunPassRate: passRate,
-        isArchived: project.isArchived,
-        updatedAt: project.updatedAt.toISOString(),
-      };
-    }));
+        return {
+          id: project.id,
+          name: project.name,
+          code: project.code,
+          testCasesCount: project._count.testCases,
+          suitesCount: project._count.suites,
+          activeRunsCount: project.testRuns.length,
+          testRunsCount: project._count.testRuns,
+          milestonesCount: project._count.milestones,
+          teamMembers: project._count.members,
+          automationPercent,
+          latestRunPassRate: passRate,
+          isArchived: project.isArchived,
+          updatedAt: project.updatedAt.toISOString(),
+        };
+      }),
+    );
   } catch (error: any) {
     console.error("Database Error:", error);
     dbError = error.message || "Failed to fetch projects";
@@ -96,7 +115,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
         {/* Projects List Client Component */}
         <ProjectList initialProjects={projectsWithLatestRuns} />
       </div>
-      
+
       {/* Modal is rendered here but only visible when isCreateModalOpen is true */}
       {isCreateModalOpen && <CreateProjectModal />}
     </main>

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ runId: string }> }
+  { params }: { params: Promise<{ runId: string }> },
 ) {
   const { runId } = await params;
 
@@ -17,10 +17,10 @@ export async function POST(
           select: {
             code: true,
             name: true,
-            msTeamsWebhookUrl: true
-          }
-        }
-      }
+            msTeamsWebhookUrl: true,
+          },
+        },
+      },
     });
 
     if (!run) {
@@ -33,7 +33,7 @@ export async function POST(
       data: {
         status: "COMPLETED",
         // Note: You can add an endedAt field if it exists in schema
-      }
+      },
     });
 
     // 3. Send MS Teams Notification if configured
@@ -45,7 +45,7 @@ export async function POST(
       let skipped = 0;
       let blocked = 0;
 
-      run.results.forEach(res => {
+      run.results.forEach((res) => {
         if (res.status === "PASSED") passed++;
         else if (res.status === "FAILED") failed++;
         else if (res.status === "SKIPPED") skipped++;
@@ -54,7 +54,7 @@ export async function POST(
 
       const passRate = total > 0 ? Math.round((passed / total) * 100) : 0;
       const themeColor = failed > 0 ? "E81123" : "00CC6A"; // Red if any failed, Green if all passed/skipped
-      
+
       // Determine base URL dynamically or use NEXTAUTH_URL
       const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
       // The user specifically requested linking to the public share report
@@ -63,32 +63,36 @@ export async function POST(
       const msTeamsPayload = {
         "@type": "MessageCard",
         "@context": "http://schema.org/extensions",
-        "themeColor": themeColor,
-        "summary": `Test Run Completed: ${run.title}`,
-        "sections": [{
-          "activityTitle": `**Test Run Completed: ${run.title}**`,
-          "activitySubtitle": `Project: ${run.project.name} (${run.project.code})`,
-          "facts": [
-            { "name": "Total Cases", "value": total.toString() },
-            { "name": "Passed", "value": passed.toString() },
-            { "name": "Failed", "value": failed.toString() },
-            { "name": "Blocked", "value": blocked.toString() },
-            { "name": "Pass Rate", "value": `${passRate}%` }
-          ],
-          "markdown": true
-        }],
-        "potentialAction": [{
-          "@type": "OpenUri",
-          "name": "View Public Report",
-          "targets": [{ "os": "default", "uri": reportUrl }]
-        }]
+        themeColor: themeColor,
+        summary: `Test Run Completed: ${run.title}`,
+        sections: [
+          {
+            activityTitle: `**Test Run Completed: ${run.title}**`,
+            activitySubtitle: `Project: ${run.project.name} (${run.project.code})`,
+            facts: [
+              { name: "Total Cases", value: total.toString() },
+              { name: "Passed", value: passed.toString() },
+              { name: "Failed", value: failed.toString() },
+              { name: "Blocked", value: blocked.toString() },
+              { name: "Pass Rate", value: `${passRate}%` },
+            ],
+            markdown: true,
+          },
+        ],
+        potentialAction: [
+          {
+            "@type": "OpenUri",
+            name: "View Public Report",
+            targets: [{ os: "default", uri: reportUrl }],
+          },
+        ],
       };
 
       try {
         await fetch(run.project.msTeamsWebhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(msTeamsPayload)
+          body: JSON.stringify(msTeamsPayload),
         });
         console.log(`MS Teams webhook sent for run ${run.id}`);
       } catch (webhookErr) {

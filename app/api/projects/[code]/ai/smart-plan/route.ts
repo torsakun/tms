@@ -4,24 +4,30 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ code: string }> }
+  { params }: { params: Promise<{ code: string }> },
 ) {
   const { code } = await params;
-  
+
   try {
     const { releaseNotes } = await req.json();
     if (!releaseNotes) {
-      return NextResponse.json({ error: "Release notes are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Release notes are required" },
+        { status: 400 },
+      );
     }
 
     const settings = await prisma.workspaceSetting.findUnique({
-      where: { key: 'GEMINI_API_KEY' }
+      where: { key: "GEMINI_API_KEY" },
     });
-    
+
     if (!settings || !settings.value) {
-      return NextResponse.json({ error: "Gemini API Key is not configured in Workspace Settings." }, { status: 500 });
+      return NextResponse.json(
+        { error: "Gemini API Key is not configured in Workspace Settings." },
+        { status: 500 },
+      );
     }
-    
+
     const genAI = new GoogleGenerativeAI(settings.value);
 
     // Fetch all test cases for the project to feed into the AI context
@@ -32,10 +38,10 @@ export async function POST(
           select: {
             id: true,
             title: true,
-            description: true
-          }
-        }
-      }
+            description: true,
+          },
+        },
+      },
     });
 
     if (!project) {
@@ -43,7 +49,12 @@ export async function POST(
     }
 
     // Prepare context for AI
-    const casesContext = project.testCases.map(tc => `ID: ${tc.id}\nTitle: ${tc.title}\nDescription: ${tc.description || 'None'}`).join("\n\n");
+    const casesContext = project.testCases
+      .map(
+        (tc) =>
+          `ID: ${tc.id}\nTitle: ${tc.title}\nDescription: ${tc.description || "None"}`,
+      )
+      .join("\n\n");
 
     const prompt = `
 You are an expert QA Engineer. I will provide you with Release Notes/Changelog for an upcoming release, and a list of all existing Test Cases in our repository.
@@ -64,11 +75,15 @@ Example format:
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const result = await model.generateContent(prompt);
     const responseText = result.response.text().trim();
-    
+
     // Clean up potential markdown blocks
     let jsonStr = responseText;
-    if (jsonStr.startsWith('```json')) jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
-    if (jsonStr.startsWith('```')) jsonStr = jsonStr.replace(/```/g, '').trim();
+    if (jsonStr.startsWith("```json"))
+      jsonStr = jsonStr
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+    if (jsonStr.startsWith("```")) jsonStr = jsonStr.replace(/```/g, "").trim();
 
     try {
       const selectedIds = JSON.parse(jsonStr);
@@ -78,9 +93,11 @@ Example format:
       return NextResponse.json({ selectedIds });
     } catch (parseError) {
       console.error("Failed to parse AI response:", responseText);
-      return NextResponse.json({ error: "AI response parsing failed." }, { status: 500 });
+      return NextResponse.json(
+        { error: "AI response parsing failed." },
+        { status: 500 },
+      );
     }
-
   } catch (error: any) {
     console.error("Smart Plan API Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -52,13 +52,20 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
             <UploadCloud size={24} className="text-text-muted mb-2" />
           )}
           <p className="text-xs text-text-muted">
-            {isUploading ? "Uploading..." : <><span className="font-semibold">Click to upload</span> or drag and drop</>}
+            {isUploading ? (
+              "Uploading..."
+            ) : (
+              <>
+                <span className="font-semibold">Click to upload</span> or drag
+                and drop
+              </>
+            )}
           </p>
         </div>
-        <input 
-          type="file" 
-          className="hidden" 
-          onChange={handleFileChange} 
+        <input
+          type="file"
+          className="hidden"
+          onChange={handleFileChange}
           disabled={isUploading}
         />
       </label>

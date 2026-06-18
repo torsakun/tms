@@ -9,7 +9,7 @@ export default function CreatePlanPage() {
   const router = useRouter();
   const params = useParams();
   const code = params.code as string;
-  
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [cases, setCases] = useState<any[]>([]);
@@ -17,7 +17,7 @@ export default function CreatePlanPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [releaseNotes, setReleaseNotes] = useState("");
@@ -28,21 +28,21 @@ export default function CreatePlanPage() {
       try {
         const [casesRes, suitesRes] = await Promise.all([
           fetch(`/api/projects/${code}/cases`),
-          fetch(`/api/projects/${code}/suites`)
+          fetch(`/api/projects/${code}/suites`),
         ]);
 
         if (casesRes.ok && suitesRes.ok) {
           const casesData = await casesRes.json();
           const suitesData = await suitesRes.json();
-          
+
           // Build tree from flat array
           const buildTree = (flatList: any[]) => {
             const map = new Map();
             const roots: any[] = [];
-            flatList.forEach(item => {
+            flatList.forEach((item) => {
               map.set(item.id, { ...item, children: [] });
             });
-            flatList.forEach(item => {
+            flatList.forEach((item) => {
               const node = map.get(item.id);
               if (item.parentId) {
                 if (map.has(item.parentId)) {
@@ -64,8 +64,8 @@ export default function CreatePlanPage() {
           throw new Error("Failed to load test cases");
         }
       } catch (err) {
-         console.error(err);
-         setError("Failed to load repository data.");
+        console.error(err);
+        setError("Failed to load repository data.");
       }
     };
     fetchCases();
@@ -77,7 +77,7 @@ export default function CreatePlanPage() {
       setError("Please select at least one test case.");
       return;
     }
-    
+
     setLoading(true);
     setError("");
 
@@ -88,8 +88,8 @@ export default function CreatePlanPage() {
         body: JSON.stringify({
           title,
           description,
-          caseIds: Array.from(selectedIds)
-        })
+          caseIds: Array.from(selectedIds),
+        }),
       });
 
       if (!res.ok) {
@@ -114,17 +114,17 @@ export default function CreatePlanPage() {
     if (!releaseNotes.trim()) return;
     setIsAiLoading(true);
     setError("");
-    
+
     try {
       const res = await fetch(`/api/projects/${code}/ai/smart-plan`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ releaseNotes })
+        body: JSON.stringify({ releaseNotes }),
       });
-      
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to generate AI plan");
-      
+
       if (data.selectedIds && Array.isArray(data.selectedIds)) {
         setSelectedIds(new Set(data.selectedIds));
         setIsAiModalOpen(false);
@@ -141,13 +141,22 @@ export default function CreatePlanPage() {
     <div className="flex h-[calc(100vh-4rem)] bg-background/50 items-center justify-center p-8">
       <div className="bg-surface rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none border border-border w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden transition-colors">
         <header className="flex items-center justify-between px-6 py-4 border-b border-border/50 shrink-0">
-          <h1 className="text-xl font-semibold text-text-main">Create test plan</h1>
-          <button type="button" onClick={() => router.back()} className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition-colors">
+          <h1 className="text-xl font-semibold text-text-main">
+            Create test plan
+          </h1>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition-colors"
+          >
             <X size={20} />
           </button>
         </header>
 
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col flex-1 overflow-hidden"
+        >
           <div className="p-8 space-y-6 overflow-y-auto">
             {error && (
               <div className="p-4 bg-red-50 text-red-700 flex items-center rounded-lg border border-red-100">
@@ -157,9 +166,11 @@ export default function CreatePlanPage() {
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-text-main mb-2">Plan Title</label>
-              <input 
-                type="text" 
+              <label className="block text-sm font-semibold text-text-main mb-2">
+                Plan Title
+              </label>
+              <input
+                type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -169,8 +180,10 @@ export default function CreatePlanPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-text-main mb-2">Description (Optional)</label>
-              <textarea 
+              <label className="block text-sm font-semibold text-text-main mb-2">
+                Description (Optional)
+              </label>
+              <textarea
                 rows={2}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -182,14 +195,16 @@ export default function CreatePlanPage() {
             {/* Modal Trigger */}
             <div className="pt-2">
               <div className="flex items-center justify-between mb-2">
-                 <label className="block text-sm font-semibold text-text-main">Test Cases</label>
-                 <button
-                   type="button"
-                   onClick={() => setIsAiModalOpen(true)}
-                   className="text-amber-500 hover:text-amber-600 font-medium text-xs flex items-center bg-amber-500/10 px-2 py-1 rounded transition-colors"
-                 >
-                   <Sparkles size={12} className="mr-1" /> Smart Select with AI
-                 </button>
+                <label className="block text-sm font-semibold text-text-main">
+                  Test Cases
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setIsAiModalOpen(true)}
+                  className="text-amber-500 hover:text-amber-600 font-medium text-xs flex items-center bg-amber-500/10 px-2 py-1 rounded transition-colors"
+                >
+                  <Sparkles size={12} className="mr-1" /> Smart Select with AI
+                </button>
               </div>
               <button
                 type="button"
@@ -197,10 +212,12 @@ export default function CreatePlanPage() {
                 onClick={() => setIsModalOpen(true)}
               >
                 <div>
-                  <div className="text-sm font-medium text-text-main group-hover:text-primary transition-colors">Select test cases</div>
+                  <div className="text-sm font-medium text-text-main group-hover:text-primary transition-colors">
+                    Select test cases
+                  </div>
                   <div className="text-xs text-text-muted mt-1">
                     {selectedIds.size === cases.length && cases.length > 0
-                      ? "All test cases selected" 
+                      ? "All test cases selected"
                       : `${selectedIds.size} of ${cases.length} cases selected`}
                   </div>
                 </div>
@@ -212,15 +229,15 @@ export default function CreatePlanPage() {
           </div>
 
           <div className="flex justify-end p-6 border-t border-border/50 shrink-0 bg-surface">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => router.back()}
               className="px-4 py-2 font-medium text-text-muted hover:text-text-main hover:bg-surface-hover rounded-md transition-colors mr-3"
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="flex items-center px-4 py-2 font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary-hover transition-all shadow-sm disabled:opacity-50 disabled:shadow-none"
             >
@@ -245,15 +262,23 @@ export default function CreatePlanPage() {
           <div className="bg-surface w-[600px] rounded-lg shadow-xl overflow-hidden border border-border animate-in zoom-in-95 duration-200 transition-colors">
             <div className="px-6 py-4 border-b border-border/50 flex justify-between items-center bg-background">
               <h3 className="text-lg font-bold text-text-main flex items-center">
-                <Sparkles size={20} className="mr-2 text-amber-500" /> AI Smart Selection
+                <Sparkles size={20} className="mr-2 text-amber-500" /> AI Smart
+                Selection
               </h3>
-              <button onClick={() => setIsAiModalOpen(false)} className="text-text-muted hover:text-text-main"><X size={20}/></button>
+              <button
+                onClick={() => setIsAiModalOpen(false)}
+                className="text-text-muted hover:text-text-main"
+              >
+                <X size={20} />
+              </button>
             </div>
             <div className="p-6">
               <p className="text-sm text-text-muted mb-4">
-                Paste your Release Notes, Changelog, or Jira Ticket descriptions here. The AI will analyze the changes and automatically select the most relevant test cases to execute.
+                Paste your Release Notes, Changelog, or Jira Ticket descriptions
+                here. The AI will analyze the changes and automatically select
+                the most relevant test cases to execute.
               </p>
-              <textarea 
+              <textarea
                 rows={6}
                 value={releaseNotes}
                 onChange={(e) => setReleaseNotes(e.target.value)}
@@ -262,20 +287,24 @@ export default function CreatePlanPage() {
               />
             </div>
             <div className="px-6 py-4 bg-background border-t border-border/50 flex justify-end space-x-3">
-              <button 
+              <button
                 type="button"
-                onClick={() => setIsAiModalOpen(false)} 
+                onClick={() => setIsAiModalOpen(false)}
                 className="px-4 py-2 rounded-md border border-border text-sm font-medium hover:bg-surface-hover text-text-main transition-colors"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 type="button"
-                onClick={handleAISmartSelect} 
-                className="px-4 py-2 rounded-md bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold shadow-[0_0_10px_rgba(245,158,11,0.4)] transition-all flex items-center disabled:opacity-50" 
+                onClick={handleAISmartSelect}
+                className="px-4 py-2 rounded-md bg-amber-500 hover:bg-amber-600 text-white text-sm font-bold shadow-[0_0_10px_rgba(245,158,11,0.4)] transition-all flex items-center disabled:opacity-50"
                 disabled={isAiLoading || !releaseNotes.trim()}
               >
-                {isAiLoading ? <Loader2 size={16} className="mr-2 animate-spin" /> : <Sparkles size={16} className="mr-2" />}
+                {isAiLoading ? (
+                  <Loader2 size={16} className="mr-2 animate-spin" />
+                ) : (
+                  <Sparkles size={16} className="mr-2" />
+                )}
                 {isAiLoading ? "Analyzing..." : "Auto-Select Cases"}
               </button>
             </div>

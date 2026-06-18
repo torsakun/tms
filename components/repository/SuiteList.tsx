@@ -14,15 +14,24 @@ interface SuiteListProps {
   searchScope?: "all" | "title";
 }
 
-export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectCase, searchQuery = "", searchScope = "all" }: SuiteListProps) {
+export function SuiteList({
+  suites,
+  cases,
+  activeSuiteId,
+  projectCode,
+  onSelectCase,
+  searchQuery = "",
+  searchScope = "all",
+}: SuiteListProps) {
   const q = searchQuery.trim().toLowerCase();
   const filteredCases = useMemo(() => {
     if (!q) return cases;
-    return cases.filter(tc => {
+    return cases.filter((tc) => {
       const title = (tc.title || "").toLowerCase();
       if (title.includes(q)) return true;
       if (searchScope === "title") return false;
-      const code = (`${projectCode}-${tc.sequenceNumber || tc.id?.substring(0, 2)}`).toLowerCase();
+      const code =
+        `${projectCode}-${tc.sequenceNumber || tc.id?.substring(0, 2)}`.toLowerCase();
       const desc = (tc.description || "").toLowerCase();
       return code.includes(q) || desc.includes(q);
     });
@@ -34,7 +43,7 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
       if (el) {
         // slight delay to ensure it's rendered and expanded
         setTimeout(() => {
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
         }, 100);
       }
     }
@@ -45,11 +54,11 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
     const cMap = new Map<string, any[]>();
     const rootList: any[] = [];
 
-    suites.forEach(suite => {
+    suites.forEach((suite) => {
       cMap.set(suite.id, []);
     });
 
-    suites.forEach(suite => {
+    suites.forEach((suite) => {
       if (suite.parentId && cMap.has(suite.parentId)) {
         cMap.get(suite.parentId)!.push(suite);
       } else {
@@ -63,8 +72,8 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
   // Group cases by suiteId
   const casesBySuiteId = useMemo(() => {
     const grouped = new Map<string, any[]>();
-    filteredCases.forEach(tc => {
-      const sId = tc.suiteId || 'unassigned';
+    filteredCases.forEach((tc) => {
+      const sId = tc.suiteId || "unassigned";
       if (!grouped.has(sId)) grouped.set(sId, []);
       grouped.get(sId)!.push(tc);
     });
@@ -81,16 +90,20 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
     return roots.filter(subtreeHasMatch);
   }, [roots, childrenMap, casesBySuiteId, q]);
 
-  const unassignedCases = casesBySuiteId.get('unassigned') || [];
+  const unassignedCases = casesBySuiteId.get("unassigned") || [];
 
   if (q && visibleRoots.length === 0 && unassignedCases.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 bg-white rounded-xl border border-slate-200 border-dashed">
+      <div className="flex flex-col items-center justify-center p-12 bg-surface rounded-xl border border-border border-dashed">
         <div className="w-14 h-14 bg-indigo-50 text-indigo-400 rounded-full flex items-center justify-center mb-3">
           <Folder size={28} />
         </div>
-        <h3 className="text-base font-bold text-slate-700 mb-1">No matching test cases</h3>
-        <p className="text-sm text-slate-400 text-center max-w-sm">No cases match &ldquo;{searchQuery}&rdquo;. Try a different search.</p>
+        <h3 className="text-base font-bold text-text-main mb-1">
+          No matching test cases
+        </h3>
+        <p className="text-sm text-text-muted text-center max-w-sm">
+          No cases match &ldquo;{searchQuery}&rdquo;. Try a different search.
+        </p>
       </div>
     );
   }
@@ -101,7 +114,9 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
         <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4 transition-colors">
           <Folder size={32} />
         </div>
-        <h3 className="text-lg font-semibold text-text-main mb-2">No Suites Found</h3>
+        <h3 className="text-lg font-semibold text-text-main mb-2">
+          No Suites Found
+        </h3>
         <p className="text-sm text-text-muted text-center max-w-sm mb-6">
           Create your first test suite to start organizing your test cases.
         </p>
@@ -111,26 +126,30 @@ export function SuiteList({ suites, cases, activeSuiteId, projectCode, onSelectC
 
   return (
     <div className="space-y-6">
-      {visibleRoots.map(suite => (
-        <div key={suite.id} className="flex flex-col">
-          <SuiteNode 
-            suite={suite} 
-            depth={0} 
-            childrenMap={childrenMap} 
-            casesBySuiteId={casesBySuiteId} 
+      {visibleRoots.map((suite, i) => (
+        <div
+          key={suite.id}
+          className="flex flex-col animate-list-in"
+          style={{ animationDelay: `${Math.min(i, 8) * 55}ms` }}
+        >
+          <SuiteNode
+            suite={suite}
+            depth={0}
+            childrenMap={childrenMap}
+            casesBySuiteId={casesBySuiteId}
             projectCode={projectCode}
             onSelectCase={onSelectCase}
             allSuites={suites}
           />
         </div>
       ))}
-      
+
       {unassignedCases.length > 0 && (
-        <SuiteNode 
-          suite={{ id: 'unassigned', title: 'Unassigned Test Cases' }} 
-          depth={0} 
-          childrenMap={childrenMap} 
-          casesBySuiteId={casesBySuiteId} 
+        <SuiteNode
+          suite={{ id: "unassigned", title: "Unassigned Test Cases" }}
+          depth={0}
+          childrenMap={childrenMap}
+          casesBySuiteId={casesBySuiteId}
           projectCode={projectCode}
           onSelectCase={onSelectCase}
           isUnassigned={true}

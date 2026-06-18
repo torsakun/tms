@@ -15,8 +15,14 @@ function getInitials(name: string | null) {
 
 // Deterministic vibrant avatar color from name
 const AVATAR_COLORS = [
-  "#4f46e5", "#7c3aed", "#0891b2", "#059669",
-  "#d97706", "#e11d48", "#0284c7", "#9333ea",
+  "#4f46e5",
+  "#7c3aed",
+  "#0891b2",
+  "#059669",
+  "#d97706",
+  "#e11d48",
+  "#0284c7",
+  "#9333ea",
 ];
 function avatarColor(name: string | null) {
   if (!name) return AVATAR_COLORS[0];
@@ -43,29 +49,32 @@ export default async function WorkspaceUsersPage() {
   });
 
   const users = dbUsers.map((user) => ({
-    id:         user.id,
-    name:       user.name || user.email.split("@")[0],
-    email:      user.email,
-    initials:   getInitials(user.name),
-    avatarBg:   avatarColor(user.name || user.email.split("@")[0]),
-    isActive:   user.isActive,
+    id: user.id,
+    name: user.name || user.email.split("@")[0],
+    email: user.email,
+    initials: getInitials(user.name),
+    avatarBg: avatarColor(user.name || user.email.split("@")[0]),
+    isActive: user.isActive,
     isSysAdmin: user.role === "ADMIN",
-    role:       user.workspaceRole?.title || "Member",
-    roleId:     user.workspaceRoleId,
+    role: user.workspaceRole?.title || "Member",
+    roleId: user.workspaceRoleId,
     lastAction: user.lastSeenAt
       ? new Date(user.lastSeenAt).toLocaleDateString("en-GB", {
-          day: "2-digit", month: "short", year: "numeric",
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
         })
       : "Never",
   }));
 
   return (
     <div className="w-full max-w-[1400px] mx-auto px-6 py-6">
-
       {/* ── Page header ─────────────────────────────────── */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-slate-800 tracking-tight">Users</h1>
+          <h1 className="text-xl font-bold text-text-main tracking-tight">
+            Users
+          </h1>
           <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">
             {users.length}
           </span>

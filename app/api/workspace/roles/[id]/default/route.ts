@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const resolvedParams = await params;
@@ -13,17 +13,20 @@ export async function POST(
     await prisma.$transaction([
       prisma.workspaceRole.updateMany({
         where: { isDefault: true },
-        data: { isDefault: false }
+        data: { isDefault: false },
       }),
       prisma.workspaceRole.update({
         where: { id: actualId },
-        data: { isDefault: true }
-      })
+        data: { isDefault: true },
+      }),
     ]);
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to set default role:", error);
-    return NextResponse.json({ error: "Failed to set default role" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to set default role" },
+      { status: 500 },
+    );
   }
 }

@@ -11,7 +11,7 @@ export function CreateProjectModal() {
   const [description, setDescription] = useState("");
   const [accessType, setAccessType] = useState("private");
   const [memberAccess, setMemberAccess] = useState("all");
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -28,7 +28,7 @@ export function CreateProjectModal() {
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, code, description })
+        body: JSON.stringify({ name, code, description }),
       });
 
       if (!res.ok) {
@@ -37,12 +37,12 @@ export function CreateProjectModal() {
       }
 
       const data = await res.json();
-      
+
       // Reset form
       setName("");
       setCode("");
       setDescription("");
-      
+
       handleClose();
       router.refresh(); // Refresh the list of projects
     } catch (err: any) {
@@ -56,10 +56,20 @@ export function CreateProjectModal() {
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newName = e.target.value;
     setName(newName);
-    
+
     // Only auto-generate if code is empty or matches previous auto-generation
-    if (!code || code === name.substring(0, code.length).toUpperCase().replace(/[^A-Z0-9]/g, '')) {
-      const newCode = newName.substring(0, 3).toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (
+      !code ||
+      code ===
+        name
+          .substring(0, code.length)
+          .toUpperCase()
+          .replace(/[^A-Z0-9]/g, "")
+    ) {
+      const newCode = newName
+        .substring(0, 3)
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "");
       setCode(newCode);
     }
   };
@@ -69,10 +79,12 @@ export function CreateProjectModal() {
       <div className="bg-surface rounded-xl shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Header */}
         <header className="flex items-center justify-between px-6 py-4 shrink-0">
-          <h2 className="text-xl font-bold text-text-main">Create new project</h2>
-          <button 
+          <h2 className="text-xl font-bold text-text-main">
+            Create new project
+          </h2>
+          <button
             type="button"
-            onClick={handleClose} 
+            onClick={handleClose}
             className="p-2 text-text-muted hover:bg-surface-hover hover:text-text-muted rounded-full transition-colors"
           >
             <X size={20} />
@@ -81,8 +93,11 @@ export function CreateProjectModal() {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
-          <form id="create-project-form" onSubmit={handleSubmit} className="space-y-6">
-            
+          <form
+            id="create-project-form"
+            onSubmit={handleSubmit}
+            className="space-y-6"
+          >
             {error && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center text-red-700 text-sm">
                 <AlertCircle size={16} className="mr-2 shrink-0" />
@@ -115,7 +130,11 @@ export function CreateProjectModal() {
                 type="text"
                 required
                 value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                onChange={(e) =>
+                  setCode(
+                    e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""),
+                  )
+                }
                 placeholder="For example: WA"
                 className="w-full px-3 py-2 border border-text-muted rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-colors"
               />
@@ -143,9 +162,9 @@ export function CreateProjectModal() {
                 <div className="space-y-3">
                   <label className="flex items-center space-x-3 cursor-pointer group">
                     <div className="relative flex items-center justify-center w-5 h-5">
-                      <input 
-                        type="radio" 
-                        name="accessType" 
+                      <input
+                        type="radio"
+                        name="accessType"
                         value="private"
                         checked={accessType === "private"}
                         onChange={(e) => setAccessType(e.target.value)}
@@ -154,14 +173,16 @@ export function CreateProjectModal() {
                       <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
                       <div className="absolute w-2 h-2 bg-primary rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                     </div>
-                    <span className="text-sm font-medium text-text-main">Private</span>
+                    <span className="text-sm font-medium text-text-main">
+                      Private
+                    </span>
                   </label>
-                  
+
                   <label className="flex items-center space-x-3 cursor-pointer group">
                     <div className="relative flex items-center justify-center w-5 h-5">
-                      <input 
-                        type="radio" 
-                        name="accessType" 
+                      <input
+                        type="radio"
+                        name="accessType"
                         value="public"
                         checked={accessType === "public"}
                         onChange={(e) => setAccessType(e.target.value)}
@@ -170,7 +191,9 @@ export function CreateProjectModal() {
                       <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
                       <div className="absolute w-2 h-2 bg-primary rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                     </div>
-                    <span className="text-sm font-medium text-text-main">Public</span>
+                    <span className="text-sm font-medium text-text-main">
+                      Public
+                    </span>
                   </label>
                 </div>
               </div>
@@ -183,9 +206,9 @@ export function CreateProjectModal() {
                 <div className="space-y-3">
                   <label className="flex items-center space-x-3 cursor-pointer group">
                     <div className="relative flex items-center justify-center w-5 h-5">
-                      <input 
-                        type="radio" 
-                        name="memberAccess" 
+                      <input
+                        type="radio"
+                        name="memberAccess"
                         value="all"
                         checked={memberAccess === "all"}
                         onChange={(e) => setMemberAccess(e.target.value)}
@@ -194,14 +217,16 @@ export function CreateProjectModal() {
                       <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
                       <div className="absolute w-2 h-2 bg-primary rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                     </div>
-                    <span className="text-sm font-medium text-text-main">Add all members to this project</span>
+                    <span className="text-sm font-medium text-text-main">
+                      Add all members to this project
+                    </span>
                   </label>
-                  
+
                   <label className="flex items-center space-x-3 cursor-pointer group">
                     <div className="relative flex items-center justify-center w-5 h-5">
-                      <input 
-                        type="radio" 
-                        name="memberAccess" 
+                      <input
+                        type="radio"
+                        name="memberAccess"
                         value="group"
                         checked={memberAccess === "group"}
                         onChange={(e) => setMemberAccess(e.target.value)}
@@ -210,14 +235,16 @@ export function CreateProjectModal() {
                       <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
                       <div className="absolute w-2 h-2 bg-primary rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                     </div>
-                    <span className="text-sm font-medium text-text-main">Group access</span>
+                    <span className="text-sm font-medium text-text-main">
+                      Group access
+                    </span>
                   </label>
 
                   <label className="flex items-center space-x-3 cursor-pointer group">
                     <div className="relative flex items-center justify-center w-5 h-5">
-                      <input 
-                        type="radio" 
-                        name="memberAccess" 
+                      <input
+                        type="radio"
+                        name="memberAccess"
                         value="none"
                         checked={memberAccess === "none"}
                         onChange={(e) => setMemberAccess(e.target.value)}
@@ -226,19 +253,20 @@ export function CreateProjectModal() {
                       <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
                       <div className="absolute w-2 h-2 bg-primary rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                     </div>
-                    <span className="text-sm font-medium text-text-main">Don't add members</span>
+                    <span className="text-sm font-medium text-text-main">
+                      Don't add members
+                    </span>
                   </label>
                 </div>
               </div>
             </div>
-
           </form>
         </div>
 
         {/* Footer */}
         <footer className="flex items-center justify-end px-6 py-4 bg-surface-hover border-t border-border shrink-0 space-x-3">
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={handleClose}
             className="px-4 py-2 text-sm font-medium text-text-main bg-surface border border-text-muted rounded-md hover:bg-surface-hover transition-colors"
           >
@@ -250,7 +278,13 @@ export function CreateProjectModal() {
             disabled={loading || !name || !code}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? <><Loader2 size={14} className="animate-spin" /> Creating…</> : "Create project"}
+            {loading ? (
+              <>
+                <Loader2 size={14} className="animate-spin" /> Creating…
+              </>
+            ) : (
+              "Create project"
+            )}
           </button>
         </footer>
       </div>

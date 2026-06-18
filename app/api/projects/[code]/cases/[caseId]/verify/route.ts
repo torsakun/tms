@@ -10,7 +10,7 @@ const execPromise = util.promisify(exec);
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ code: string, caseId: string }> }
+  { params }: { params: Promise<{ code: string; caseId: string }> },
 ) {
   const { code, caseId } = await params;
   try {
@@ -18,13 +18,16 @@ export async function POST(
     const { script } = body;
 
     if (!script) {
-      return NextResponse.json({ error: "Script is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Script is required" },
+        { status: 400 },
+      );
     }
 
     // Wrap the script in a test block if it isn't already
-    const isWrapped = script.includes('test(');
-    let finalScript = isWrapped 
-      ? script 
+    const isWrapped = script.includes("test(");
+    let finalScript = isWrapped
+      ? script
       : `import { test, expect } from '@playwright/test';\n\ntest('Automated Test Case', async ({ page }) => {\n${script}\n});`;
 
     // Inject global test.afterEach to capture DOM on failure
@@ -44,12 +47,16 @@ test.afterEach(async ({ page }, testInfo) => {
 `;
 
     // Make sure we only inject it once and import test if needed
-    if (!finalScript.includes('=== AUTOCAPTURE_DOM_START ===')) {
+    if (!finalScript.includes("=== AUTOCAPTURE_DOM_START ===")) {
       if (!finalScript.includes("import { test")) {
-        finalScript = `import { test, expect } from '@playwright/test';\n` + finalScript;
+        finalScript =
+          `import { test, expect } from '@playwright/test';\n` + finalScript;
       }
       // Insert hook right after imports
-      finalScript = finalScript.replace(/(import.*['"]@playwright\/test['"];?)/, `$1\n${afterEachHook}`);
+      finalScript = finalScript.replace(
+        /(import.*['"]@playwright\/test['"];?)/,
+        `$1\n${afterEachHook}`,
+      );
     }
 
     // Write to a temporary file
@@ -65,10 +72,18 @@ test.afterEach(async ({ page }, testInfo) => {
     let passed = false;
 
     try {
-      const result = await execPromise(`playwright test ${filename} --browser=chromium --reporter=list --output=/tmp/test-results`, {
-        cwd: tmpDir,
-        env: { ...process.env, PLAYWRIGHT_BROWSERS_PATH: '/ms-playwright', HOME: '/home/nextjs', NODE_PATH: '/usr/local/lib/node_modules' }
-      });
+      const result = await execPromise(
+        `playwright test ${filename} --browser=chromium --reporter=list --output=/tmp/test-results`,
+        {
+          cwd: tmpDir,
+          env: {
+            ...process.env,
+            PLAYWRIGHT_BROWSERS_PATH: "/ms-playwright",
+            HOME: "/home/nextjs",
+            NODE_PATH: "/usr/local/lib/node_modules",
+          },
+        },
+      );
       stdout = result.stdout;
       stderr = result.stderr;
       passed = true;
@@ -88,33 +103,40 @@ test.afterEach(async ({ page }, testInfo) => {
 
     // Extract failed DOM context if present
     let failedDomContext = null;
-    const domStartMatch = stdout.match(/=== AUTOCAPTURE_DOM_START ===\n([\s\S]*?)\n=== AUTOCAPTURE_DOM_END ===/);
+    const domStartMatch = stdout.match(
+      /=== AUTOCAPTURE_DOM_START ===\n([\s\S]*?)\n=== AUTOCAPTURE_DOM_END ===/,
+    );
     if (domStartMatch && domStartMatch[1]) {
       failedDomContext = domStartMatch[1];
       // Clean up stdout so we don't bloat the logs UI
-      stdout = stdout.replace(/=== AUTOCAPTURE_DOM_START ===\n[\s\S]*?\n=== AUTOCAPTURE_DOM_END ===\n?/, '');
+      stdout = stdout.replace(
+        /=== AUTOCAPTURE_DOM_START ===\n[\s\S]*?\n=== AUTOCAPTURE_DOM_END ===\n?/,
+        "",
+      );
     }
 
     // Prepare logs
     const logs = `--- PLAYWRIGHT VERIFICATION LOGS ---\n\nSTDOUT:\n${stdout}\n\nSTDERR:\n${stderr}`;
-    
+
     // Save to the TestCase so user doesn't lose the log
     await prisma.testCase.update({
       where: { id: caseId },
       data: {
-        lastVerificationLog: logs
-      }
+        lastVerificationLog: logs,
+      },
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      passed, 
+    return NextResponse.json({
+      success: true,
+      passed,
       logs,
-      failedDomContext
+      failedDomContext,
     });
-
   } catch (error: any) {
     console.error("Script verification failed:", error);
-    return NextResponse.json({ error: error.message || "Failed to verify script" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Failed to verify script" },
+      { status: 500 },
+    );
   }
 }

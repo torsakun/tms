@@ -7,61 +7,75 @@ import { prisma } from "@/lib/prisma";
 
 export const maxDuration = 60;
 
-export async function POST(req: Request, { params }: { params: Promise<{ code: string, caseId: string }> }) {
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ code: string; caseId: string }> },
+) {
   const { code, caseId } = await params;
   try {
     const body = await req.json();
     const { script, errorLog, domContext, modelProvider = "openai" } = body;
 
     if (!script || !errorLog) {
-      return NextResponse.json({ error: "Script and error log are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Script and error log are required" },
+        { status: 400 },
+      );
     }
 
     // Fetch test case steps to provide context to the AI
     const testCase = await prisma.testCase.findUnique({
       where: { id: caseId },
-      include: { steps: { orderBy: { position: 'asc' } } }
+      include: { steps: { orderBy: { position: "asc" } } },
     });
 
-    const stepsText = testCase?.steps.map((s, i) => `Step ${i + 1}: ${s.action} (Expected: ${s.expectedResult || "N/A"})`).join("\n") || "No steps available.";
+    const stepsText =
+      testCase?.steps
+        .map(
+          (s, i) =>
+            `Step ${i + 1}: ${s.action} (Expected: ${s.expectedResult || "N/A"})`,
+        )
+        .join("\n") || "No steps available.";
 
     // Fetch API keys from DB
     const settings = await prisma.workspaceSetting.findMany({
       where: {
-        key: { in: ['OPENAI_API_KEY', 'GEMINI_API_KEY', 'CLAUDE_API_KEY'] }
-      }
+        key: { in: ["OPENAI_API_KEY", "GEMINI_API_KEY", "CLAUDE_API_KEY"] },
+      },
     });
-    
-    const getSetting = (k: string) => settings.find(s => s.key === k)?.value;
+
+    const getSetting = (k: string) => settings.find((s) => s.key === k)?.value;
 
     let aiModel;
     switch (modelProvider) {
       case "gemini":
-        const geminiKey = getSetting('GEMINI_API_KEY');
+        const geminiKey = getSetting("GEMINI_API_KEY");
         if (!geminiKey) throw new Error("Gemini API Key is not configured.");
         const googleProvider = createGoogleGenerativeAI({ apiKey: geminiKey });
-        aiModel = googleProvider('gemini-1.5-pro');
+        aiModel = googleProvider("gemini-1.5-pro");
         break;
       case "claude":
-        const claudeKey = getSetting('CLAUDE_API_KEY');
+        const claudeKey = getSetting("CLAUDE_API_KEY");
         if (!claudeKey) throw new Error("Claude API Key is not configured.");
         const anthropicProvider = createAnthropic({ apiKey: claudeKey });
-        aiModel = anthropicProvider('claude-3-5-sonnet-20241022');
+        aiModel = anthropicProvider("claude-3-5-sonnet-20241022");
         break;
       case "openai":
       default:
-        const openaiKey = getSetting('OPENAI_API_KEY');
+        const openaiKey = getSetting("OPENAI_API_KEY");
         if (!openaiKey) throw new Error("OpenAI API Key is not configured.");
         const openaiProvider = createOpenAI({ apiKey: openaiKey });
-        aiModel = openaiProvider('gpt-4o');
+        aiModel = openaiProvider("gpt-4o");
         break;
     }
 
     // Truncate domContext if it's too large to avoid token limit errors (30k TPM limit for gpt-4o in some orgs)
     const MAX_DOM_LENGTH = 50000;
-    const truncatedDom = domContext && domContext.length > MAX_DOM_LENGTH 
-      ? domContext.substring(0, MAX_DOM_LENGTH) + "\n...[DOM TRUNCATED DUE TO SIZE]..." 
-      : domContext;
+    const truncatedDom =
+      domContext && domContext.length > MAX_DOM_LENGTH
+        ? domContext.substring(0, MAX_DOM_LENGTH) +
+          "\n...[DOM TRUNCATED DUE TO SIZE]..."
+        : domContext;
 
     const systemPrompt = `You are an expert QA Automation Engineer.
 You are tasked with fixing a broken Playwright script. The script failed during execution with the provided error log.
@@ -97,12 +111,17 @@ CRITICAL RULES:
       prompt: systemPrompt,
     });
 
-    const cleanText = text.replace(/^```(typescript|ts)?\n/i, '').replace(/```$/i, '').trim();
+    const cleanText = text
+      .replace(/^```(typescript|ts)?\n/i, "")
+      .replace(/```$/i, "")
+      .trim();
 
     return NextResponse.json({ script: cleanText });
-
   } catch (error: any) {
     console.error("AI Script Fix failed:", error);
-    return NextResponse.json({ error: error.message || "Failed to fix script" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Failed to fix script" },
+      { status: 500 },
+    );
   }
 }

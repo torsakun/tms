@@ -3,20 +3,23 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ code: string }> }
+  { params }: { params: Promise<{ code: string }> },
 ) {
   const { code } = await params;
-  
+
   try {
     const body = await req.json();
     const { caseIds } = body;
 
     if (!caseIds || !Array.isArray(caseIds) || caseIds.length === 0) {
-      return NextResponse.json({ error: "No caseIds provided" }, { status: 400 });
+      return NextResponse.json(
+        { error: "No caseIds provided" },
+        { status: 400 },
+      );
     }
 
     const project = await prisma.project.findUnique({
-      where: { code }
+      where: { code },
     });
 
     if (!project) {
@@ -25,11 +28,14 @@ export async function POST(
 
     const testCases = await prisma.testCase.findMany({
       where: { id: { in: caseIds }, projectId: project.id },
-      include: { suite: true }
+      include: { suite: true },
     });
 
     if (testCases.length === 0) {
-      return NextResponse.json({ error: "No valid test cases found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "No valid test cases found" },
+        { status: 404 },
+      );
     }
 
     const GITHUB_TOKEN = project.githubToken || process.env.GITHUB_TOKEN;
@@ -37,16 +43,20 @@ export async function POST(
     const GITHUB_REPO = project.githubRepo || process.env.GITHUB_REPO;
 
     if (!GITHUB_TOKEN || !GITHUB_OWNER || !GITHUB_REPO) {
-      return NextResponse.json({ 
-        error: "GitHub integration is not configured. Please set it in Project Settings -> Integrations." 
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error:
+            "GitHub integration is not configured. Please set it in Project Settings -> Integrations.",
+        },
+        { status: 400 },
+      );
     }
 
     const headers = {
-      "Authorization": `Bearer ${GITHUB_TOKEN}`,
-      "Accept": "application/vnd.github.v3+json",
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      Accept: "application/vnd.github.v3+json",
       "X-GitHub-Api-Version": "2022-11-28",
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     };
 
     const baseUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`;
@@ -58,40 +68,51 @@ export async function POST(
     const mainSha = refData.object.sha;
 
     // 2. Get base tree SHA
-    const commitRes = await fetch(`${baseUrl}/git/commits/${mainSha}`, { headers });
+    const commitRes = await fetch(`${baseUrl}/git/commits/${mainSha}`, {
+      headers,
+    });
     if (!commitRes.ok) throw new Error(`Failed to get base commit`);
     const commitData = await commitRes.json();
     const baseTreeSha = commitData.tree.sha;
 
     // 3. Construct the tree for all files
-    const tree = testCases.filter(tc => tc.automationScript).map(testCase => {
-      const suiteName = testCase.suite?.title.replace(/[^a-zA-Z0-9]/g, '-') || 'ungrouped';
-      const slugTitle = testCase.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-      const shortId = testCase.id.substring(0, 4);
-      const filePath = `tests/${suiteName}/${code}-${shortId}-${slugTitle}.spec.ts`;
-      
-      const isWrapped = testCase.automationScript!.includes("test(");
-      const finalScript = isWrapped 
-        ? testCase.automationScript 
-        : `import { test, expect } from '@playwright/test';\n\ntest('${testCase.title.replace(/'/g, "\\'")}', async ({ page }) => {\n${testCase.automationScript}\n});`;
+    const tree = testCases
+      .filter((tc) => tc.automationScript)
+      .map((testCase) => {
+        const suiteName =
+          testCase.suite?.title.replace(/[^a-zA-Z0-9]/g, "-") || "ungrouped";
+        const slugTitle = testCase.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+        const shortId = testCase.id.substring(0, 4);
+        const filePath = `tests/${suiteName}/${code}-${shortId}-${slugTitle}.spec.ts`;
 
-      return {
-        path: filePath,
-        mode: '100644',
-        type: 'blob',
-        content: finalScript
-      };
-    });
+        const isWrapped = testCase.automationScript!.includes("test(");
+        const finalScript = isWrapped
+          ? testCase.automationScript
+          : `import { test, expect } from '@playwright/test';\n\ntest('${testCase.title.replace(/'/g, "\\'")}', async ({ page }) => {\n${testCase.automationScript}\n});`;
+
+        return {
+          path: filePath,
+          mode: "100644",
+          type: "blob",
+          content: finalScript,
+        };
+      });
 
     if (tree.length === 0) {
-      return NextResponse.json({ error: "None of the selected cases have automation scripts." }, { status: 400 });
+      return NextResponse.json(
+        { error: "None of the selected cases have automation scripts." },
+        { status: 400 },
+      );
     }
 
     // 4. Create new tree
     const createTreeRes = await fetch(`${baseUrl}/git/trees`, {
-      method: 'POST',
+      method: "POST",
       headers,
-      body: JSON.stringify({ base_tree: baseTreeSha, tree })
+      body: JSON.stringify({ base_tree: baseTreeSha, tree }),
     });
     if (!createTreeRes.ok) throw new Error(`Failed to create Git tree`);
     const treeData = await createTreeRes.json();
@@ -99,13 +120,13 @@ export async function POST(
 
     // 5. Create Commit
     const createCommitRes = await fetch(`${baseUrl}/git/commits`, {
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify({
         message: `Add ${tree.length} automated tests via TESSA`,
         tree: newTreeSha,
-        parents: [mainSha]
-      })
+        parents: [mainSha],
+      }),
     });
     if (!createCommitRes.ok) throw new Error(`Failed to create commit`);
     const newCommitData = await createCommitRes.json();
@@ -114,43 +135,47 @@ export async function POST(
     // 6. Create Branch
     const branchName = `automation/batch-${Date.now()}`;
     const createBranchRes = await fetch(`${baseUrl}/git/refs`, {
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify({
         ref: `refs/heads/${branchName}`,
-        sha: newCommitSha
-      })
+        sha: newCommitSha,
+      }),
     });
     if (!createBranchRes.ok) throw new Error(`Failed to create branch`);
 
     // 7. Open Pull Request
     const createPrRes = await fetch(`${baseUrl}/pulls`, {
-      method: 'POST',
+      method: "POST",
       headers,
       body: JSON.stringify({
         title: `[Auto] Add ${tree.length} Automated Tests (TESSA)`,
-        body: `This PR adds automated Playwright tests generated by TESSA for the following Test Cases:\n\n${testCases.map(tc => `- **${tc.title}** (\`${tc.id}\`)`).join('\n')}`,
+        body: `This PR adds automated Playwright tests generated by TESSA for the following Test Cases:\n\n${testCases.map((tc) => `- **${tc.title}** (\`${tc.id}\`)`).join("\n")}`,
         head: branchName,
-        base: 'main'
-      })
+        base: "main",
+      }),
     });
     if (!createPrRes.ok) throw new Error(`Failed to open PR`);
     const prData = await createPrRes.json();
     const prUrl = prData.html_url;
 
-    const updatedIds = testCases.filter(tc => tc.automationScript).map(tc => tc.id);
+    const updatedIds = testCases
+      .filter((tc) => tc.automationScript)
+      .map((tc) => tc.id);
     await prisma.testCase.updateMany({
       where: { id: { in: updatedIds } },
-      data: { 
+      data: {
         githubPrUrl: prUrl,
-        automationStatus: "AUTOMATED"
-      }
+        automationStatus: "AUTOMATED",
+      },
     });
 
     return NextResponse.json({ success: true, prUrl, count: tree.length });
-
   } catch (error: any) {
     console.error("Batch GitHub PR error:", error);
-    return NextResponse.json({ error: error.message || "An unexpected error occurred" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "An unexpected error occurred" },
+      { status: 500 },
+    );
   }
 }

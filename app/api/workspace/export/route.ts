@@ -15,7 +15,10 @@ export async function GET() {
     });
 
     if (currentUser?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Forbidden: Admin access required" },
+        { status: 403 },
+      );
     }
 
     // Fetch all relevant data for the backup
@@ -25,13 +28,13 @@ export async function GET() {
         testCases: {
           include: {
             steps: true,
-          }
+          },
         },
         testPlans: true,
         testRuns: {
           include: {
-            results: true
-          }
+            results: true,
+          },
         },
         tags: true,
         customFields: true,
@@ -39,10 +42,10 @@ export async function GET() {
         milestones: true,
         sharedSteps: {
           include: {
-            testSteps: true
-          }
-        }
-      }
+            testSteps: true,
+          },
+        },
+      },
     });
 
     const workspaceRoles = await prisma.workspaceRole.findMany();
@@ -57,7 +60,7 @@ export async function GET() {
         createdAt: true,
         updatedAt: true,
         // Exclude passwordHash for security reasons, even in backups.
-      }
+      },
     });
 
     const backupData = {
@@ -67,10 +70,10 @@ export async function GET() {
         projects,
         workspaceRoles,
         users,
-      }
+      },
     };
 
-    const dateStr = new Date().toISOString().split('T')[0];
+    const dateStr = new Date().toISOString().split("T")[0];
     const filename = `qmaster-backup-${dateStr}.json`;
 
     return new NextResponse(JSON.stringify(backupData, null, 2), {
@@ -84,7 +87,7 @@ export async function GET() {
     console.error("Backup Export Error:", error);
     return NextResponse.json(
       { error: "Internal server error during backup generation" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

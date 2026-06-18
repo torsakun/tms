@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
-export async function GET(req: Request, { params }: { params: Promise<{ runId: string }> }) {
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ runId: string }> },
+) {
   const { runId } = await params;
   try {
     const run = await prisma.testRun.findUnique({
@@ -13,11 +16,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ runId: s
         results: {
           include: {
             testCase: {
-              include: { steps: true }
-            }
-          }
-        }
-      }
+              include: { steps: true },
+            },
+          },
+        },
+      },
     });
 
     if (!run) {
@@ -25,12 +28,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ runId: s
     }
 
     if (!run.isPublic) {
-      return NextResponse.json({ error: "This report is not public" }, { status: 403 });
+      return NextResponse.json(
+        { error: "This report is not public" },
+        { status: 403 },
+      );
     }
 
     return NextResponse.json(run);
   } catch (error) {
     console.error("Failed to fetch public run:", error);
-    return NextResponse.json({ error: "Failed to fetch report" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch report" },
+      { status: 500 },
+    );
   }
 }

@@ -5,7 +5,10 @@ import { authOptions } from "@/lib/auth";
 import { canManageWorkspace } from "@/lib/permissions";
 import bcrypt from "bcrypt";
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
@@ -19,7 +22,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     });
 
     if (!canManageWorkspace(currentUser)) {
-      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Forbidden: Admin access required" },
+        { status: 403 },
+      );
     }
 
     const { id: userId } = await params;
@@ -38,13 +44,19 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (action === "deactivate") {
       // Prevent deactivating oneself
       if (targetUser.id === currentUser.id) {
-        return NextResponse.json({ error: "Cannot deactivate your own account" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Cannot deactivate your own account" },
+          { status: 400 },
+        );
       }
       await prisma.user.update({
         where: { id: userId },
         data: { isActive: false },
       });
-      return NextResponse.json({ success: true, message: "User deactivated successfully" });
+      return NextResponse.json({
+        success: true,
+        message: "User deactivated successfully",
+      });
     }
 
     if (action === "activate") {
@@ -52,7 +64,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         where: { id: userId },
         data: { isActive: true },
       });
-      return NextResponse.json({ success: true, message: "User activated successfully" });
+      return NextResponse.json({
+        success: true,
+        message: "User activated successfully",
+      });
     }
 
     if (action === "reset_password") {
@@ -62,15 +77,23 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         where: { id: userId },
         data: { passwordHash },
       });
-      return NextResponse.json({ success: true, message: "Password reset to default (password123)" });
+      return NextResponse.json({
+        success: true,
+        message: "Password reset to default (password123)",
+      });
     }
 
     if (action === "change_role") {
       if (!roleId) {
-        return NextResponse.json({ error: "Role ID is required" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Role ID is required" },
+          { status: 400 },
+        );
       }
       // Check if role exists
-      const roleExists = await prisma.workspaceRole.findUnique({ where: { id: roleId } });
+      const roleExists = await prisma.workspaceRole.findUnique({
+        where: { id: roleId },
+      });
       if (!roleExists) {
         return NextResponse.json({ error: "Role not found" }, { status: 404 });
       }
@@ -79,16 +102,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         where: { id: userId },
         data: { workspaceRoleId: roleId },
       });
-      return NextResponse.json({ success: true, message: "User role updated successfully" });
+      return NextResponse.json({
+        success: true,
+        message: "User role updated successfully",
+      });
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-
   } catch (error: any) {
     console.error("Workspace User Action API Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

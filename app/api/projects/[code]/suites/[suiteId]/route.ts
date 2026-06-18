@@ -4,16 +4,16 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { requireProjectRole } from "@/lib/project-auth";
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ code: string, suiteId: string }> }) {
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ code: string; suiteId: string }> },
+) {
   const { code: projectIdOrCode, suiteId } = await params;
   try {
     const project = await prisma.project.findFirst({
       where: {
-        OR: [
-          { id: projectIdOrCode },
-          { code: projectIdOrCode }
-        ]
-      }
+        OR: [{ id: projectIdOrCode }, { code: projectIdOrCode }],
+      },
     });
 
     if (!project) {
@@ -25,9 +25,19 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ code: 
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const hasAccess = await requireProjectRole(project.code, (session.user as any).id, ['EDITOR', 'ADMIN']);
-    if (!hasAccess && (session.user as any).role !== 'ADMIN') {
-      return NextResponse.json({ error: "Forbidden: You do not have permission to edit suites in this project" }, { status: 403 });
+    const hasAccess = await requireProjectRole(
+      project.code,
+      (session.user as any).id,
+      ["EDITOR", "ADMIN"],
+    );
+    if (!hasAccess && (session.user as any).role !== "ADMIN") {
+      return NextResponse.json(
+        {
+          error:
+            "Forbidden: You do not have permission to edit suites in this project",
+        },
+        { status: 403 },
+      );
     }
 
     const body = await req.json();
@@ -35,26 +45,29 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ code: 
 
     const suite = await prisma.testSuite.update({
       where: { id: suiteId },
-      data: { title, description }
+      data: { title, description },
     });
 
     return NextResponse.json(suite);
   } catch (error) {
     console.error("Failed to update suite", error);
-    return NextResponse.json({ error: "Failed to update suite" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Failed to update suite" },
+      { status: 400 },
+    );
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ code: string, suiteId: string }> }) {
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ code: string; suiteId: string }> },
+) {
   const { code: projectIdOrCode, suiteId } = await params;
   try {
     const project = await prisma.project.findFirst({
       where: {
-        OR: [
-          { id: projectIdOrCode },
-          { code: projectIdOrCode }
-        ]
-      }
+        OR: [{ id: projectIdOrCode }, { code: projectIdOrCode }],
+      },
     });
 
     if (!project) {
@@ -66,9 +79,19 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ code:
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const hasAccess = await requireProjectRole(project.code, (session.user as any).id, ['EDITOR', 'ADMIN']);
-    if (!hasAccess && (session.user as any).role !== 'ADMIN') {
-      return NextResponse.json({ error: "Forbidden: You do not have permission to delete suites in this project" }, { status: 403 });
+    const hasAccess = await requireProjectRole(
+      project.code,
+      (session.user as any).id,
+      ["EDITOR", "ADMIN"],
+    );
+    if (!hasAccess && (session.user as any).role !== "ADMIN") {
+      return NextResponse.json(
+        {
+          error:
+            "Forbidden: You do not have permission to delete suites in this project",
+        },
+        { status: 403 },
+      );
     }
 
     const body = await req.json().catch(() => ({}));
@@ -77,7 +100,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ code:
     // Fetch the suite to be deleted to know its parent
     const suiteToDelete = await prisma.testSuite.findUnique({
       where: { id: suiteId },
-      select: { id: true, parentId: true }
+      select: { id: true, parentId: true },
     });
 
     if (!suiteToDelete) {
@@ -88,9 +111,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ code:
     async function getDescendantIds(parentId: string): Promise<string[]> {
       const children = await prisma.testSuite.findMany({
         where: { parentId },
-        select: { id: true }
+        select: { id: true },
       });
-      let ids = children.map(c => c.id);
+      let ids = children.map((c) => c.id);
       for (const child of children) {
         const desc = await getDescendantIds(child.id);
         ids = ids.concat(desc);
@@ -104,23 +127,26 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ code:
       // Move all cases in these suites to the parent suite (or unassigned if null)
       await prisma.testCase.updateMany({
         where: { suiteId: { in: allSuiteIds } },
-        data: { suiteId: suiteToDelete.parentId }
+        data: { suiteId: suiteToDelete.parentId },
       });
     } else {
       // Delete all cases in these suites
       await prisma.testCase.deleteMany({
-        where: { suiteId: { in: allSuiteIds } }
+        where: { suiteId: { in: allSuiteIds } },
       });
     }
 
     // Finally delete the suite itself (Prisma Cascade will delete the child suites folders)
     await prisma.testSuite.delete({
-      where: { id: suiteId }
+      where: { id: suiteId },
     });
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Failed to delete suite", error);
-    return NextResponse.json({ error: "Failed to delete suite" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Failed to delete suite" },
+      { status: 400 },
+    );
   }
 }

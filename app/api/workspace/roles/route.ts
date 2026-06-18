@@ -11,53 +11,68 @@ export async function GET() {
         title: "Owner",
         description: "Full access to all features and workspace management.",
         isDefault: false,
-        permissions: ["all"]
+        permissions: ["all"],
       },
       {
         title: "Administrator",
         description: "Administrative access, similar to Owner.",
         isDefault: false,
-        permissions: ["all"]
+        permissions: ["all"],
       },
       {
         title: "Member",
         description: "Standard access to core features.",
         isDefault: true,
-        permissions: ["tc-repository", "tc-create", "tr-view", "db-view"]
+        permissions: ["tc-repository", "tc-create", "tr-view", "db-view"],
       },
       {
         title: "Read-only",
-        description: "Can view content but cannot create, edit, or delete anything.",
+        description:
+          "Can view content but cannot create, edit, or delete anything.",
         isDefault: false,
-        permissions: ["tc-repository", "tr-view", "db-view", "df-view", "env-view", "tp-view", "tg-view", "ws-users-view"]
-      }
+        permissions: [
+          "tc-repository",
+          "tr-view",
+          "db-view",
+          "df-view",
+          "env-view",
+          "tp-view",
+          "tg-view",
+          "ws-users-view",
+        ],
+      },
     ];
 
     for (const def of systemRoleDefs) {
-      const existing = await prisma.workspaceRole.findFirst({ where: { title: def.title, isSystem: true } });
+      const existing = await prisma.workspaceRole.findFirst({
+        where: { title: def.title, isSystem: true },
+      });
       if (!existing) {
         await prisma.workspaceRole.create({ data: { ...def, isSystem: true } });
       } else if (existing.description?.toLowerCase().includes("qase")) {
-        await prisma.workspaceRole.update({ where: { id: existing.id }, data: { description: def.description } });
+        await prisma.workspaceRole.update({
+          where: { id: existing.id },
+          data: { description: def.description },
+        });
       }
     }
 
     const roles = await prisma.workspaceRole.findMany({
       include: {
         _count: {
-          select: { users: true }
-        }
+          select: { users: true },
+        },
       },
-      orderBy: [
-        { isSystem: 'desc' },
-        { createdAt: 'asc' }
-      ]
+      orderBy: [{ isSystem: "desc" }, { createdAt: "asc" }],
     });
 
     return NextResponse.json({ success: true, roles });
   } catch (error) {
     console.error("Failed to fetch roles:", error);
-    return NextResponse.json({ error: "Failed to fetch roles" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch roles" },
+      { status: 500 },
+    );
   }
 }
 
@@ -77,7 +92,7 @@ export async function POST(req: Request) {
     if (isDefault) {
       await prisma.workspaceRole.updateMany({
         where: { isDefault: true },
-        data: { isDefault: false }
+        data: { isDefault: false },
       });
     }
 
@@ -88,12 +103,15 @@ export async function POST(req: Request) {
         isDefault: isDefault || false,
         permissions: permissions || [],
         isSystem: false, // User created roles are not system roles
-      }
+      },
     });
 
     return NextResponse.json({ success: true, role: newRole }, { status: 201 });
   } catch (error) {
     console.error("Failed to create role:", error);
-    return NextResponse.json({ error: "Failed to create role" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create role" },
+      { status: 500 },
+    );
   }
 }

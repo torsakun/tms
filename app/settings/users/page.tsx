@@ -13,7 +13,9 @@ export default async function SettingsUsersPage() {
       <div className="min-h-screen bg-surface-hover flex flex-col items-center justify-center p-8">
         <ShieldAlert size={64} className="text-red-500 mb-4" />
         <h1 className="text-2xl font-bold text-text-main">Access Denied</h1>
-        <p className="text-text-muted mt-2">You must be a System Administrator to view this page.</p>
+        <p className="text-text-muted mt-2">
+          You must be a System Administrator to view this page.
+        </p>
       </div>
     );
   }
@@ -21,7 +23,7 @@ export default async function SettingsUsersPage() {
   let users: any[] = [];
   try {
     users = await prisma.user.findMany({
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
   } catch (error) {
     console.error("Failed to fetch users", error);
@@ -37,7 +39,9 @@ export default async function SettingsUsersPage() {
               <Users className="mr-3 text-primary" />
               User Management
             </h1>
-            <p className="text-sm text-text-muted mt-1">Manage system access and global roles.</p>
+            <p className="text-sm text-text-muted mt-1">
+              Manage system access and global roles.
+            </p>
           </div>
           <button className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary-hover transition">
             Invite User
@@ -48,25 +52,40 @@ export default async function SettingsUsersPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-hover border-b border-border">
-                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">User</th>
-                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">Email</th>
-                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">System Role</th>
+                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">
+                  User
+                </th>
+                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">
+                  Email
+                </th>
+                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">
+                  System Role
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {users.map(u => (
+            <tbody className="divide-y divide-border">
+              {users.map((u) => (
                 <tr key={u.id} className="hover:bg-surface-hover transition">
                   <td className="px-6 py-4">
-                    <div className="font-semibold text-text-main">{u.name || "Unknown"}</div>
+                    <div className="font-semibold text-text-main">
+                      {u.name || "Unknown"}
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-text-muted flex items-center">
                     <Mail size={14} className="mr-2 text-text-muted" />
                     {u.email}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ${u.role === "ADMIN" ? "bg-purple-100 text-purple-800" : "bg-surface-hover text-text-muted"
-                      }`}>
-                      {u.role === "ADMIN" && <Shield size={12} className="mr-1" />}
+                    <span
+                      className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ${
+                        u.role === "ADMIN"
+                          ? "bg-purple-100 text-purple-800"
+                          : "bg-surface-hover text-text-muted"
+                      }`}
+                    >
+                      {u.role === "ADMIN" && (
+                        <Shield size={12} className="mr-1" />
+                      )}
                       {u.role}
                     </span>
                   </td>
@@ -74,7 +93,10 @@ export default async function SettingsUsersPage() {
               ))}
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="px-6 py-12 text-center text-sm text-text-muted">
+                  <td
+                    colSpan={3}
+                    className="px-6 py-12 text-center text-sm text-text-muted"
+                  >
                     No users found.
                   </td>
                 </tr>

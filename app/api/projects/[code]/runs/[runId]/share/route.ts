@@ -6,7 +6,7 @@ import { getProjectRole } from "@/lib/project-auth";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ code: string; runId: string }> }
+  { params }: { params: Promise<{ code: string; runId: string }> },
 ) {
   try {
     const { code, runId } = await params;
@@ -40,6 +40,9 @@ export async function PATCH(
     return NextResponse.json(run);
   } catch (error) {
     console.error("Failed to update test run share status:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

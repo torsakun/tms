@@ -6,7 +6,7 @@ import { requireProjectRole } from "@/lib/project-auth";
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ code: string }> }
+  { params }: { params: Promise<{ code: string }> },
 ) {
   const { code } = await params;
 
@@ -16,9 +16,14 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const hasAccess = await requireProjectRole(code, (session.user as any).id, ['ADMIN']);
-    if (!hasAccess && (session.user as any).role !== 'ADMIN') {
-      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+    const hasAccess = await requireProjectRole(code, (session.user as any).id, [
+      "ADMIN",
+    ]);
+    if (!hasAccess && (session.user as any).role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Forbidden: Admin access required" },
+        { status: 403 },
+      );
     }
 
     const project = await prisma.project.findUnique({
@@ -30,8 +35,8 @@ export async function GET(
         githubRepo: true,
         githubWorkflowId: true,
         githubToken: true, // Note: Returning token for simple prototype
-        msTeamsWebhookUrl: true
-      }
+        msTeamsWebhookUrl: true,
+      },
     });
 
     if (!project) {
@@ -44,10 +49,9 @@ export async function GET(
         githubRepo: project.githubRepo || "",
         githubWorkflowId: project.githubWorkflowId || "",
         githubToken: project.githubToken || "",
-        msTeamsWebhookUrl: project.msTeamsWebhookUrl || ""
-      }
+        msTeamsWebhookUrl: project.msTeamsWebhookUrl || "",
+      },
     });
-
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -55,7 +59,7 @@ export async function GET(
 
 export async function PUT(
   req: Request,
-  { params }: { params: Promise<{ code: string }> }
+  { params }: { params: Promise<{ code: string }> },
 ) {
   const { code } = await params;
 
@@ -65,13 +69,24 @@ export async function PUT(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const hasAccess = await requireProjectRole(code, (session.user as any).id, ['ADMIN']);
-    if (!hasAccess && (session.user as any).role !== 'ADMIN') {
-      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+    const hasAccess = await requireProjectRole(code, (session.user as any).id, [
+      "ADMIN",
+    ]);
+    if (!hasAccess && (session.user as any).role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Forbidden: Admin access required" },
+        { status: 403 },
+      );
     }
 
     const body = await req.json();
-    const { githubOwner, githubRepo, githubWorkflowId, githubToken, msTeamsWebhookUrl } = body;
+    const {
+      githubOwner,
+      githubRepo,
+      githubWorkflowId,
+      githubToken,
+      msTeamsWebhookUrl,
+    } = body;
 
     const project = await prisma.project.update({
       where: { code },
@@ -81,7 +96,7 @@ export async function PUT(
         githubWorkflowId: githubWorkflowId || null,
         githubToken: githubToken || null,
         msTeamsWebhookUrl: msTeamsWebhookUrl || null,
-      }
+      },
     });
 
     return NextResponse.json({ success: true, project });

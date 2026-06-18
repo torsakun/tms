@@ -3,12 +3,13 @@ import { prisma } from "@/lib/prisma";
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: Promise<{ code: string; userId: string }> }
+  { params }: { params: Promise<{ code: string; userId: string }> },
 ) {
   try {
     const { code, userId } = await params;
     const project = await prisma.project.findUnique({ where: { code } });
-    if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    if (!project)
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
     await prisma.projectMember.deleteMany({
       where: { userId, projectId: project.id },
@@ -17,6 +18,9 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to remove member" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to remove member" },
+      { status: 500 },
+    );
   }
 }

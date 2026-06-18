@@ -1,8 +1,21 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Edit2, Copy, Trash2, CheckSquare, Square, Sparkles, User, Check } from "lucide-react";
+import {
+  Plus,
+  Edit2,
+  Copy,
+  Trash2,
+  CheckSquare,
+  Square,
+  Sparkles,
+  User,
+  Check,
+  Folder,
+  FolderOpen,
+} from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Tooltip } from "@/components/ui/Tooltip";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -23,17 +36,28 @@ interface SuiteNodeProps {
   allSuites: any[];
 }
 
-export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCode, onSelectCase, isUnassigned, allSuites }: SuiteNodeProps) {
+export function SuiteNode({
+  suite,
+  depth,
+  childrenMap,
+  casesBySuiteId,
+  projectCode,
+  onSelectCase,
+  isUnassigned,
+  allSuites,
+}: SuiteNodeProps) {
   const [showQuickTest, setShowQuickTest] = useState(false);
   const [quickTestTitle, setQuickTestTitle] = useState("");
   const [isCreating, setIsCreating] = useState(false);
-  
+
   // Edit State
   const [isEditingSuite, setIsEditingSuite] = useState(false);
   const [editTitle, setEditTitle] = useState(suite.title);
-  const [editDescription, setEditDescription] = useState(suite.description || "");
+  const [editDescription, setEditDescription] = useState(
+    suite.description || "",
+  );
   const [isSavingSuite, setIsSavingSuite] = useState(false);
-  
+
   // Clone Modal State
   const [isCloneModalOpen, setIsCloneModalOpen] = useState(false);
   const [isCloning, setIsCloning] = useState(false);
@@ -41,31 +65,57 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   // Delete Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeletingSuite, setIsDeletingSuite] = useState(false);
-  const [confirmDeleteCaseId, setConfirmDeleteCaseId] = useState<string | null>(null);
+  const [confirmDeleteCaseId, setConfirmDeleteCaseId] = useState<string | null>(
+    null,
+  );
 
   const router = useRouter();
   const { role } = useProjectRole();
   const { isExpanded, toggleSuite } = useSuiteExpansion();
   const isOpen = isExpanded(suite.id);
-  
+
   // Selection Context
-  const { toggleCase, toggleSuiteCases, isCaseSelected, areAllCasesSelected, selectedCases } = useSuiteSelection();
+  const {
+    toggleCase,
+    toggleSuiteCases,
+    isCaseSelected,
+    areAllCasesSelected,
+    selectedCases,
+  } = useSuiteSelection();
   const hasSelection = selectedCases.size > 0;
 
   const children = childrenMap.get(suite.id) || [];
   const cases = casesBySuiteId.get(suite.id) || [];
 
-  const SUITE_ACCENT_COLORS = ["#4f46e5","#7c3aed","#0891b2","#059669","#d97706","#e11d48","#0284c7","#9333ea"];
-  const accentColor = isUnassigned ? "#94a3b8" : SUITE_ACCENT_COLORS[Math.abs(suite.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0)) % SUITE_ACCENT_COLORS.length];
+  const SUITE_ACCENT_COLORS = [
+    "#4f46e5",
+    "#7c3aed",
+    "#0891b2",
+    "#059669",
+    "#d97706",
+    "#e11d48",
+    "#0284c7",
+    "#9333ea",
+  ];
+  const accentColor = isUnassigned
+    ? "#94a3b8"
+    : SUITE_ACCENT_COLORS[
+        Math.abs(
+          suite.id
+            .split("")
+            .reduce((a: number, c: string) => a + c.charCodeAt(0), 0),
+        ) % SUITE_ACCENT_COLORS.length
+      ];
 
-  const headerBgClass = "bg-white border border-slate-200 rounded-lg shadow-sm";
+  const titleClass =
+    depth === 0
+      ? "font-extrabold text-[16px] tracking-tight text-text-main"
+      : "font-semibold text-[14px] text-text-main";
 
-  const titleClass = depth === 0
-    ? "font-bold text-[15px] text-slate-800"
-    : "font-semibold text-[14px] text-slate-700";
-                      
-  const handleCreateQuickTest = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && quickTestTitle.trim() && !isCreating) {
+  const handleCreateQuickTest = async (
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (e.key === "Enter" && quickTestTitle.trim() && !isCreating) {
       setIsCreating(true);
       try {
         const res = await fetch(`/api/projects/${projectCode}/cases`, {
@@ -73,10 +123,10 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             title: quickTestTitle.trim(),
-            suiteId: suite.id === 'unassigned' ? undefined : suite.id,
+            suiteId: suite.id === "unassigned" ? undefined : suite.id,
             priority: "Medium",
-            status: "Active"
-          })
+            status: "Active",
+          }),
         });
 
         if (res.ok) {
@@ -90,7 +140,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
         setIsCreating(false);
       }
     }
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       setShowQuickTest(false);
       setQuickTestTitle("");
     }
@@ -100,11 +150,17 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
     if (!editTitle.trim()) return;
     setIsSavingSuite(true);
     try {
-      const res = await fetch(`/api/projects/${projectCode}/suites/${suite.id}`, {
-        method: 'PATCH',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: editTitle, description: editDescription })
-      });
+      const res = await fetch(
+        `/api/projects/${projectCode}/suites/${suite.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: editTitle,
+            description: editDescription,
+          }),
+        },
+      );
       if (res.ok) {
         setIsEditingSuite(false);
         router.refresh();
@@ -126,14 +182,21 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
     setIsCloneModalOpen(true);
   };
 
-  const executeCloneSuite = async (payload: { destinationId: string | null; strategy: "cases_and_suites" | "only_suites"; withChildren: boolean }) => {
+  const executeCloneSuite = async (payload: {
+    destinationId: string | null;
+    strategy: "cases_and_suites" | "only_suites";
+    withChildren: boolean;
+  }) => {
     setIsCloning(true);
     try {
-      const res = await fetch(`/api/projects/${projectCode}/suites/${suite.id}/clone`, {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
+      const res = await fetch(
+        `/api/projects/${projectCode}/suites/${suite.id}/clone`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
       if (res.ok) {
         setIsCloneModalOpen(false);
         router.refresh();
@@ -158,18 +221,23 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
   const executeDeleteSuite = async (retainCases: boolean) => {
     setIsDeletingSuite(true);
     try {
-      const res = await fetch(`/api/projects/${projectCode}/suites/${suite.id}`, { 
-        method: 'DELETE',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ retainCases })
-      });
+      const res = await fetch(
+        `/api/projects/${projectCode}/suites/${suite.id}`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ retainCases }),
+        },
+      );
       if (res.ok) {
         setIsDeleteModalOpen(false);
         router.refresh();
         toast.success("Suite deleted successfully");
       } else {
         const data = await res.json();
-        toast.error("Failed to delete suite: " + (data.error || res.statusText));
+        toast.error(
+          "Failed to delete suite: " + (data.error || res.statusText),
+        );
       }
     } catch (err) {
       console.error(err);
@@ -179,14 +247,35 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
     }
   };
 
-  const allCasesInSuite = cases.map(c => c.id);
+  const allCasesInSuite = cases.map((c) => c.id);
   const isAllSelected = areAllCasesSelected(allCasesInSuite);
 
+  // Total cases in this suite's whole subtree (for the header count pill).
+  const countSubtree = (s: any): number => {
+    let n = (casesBySuiteId.get(s.id) || []).length;
+    (childrenMap.get(s.id) || []).forEach((c) => {
+      n += countSubtree(c);
+    });
+    return n;
+  };
+  const totalCount = countSubtree(suite);
+
   return (
-    <div id={`suite-${suite.id}`} className={cn("flex flex-col", depth > 0 && "ml-4 mt-2")}>
+    <div
+      id={`suite-${suite.id}`}
+      className={cn(
+        "flex flex-col",
+        depth > 0 && "ml-4 mt-1",
+        depth === 0 &&
+          "rounded-xl border border-border shadow-sm bg-surface overflow-hidden",
+      )}
+    >
       <div
-        className={cn("group px-4 py-3 transition-colors mb-2 overflow-hidden", headerBgClass)}
-        style={{ borderLeft: `3px solid ${accentColor}` }}
+        className={cn(
+          "group px-4 py-2.5 transition-colors",
+          depth === 0 && "bg-surface-hover/40",
+          isOpen && "border-b border-border",
+        )}
       >
         {isEditingSuite ? (
           <div className="flex flex-col space-y-2 py-1">
@@ -204,15 +293,15 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
               placeholder="Description (Optional)"
             />
             <div className="flex items-center space-x-2">
-              <button 
-                onClick={handleUpdateSuite} 
+              <button
+                onClick={handleUpdateSuite}
                 disabled={isSavingSuite}
                 className="bg-primary text-primary-foreground px-3 py-1 rounded text-xs font-medium hover:bg-primary-hover"
               >
-                {isSavingSuite ? 'Saving...' : 'Save'}
+                {isSavingSuite ? "Saving..." : "Save"}
               </button>
-              <button 
-                onClick={() => setIsEditingSuite(false)} 
+              <button
+                onClick={() => setIsEditingSuite(false)}
                 className="text-text-muted hover:bg-surface-hover px-3 py-1 rounded text-xs font-medium"
               >
                 Cancel
@@ -224,8 +313,11 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
             <div className="flex items-start flex-1 min-w-0">
               {/* Suite Checkbox (optional/hidden by default in Qase, but we keep it small) */}
               {!isUnassigned && cases.length > 0 && (
-                <button 
-                  onClick={(e) => { e.stopPropagation(); toggleSuiteCases(allCasesInSuite); }}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleSuiteCases(allCasesInSuite);
+                  }}
                   className="mt-0.5 mr-3 text-slate-300 hover:text-primary transition-colors focus:outline-none"
                 >
                   {isAllSelected ? (
@@ -237,41 +329,66 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                   )}
                 </button>
               )}
-              
-              <div 
+
+              <div
                 className="flex items-start cursor-pointer flex-1 min-w-0"
                 onClick={() => toggleSuite(suite.id)}
               >
+                {/* Accent folder chip — vivid, colored identity per suite */}
+                <span
+                  className={cn(
+                    "flex items-center justify-center rounded-xl shrink-0 mr-3 transition-transform duration-200 ease-out group-hover:scale-110 group-hover:-rotate-3",
+                    depth === 0 ? "w-9 h-9" : "w-7 h-7 mt-0.5",
+                  )}
+                  style={{
+                    background: accentColor,
+                    color: "#fff",
+                    boxShadow: `0 3px 10px ${accentColor}55`,
+                  }}
+                  aria-hidden="true"
+                >
+                  {isOpen ? (
+                    <FolderOpen size={depth === 0 ? 19 : 15} strokeWidth={2.25} />
+                  ) : (
+                    <Folder size={depth === 0 ? 19 : 15} strokeWidth={2.25} />
+                  )}
+                </span>
                 <div className="flex flex-col truncate">
-                  <div className="flex items-center">
-                    <span className={cn("truncate", titleClass)}>
+                  <div className="flex items-center gap-2">
+                    <span className={cn("truncate", titleClass)} title={suite.title}>
                       {suite.title}
                     </span>
                     {/* Action Icons right next to title */}
-                    {role !== 'VIEWER' && !isUnassigned && !hasSelection && (
+                    {role !== "VIEWER" && !isUnassigned && !hasSelection && (
                       <div className="opacity-0 group-hover:opacity-100 flex items-center space-x-1 ml-3 transition-opacity">
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); setShowQuickTest(true); }}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowQuickTest(true);
+                          }}
                           className="p-1 text-primary hover:bg-blue-50 rounded transition-colors"
                           title="Create quick test"
                         >
                           <Plus size={14} strokeWidth={2.5} />
                         </button>
-                        <button 
-                          onClick={(e) => { e.stopPropagation(); setIsEditingSuite(true); }}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setIsEditingSuite(true);
+                          }}
                           className="p-1 text-text-muted hover:text-text-muted hover:bg-slate-200/50 rounded transition-colors"
                           title="Edit suite"
                         >
                           <Edit2 size={13} />
                         </button>
-                        <button 
+                        <button
                           onClick={handleCloneSuiteClick}
                           className="p-1 text-text-muted hover:text-text-muted hover:bg-slate-200/50 rounded transition-colors"
                           title="Clone suite"
                         >
                           <Copy size={13} />
                         </button>
-                        <button 
+                        <button
                           onClick={handleDeleteSuiteClick}
                           className="p-1 text-text-muted hover:text-red-500 hover:bg-red-50 rounded transition-colors"
                           title="Delete suite"
@@ -289,131 +406,228 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
                 </div>
               </div>
             </div>
+
+            {/* Case count pill — instant read of suite size */}
+            {totalCount > 0 && (
+              <span
+                className="shrink-0 ml-3 mt-0.5 inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full"
+                style={{ background: `${accentColor}14`, color: accentColor }}
+              >
+                {totalCount}
+                <span className="font-semibold opacity-70">
+                  {totalCount === 1 ? "case" : "cases"}
+                </span>
+              </span>
+            )}
           </div>
         )}
       </div>
 
       {/* Suite Content (Cases and Child Suites) with Accordion Transition */}
-      <div 
+      <div
         className="grid transition-all duration-300 ease-in-out"
         style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
       >
-        <div className={cn("overflow-hidden flex flex-col", depth === 0 && "pl-2")}>
-          
+        <div className="overflow-hidden flex flex-col">
+
           {/* Quick Test Input */}
-          {role !== 'VIEWER' && (showQuickTest || cases.length === 0 && children.length === 0) && (
-            <div className="px-6 py-2 mt-1">
-              {showQuickTest ? (
-                <input
-                  autoFocus
-                  type="text"
-                  value={quickTestTitle}
-                  onChange={(e) => setQuickTestTitle(e.target.value)}
-                  onKeyDown={handleCreateQuickTest}
-                  onBlur={() => { if (!quickTestTitle) setShowQuickTest(false); }}
-                  placeholder="Type test case title and press Enter..."
-                  className="w-full max-w-lg px-3 py-1.5 text-sm border border-primary/30 rounded focus:outline-none focus:ring-2 focus:ring-primary/20 bg-background text-text-main transition-colors shadow-sm"
-                  disabled={isCreating}
-                />
-              ) : (
-                <button 
-                  onClick={() => setShowQuickTest(true)}
-                  className="text-xs font-medium text-text-muted hover:text-primary flex items-center transition-colors"
-                >
-                  <Plus size={14} className="mr-1" /> Create quick test
-                </button>
-              )}
-            </div>
-          )}
+          {role !== "VIEWER" &&
+            (showQuickTest ||
+              (cases.length === 0 && children.length === 0)) && (
+              <div className="px-6 py-2 mt-1">
+                {showQuickTest ? (
+                  <input
+                    autoFocus
+                    type="text"
+                    value={quickTestTitle}
+                    onChange={(e) => setQuickTestTitle(e.target.value)}
+                    onKeyDown={handleCreateQuickTest}
+                    onBlur={() => {
+                      if (!quickTestTitle) setShowQuickTest(false);
+                    }}
+                    placeholder="Type test case title and press Enter..."
+                    className="w-full max-w-lg px-3 py-1.5 text-sm border border-primary/30 rounded focus:outline-none focus:ring-2 focus:ring-primary/20 bg-background text-text-main transition-colors shadow-sm"
+                    disabled={isCreating}
+                  />
+                ) : (
+                  <button
+                    onClick={() => setShowQuickTest(true)}
+                    className="text-xs font-medium text-text-muted hover:text-primary flex items-center transition-colors"
+                  >
+                    <Plus size={14} className="mr-1" /> Create quick test
+                  </button>
+                )}
+              </div>
+            )}
 
           {/* Test Cases */}
           {cases.length > 0 && (
-            <div className="flex flex-col mt-2">
+            <div className="flex flex-col">
               {cases.map((tc: any) => {
                 const isSelected = isCaseSelected(tc.id);
                 return (
-                <div 
-                  key={tc.id} 
-                  className={cn("group flex items-center px-4 py-3 border-b border-slate-100 last:border-0 hover:bg-indigo-50/40 transition-colors cursor-pointer", isSelected && "bg-indigo-50/60 hover:bg-indigo-50/80")}
-                  onClick={() => {
-                    if (onSelectCase) {
-                      onSelectCase(tc);
-                    } else {
-                      router.push(`/projects/${projectCode}/cases/${tc.id}/edit`);
-                    }
-                  }}
-                >
-                  {/* Case Checkbox */}
-                  {!isUnassigned && (
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); toggleCase(tc.id); }}
-                      className="mr-3 text-slate-300 hover:text-primary transition-colors focus:outline-none shrink-0"
-                    >
-                      {isSelected ? (
-                        <div className="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-white">
-                          <Check size={10} strokeWidth={3} />
-                        </div>
-                      ) : (
-                        <div className="w-3.5 h-3.5 rounded border border-text-muted hover:border-blue-400" />
-                      )}
-                    </button>
-                  )}
-
-                  <div className="flex items-center space-x-3 shrink-0 mr-3">
-                    {/* Priority Icon */}
-                    <div className="w-3.5 flex justify-center">
-                      {(tc.priority === 'High' || tc.priority === 'Critical') ? (
-                        <svg className="w-3 h-3 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-                      ) : (tc.priority === 'Low' || tc.priority === 'Trivial') ? (
-                        <svg className="w-3 h-3 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
-                      ) : (
-                        <svg className="w-2.5 h-2.5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5"><circle cx="12" cy="12" r="10"></circle></svg>
-                      )}
-                    </div>
-                    {/* Type Badge (M or AI) */}
-                    <div className="w-4 flex justify-center shrink-0 text-text-muted">
-                      {tc.tags?.some((t: any) => t.name === "AI-Generated") ? (
-                        <span title="AI Generated"><Sparkles size={12} className="text-amber-500" /></span>
-                      ) : (
-                        <span title="Manual"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="w-20 shrink-0">
-                    <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-2 py-0.5 rounded shadow-sm">
-                      {`${projectCode}-${tc.sequenceNumber || tc.id.substring(0,2)}`}
-                    </span>
-                  </div>
-
-                  <div className="flex-1 flex items-center text-[14px] font-normal text-text-main min-w-0">
-                    <span className="truncate">{tc.title}</span>
-                    {tc.isOutdated && (
-                      <span className="ml-2 flex shrink-0 items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700" title="Requirement Changed">
-                        <svg className="w-3 h-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                        OUTDATED
-                      </span>
+                  <div
+                    key={tc.id}
+                    className={cn(
+                      "group flex items-center px-4 py-3 border-b border-border last:border-0 hover:bg-indigo-50/40 transition-colors cursor-pointer",
+                      isSelected && "bg-indigo-50/60 hover:bg-indigo-50/80",
                     )}
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {role !== 'VIEWER' && (
+                    onClick={() => {
+                      if (onSelectCase) {
+                        onSelectCase(tc);
+                      } else {
+                        router.push(
+                          `/projects/${projectCode}/cases/${tc.id}/edit`,
+                        );
+                      }
+                    }}
+                  >
+                    {/* Case Checkbox */}
+                    {!isUnassigned && (
                       <button
-                        onClick={(e) => { e.stopPropagation(); setConfirmDeleteCaseId(tc.id); }}
-                        className="p-1 text-text-muted hover:text-red-500 rounded transition-colors"
-                        title="Delete test case"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleCase(tc.id);
+                        }}
+                        className="mr-3 text-slate-300 hover:text-primary transition-colors focus:outline-none shrink-0"
                       >
-                        <Trash2 size={14} />
+                        {isSelected ? (
+                          <div className="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-white">
+                            <Check size={10} strokeWidth={3} />
+                          </div>
+                        ) : (
+                          <div className="w-3.5 h-3.5 rounded border border-text-muted hover:border-blue-400" />
+                        )}
                       </button>
                     )}
+
+                    <div className="flex items-center space-x-3 shrink-0 mr-3">
+                      {/* Priority Icon — Tooltip + SR label carry the meaning the
+                          shape/color alone wouldn't convey. */}
+                      <Tooltip
+                        label={`Priority: ${(tc.priority || "Medium").charAt(0).toUpperCase() + (tc.priority || "Medium").slice(1).toLowerCase()}`}
+                      >
+                      <div
+                        className="w-3.5 flex justify-center"
+                        role="img"
+                        aria-label={`Priority: ${tc.priority || "Medium"}`}
+                      >
+                        {["HIGH", "CRITICAL"].includes(
+                          (tc.priority || "").toUpperCase(),
+                        ) ? (
+                          <svg
+                            className="w-3 h-3 text-red-500"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                          >
+                            <line x1="12" y1="19" x2="12" y2="5"></line>
+                            <polyline points="5 12 12 5 19 12"></polyline>
+                          </svg>
+                        ) : ["LOW", "TRIVIAL"].includes(
+                            (tc.priority || "").toUpperCase(),
+                          ) ? (
+                          <svg
+                            className="w-3 h-3 text-emerald-500"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                          >
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <polyline points="19 12 12 19 5 12"></polyline>
+                          </svg>
+                        ) : (
+                          <svg
+                            className="w-2.5 h-2.5 text-slate-300"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3.5"
+                          >
+                            <circle cx="12" cy="12" r="10"></circle>
+                          </svg>
+                        )}
+                      </div>
+                      </Tooltip>
+                      {/* Origin badge: AI-generated vs human-authored */}
+                      {tc.tags?.some((t: any) => t.name === "AI-Generated") ? (
+                        <Tooltip label="AI-generated">
+                          <div
+                            className="w-5 h-5 flex items-center justify-center shrink-0 rounded bg-amber-50 text-amber-500"
+                            role="img"
+                            aria-label="AI-generated"
+                          >
+                            <Sparkles size={12} />
+                          </div>
+                        </Tooltip>
+                      ) : (
+                        <Tooltip label="Created manually">
+                          <div
+                            className="w-5 h-5 flex items-center justify-center shrink-0 rounded bg-surface-hover text-text-muted"
+                            role="img"
+                            aria-label="Created manually"
+                          >
+                            <User size={12} />
+                          </div>
+                        </Tooltip>
+                      )}
+                    </div>
+
+                    <div className="w-20 shrink-0">
+                      <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-2 py-0.5 rounded shadow-sm">
+                        {`${projectCode}-${tc.sequenceNumber || tc.id.substring(0, 2)}`}
+                      </span>
+                    </div>
+
+                    <div className="flex-1 flex items-center text-[14px] font-normal text-text-main min-w-0">
+                      <span className="truncate" title={tc.title}>{tc.title}</span>
+                      {tc.isOutdated && (
+                        <span
+                          className="ml-2 flex shrink-0 items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700"
+                          title="Requirement Changed"
+                        >
+                          <svg
+                            className="w-3 h-3 mr-1"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                            />
+                          </svg>
+                          OUTDATED
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {role !== "VIEWER" && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setConfirmDeleteCaseId(tc.id);
+                          }}
+                          className="p-1 text-text-muted hover:text-red-500 rounded transition-colors"
+                          title="Delete test case"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )})}
-              
+                );
+              })}
+
               {/* Create Quick Test button below cases if there are cases */}
-              {role !== 'VIEWER' && !showQuickTest && (
+              {role !== "VIEWER" && !showQuickTest && (
                 <div className="px-4 py-1.5 mt-1 ml-6">
-                  <button 
+                  <button
                     onClick={() => setShowQuickTest(true)}
                     className="text-[13px] font-medium text-text-muted hover:text-primary flex items-center transition-colors"
                   >
@@ -428,13 +642,13 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
           {children.length > 0 && (
             <div className="mt-1">
               {children.map((childSuite: any) => (
-                <SuiteNode 
-                  key={childSuite.id} 
-                  suite={childSuite} 
-                  depth={depth + 1} 
-                  childrenMap={childrenMap} 
-                  casesBySuiteId={casesBySuiteId} 
-                  projectCode={projectCode} 
+                <SuiteNode
+                  key={childSuite.id}
+                  suite={childSuite}
+                  depth={depth + 1}
+                  childrenMap={childrenMap}
+                  casesBySuiteId={casesBySuiteId}
+                  projectCode={projectCode}
                   onSelectCase={onSelectCase}
                   allSuites={allSuites}
                 />
@@ -444,7 +658,7 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
         </div>
       </div>
 
-      <CloneSuiteModal 
+      <CloneSuiteModal
         isOpen={isCloneModalOpen}
         onClose={() => setIsCloneModalOpen(false)}
         suite={suite}
@@ -472,13 +686,19 @@ export function SuiteNode({ suite, depth, childrenMap, casesBySuiteId, projectCo
             const id = confirmDeleteCaseId;
             setConfirmDeleteCaseId(null);
             try {
-              const res = await fetch(`/api/projects/${projectCode}/cases/${id}`, { method: "DELETE" });
+              const res = await fetch(
+                `/api/projects/${projectCode}/cases/${id}`,
+                { method: "DELETE" },
+              );
               if (res.ok) {
                 router.refresh();
                 toast.success("Test case deleted successfully");
               } else {
                 const data = await res.json();
-                toast.error("Failed to delete test case: " + (data.error || res.statusText));
+                toast.error(
+                  "Failed to delete test case: " +
+                    (data.error || res.statusText),
+                );
               }
             } catch (err: any) {
               toast.error("Error: " + err.message);

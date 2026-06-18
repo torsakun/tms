@@ -1,28 +1,58 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Loader2, MoreHorizontal, Mail, Clock, AlertTriangle, CheckCircle2 } from "lucide-react";
+import {
+  Search,
+  Loader2,
+  MoreHorizontal,
+  Mail,
+  Clock,
+  AlertTriangle,
+  CheckCircle2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { InviteUserModal } from "@/components/workspace/InviteUserModal";
 
-function ConfirmDialog({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) {
+function ConfirmDialog({
+  message,
+  onConfirm,
+  onCancel,
+}: {
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
   return (
-    <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4" onClick={onCancel}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4"
+      onClick={onCancel}
+    >
+      <div
+        className="bg-surface rounded-xl shadow-xl w-full max-w-sm p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-start gap-3 mb-5">
           <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
             <AlertTriangle size={18} className="text-rose-500" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-800 mb-1">Confirm action</h3>
-            <p className="text-sm text-slate-500">{message}</p>
+            <h3 className="text-sm font-semibold text-text-main mb-1">
+              Confirm action
+            </h3>
+            <p className="text-sm text-text-muted">{message}</p>
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <button onClick={onCancel} className="px-4 py-2 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 text-sm font-semibold text-text-muted bg-surface-hover hover:bg-slate-200 rounded-lg transition-colors"
+          >
             Cancel
           </button>
-          <button onClick={onConfirm} className="px-4 py-2 text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-lg transition-colors">
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-lg transition-colors"
+          >
             Confirm
           </button>
         </div>
@@ -37,7 +67,10 @@ export default function WorkspaceInvitesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [confirm, setConfirm] = useState<{ id: string; action: "delete" } | null>(null);
+  const [confirm, setConfirm] = useState<{
+    id: string;
+    action: "delete";
+  } | null>(null);
 
   useEffect(() => {
     const handleClickOutside = () => setOpenMenuId(null);
@@ -58,12 +91,16 @@ export default function WorkspaceInvitesPage() {
     }
   };
 
-  useEffect(() => { fetchInvites(); }, []);
+  useEffect(() => {
+    fetchInvites();
+  }, []);
 
   const handleDelete = async (id: string) => {
     setConfirm(null);
     try {
-      const res = await fetch(`/api/workspace/invites/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/workspace/invites/${id}`, {
+        method: "DELETE",
+      });
       if (res.ok) {
         toast.success("Invitation deleted");
         fetchInvites();
@@ -78,7 +115,9 @@ export default function WorkspaceInvitesPage() {
   const handleResend = async (id: string) => {
     setOpenMenuId(null);
     try {
-      const res = await fetch(`/api/workspace/invites/${id}/resend`, { method: "POST" });
+      const res = await fetch(`/api/workspace/invites/${id}/resend`, {
+        method: "POST",
+      });
       if (res.ok) {
         toast.success("Invitation resent successfully");
         fetchInvites();
@@ -91,10 +130,11 @@ export default function WorkspaceInvitesPage() {
   };
 
   const now = new Date();
-  const filtered = invites.filter(inv =>
-    !search.trim() ||
-    inv.email.toLowerCase().includes(search.toLowerCase()) ||
-    (inv.accessRoleName || "").toLowerCase().includes(search.toLowerCase())
+  const filtered = invites.filter(
+    (inv) =>
+      !search.trim() ||
+      inv.email.toLowerCase().includes(search.toLowerCase()) ||
+      (inv.accessRoleName || "").toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
@@ -102,13 +142,17 @@ export default function WorkspaceInvitesPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-slate-800 tracking-tight">Invites</h1>
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">{invites.length}</span>
+          <h1 className="text-xl font-bold text-text-main tracking-tight">
+            Invites
+          </h1>
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">
+            {invites.length}
+          </span>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
           className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:opacity-90"
-          style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
+          style={{ background: "var(--primary)" }}
         >
           Invite new member
         </button>
@@ -117,13 +161,16 @@ export default function WorkspaceInvitesPage() {
       {/* Search */}
       <div className="flex items-center gap-3 mb-5">
         <div className="relative w-72">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={15} />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
+            size={15}
+          />
           <input
             type="text"
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by email or role…"
-            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition-all"
+            className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-lg bg-surface text-text-main placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition-all"
           />
         </div>
       </div>
@@ -134,24 +181,34 @@ export default function WorkspaceInvitesPage() {
           <Loader2 className="animate-spin text-indigo-500" size={28} />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
+        <div className="bg-surface rounded-xl border border-border shadow-sm py-16 text-center">
           <Mail size={28} className="text-slate-200 mx-auto mb-3" />
-          <p className="text-sm font-semibold text-slate-500">
+          <p className="text-sm font-semibold text-text-muted">
             {search ? "No invites match your search" : "No pending invites"}
           </p>
           {!search && (
-            <p className="text-xs text-slate-400 mt-1">Invited members will appear here until they accept.</p>
+            <p className="text-xs text-text-muted mt-1">
+              Invited members will appear here until they accept.
+            </p>
           )}
         </div>
       ) : (
-        <div className="rounded-xl overflow-visible bg-white border border-slate-200 shadow-sm">
+        <div className="rounded-xl overflow-visible bg-surface border border-border shadow-sm">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50/80">
-                <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Email</th>
-                <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Role</th>
-                <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Sent</th>
-                <th className="px-5 py-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider">Expires</th>
+              <tr className="border-b border-border bg-surface-hover/80">
+                <th className="px-5 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider">
+                  Email
+                </th>
+                <th className="px-5 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider">
+                  Role
+                </th>
+                <th className="px-5 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider">
+                  Sent
+                </th>
+                <th className="px-5 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider">
+                  Expires
+                </th>
                 <th className="px-5 py-3 w-10" />
               </tr>
             </thead>
@@ -159,20 +216,29 @@ export default function WorkspaceInvitesPage() {
               {filtered.map((invite, i) => {
                 const isExpired = new Date(invite.expiresAt) < now;
                 return (
-                  <tr key={invite.id} className={`border-b border-slate-100 last:border-0 hover:bg-slate-50/70 transition-colors ${i === 0 ? "" : ""}`}>
+                  <tr
+                    key={invite.id}
+                    className={`border-b border-border last:border-0 hover:bg-surface-hover/70 transition-colors ${i === 0 ? "" : ""}`}
+                  >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2.5">
                         <div className="w-7 h-7 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
                           <Mail size={13} className="text-indigo-400" />
                         </div>
-                        <span className="text-sm font-semibold text-slate-800">{invite.email}</span>
+                        <span className="text-sm font-semibold text-text-main">
+                          {invite.email}
+                        </span>
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      <span className="text-sm text-slate-600">{invite.accessRoleName || "Member"}</span>
+                      <span className="text-sm text-text-muted">
+                        {invite.accessRoleName || "Member"}
+                      </span>
                     </td>
                     <td className="px-5 py-4">
-                      <span className="text-sm text-slate-400">{new Date(invite.createdAt).toLocaleDateString()}</span>
+                      <span className="text-sm text-text-muted">
+                        {new Date(invite.createdAt).toLocaleDateString()}
+                      </span>
                     </td>
                     <td className="px-5 py-4">
                       {isExpired ? (
@@ -192,23 +258,42 @@ export default function WorkspaceInvitesPage() {
                           e.preventDefault();
                           e.stopPropagation();
                           e.nativeEvent.stopImmediatePropagation();
-                          setOpenMenuId(openMenuId === invite.id ? null : invite.id);
+                          setOpenMenuId(
+                            openMenuId === invite.id ? null : invite.id,
+                          );
                         }}
-                        className="p-1.5 rounded-md text-slate-300 hover:text-slate-500 hover:bg-slate-100 transition-colors"
+                        className="p-1.5 rounded-md text-slate-300 hover:text-text-muted hover:bg-surface-hover transition-colors"
                       >
                         <MoreHorizontal size={16} />
                       </button>
                       {openMenuId === invite.id && (
-                        <div className="absolute right-8 top-10 w-48 bg-white rounded-xl py-1 z-50 overflow-hidden" style={{ border: "1px solid #f1f3f9", boxShadow: "0 8px 24px rgba(0,0,0,0.1)" }}>
+                        <div
+                          className="absolute right-8 top-10 w-48 bg-surface rounded-xl py-1 z-50 overflow-hidden"
+                          style={{
+                            border: "1px solid var(--border-color)",
+                            boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+                          }}
+                        >
                           <button
-                            onClick={(e) => { e.stopPropagation(); handleResend(invite.id); }}
-                            className="w-full text-left px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors flex items-center gap-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleResend(invite.id);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm font-medium text-text-muted hover:bg-surface-hover transition-colors flex items-center gap-2"
                           >
-                            <CheckCircle2 size={14} className="text-indigo-400" /> Resend invitation
+                            <CheckCircle2
+                              size={14}
+                              className="text-indigo-400"
+                            />{" "}
+                            Resend invitation
                           </button>
-                          <div className="h-px bg-slate-100 mx-2 my-1" />
+                          <div className="h-px bg-surface-hover mx-2 my-1" />
                           <button
-                            onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); setConfirm({ id: invite.id, action: "delete" }); }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMenuId(null);
+                              setConfirm({ id: invite.id, action: "delete" });
+                            }}
                             className="w-full text-left px-4 py-2 text-sm font-medium text-rose-500 hover:bg-rose-50 transition-colors"
                           >
                             Delete invitation
@@ -225,7 +310,12 @@ export default function WorkspaceInvitesPage() {
       )}
 
       {isModalOpen && (
-        <InviteUserModal onClose={() => { setIsModalOpen(false); fetchInvites(); }} />
+        <InviteUserModal
+          onClose={() => {
+            setIsModalOpen(false);
+            fetchInvites();
+          }}
+        />
       )}
 
       {confirm && (

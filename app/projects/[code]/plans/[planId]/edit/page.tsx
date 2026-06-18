@@ -10,17 +10,17 @@ export default function EditPlanPage() {
   const params = useParams();
   const code = params.code as string;
   const planId = params.planId as string;
-  
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [cases, setCases] = useState<any[]>([]);
   const [suites, setSuites] = useState<any[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  
+
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [error, setError] = useState("");
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -29,17 +29,17 @@ export default function EditPlanPage() {
         const [planRes, casesRes, suitesRes] = await Promise.all([
           fetch(`/api/projects/${code}/plans/${planId}`),
           fetch(`/api/projects/${code}/cases`),
-          fetch(`/api/projects/${code}/suites`)
+          fetch(`/api/projects/${code}/suites`),
         ]);
 
         if (planRes.ok && casesRes.ok && suitesRes.ok) {
           const planData = await planRes.json();
           const casesData = await casesRes.json();
           const suitesData = await suitesRes.json();
-          
+
           setTitle(planData.title || "");
           setDescription(planData.description || "");
-          
+
           // Pre-select existing cases
           if (planData.testCases) {
             setSelectedIds(new Set(planData.testCases.map((c: any) => c.id)));
@@ -49,10 +49,10 @@ export default function EditPlanPage() {
           const buildTree = (flatList: any[]) => {
             const map = new Map();
             const roots: any[] = [];
-            flatList.forEach(item => {
+            flatList.forEach((item) => {
               map.set(item.id, { ...item, children: [] });
             });
-            flatList.forEach(item => {
+            flatList.forEach((item) => {
               const node = map.get(item.id);
               if (item.parentId) {
                 if (map.has(item.parentId)) {
@@ -73,13 +73,13 @@ export default function EditPlanPage() {
           throw new Error("Failed to load repository data.");
         }
       } catch (err) {
-         console.error(err);
-         setError("Failed to load plan data.");
+        console.error(err);
+        setError("Failed to load plan data.");
       } finally {
         setFetching(false);
       }
     };
-    
+
     if (code && planId) {
       fetchData();
     }
@@ -91,7 +91,7 @@ export default function EditPlanPage() {
       setError("Please select at least one test case.");
       return;
     }
-    
+
     setLoading(true);
     setError("");
 
@@ -102,8 +102,8 @@ export default function EditPlanPage() {
         body: JSON.stringify({
           title,
           description,
-          caseIds: Array.from(selectedIds)
-        })
+          caseIds: Array.from(selectedIds),
+        }),
       });
 
       if (!res.ok) {
@@ -136,13 +136,22 @@ export default function EditPlanPage() {
     <div className="flex h-screen bg-surface-hover items-center justify-center">
       <div className="bg-surface rounded-xl border border-border shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
         <header className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
-          <h1 className="text-xl font-semibold text-text-main">Edit test plan</h1>
-          <button type="button" onClick={() => router.back()} className="p-2 text-text-muted hover:text-text-muted hover:bg-surface-hover rounded-full transition">
+          <h1 className="text-xl font-semibold text-text-main">
+            Edit test plan
+          </h1>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="p-2 text-text-muted hover:text-text-muted hover:bg-surface-hover rounded-full transition"
+          >
             <X size={20} />
           </button>
         </header>
 
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col flex-1 overflow-hidden"
+        >
           <div className="p-8 space-y-6 overflow-y-auto">
             {error && (
               <div className="p-4 bg-red-50 text-red-700 flex items-center rounded-lg border border-red-100">
@@ -152,9 +161,11 @@ export default function EditPlanPage() {
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-text-main mb-2">Plan Title</label>
-              <input 
-                type="text" 
+              <label className="block text-sm font-semibold text-text-main mb-2">
+                Plan Title
+              </label>
+              <input
+                type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -164,8 +175,10 @@ export default function EditPlanPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-text-main mb-2">Description (Optional)</label>
-              <textarea 
+              <label className="block text-sm font-semibold text-text-main mb-2">
+                Description (Optional)
+              </label>
+              <textarea
                 rows={2}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -176,17 +189,21 @@ export default function EditPlanPage() {
 
             {/* Modal Trigger */}
             <div className="pt-2">
-              <label className="block text-sm font-semibold text-text-main mb-2">Test Cases</label>
+              <label className="block text-sm font-semibold text-text-main mb-2">
+                Test Cases
+              </label>
               <button
                 type="button"
                 className="flex items-center justify-between w-full px-4 py-3 bg-surface border border-border rounded-lg hover:border-blue-300 hover:ring-1 hover:ring-blue-500/20 transition-all text-left group"
                 onClick={() => setIsModalOpen(true)}
               >
                 <div>
-                  <div className="text-sm font-medium text-text-main group-hover:text-blue-700 transition-colors">Select test cases</div>
+                  <div className="text-sm font-medium text-text-main group-hover:text-blue-700 transition-colors">
+                    Select test cases
+                  </div>
                   <div className="text-xs text-text-muted mt-1">
-                    {selectedIds.size === cases.length 
-                      ? "All test cases selected" 
+                    {selectedIds.size === cases.length
+                      ? "All test cases selected"
                       : `${selectedIds.size} of ${cases.length} cases selected`}
                   </div>
                 </div>
@@ -198,15 +215,15 @@ export default function EditPlanPage() {
           </div>
 
           <div className="flex justify-end p-6 border-t border-border shrink-0 bg-surface">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => router.back()}
               className="px-4 py-2 font-medium text-text-muted hover:bg-surface-hover rounded-md transition mr-3"
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="flex items-center px-4 py-2 font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary-hover transition shadow-sm disabled:opacity-50"
             >

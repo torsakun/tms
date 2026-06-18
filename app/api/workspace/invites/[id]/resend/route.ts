@@ -6,17 +6,20 @@ import { v4 as uuidv4 } from "uuid";
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
 
     const existingInvite = await prisma.invitation.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!existingInvite) {
-      return NextResponse.json({ error: "Invitation not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Invitation not found" },
+        { status: 404 },
+      );
     }
 
     const token = uuidv4();
@@ -27,15 +30,15 @@ export async function POST(
       where: { id },
       data: {
         token,
-        expiresAt
-      }
+        expiresAt,
+      },
     });
 
     const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
     const host = req.headers.get("host");
     const baseUrl = process.env.NEXTAUTH_URL || `${protocol}://${host}`;
     const inviteLink = `${baseUrl}/invite/accept?token=${updatedInvite.token}`;
-    
+
     const emailResult = await sendEmail({
       to: updatedInvite.email,
       subject: `Reminder: You have been invited to join the TESSA workspace`,
@@ -44,17 +47,23 @@ export async function POST(
         greeting: `${updatedInvite.firstName} ${updatedInvite.lastName}`,
         roleText: updatedInvite.roleTitle || "Member",
         inviteLink: inviteLink,
-        projectName: "TESSA Workspace"
-      })
+        projectName: "TESSA Workspace",
+      }),
     });
 
     if (!emailResult.success) {
-      return NextResponse.json({ error: `Failed to send email: ${emailResult.error}` }, { status: 500 });
+      return NextResponse.json(
+        { error: `Failed to send email: ${emailResult.error}` },
+        { status: 500 },
+      );
     }
 
     return NextResponse.json({ success: true, invitation: updatedInvite });
   } catch (error) {
     console.error("Failed to resend invitation:", error);
-    return NextResponse.json({ error: "Failed to resend invitation" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to resend invitation" },
+      { status: 500 },
+    );
   }
 }

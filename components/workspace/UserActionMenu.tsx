@@ -1,28 +1,60 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MoreHorizontal, UserX, UserCheck, Key, Shield, ChevronDown, Loader2, AlertTriangle } from "lucide-react";
+import {
+  MoreHorizontal,
+  UserX,
+  UserCheck,
+  Key,
+  Shield,
+  ChevronDown,
+  Loader2,
+  AlertTriangle,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-function ConfirmDialog({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) {
+function ConfirmDialog({
+  message,
+  onConfirm,
+  onCancel,
+}: {
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
   return (
-    <div className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4" onClick={onCancel}>
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4"
+      onClick={onCancel}
+    >
+      <div
+        className="bg-surface rounded-xl shadow-xl w-full max-w-sm p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-start gap-3 mb-5">
           <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
             <AlertTriangle size={18} className="text-amber-500" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-800 mb-1">Confirm action</h3>
-            <p className="text-sm text-slate-500">{message}</p>
+            <h3 className="text-sm font-semibold text-text-main mb-1">
+              Confirm action
+            </h3>
+            <p className="text-sm text-text-muted">{message}</p>
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <button onClick={onCancel} className="px-4 py-2 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 text-sm font-semibold text-text-muted bg-surface-hover hover:bg-slate-200 rounded-lg transition-colors"
+          >
             Cancel
           </button>
-          <button onClick={onConfirm} className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors" style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
+            style={{ background: "var(--primary)" }}
+          >
             Confirm
           </button>
         </div>
@@ -43,13 +75,21 @@ interface UserActionMenuProps {
   roles: WorkspaceRole[];
 }
 
-export default function UserActionMenu({ userId, isActive, currentRoleId, roles }: UserActionMenuProps) {
+export default function UserActionMenu({
+  userId,
+  isActive,
+  currentRoleId,
+  roles,
+}: UserActionMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [selectedRoleId, setSelectedRoleId] = useState(currentRoleId || "");
   const [resetLink, setResetLink] = useState<string | null>(null);
-  const [confirm, setConfirm] = useState<{ message: string; action: string } | null>(null);
+  const [confirm, setConfirm] = useState<{
+    message: string;
+    action: string;
+  } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -57,11 +97,15 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
     setIsOpen(false);
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/workspace/users/${userId}/reset-password`, { method: "POST" });
+      const res = await fetch(`/api/workspace/users/${userId}/reset-password`, {
+        method: "POST",
+      });
       const data = await res.json();
       if (res.ok) {
         if (data.emailed) {
-          toast.success("Password reset link sent to the user's email.", { duration: 5000 });
+          toast.success("Password reset link sent to the user's email.", {
+            duration: 5000,
+          });
         } else {
           // Email not configured — surface the link so the admin can share it manually
           setResetLink(data.resetLink);
@@ -89,9 +133,16 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
   const handleActionRequest = (action: string) => {
     setIsOpen(false);
     if (action === "reset_password") {
-      setConfirm({ message: "Reset this user's password to 'password123'?", action });
+      setConfirm({
+        message: "Reset this user's password to 'password123'?",
+        action,
+      });
     } else if (action === "deactivate") {
-      setConfirm({ message: "Deactivate this user? They will lose access to the workspace.", action });
+      setConfirm({
+        message:
+          "Deactivate this user? They will lose access to the workspace.",
+        action,
+      });
     } else if (action === "activate") {
       setConfirm({ message: "Activate this user?", action });
     } else {
@@ -109,10 +160,12 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action }),
       });
-      
+
       if (response.ok) {
         if (action === "reset_password") {
-          toast.success("Password has been reset to: password123", { duration: 5000 });
+          toast.success("Password has been reset to: password123", {
+            duration: 5000,
+          });
         }
         router.refresh();
       } else {
@@ -134,7 +187,7 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "change_role", roleId: selectedRoleId }),
       });
-      
+
       if (response.ok) {
         toast.success("User role updated successfully");
         setShowRoleModal(false);
@@ -157,7 +210,9 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
           onClick={() => setIsOpen(!isOpen)}
           disabled={isLoading}
           className={`p-1.5 rounded-md transition-colors ${
-            isOpen ? "bg-slate-200 text-text-main" : "text-text-muted hover:text-text-muted hover:bg-surface-hover"
+            isOpen
+              ? "bg-slate-200 text-text-main"
+              : "text-text-muted hover:text-text-muted hover:bg-surface-hover"
           }`}
         >
           <MoreHorizontal size={18} />
@@ -182,9 +237,9 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
               <Key size={16} className="text-amber-500" />
               <span>Send password reset</span>
             </button>
-            
+
             <div className="h-px bg-slate-200 my-1 mx-2" />
-            
+
             {isActive ? (
               <button
                 onClick={() => handleActionRequest("deactivate")}
@@ -217,26 +272,45 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
 
       {/* Reset link modal (email not configured — share manually) */}
       {resetLink && (
-        <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4" onClick={() => setResetLink(null)}>
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
+        <div
+          className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center p-4"
+          onClick={() => setResetLink(null)}
+        >
+          <div
+            className="bg-surface rounded-xl shadow-xl w-full max-w-md p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-bold text-text-main mb-2 flex items-center gap-2">
               <Key size={18} className="text-amber-500" /> Password reset link
             </h3>
-            <p className="text-sm text-slate-500 mb-4">
-              Email isn&apos;t configured, so share this link with the user directly. It expires in 24 hours.
+            <p className="text-sm text-text-muted mb-4">
+              Email isn&apos;t configured, so share this link with the user
+              directly. It expires in 24 hours.
             </p>
             <div className="flex items-center gap-2">
-              <input readOnly value={resetLink} className="flex-1 px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-600 truncate" />
+              <input
+                readOnly
+                value={resetLink}
+                className="flex-1 px-3 py-2 text-xs bg-surface-hover border border-border rounded-lg text-text-muted truncate"
+              />
               <button
-                onClick={() => { navigator.clipboard?.writeText(resetLink); toast.success("Link copied"); }}
+                onClick={() => {
+                  navigator.clipboard?.writeText(resetLink);
+                  toast.success("Link copied");
+                }}
                 className="px-3 py-2 text-sm font-semibold text-white rounded-lg shadow-sm shrink-0"
-                style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
+                style={{
+                  background: "var(--primary)",
+                }}
               >
                 Copy
               </button>
             </div>
             <div className="flex justify-end mt-5">
-              <button onClick={() => setResetLink(null)} className="px-4 py-2 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+              <button
+                onClick={() => setResetLink(null)}
+                className="px-4 py-2 text-sm font-semibold text-text-muted bg-surface-hover hover:bg-slate-200 rounded-lg transition-colors"
+              >
                 Done
               </button>
             </div>
@@ -248,8 +322,10 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
       {showRoleModal && (
         <div className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center">
           <div className="bg-surface rounded-xl shadow-xl w-full max-w-md p-6">
-            <h3 className="text-lg font-semibold text-text-main mb-4">Edit User Role</h3>
-            
+            <h3 className="text-lg font-semibold text-text-main mb-4">
+              Edit User Role
+            </h3>
+
             <div className="mb-6 relative">
               <label className="block text-sm font-medium text-text-main mb-2">
                 Role
@@ -260,14 +336,19 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
                   onChange={(e) => setSelectedRoleId(e.target.value)}
                   className="w-full appearance-none bg-surface border border-text-muted text-text-main py-2.5 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-sm"
                 >
-                  <option value="" disabled>Select a role...</option>
+                  <option value="" disabled>
+                    Select a role...
+                  </option>
                   {roles.map((role) => (
                     <option key={role.id} value={role.id}>
                       {role.title}
                     </option>
                   ))}
                 </select>
-                <ChevronDown size={16} className="absolute right-3 top-3 text-text-muted pointer-events-none" />
+                <ChevronDown
+                  size={16}
+                  className="absolute right-3 top-3 text-text-muted pointer-events-none"
+                />
               </div>
             </div>
 
@@ -280,7 +361,11 @@ export default function UserActionMenu({ userId, isActive, currentRoleId, roles 
               </button>
               <button
                 onClick={handleRoleSave}
-                disabled={isLoading || !selectedRoleId || selectedRoleId === currentRoleId}
+                disabled={
+                  isLoading ||
+                  !selectedRoleId ||
+                  selectedRoleId === currentRoleId
+                }
                 className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center min-w-[120px]"
               >
                 {isLoading ? (

@@ -3,16 +3,31 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ code: string; planId: string }> }
+  { params }: { params: Promise<{ code: string; planId: string }> },
 ) {
   try {
     const { code, planId } = await params;
-    
+
     const plan = await prisma.testPlan.findUnique({
       where: { id: planId },
       include: {
-        testCases: true
-      }
+        testCases: {
+          include: { tags: true },
+          orderBy: { sequenceNumber: "asc" },
+        },
+        testRuns: {
+          orderBy: { createdAt: "desc" },
+          take: 10,
+          select: {
+            id: true,
+            title: true,
+            status: true,
+            createdAt: true,
+            _count: { select: { results: true } },
+          },
+        },
+        project: { select: { code: true, name: true } },
+      },
     });
 
     if (!plan) {
@@ -24,14 +39,14 @@ export async function GET(
     console.error("Error fetching test plan:", error);
     return NextResponse.json(
       { error: "Failed to fetch test plan" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   request: Request,
-  { params }: { params: Promise<{ code: string; planId: string }> }
+  { params }: { params: Promise<{ code: string; planId: string }> },
 ) {
   try {
     const { code, planId } = await params;
@@ -41,7 +56,7 @@ export async function PUT(
     if (!title || !caseIds || !Array.isArray(caseIds)) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -51,9 +66,9 @@ export async function PUT(
         title,
         description,
         testCases: {
-          set: caseIds.map((id) => ({ id }))
-        }
-      }
+          set: caseIds.map((id) => ({ id })),
+        },
+      },
     });
 
     return NextResponse.json(plan);
@@ -61,20 +76,20 @@ export async function PUT(
     console.error("Error updating test plan:", error);
     return NextResponse.json(
       { error: "Failed to update test plan" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: Request,
-  { params }: { params: Promise<{ code: string; planId: string }> }
+  { params }: { params: Promise<{ code: string; planId: string }> },
 ) {
   try {
     const { code, planId } = await params;
-    
+
     await prisma.testPlan.delete({
-      where: { id: planId }
+      where: { id: planId },
     });
 
     return NextResponse.json({ success: true });
@@ -82,7 +97,7 @@ export async function DELETE(
     console.error("Error deleting test plan:", error);
     return NextResponse.json(
       { error: "Failed to delete test plan" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

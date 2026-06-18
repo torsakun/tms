@@ -1,22 +1,31 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, { params }: { params: Promise<{ code: string }> }) {
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ code: string }> },
+) {
   const { code } = await params;
   try {
     const sharedSteps = await prisma.sharedStep.findMany({
       where: { project: { code } },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json(sharedSteps);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to fetch shared steps" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch shared steps" },
+      { status: 500 },
+    );
   }
 }
 
-export async function POST(req: Request, { params }: { params: Promise<{ code: string }> }) {
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ code: string }> },
+) {
   const { code } = await params;
   try {
     const body = await req.json();
@@ -32,13 +41,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
         title,
         action,
         expectedResult,
-        projectId: project.id
-      }
+        projectId: project.id,
+      },
     });
 
     return NextResponse.json(sharedStep, { status: 201 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to create shared step" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create shared step" },
+      { status: 500 },
+    );
   }
 }

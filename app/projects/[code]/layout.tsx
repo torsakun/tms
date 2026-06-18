@@ -1,4 +1,4 @@
-import { ProjectSidebar } from "@/components/layout/ProjectSidebar";
+import { ProjectTabs } from "@/components/layout/ProjectTabs";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { getProjectRole } from "@/lib/project-auth";
@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 
 export default async function ProjectCodeLayout({
   children,
-  params
+  params,
 }: {
   children: React.ReactNode;
   params: Promise<{ code: string }>;
@@ -15,24 +15,24 @@ export default async function ProjectCodeLayout({
   const { code } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user) {
-    redirect('/login');
+    redirect("/login");
   }
 
   const role = await getProjectRole(code, (session.user as any).id);
 
-  const isSystemAdmin = (session.user as any).role === 'ADMIN';
+  const isSystemAdmin = (session.user as any).role === "ADMIN";
 
   // If role is null, they might not be a member of this project
   if (!role && !isSystemAdmin) {
     // If they are a system ADMIN, maybe we let them in? Or maybe not. Let's strictly enforce project membership.
     // For now, if no role, redirect to projects list
-    redirect('/projects');
+    redirect("/projects");
   }
 
   return (
     <ProjectRoleProvider role={role} isSystemAdmin={isSystemAdmin}>
-      <div className="flex flex-1 w-full overflow-hidden bg-background transition-colors">
-        <ProjectSidebar projectCode={code} />
+      <div className="flex flex-col flex-1 w-full overflow-hidden bg-background transition-colors">
+        <ProjectTabs projectCode={code} />
         <div className="flex-1 flex flex-col overflow-hidden w-full">
           {children}
         </div>

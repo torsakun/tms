@@ -11,25 +11,34 @@ export async function POST(req: Request) {
 
     if (WEBHOOK_SECRET) {
       if (!signature) {
-        return NextResponse.json({ error: "No signature provided" }, { status: 401 });
+        return NextResponse.json(
+          { error: "No signature provided" },
+          { status: 401 },
+        );
       }
       const hmac = crypto.createHmac("sha256", WEBHOOK_SECRET);
       const digest = `sha256=${hmac.update(rawBody).digest("hex")}`;
       if (signature !== digest) {
-        return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+        return NextResponse.json(
+          { error: "Invalid signature" },
+          { status: 401 },
+        );
       }
     }
 
     const payload = JSON.parse(rawBody);
 
     // Only deploy on push to main
-    if (req.headers.get("x-github-event") === "push" && payload.ref === "refs/heads/main") {
+    if (
+      req.headers.get("x-github-event") === "push" &&
+      payload.ref === "refs/heads/main"
+    ) {
       const commitHash = payload.head_commit?.id?.substring(0, 7) || "unknown";
       const commitMessage = payload.head_commit?.message || "Manual push";
 
       // Check if there's already a pending or building deployment
       const active = await prisma.deploymentLog.findFirst({
-        where: { status: { in: ["PENDING", "BUILDING"] } }
+        where: { status: { in: ["PENDING", "BUILDING"] } },
       });
 
       if (!active) {
@@ -39,8 +48,8 @@ export async function POST(req: Request) {
             trigger: "GitHub Webhook",
             commitHash,
             commitMessage,
-            logs: "Webhook received. Deployment queued..."
-          }
+            logs: "Webhook received. Deployment queued...",
+          },
         });
       }
     }

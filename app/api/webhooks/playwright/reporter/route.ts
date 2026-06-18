@@ -7,18 +7,21 @@ export async function POST(req: Request) {
     let { runId, caseId, status, logs } = body;
 
     if (!runId || !caseId || !status) {
-      return NextResponse.json({ error: "Missing required fields: runId, caseId, status" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields: runId, caseId, status" },
+        { status: 400 },
+      );
     }
 
     // Resolve short ID (e.g., QA-065c) to full UUID
-    if (caseId.includes('-') && caseId.split('-')[1].length === 4) {
-      const [projectCode, shortId] = caseId.split('-');
-      
+    if (caseId.includes("-") && caseId.split("-")[1].length === 4) {
+      const [projectCode, shortId] = caseId.split("-");
+
       const testCase = await prisma.testCase.findFirst({
         where: {
           id: { startsWith: shortId },
-          project: { code: projectCode }
-        }
+          project: { code: projectCode },
+        },
       });
 
       if (testCase) {
@@ -31,36 +34,50 @@ export async function POST(req: Request) {
       where: {
         runId_caseId: {
           runId,
-          caseId
-        }
+          caseId,
+        },
       },
-      select: { id: true, executionHistory: true }
+      select: { id: true, executionHistory: true },
     });
 
     if (!runResult) {
-      return NextResponse.json({ error: "TestRunResult not found for the given runId and caseId" }, { status: 404 });
+      return NextResponse.json(
+        { error: "TestRunResult not found for the given runId and caseId" },
+        { status: 404 },
+      );
     }
 
-    const history = runResult.executionHistory ? (runResult.executionHistory as any[]) : [];
+    const history = runResult.executionHistory
+      ? (runResult.executionHistory as any[])
+      : [];
     history.push({
       timestamp: new Date().toISOString(),
       status: status.toUpperCase(),
-      logs: logs || "No logs provided by reporter"
+      logs: logs || "No logs provided by reporter",
     });
 
     await prisma.testRunResult.update({
       where: { id: runResult.id },
       data: {
-        status: status.toUpperCase() as "PASSED" | "FAILED" | "BLOCKED" | "SKIPPED",
+        status: status.toUpperCase() as
+          | "PASSED"
+          | "FAILED"
+          | "BLOCKED"
+          | "SKIPPED",
         comment: logs,
-        executionHistory: history
-      }
+        executionHistory: history,
+      },
     });
 
-    return NextResponse.json({ success: true, message: "Result updated successfully" });
-
+    return NextResponse.json({
+      success: true,
+      message: "Result updated successfully",
+    });
   } catch (error: any) {
     console.error("Webhook Reporter error:", error);
-    return NextResponse.json({ error: error.message || "An unexpected error occurred" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "An unexpected error occurred" },
+      { status: 500 },
+    );
   }
 }

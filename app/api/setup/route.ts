@@ -12,35 +12,38 @@ export async function GET(req: Request) {
   }
 
   try {
-    const email = 'admin@example.com';
-    const password = 'password123';
+    const email = "admin@example.com";
+    const password = "password123";
     const passwordHash = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.upsert({
       where: { email },
-      update: { 
-        passwordHash, 
-        name: 'Admin User', 
-        role: 'ADMIN' 
+      update: {
+        passwordHash,
+        name: "Admin User",
+        role: "ADMIN",
       },
       create: {
         email,
         passwordHash,
-        name: 'Admin User',
-        role: 'ADMIN'
-      }
+        name: "Admin User",
+        role: "ADMIN",
+      },
     });
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: "Demo user created/updated successfully!",
       user: {
         email: user.email,
-        role: user.role
-      }
+        role: user.role,
+      },
     });
   } catch (error) {
     console.error("Setup error:", error);
-    return NextResponse.json({ error: "Failed to create demo user" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to create demo user" },
+      { status: 500 },
+    );
   }
 }

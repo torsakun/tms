@@ -2,14 +2,18 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 const mapSeverity = (sev: string) => sev.toLowerCase();
-const mapPriority = (pri: string) => pri === 'NOT_SET' ? 'undefined' : pri.toLowerCase();
+const mapPriority = (pri: string) =>
+  pri === "NOT_SET" ? "undefined" : pri.toLowerCase();
 const mapAutomation = (auto: string) => {
-  if (auto === 'TO_BE_AUTOMATED') return 'to-be-automated';
-  if (auto === 'AUTOMATED') return 'is-automated';
-  return 'is-not-automated';
+  if (auto === "TO_BE_AUTOMATED") return "to-be-automated";
+  if (auto === "AUTOMATED") return "is-automated";
+  return "is-not-automated";
 };
 
-export async function GET(req: Request, { params }: { params: Promise<{ code: string }> }) {
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ code: string }> },
+) {
   try {
     const { code } = await params;
     const project = await prisma.project.findUnique({
@@ -19,11 +23,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ code: st
         testCases: {
           include: {
             steps: {
-              orderBy: { position: 'asc' }
-            }
-          }
-        }
-      }
+              orderBy: { position: "asc" },
+            },
+          },
+        },
+      },
     });
 
     if (!project) {
@@ -35,8 +39,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ code: st
 
     const buildCases = (suiteId: string | null) => {
       return allCases
-        .filter(c => c.suiteId === suiteId)
-        .map(tc => ({
+        .filter((c) => c.suiteId === suiteId)
+        .map((tc) => ({
           id: tc.id,
           title: tc.title,
           description: tc.description,
@@ -53,29 +57,29 @@ export async function GET(req: Request, { params }: { params: Promise<{ code: st
           milestone: null,
           custom_fields: [],
           steps_type: "classic",
-          steps: tc.steps.map(step => ({
+          steps: tc.steps.map((step) => ({
             position: step.position,
             action: step.action,
             expected_result: step.expectedResult || "",
             data: "",
-            steps: []
+            steps: [],
           })),
           tags: [],
           params: [],
-          is_muted: "no"
+          is_muted: "no",
         }));
     };
 
     const buildTree = (parentId: string | null): any[] => {
-      const currentSuites = allSuites.filter(s => s.parentId === parentId);
-      return currentSuites.map(suite => {
+      const currentSuites = allSuites.filter((s) => s.parentId === parentId);
+      return currentSuites.map((suite) => {
         return {
           id: suite.id,
           title: suite.title,
           description: suite.description,
           preconditions: null,
           suites: buildTree(suite.id),
-          cases: buildCases(suite.id)
+          cases: buildCases(suite.id),
         };
       });
     };
@@ -91,7 +95,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ code: st
         description: "Test cases without a suite",
         preconditions: null,
         suites: [],
-        cases: rootCases
+        cases: rootCases,
       });
     }
 
@@ -100,9 +104,9 @@ export async function GET(req: Request, { params }: { params: Promise<{ code: st
     return new NextResponse(JSON.stringify(payload, null, 2), {
       status: 200,
       headers: {
-        'Content-Type': 'application/json',
-        'Content-Disposition': `attachment; filename="${project.code}_qase_export.json"`
-      }
+        "Content-Type": "application/json",
+        "Content-Disposition": `attachment; filename="${project.code}_qase_export.json"`,
+      },
     });
   } catch (error) {
     console.error("Failed to export qase:", error);

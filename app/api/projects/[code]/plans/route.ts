@@ -3,13 +3,13 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: Request,
-  { params }: { params: Promise<{ code: string }> }
+  { params }: { params: Promise<{ code: string }> },
 ) {
   try {
     const { code } = await params;
-    
+
     const project = await prisma.project.findUnique({
-      where: { code }
+      where: { code },
     });
 
     if (!project) {
@@ -20,10 +20,10 @@ export async function GET(
       where: { projectId: project.id },
       include: {
         _count: {
-          select: { testCases: true, testRuns: true }
-        }
+          select: { testCases: true, testRuns: true },
+        },
       },
-      orderBy: { createdAt: 'desc' }
+      orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json(plans);
@@ -31,14 +31,14 @@ export async function GET(
     console.error("Error fetching test plans:", error);
     return NextResponse.json(
       { error: "Failed to fetch test plans" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function POST(
   request: Request,
-  { params }: { params: Promise<{ code: string }> }
+  { params }: { params: Promise<{ code: string }> },
 ) {
   try {
     const { code } = await params;
@@ -50,7 +50,7 @@ export async function POST(
     }
 
     const project = await prisma.project.findUnique({
-      where: { code }
+      where: { code },
     });
 
     if (!project) {
@@ -62,16 +62,19 @@ export async function POST(
         title,
         description,
         projectId: project.id,
-        testCases: caseIds && caseIds.length > 0 ? {
-          connect: caseIds.map((id: string) => ({ id }))
-        } : undefined
+        testCases:
+          caseIds && caseIds.length > 0
+            ? {
+                connect: caseIds.map((id: string) => ({ id })),
+              }
+            : undefined,
       },
       include: {
         testCases: true,
         _count: {
-          select: { testCases: true, testRuns: true }
-        }
-      }
+          select: { testCases: true, testRuns: true },
+        },
+      },
     });
 
     return NextResponse.json(plan, { status: 201 });
@@ -79,7 +82,7 @@ export async function POST(
     console.error("Error creating test plan:", error);
     return NextResponse.json(
       { error: "Failed to create test plan" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

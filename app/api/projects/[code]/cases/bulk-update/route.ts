@@ -1,14 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function POST(req: Request, { params }: { params: Promise<{ code: string }> }) {
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ code: string }> },
+) {
   try {
     const { code } = await params;
     const body = await req.json();
     const { updates, requirementText } = body;
 
     if (!updates || !Array.isArray(updates)) {
-      return NextResponse.json({ error: "updates array is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "updates array is required" },
+        { status: 400 },
+      );
     }
 
     if (updates.length === 0) {
@@ -20,7 +26,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
       for (const update of updates) {
         // Delete old steps
         await tx.testStep.deleteMany({
-          where: { caseId: update.id }
+          where: { caseId: update.id },
         });
 
         // Update the case and create new steps
@@ -36,10 +42,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
               create: update.steps.map((step: any, idx: number) => ({
                 action: step.action,
                 expectedResult: step.expectedResult,
-                position: idx
-              }))
-            }
-          }
+                position: idx,
+              })),
+            },
+          },
         });
       }
     });
@@ -47,6 +53,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
     return NextResponse.json({ success: true, count: updates.length });
   } catch (error: any) {
     console.error("Bulk update failed:", error);
-    return NextResponse.json({ error: error.message || "Failed to update test cases in bulk" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Failed to update test cases in bulk" },
+      { status: 500 },
+    );
   }
 }

@@ -8,31 +8,45 @@ export async function POST(req: Request) {
     const { token, password } = body;
 
     if (!token || !password) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
     const invitation = await prisma.invitation.findUnique({
-      where: { token }
+      where: { token },
     });
 
     if (!invitation) {
-      return NextResponse.json({ error: "Invalid invitation token" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Invalid invitation token" },
+        { status: 404 },
+      );
     }
 
     if (invitation.status !== "PENDING") {
-      return NextResponse.json({ error: "Invitation is already accepted or expired" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invitation is already accepted or expired" },
+        { status: 400 },
+      );
     }
 
     if (new Date() > invitation.expiresAt) {
-      return NextResponse.json({ error: "Invitation has expired" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invitation has expired" },
+        { status: 400 },
+      );
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const fullName = `${invitation.firstName || ''} ${invitation.lastName || ''}`.trim() || invitation.email.split('@')[0];
+    const fullName =
+      `${invitation.firstName || ""} ${invitation.lastName || ""}`.trim() ||
+      invitation.email.split("@")[0];
 
     // Find the default WorkspaceRole in case invitation.roleId is missing
     const defaultRole = await prisma.workspaceRole.findFirst({
-      where: { isDefault: true }
+      where: { isDefault: true },
     });
 
     const assignedRoleId = invitation.roleId || defaultRole?.id;
@@ -43,18 +57,24 @@ export async function POST(req: Request) {
         name: fullName,
         passwordHash,
         role: "USER", // Default SystemRole
-        workspaceRoleId: assignedRoleId
-      }
+        workspaceRoleId: assignedRoleId,
+      },
     });
 
     await prisma.invitation.update({
       where: { id: invitation.id },
-      data: { status: "ACCEPTED" }
+      data: { status: "ACCEPTED" },
     });
 
-    return NextResponse.json({ success: true, user: { id: user.id, email: user.email } }, { status: 200 });
+    return NextResponse.json(
+      { success: true, user: { id: user.id, email: user.email } },
+      { status: 200 },
+    );
   } catch (error) {
     console.error("Failed to accept invitation:", error);
-    return NextResponse.json({ error: "Failed to process invitation" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to process invitation" },
+      { status: 500 },
+    );
   }
 }

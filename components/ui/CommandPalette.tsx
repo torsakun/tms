@@ -1,0 +1,187 @@
+"use client";
+
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Search,
+  FolderKanban,
+  LayoutDashboard,
+  Users,
+  CornerDownLeft,
+  Folder,
+} from "lucide-react";
+
+interface Cmd {
+  id: string;
+  label: string;
+  hint?: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  run: () => void;
+}
+
+/**
+ * ⌘K / Ctrl+K command palette. Static destinations + live project jump.
+ * Keyboard-first: arrows to move, Enter to run, Esc to close.
+ */
+export function CommandPalette() {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [active, setActive] = useState(0);
+  const [projects, setProjects] = useState<{ code: string; name: string }[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const close = useCallback(() => {
+    setOpen(false);
+    setQuery("");
+    setActive(0);
+  }, []);
+
+  // Global ⌘K / Ctrl+K toggle
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setOpen((o) => !o);
+      } else if (e.key === "Escape") {
+        setOpen(false);
+      }
+    };
+    const openEvt = () => setOpen(true);
+    document.addEventListener("keydown", onKey);
+    window.addEventListener("open-command-palette", openEvt);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("open-command-palette", openEvt);
+    };
+  }, []);
+
+  // Fetch projects once when first opened
+  useEffect(() => {
+    if (open && projects.length === 0) {
+      fetch("/api/projects")
+        .then((r) => r.json())
+        .then((d) => {
+          const list = Array.isArray(d) ? d : d?.projects;
+          if (Array.isArray(list)) {
+            setProjects(list.map((p: any) => ({ code: p.code, name: p.name })));
+          }
+        })
+        .catch(() => {});
+    }
+    if (open) setTimeout(() => inputRef.current?.focus(), 0);
+  }, [open, projects.length]);
+
+  const go = useCallback(
+    (href: string) => {
+      router.push(href);
+      close();
+    },
+    [router, close],
+  );
+
+  const commands = useMemo<Cmd[]>(() => {
+    const base: Cmd[] = [
+      { id: "projects", label: "Projects", hint: "Go to projects", icon: FolderKanban, run: () => go("/projects") },
+      { id: "workspace", label: "Workspace", hint: "Members, roles, groups", icon: Users, run: () => go("/workspace") },
+      { id: "dashboards", label: "Dashboards", hint: "Global metrics", icon: LayoutDashboard, run: () => go("/dashboards") },
+    ];
+    const projectCmds: Cmd[] = projects.map((p) => ({
+      id: `prj-${p.code}`,
+      label: p.name,
+      hint: `${p.code} · Open repository`,
+      icon: Folder,
+      run: () => go(`/projects/${p.code}/repository`),
+    }));
+    return [...base, ...projectCmds];
+  }, [projects, go]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return commands;
+    return commands.filter(
+      (c) => c.label.toLowerCase().includes(q) || c.hint?.toLowerCase().includes(q),
+    );
+  }, [commands, query]);
+
+  useEffect(() => setActive(0), [query]);
+
+  const onListKey = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActive((a) => Math.min(a + 1, filtered.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActive((a) => Math.max(a - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      filtered[active]?.run();
+    }
+  };
+
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[300] flex items-start justify-center px-4 pt-[12vh] bg-slate-900/40 backdrop-blur-[2px]"
+      onClick={close}
+    >
+      <div
+        className="w-full max-w-xl bg-surface rounded-2xl shadow-2xl overflow-hidden border border-border animate-fade-up"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-label="Command palette"
+      >
+        <div className="flex items-center gap-3 px-4 border-b border-border">
+          <Search size={17} className="text-text-muted shrink-0" />
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={onListKey}
+            placeholder="Search projects, jump to a section…"
+            className="flex-1 py-3.5 text-[15px] text-text-main placeholder-slate-400 bg-transparent outline-none"
+          />
+          <kbd className="text-[10px] font-semibold text-text-muted bg-surface-hover px-1.5 py-0.5 rounded">
+            ESC
+          </kbd>
+        </div>
+
+        <div className="max-h-80 overflow-y-auto py-2">
+          {filtered.length === 0 ? (
+            <div className="px-4 py-8 text-center text-sm text-text-muted">
+              No matches for “{query}”
+            </div>
+          ) : (
+            filtered.map((c, i) => {
+              const Icon = c.icon;
+              return (
+                <button
+                  key={c.id}
+                  onClick={c.run}
+                  onMouseEnter={() => setActive(i)}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+                    i === active ? "bg-indigo-50" : "hover:bg-surface-hover"
+                  }`}
+                >
+                  <span
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                      i === active ? "bg-indigo-100 text-indigo-600" : "bg-surface-hover text-text-muted"
+                    }`}
+                  >
+                    <Icon size={15} />
+                  </span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-sm font-medium text-text-main truncate">{c.label}</span>
+                    {c.hint && <span className="block text-xs text-text-muted truncate">{c.hint}</span>}
+                  </span>
+                  {i === active && <CornerDownLeft size={14} className="text-indigo-400 shrink-0" />}
+                </button>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

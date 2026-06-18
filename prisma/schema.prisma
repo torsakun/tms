@@ -67,6 +67,7 @@ enum TestResultStatus {
   BLOCKED
   SKIPPED
   IN_PROGRESS
+  INVALID
 }
 
 enum FieldType {

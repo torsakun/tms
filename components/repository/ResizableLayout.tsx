@@ -24,11 +24,12 @@ export function ResizableLayout({
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging.current) return;
-      
-      let newWidth = dragStart.current.width + (e.clientX - dragStart.current.x);
+
+      let newWidth =
+        dragStart.current.width + (e.clientX - dragStart.current.x);
       if (newWidth < minWidth) newWidth = minWidth;
       if (newWidth > maxWidth) newWidth = maxWidth;
-      
+
       setSidebarWidth(newWidth);
     };
 
@@ -58,14 +59,14 @@ export function ResizableLayout({
   return (
     <div className="flex flex-1 overflow-hidden h-full">
       {/* Left Pane Container */}
-      <aside 
+      <aside
         className="flex flex-col shrink-0 h-full bg-surface relative"
         style={{ width: sidebarWidth }}
       >
         {leftPane}
-        
+
         {/* Drag Handle */}
-        <div 
+        <div
           className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-blue-500/50 z-10 transition-colors border-r border-border"
           onMouseDown={handleMouseDown}
         />

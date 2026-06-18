@@ -5,7 +5,10 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { prisma } from "@/lib/prisma";
 
-export async function POST(req: Request, { params }: { params: Promise<{ code: string, caseId: string }> }) {
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ code: string; caseId: string }> },
+) {
   const { code, caseId } = await params;
   try {
     const body = await req.json();
@@ -13,46 +16,63 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
 
     const testCase = await prisma.testCase.findUnique({
       where: { id: caseId },
-      include: { steps: { orderBy: { position: 'asc' } } }
+      include: { steps: { orderBy: { position: "asc" } } },
     });
 
     if (!testCase) {
-      return NextResponse.json({ error: "Test case not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Test case not found" },
+        { status: 404 },
+      );
     }
 
     // Fetch API keys from DB
     const settings = await prisma.workspaceSetting.findMany({
       where: {
-        key: { in: ['OPENAI_API_KEY', 'GEMINI_API_KEY', 'CLAUDE_API_KEY'] }
-      }
+        key: { in: ["OPENAI_API_KEY", "GEMINI_API_KEY", "CLAUDE_API_KEY"] },
+      },
     });
-    
-    const getSetting = (k: string) => settings.find(s => s.key === k)?.value;
+
+    const getSetting = (k: string) => settings.find((s) => s.key === k)?.value;
 
     let aiModel;
     switch (modelProvider) {
       case "gemini":
-        const geminiKey = getSetting('GEMINI_API_KEY');
-        if (!geminiKey) throw new Error("Gemini API Key is not configured in Workspace Settings.");
+        const geminiKey = getSetting("GEMINI_API_KEY");
+        if (!geminiKey)
+          throw new Error(
+            "Gemini API Key is not configured in Workspace Settings.",
+          );
         const googleProvider = createGoogleGenerativeAI({ apiKey: geminiKey });
-        aiModel = googleProvider('gemini-1.5-pro');
+        aiModel = googleProvider("gemini-1.5-pro");
         break;
       case "claude":
-        const claudeKey = getSetting('CLAUDE_API_KEY');
-        if (!claudeKey) throw new Error("Claude API Key is not configured in Workspace Settings.");
+        const claudeKey = getSetting("CLAUDE_API_KEY");
+        if (!claudeKey)
+          throw new Error(
+            "Claude API Key is not configured in Workspace Settings.",
+          );
         const anthropicProvider = createAnthropic({ apiKey: claudeKey });
-        aiModel = anthropicProvider('claude-3-5-sonnet-20241022');
+        aiModel = anthropicProvider("claude-3-5-sonnet-20241022");
         break;
       case "openai":
       default:
-        const openaiKey = getSetting('OPENAI_API_KEY');
-        if (!openaiKey) throw new Error("OpenAI API Key is not configured in Workspace Settings.");
+        const openaiKey = getSetting("OPENAI_API_KEY");
+        if (!openaiKey)
+          throw new Error(
+            "OpenAI API Key is not configured in Workspace Settings.",
+          );
         const openaiProvider = createOpenAI({ apiKey: openaiKey });
-        aiModel = openaiProvider('gpt-4o');
+        aiModel = openaiProvider("gpt-4o");
         break;
     }
 
-    const stepsText = testCase.steps.map((s, i) => `Step ${i + 1}: ${s.action} (Expected: ${s.expectedResult || "N/A"})`).join("\n");
+    const stepsText = testCase.steps
+      .map(
+        (s, i) =>
+          `Step ${i + 1}: ${s.action} (Expected: ${s.expectedResult || "N/A"})`,
+      )
+      .join("\n");
 
     const systemPrompt = `You are a Senior QA Automation Engineer.
 Your task is to write a Playwright TypeScript automation script for the provided Manual Test Case.
@@ -79,12 +99,17 @@ ${domContext ? `Page HTML / DOM Snippet:\n${domContext}\n\nUse this DOM context 
     });
 
     // Remove markdown code block wrappers if the AI included them anyway
-    const cleanText = text.replace(/^```(typescript|ts)?\n/i, '').replace(/```$/i, '').trim();
+    const cleanText = text
+      .replace(/^```(typescript|ts)?\n/i, "")
+      .replace(/```$/i, "")
+      .trim();
 
     return NextResponse.json({ script: cleanText });
-
   } catch (error: any) {
     console.error("AI Script Generation failed:", error);
-    return NextResponse.json({ error: error.message || "Failed to generate script" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Failed to generate script" },
+      { status: 500 },
+    );
   }
 }

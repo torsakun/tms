@@ -9,7 +9,7 @@ import { sendEmail } from "@/lib/mailer";
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ code: string }> }
+  { params }: { params: Promise<{ code: string }> },
 ) {
   const { code } = await params;
 
@@ -19,13 +19,18 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const hasAccess = await requireProjectRole(code, (session.user as any).id, ['ADMIN']);
-    if (!hasAccess && (session.user as any).role !== 'ADMIN') {
-      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+    const hasAccess = await requireProjectRole(code, (session.user as any).id, [
+      "ADMIN",
+    ]);
+    if (!hasAccess && (session.user as any).role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Forbidden: Admin access required" },
+        { status: 403 },
+      );
     }
 
     const project = await prisma.project.findUnique({
-      where: { code }
+      where: { code },
     });
 
     if (!project) {
@@ -36,22 +41,30 @@ export async function POST(
     const { email, role } = body;
 
     if (!email || !role) {
-      return NextResponse.json({ error: "Email and role are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Email and role are required" },
+        { status: 400 },
+      );
     }
 
     // Check if user is already a member
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       const existingMember = await prisma.projectMember.findUnique({
-        where: { userId_projectId: { userId: existingUser.id, projectId: project.id } }
+        where: {
+          userId_projectId: { userId: existingUser.id, projectId: project.id },
+        },
       });
       if (existingMember) {
-        return NextResponse.json({ error: "User is already a member of this project" }, { status: 400 });
+        return NextResponse.json(
+          { error: "User is already a member of this project" },
+          { status: 400 },
+        );
       }
     }
 
     // Create Invitation
-    const token = crypto.randomBytes(32).toString('hex');
+    const token = crypto.randomBytes(32).toString("hex");
     // Expire in 7 days
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
@@ -61,30 +74,30 @@ export async function POST(
       where: {
         email_projectId: {
           email,
-          projectId: project.id
-        }
+          projectId: project.id,
+        },
       },
       update: {
         token,
         role,
-        expiresAt
+        expiresAt,
       },
       create: {
         email,
         projectId: project.id,
         role,
         token,
-        expiresAt
-      }
+        expiresAt,
+      },
     });
 
     // Send email via Resend
     const host = req.headers.get("host");
     const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
     const baseUrl = process.env.NEXTAUTH_URL || `${protocol}://${host}`;
-    
+
     const inviteUrl = `${baseUrl}/accept-invite?token=${token}`;
-    
+
     await sendEmail({
       to: email,
       subject: `You have been invited to join ${project.name} on TESSA TMS`,
@@ -93,8 +106,8 @@ export async function POST(
         greeting: email,
         roleText: role,
         inviteLink: inviteUrl,
-        projectName: project.name
-      })
+        projectName: project.name,
+      }),
     });
 
     return NextResponse.json({ success: true, invitationId: invitation.id });

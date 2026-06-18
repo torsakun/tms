@@ -14,18 +14,18 @@ export default function InviteMemberButton() {
       <button
         onClick={() => setIsModalOpen(true)}
         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 transition-all"
-        style={{ background: "linear-gradient(135deg, #4f46e5, #7c3aed)" }}
+        style={{ background: "var(--primary)" }}
       >
         <UserPlus size={15} strokeWidth={2.5} />
         Invite member
       </button>
 
       {isModalOpen && (
-        <InviteUserModal 
+        <InviteUserModal
           onClose={() => {
             setIsModalOpen(false);
             router.refresh();
-          }} 
+          }}
         />
       )}
     </>

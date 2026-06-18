@@ -1,16 +1,16 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  if (searchParams.get('key') !== 'recover-my-data-999') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (searchParams.get("key") !== "recover-my-data-999") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
     // 1. Get or create a default user
     let user = await prisma.user.findFirst({
-      where: { email: "supat.tor@gmail.com" }
+      where: { email: "supat.tor@gmail.com" },
     });
 
     if (!user) {
@@ -19,7 +19,7 @@ export async function GET(req: Request) {
           email: "supat.tor@gmail.com",
           name: "Supat T",
           passwordHash: "hashedpassword123", // mock
-        }
+        },
       });
     }
 
@@ -33,19 +33,35 @@ export async function GET(req: Request) {
       "AI Marketing Tool",
       "Inventory Management API",
       "Social Media Analytics",
-      "Customer Support Chatbot"
+      "Customer Support Chatbot",
     ];
 
-    const severities = ["BLOCKER", "CRITICAL", "MAJOR", "NORMAL", "MINOR", "TRIVIAL"];
+    const severities = [
+      "BLOCKER",
+      "CRITICAL",
+      "MAJOR",
+      "NORMAL",
+      "MINOR",
+      "TRIVIAL",
+    ];
     const priorities = ["HIGH", "MEDIUM", "LOW"];
     const autoStatuses = ["AUTOMATED", "TO_BE_AUTOMATED", "MANUAL"];
 
     for (let i = 0; i < projectNames.length; i++) {
       const projName = projectNames[i];
-      const code = projName.split(" ").map(w => w[0]).join("").toUpperCase().substring(0, 10) + (i + 1);
+      const code =
+        projName
+          .split(" ")
+          .map((w) => w[0])
+          .join("")
+          .toUpperCase()
+          .substring(0, 10) +
+        (i + 1);
 
       // Check if project exists
-      const existingProject = await prisma.project.findFirst({ where: { code } });
+      const existingProject = await prisma.project.findFirst({
+        where: { code },
+      });
       if (existingProject) continue;
 
       // Create Project
@@ -54,7 +70,7 @@ export async function GET(req: Request) {
           name: projName,
           code: code,
           description: `This is an auto-generated project for ${projName}`,
-        }
+        },
       });
 
       // Create Suites
@@ -66,7 +82,7 @@ export async function GET(req: Request) {
             title: `Feature Module ${s}`,
             description: `Test cases for feature module ${s}`,
             projectId: project.id,
-          }
+          },
         });
         suites.push(suite);
       }
@@ -82,14 +98,22 @@ export async function GET(req: Request) {
           projectId: project.id,
           suiteId: suite.id,
           authorId: user.id,
-          severity: severities[Math.floor(Math.random() * severities.length)] as any,
-          priority: priorities[Math.floor(Math.random() * priorities.length)] as any,
-          automationStatus: autoStatuses[Math.floor(Math.random() * autoStatuses.length)] as any,
+          severity: severities[
+            Math.floor(Math.random() * severities.length)
+          ] as any,
+          priority: priorities[
+            Math.floor(Math.random() * priorities.length)
+          ] as any,
+          automationStatus: autoStatuses[
+            Math.floor(Math.random() * autoStatuses.length)
+          ] as any,
         });
       }
 
       await prisma.testCase.createMany({ data: testCaseData });
-      const createdCases = await prisma.testCase.findMany({ where: { projectId: project.id } });
+      const createdCases = await prisma.testCase.findMany({
+        where: { projectId: project.id },
+      });
 
       // Create 3 Test Runs for the project
       for (let r = 1; r <= 3; r++) {
@@ -99,13 +123,16 @@ export async function GET(req: Request) {
             description: `Execution run for milestone ${r}`,
             projectId: project.id,
             status: r === 3 ? "ACTIVE" : "COMPLETED",
-          }
+          },
         });
 
         // Create Results for some cases
         const runResultsData = [];
-        const casesToRun = createdCases.slice(0, 40 + Math.floor(Math.random() * 40)); 
-        
+        const casesToRun = createdCases.slice(
+          0,
+          40 + Math.floor(Math.random() * 40),
+        );
+
         for (const tc of casesToRun) {
           const rand = Math.random();
           let status = "PASSED";
@@ -125,7 +152,10 @@ export async function GET(req: Request) {
       }
     }
 
-    return NextResponse.json({ success: true, message: "Generated 10 projects and hundreds of test cases successfully!" });
+    return NextResponse.json({
+      success: true,
+      message: "Generated 10 projects and hundreds of test cases successfully!",
+    });
   } catch (err: any) {
     console.error("Seed error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });

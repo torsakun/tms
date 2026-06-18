@@ -4,20 +4,27 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, { params }: { params: Promise<{ caseId: string }> }) {
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ caseId: string }> },
+) {
   const { caseId } = await params;
   const testCase = await prisma.testCase.findUnique({
     where: { id: caseId },
-    include: { 
-      steps: { orderBy: { position: 'asc' } },
-      author: { select: { name: true, email: true } }
-    }
+    include: {
+      steps: { orderBy: { position: "asc" } },
+      author: { select: { name: true, email: true } },
+    },
   });
-  if (!testCase) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!testCase)
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(testCase);
 }
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ caseId: string }> }) {
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ caseId: string }> },
+) {
   const { caseId } = await params;
   try {
     const body = await req.json();
@@ -29,16 +36,18 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ caseId
         where: { id: caseId },
         data: {
           ...caseData,
-          steps: steps ? { 
-            deleteMany: {},
-            create: steps.map((s: any) => ({
-              action: s.action,
-              expectedResult: s.expectedResult,
-              position: s.position
-            })) 
-          } : undefined
+          steps: steps
+            ? {
+                deleteMany: {},
+                create: steps.map((s: any) => ({
+                  action: s.action,
+                  expectedResult: s.expectedResult,
+                  position: s.position,
+                })),
+              }
+            : undefined,
         },
-        include: { steps: true }
+        include: { steps: true },
       });
     });
 
@@ -49,7 +58,10 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ caseId
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: Promise<{ caseId: string }> }) {
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ caseId: string }> },
+) {
   const { caseId } = await params;
   await prisma.testCase.delete({ where: { id: caseId } });
   return new NextResponse(null, { status: 204 });

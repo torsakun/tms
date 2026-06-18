@@ -1,17 +1,26 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { X, Edit2, Trash2, Clock, CheckCircle2, AlertCircle, Paperclip, Download } from "lucide-react";
+import {
+  X,
+  Edit2,
+  Trash2,
+  Clock,
+  CheckCircle2,
+  AlertCircle,
+  Paperclip,
+  Download,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
-export function CaseDetailDrawer({ 
-  caseId, 
+export function CaseDetailDrawer({
+  caseId,
   projectCode,
   onClose,
-  onDeleted
-}: { 
+  onDeleted,
+}: {
   caseId: string | null;
   projectCode: string;
   onClose: () => void;
@@ -59,10 +68,19 @@ export function CaseDetailDrawer({
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         steps: [
-          { action: "Navigate to login page", expectedResult: "Login page loads" },
-          { action: "Enter valid credentials", expectedResult: "Inputs are filled" },
-          { action: "Click submit", expectedResult: "User is logged in and redirected to dashboard" }
-        ]
+          {
+            action: "Navigate to login page",
+            expectedResult: "Login page loads",
+          },
+          {
+            action: "Enter valid credentials",
+            expectedResult: "Inputs are filled",
+          },
+          {
+            action: "Click submit",
+            expectedResult: "User is logged in and redirected to dashboard",
+          },
+        ],
       });
     };
 
@@ -73,7 +91,7 @@ export function CaseDetailDrawer({
     if (!confirm("Are you sure you want to delete this test case?")) return;
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/cases/${caseId}`, { method: 'DELETE' });
+      const res = await fetch(`/api/cases/${caseId}`, { method: "DELETE" });
       if (res.ok) {
         if (onDeleted) onDeleted();
         onClose();
@@ -94,14 +112,14 @@ export function CaseDetailDrawer({
     <>
       {/* Backdrop */}
       {caseId && (
-        <div 
+        <div
           className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-40 transition-opacity"
           onClick={onClose}
         />
       )}
 
       {/* Drawer */}
-      <div 
+      <div
         className={`fixed top-0 right-0 h-full w-[600px] max-w-full bg-surface shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
           caseId ? "translate-x-0" : "translate-x-full"
         }`}
@@ -109,20 +127,25 @@ export function CaseDetailDrawer({
         {/* Header */}
         <header className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div className="flex items-center space-x-2">
-            <button onClick={onClose} className="p-2 hover:bg-surface-hover rounded-full transition-colors text-text-muted">
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-surface-hover rounded-full transition-colors text-text-muted"
+            >
               <X size={20} />
             </button>
-            <span className="font-mono text-sm text-text-muted">{projectCode}-{caseId?.slice(0,4)}</span>
+            <span className="font-mono text-sm text-text-muted">
+              {projectCode}-{caseId?.slice(0, 4)}
+            </span>
           </div>
           <div className="flex items-center space-x-2">
-            <Link 
+            <Link
               href={`/projects/${projectCode}/cases/${caseId}/edit`}
               className="px-3 py-1.5 flex items-center text-sm font-medium text-text-main bg-surface border border-border rounded-md hover:bg-surface-hover transition-colors"
             >
               <Edit2 size={14} className="mr-2" />
               Edit
             </Link>
-            <button 
+            <button
               onClick={handleDelete}
               disabled={isDeleting}
               className="px-3 py-1.5 flex items-center text-sm font-medium text-red-600 bg-surface border border-red-200 rounded-md hover:bg-red-50 transition-colors"
@@ -142,11 +165,16 @@ export function CaseDetailDrawer({
           ) : data ? (
             <div className="p-8 space-y-8">
               <div>
-                <h1 className="text-2xl font-bold text-text-main mb-4">{data.title}</h1>
+                <h1 className="text-2xl font-bold text-text-main mb-4">
+                  {data.title}
+                </h1>
                 {data.tags && data.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-4">
                     {data.tags.map((tag: any, idx: number) => (
-                      <span key={idx} className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-surface-hover text-text-main border border-border">
+                      <span
+                        key={idx}
+                        className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-surface-hover text-text-main border border-border"
+                      >
                         {tag.name}
                       </span>
                     ))}
@@ -169,26 +197,42 @@ export function CaseDetailDrawer({
                 {/* Metadata Section (Author & Dates) */}
                 <div className="bg-surface-hover rounded-lg p-4 grid grid-cols-2 md:grid-cols-3 gap-4 border border-border mb-8">
                   <div>
-                    <span className="text-xs text-text-muted font-medium block mb-1">Created By</span>
+                    <span className="text-xs text-text-muted font-medium block mb-1">
+                      Created By
+                    </span>
                     <div className="flex items-center text-sm font-semibold text-text-main">
                       <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-[10px] mr-2 shrink-0">
                         {data.author?.name?.charAt(0) || "U"}
                       </div>
-                      <span className="truncate">{data.author?.name || "Unknown"}</span>
+                      <span className="truncate">
+                        {data.author?.name || "Unknown"}
+                      </span>
                     </div>
                   </div>
                   <div>
-                    <span className="text-xs text-text-muted font-medium block mb-1">Created On</span>
+                    <span className="text-xs text-text-muted font-medium block mb-1">
+                      Created On
+                    </span>
                     <div className="flex items-center text-sm text-text-main">
                       <Clock size={14} className="mr-1.5 text-text-muted" />
-                      {data.createdAt ? new Date(data.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : "Recently"}
+                      {data.createdAt
+                        ? new Date(data.createdAt).toLocaleDateString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })
+                        : "Recently"}
                     </div>
                   </div>
                   <div>
-                    <span className="text-xs text-text-muted font-medium block mb-1">Last Updated</span>
+                    <span className="text-xs text-text-muted font-medium block mb-1">
+                      Last Updated
+                    </span>
                     <div className="flex items-center text-sm text-text-main">
                       <Clock size={14} className="mr-1.5 text-text-muted" />
-                      {data.updatedAt ? new Date(data.updatedAt).toLocaleDateString('en-GB') : "Recently"}
+                      {data.updatedAt
+                        ? new Date(data.updatedAt).toLocaleDateString("en-GB")
+                        : "Recently"}
                     </div>
                   </div>
                 </div>
@@ -196,7 +240,9 @@ export function CaseDetailDrawer({
 
               {data.preconditions && (
                 <div>
-                  <h3 className="text-sm font-semibold text-text-main mb-2">Preconditions</h3>
+                  <h3 className="text-sm font-semibold text-text-main mb-2">
+                    Preconditions
+                  </h3>
                   <div className="bg-surface-hover p-4 rounded-lg text-sm text-text-muted whitespace-pre-wrap">
                     {data.preconditions}
                   </div>
@@ -211,14 +257,21 @@ export function CaseDetailDrawer({
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
                     {data.attachments.map((file: any, idx: number) => (
-                      <div key={idx} className="flex items-center justify-between p-3 border border-border rounded-lg bg-surface">
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-3 border border-border rounded-lg bg-surface"
+                      >
                         <div className="flex flex-col overflow-hidden">
-                          <span className="text-sm font-medium text-text-main truncate">{file.originalName}</span>
-                          <span className="text-xs text-text-muted">{(file.size / 1024).toFixed(1)} KB</span>
+                          <span className="text-sm font-medium text-text-main truncate">
+                            {file.originalName}
+                          </span>
+                          <span className="text-xs text-text-muted">
+                            {(file.size / 1024).toFixed(1)} KB
+                          </span>
                         </div>
-                        <a 
-                          href={file.url} 
-                          target="_blank" 
+                        <a
+                          href={file.url}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="p-1.5 text-primary hover:bg-blue-50 rounded transition-colors"
                           title="Download / View"
@@ -232,22 +285,35 @@ export function CaseDetailDrawer({
               )}
 
               <div>
-                <h3 className="text-sm font-semibold text-text-main mb-4">Steps to Reproduce</h3>
+                <h3 className="text-sm font-semibold text-text-main mb-4">
+                  Steps to Reproduce
+                </h3>
                 <div className="space-y-3">
                   {data.steps?.map((step: any, idx: number) => (
-                    <div key={idx} className="flex gap-4 p-4 bg-surface border border-border rounded-lg">
+                    <div
+                      key={idx}
+                      className="flex gap-4 p-4 bg-surface border border-border rounded-lg"
+                    >
                       <div className="w-6 h-6 rounded-full bg-surface-hover text-text-muted text-xs font-bold flex items-center justify-center shrink-0">
                         {idx + 1}
                       </div>
                       <div className="flex-1 space-y-2">
                         <div>
-                          <span className="text-xs font-bold text-text-muted uppercase tracking-wider block mb-1">Action</span>
-                          <p className="text-sm text-text-main">{step.action}</p>
+                          <span className="text-xs font-bold text-text-muted uppercase tracking-wider block mb-1">
+                            Action
+                          </span>
+                          <p className="text-sm text-text-main">
+                            {step.action}
+                          </p>
                         </div>
                         {step.expectedResult && (
                           <div className="pt-2 border-t border-border">
-                            <span className="text-xs font-bold text-emerald-500 uppercase tracking-wider block mb-1">Expected</span>
-                            <p className="text-sm text-text-main">{step.expectedResult}</p>
+                            <span className="text-xs font-bold text-emerald-500 uppercase tracking-wider block mb-1">
+                              Expected
+                            </span>
+                            <p className="text-sm text-text-main">
+                              {step.expectedResult}
+                            </p>
                           </div>
                         )}
                       </div>
@@ -255,7 +321,6 @@ export function CaseDetailDrawer({
                   ))}
                 </div>
               </div>
-
             </div>
           ) : (
             <div className="p-8 text-center text-text-muted">No data found</div>

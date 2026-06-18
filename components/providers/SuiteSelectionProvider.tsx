@@ -11,7 +11,9 @@ interface SuiteSelectionContextType {
   clearSelection: () => void;
 }
 
-const SuiteSelectionContext = createContext<SuiteSelectionContextType | undefined>(undefined);
+const SuiteSelectionContext = createContext<
+  SuiteSelectionContextType | undefined
+>(undefined);
 
 export function SuiteSelectionProvider({ children }: { children: ReactNode }) {
   const [selectedCases, setSelectedCases] = useState<Set<string>>(new Set());
@@ -32,7 +34,7 @@ export function SuiteSelectionProvider({ children }: { children: ReactNode }) {
     setSelectedCases((prev) => {
       const next = new Set(prev);
       const allSelected = caseIds.every((id) => next.has(id));
-      
+
       if (allSelected) {
         // Deselect all
         caseIds.forEach((id) => next.delete(id));
@@ -40,7 +42,7 @@ export function SuiteSelectionProvider({ children }: { children: ReactNode }) {
         // Select all
         caseIds.forEach((id) => next.add(id));
       }
-      
+
       return next;
     });
   };
@@ -73,7 +75,9 @@ export function SuiteSelectionProvider({ children }: { children: ReactNode }) {
 export function useSuiteSelection() {
   const context = useContext(SuiteSelectionContext);
   if (context === undefined) {
-    throw new Error("useSuiteSelection must be used within a SuiteSelectionProvider");
+    throw new Error(
+      "useSuiteSelection must be used within a SuiteSelectionProvider",
+    );
   }
   return context;
 }

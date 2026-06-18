@@ -12,17 +12,14 @@ export async function POST(req: NextRequest) {
     if (!file || !projectIdOrCode) {
       return NextResponse.json(
         { error: "File and projectId are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     let project = await prisma.project.findFirst({
       where: {
-        OR: [
-          { id: projectIdOrCode },
-          { code: projectIdOrCode }
-        ]
-      }
+        OR: [{ id: projectIdOrCode }, { code: projectIdOrCode }],
+      },
     });
 
     if (!project) {
@@ -30,8 +27,8 @@ export async function POST(req: NextRequest) {
       project = await prisma.project.create({
         data: {
           code: projectIdOrCode,
-          name: projectIdOrCode + " Project"
-        }
+          name: projectIdOrCode + " Project",
+        },
       });
     }
 
@@ -39,9 +36,9 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     // Sanitize filename
-    const safeFilename = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    const safeFilename = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
     const uniqueFilename = `${Date.now()}-${safeFilename}`;
-    
+
     // Upload to S3
     const command = new PutObjectCommand({
       Bucket: S3_BUCKET,
@@ -69,7 +66,7 @@ export async function POST(req: NextRequest) {
     console.error("Upload error:", error);
     return NextResponse.json(
       { error: "Failed to upload file" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

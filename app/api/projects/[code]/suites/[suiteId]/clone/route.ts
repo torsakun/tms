@@ -4,16 +4,16 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { requireProjectRole } from "@/lib/project-auth";
 
-export async function POST(req: Request, { params }: { params: Promise<{ code: string, suiteId: string }> }) {
+export async function POST(
+  req: Request,
+  { params }: { params: Promise<{ code: string; suiteId: string }> },
+) {
   const { code: projectIdOrCode, suiteId } = await params;
   try {
     const project = await prisma.project.findFirst({
       where: {
-        OR: [
-          { id: projectIdOrCode },
-          { code: projectIdOrCode }
-        ]
-      }
+        OR: [{ id: projectIdOrCode }, { code: projectIdOrCode }],
+      },
     });
 
     if (!project) {
@@ -25,22 +25,40 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const hasAccess = await requireProjectRole(project.code, (session.user as any).id, ['EDITOR', 'ADMIN']);
-    if (!hasAccess && (session.user as any).role !== 'ADMIN') {
-      return NextResponse.json({ error: "Forbidden: You do not have permission to clone suites in this project" }, { status: 403 });
+    const hasAccess = await requireProjectRole(
+      project.code,
+      (session.user as any).id,
+      ["EDITOR", "ADMIN"],
+    );
+    if (!hasAccess && (session.user as any).role !== "ADMIN") {
+      return NextResponse.json(
+        {
+          error:
+            "Forbidden: You do not have permission to clone suites in this project",
+        },
+        { status: 403 },
+      );
     }
 
     const body = await req.json().catch(() => ({}));
-    const { destinationId = null, strategy = "cases_and_suites", withChildren = false } = body;
+    const {
+      destinationId = null,
+      strategy = "cases_and_suites",
+      withChildren = false,
+    } = body;
 
     // Recursive function to clone suite, its cases, and its children
-    async function cloneSuite(sourceSuiteId: string, newParentId: string | null, isTopLevel: boolean = false) {
+    async function cloneSuite(
+      sourceSuiteId: string,
+      newParentId: string | null,
+      isTopLevel: boolean = false,
+    ) {
       const sourceSuite = await prisma.testSuite.findUnique({
         where: { id: sourceSuiteId },
         include: {
           testCases: { include: { steps: true, tags: true } },
-          children: true
-        }
+          children: true,
+        },
       });
 
       if (!sourceSuite) throw new Error(`Suite ${sourceSuiteId} not found`);
@@ -56,7 +74,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
           position: sourceSuite.position,
           projectId: project!.id,
           parentId: newParentId,
-        }
+        },
       });
 
       // Clone Test Cases if strategy is cases_and_suites
@@ -75,17 +93,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
               suiteId: newSuite.id,
               authorId: (session!.user as any).id,
               steps: {
-                create: tc.steps.map(step => ({
+                create: tc.steps.map((step) => ({
                   action: step.action,
                   expectedResult: step.expectedResult,
                   position: step.position,
-                  sharedStepId: step.sharedStepId
-                }))
+                  sharedStepId: step.sharedStepId,
+                })),
               },
               tags: {
-                connect: tc.tags.map(tag => ({ id: tag.id }))
-              }
-            }
+                connect: tc.tags.map((tag) => ({ id: tag.id })),
+              },
+            },
           });
         }
       }
@@ -98,7 +116,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
           await cloneSuite(child.id, newSuite.id, false);
         }
       }
-      
+
       return newSuite;
     }
 
@@ -108,6 +126,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ code: s
     return NextResponse.json(newSuite, { status: 201 });
   } catch (error) {
     console.error("Failed to clone suite", error);
-    return NextResponse.json({ error: "Failed to clone suite" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Failed to clone suite" },
+      { status: 400 },
+    );
   }
 }

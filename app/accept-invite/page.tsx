@@ -18,7 +18,7 @@ function AcceptInviteContent() {
   const [formData, setFormData] = useState({
     name: "",
     password: "",
-    confirmPassword: ""
+    confirmPassword: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,8 +38,8 @@ function AcceptInviteContent() {
         body: JSON.stringify({
           token,
           name: formData.name,
-          password: formData.password
-        })
+          password: formData.password,
+        }),
       });
 
       const data = await res.json();
@@ -61,9 +61,18 @@ function AcceptInviteContent() {
       <div className="min-h-screen bg-surface-hover flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <div className="bg-surface py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
-            <h2 className="text-xl font-bold text-text-main mb-2">Invalid Invitation</h2>
-            <p className="text-text-muted mb-6">No invitation token was provided in the URL.</p>
-            <Link href="/" className="text-primary hover:text-primary font-medium">Return to Home</Link>
+            <h2 className="text-xl font-bold text-text-main mb-2">
+              Invalid Invitation
+            </h2>
+            <p className="text-text-muted mb-6">
+              No invitation token was provided in the URL.
+            </p>
+            <Link
+              href="/"
+              className="text-primary hover:text-primary font-medium"
+            >
+              Return to Home
+            </Link>
           </div>
         </div>
       </div>
@@ -78,9 +87,13 @@ function AcceptInviteContent() {
             <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <ShieldCheck size={32} />
             </div>
-            <h2 className="text-xl font-bold text-text-main mb-2">Invitation Accepted!</h2>
-            <p className="text-text-muted mb-6">You have successfully joined the project.</p>
-            <Link 
+            <h2 className="text-xl font-bold text-text-main mb-2">
+              Invitation Accepted!
+            </h2>
+            <p className="text-text-muted mb-6">
+              You have successfully joined the project.
+            </p>
+            <Link
               href={`/login?redirect=/projects/${projectCode}/repository`}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover"
             >
@@ -111,44 +124,60 @@ function AcceptInviteContent() {
                 {error}
               </div>
             )}
-            
+
             <div>
-              <label className="block text-sm font-medium text-text-main">Full Name</label>
+              <label className="block text-sm font-medium text-text-main">
+                Full Name
+              </label>
               <div className="mt-1">
                 <input
                   type="text"
                   required
                   value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, name: e.target.value })
+                  }
                   className="appearance-none block w-full px-3 py-2 border border-text-muted rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-main">Password</label>
+              <label className="block text-sm font-medium text-text-main">
+                Password
+              </label>
               <div className="mt-1">
                 <input
                   type="password"
                   required
                   value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, password: e.target.value })
+                  }
                   className="appearance-none block w-full px-3 py-2 border border-text-muted rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
               <p className="mt-1 text-xs text-text-muted">
-                (If you already have an account with this email, your password will not be changed)
+                (If you already have an account with this email, your password
+                will not be changed)
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-main">Confirm Password</label>
+              <label className="block text-sm font-medium text-text-main">
+                Confirm Password
+              </label>
               <div className="mt-1">
                 <input
                   type="password"
                   required
                   value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      confirmPassword: e.target.value,
+                    })
+                  }
                   className="appearance-none block w-full px-3 py-2 border border-text-muted rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
               </div>
@@ -160,7 +189,11 @@ function AcceptInviteContent() {
                 disabled={isLoading}
                 className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
-                {isLoading ? <Loader2 size={16} className="animate-spin" /> : "Accept Invitation"}
+                {isLoading ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  "Accept Invitation"
+                )}
               </button>
             </div>
           </form>
@@ -172,7 +205,13 @@ function AcceptInviteContent() {
 
 export default function AcceptInvitePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-surface-hover flex items-center justify-center"><Loader2 size={32} className="animate-spin text-primary" /></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-surface-hover flex items-center justify-center">
+          <Loader2 size={32} className="animate-spin text-primary" />
+        </div>
+      }
+    >
       <AcceptInviteContent />
     </Suspense>
   );

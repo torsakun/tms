@@ -19,7 +19,10 @@ export async function POST(req: Request) {
     const { name, email, password } = await req.json();
 
     if (!email || !password) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 },
+      );
     }
 
     // Invite-only: self-registration is allowed ONLY to bootstrap the very first
@@ -27,8 +30,11 @@ export async function POST(req: Request) {
     const isFirstUser = (await prisma.user.count()) === 0;
     if (!isFirstUser) {
       return NextResponse.json(
-        { error: "Registration is invite-only. Please ask an administrator to send you an invite." },
-        { status: 403 }
+        {
+          error:
+            "Registration is invite-only. Please ask an administrator to send you an invite.",
+        },
+        { status: 403 },
       );
     }
 
@@ -37,7 +43,10 @@ export async function POST(req: Request) {
     });
 
     if (existingUser) {
-      return NextResponse.json({ error: "User already exists" }, { status: 400 });
+      return NextResponse.json(
+        { error: "User already exists" },
+        { status: 400 },
+      );
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -51,9 +60,18 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json({ success: true, user: { id: user.id, email: user.email, role: user.role } }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        user: { id: user.id, email: user.email, role: user.role },
+      },
+      { status: 201 },
+    );
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: "Failed to register user" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to register user" },
+      { status: 500 },
+    );
   }
 }

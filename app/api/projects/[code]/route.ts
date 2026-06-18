@@ -5,7 +5,10 @@ import { authOptions } from "@/lib/auth";
 import { requireProjectRole } from "@/lib/project-auth";
 import { logAudit } from "@/lib/audit-logger";
 
-export async function PATCH(req: Request, { params }: { params: Promise<{ code: string }> }) {
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ code: string }> },
+) {
   const { code } = await params;
   try {
     const project = await prisma.project.findFirst({
@@ -20,15 +23,24 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ code: 
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const hasAccess = await requireProjectRole(project.code, (session.user as any).id, ["ADMIN"]);
+    const hasAccess = await requireProjectRole(
+      project.code,
+      (session.user as any).id,
+      ["ADMIN"],
+    );
     if (!hasAccess && (session.user as any).role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Forbidden: Admin access required" },
+        { status: 403 },
+      );
     }
 
     const body = await req.json();
-    const data: { name?: string; description?: string; isArchived?: boolean } = {};
+    const data: { name?: string; description?: string; isArchived?: boolean } =
+      {};
     if (typeof body.name === "string") data.name = body.name;
-    if (typeof body.description === "string") data.description = body.description;
+    if (typeof body.description === "string")
+      data.description = body.description;
     if (typeof body.isArchived === "boolean") data.isArchived = body.isArchived;
 
     const updated = await prisma.project.update({
@@ -50,6 +62,9 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ code: 
     return NextResponse.json(updated);
   } catch (error) {
     console.error("Failed to update project", error);
-    return NextResponse.json({ error: "Failed to update project" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update project" },
+      { status: 500 },
+    );
   }
 }

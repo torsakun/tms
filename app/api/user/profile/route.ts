@@ -15,7 +15,7 @@ export async function PUT(req: Request) {
     const { name, currentPassword, newPassword } = body;
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email }
+      where: { email: session.user.email },
     });
 
     if (!user) {
@@ -30,12 +30,21 @@ export async function PUT(req: Request) {
 
     if (newPassword) {
       if (!currentPassword) {
-        return NextResponse.json({ error: "Current password is required to set a new password." }, { status: 400 });
+        return NextResponse.json(
+          { error: "Current password is required to set a new password." },
+          { status: 400 },
+        );
       }
-      
-      const isPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
+
+      const isPasswordValid = await bcrypt.compare(
+        currentPassword,
+        user.passwordHash,
+      );
       if (!isPasswordValid) {
-        return NextResponse.json({ error: "Incorrect current password." }, { status: 400 });
+        return NextResponse.json(
+          { error: "Incorrect current password." },
+          { status: 400 },
+        );
       }
 
       updateData.passwordHash = await bcrypt.hash(newPassword, 10);
@@ -44,13 +53,16 @@ export async function PUT(req: Request) {
     if (Object.keys(updateData).length > 0) {
       await prisma.user.update({
         where: { email: session.user.email },
-        data: updateData
+        data: updateData,
       });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Profile update error:", error);
-    return NextResponse.json({ error: "Failed to update profile" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update profile" },
+      { status: 500 },
+    );
   }
 }

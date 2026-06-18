@@ -10,7 +10,9 @@ const execPromise = util.promisify(exec);
 
 export async function POST(
   req: Request,
-  { params }: { params: Promise<{ code: string, runId: string, resultId: string }> }
+  {
+    params,
+  }: { params: Promise<{ code: string; runId: string; resultId: string }> },
 ) {
   const { code, runId, resultId } = await params;
   try {
@@ -18,22 +20,25 @@ export async function POST(
     const { script } = body;
 
     if (!script) {
-      return NextResponse.json({ error: "Script is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Script is required" },
+        { status: 400 },
+      );
     }
 
-    if (process.env.NEXT_PUBLIC_IS_DEMO === 'true') {
-      return NextResponse.json({ 
-        success: false, 
+    if (process.env.NEXT_PUBLIC_IS_DEMO === "true") {
+      return NextResponse.json({
+        success: false,
         error: "Playwright execution is disabled in the Demo version.",
         passed: false,
-        logs: "Execution skipped (Demo Mode)"
+        logs: "Execution skipped (Demo Mode)",
       });
     }
 
     // Wrap the script in a test block if it isn't already
-    const isWrapped = script.includes('test(');
-    const finalScript = isWrapped 
-      ? script 
+    const isWrapped = script.includes("test(");
+    const finalScript = isWrapped
+      ? script
       : `import { test, expect } from '@playwright/test';\n\ntest('Automated Test Case', async ({ page }) => {\n${script}\n});`;
 
     // Write to a temporary file
@@ -50,10 +55,18 @@ export async function POST(
     let passed = false;
 
     try {
-      const result = await execPromise(`playwright test ${filename} --browser=chromium --reporter=list --output=/tmp/test-results`, {
-        cwd: tmpDir,
-        env: { ...process.env, PLAYWRIGHT_BROWSERS_PATH: '/ms-playwright', HOME: '/home/nextjs', NODE_PATH: '/usr/local/lib/node_modules' }
-      });
+      const result = await execPromise(
+        `playwright test ${filename} --browser=chromium --reporter=list --output=/tmp/test-results`,
+        {
+          cwd: tmpDir,
+          env: {
+            ...process.env,
+            PLAYWRIGHT_BROWSERS_PATH: "/ms-playwright",
+            HOME: "/home/nextjs",
+            NODE_PATH: "/usr/local/lib/node_modules",
+          },
+        },
+      );
       stdout = result.stdout;
       stderr = result.stderr;
       passed = true;
@@ -73,17 +86,19 @@ export async function POST(
 
     // Update the database result
     const logs = `--- PLAYWRIGHT EXECUTION LOGS ---\n\nSTDOUT:\n${stdout}\n\nSTDERR:\n${stderr}`;
-    
+
     const existingResult = await prisma.testRunResult.findUnique({
       where: { id: resultId },
-      select: { executionHistory: true }
+      select: { executionHistory: true },
     });
-    
-    const history = existingResult?.executionHistory ? (existingResult.executionHistory as any[]) : [];
+
+    const history = existingResult?.executionHistory
+      ? (existingResult.executionHistory as any[])
+      : [];
     history.push({
       timestamp: new Date().toISOString(),
       status: passed ? "PASSED" : "FAILED",
-      logs: logs
+      logs: logs,
     });
 
     await prisma.testRunResult.update({
@@ -92,18 +107,20 @@ export async function POST(
         status: passed ? "PASSED" : "FAILED",
         timeSpent: 0, // We could parse time but keep it simple
         comment: logs,
-        executionHistory: history
-      }
+        executionHistory: history,
+      },
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      passed, 
-      logs 
+    return NextResponse.json({
+      success: true,
+      passed,
+      logs,
     });
-
   } catch (error: any) {
     console.error("Script execution failed:", error);
-    return NextResponse.json({ error: error.message || "Failed to execute script" }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || "Failed to execute script" },
+      { status: 500 },
+    );
   }
 }
