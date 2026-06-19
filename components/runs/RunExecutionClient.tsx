@@ -1526,7 +1526,7 @@ export default function RunExecutionClient({
             </div>
 
             {/* Metric Cards Row */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 mt-2">
+            <div className={`grid gap-4 mb-4 mt-2 ${activeResultId ? "grid-cols-2" : "grid-cols-1 md:grid-cols-4"}`}>
               {/* Progress Card */}
               <div 
                 onClick={() => setStatusFilter(null)}
@@ -2138,8 +2138,16 @@ export default function RunExecutionClient({
                                   <span className="flex items-center justify-center w-5.5 h-5.5 rounded bg-slate-100 dark:bg-slate-800 text-text-muted font-bold text-xs shrink-0 mt-0.5 shadow-xs">
                                     {idx + 1}
                                   </span>
-                                  <div className="text-sm font-bold text-text-main whitespace-pre-wrap leading-normal">
-                                    {step.action}
+                                  <div className="flex-1 space-y-1.5">
+                                    <div className="text-sm font-bold text-text-main whitespace-pre-wrap leading-normal">
+                                      {step.action}
+                                    </div>
+                                    {step.expectedResult && (
+                                      <div className="text-xs text-text-muted bg-slate-50/50 dark:bg-slate-800/40 p-2 rounded border border-border/40 whitespace-pre-wrap leading-relaxed">
+                                        <span className="font-extrabold text-indigo-600 dark:text-indigo-400 mr-2 uppercase text-[9px] tracking-wider bg-indigo-50 dark:bg-indigo-950/40 px-1.5 py-0.5 rounded border border-indigo-200/20">Expected</span>
+                                        {step.expectedResult}
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
 
