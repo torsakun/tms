@@ -3,6 +3,8 @@
 // app/api/cases/[caseId]/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(
   req: Request,
@@ -31,8 +33,15 @@ export async function PATCH(
     // For steps update, we delete existing and recreate to maintain order easily
     const { steps, ...caseData } = body;
 
+    const session = await getServerSession(authOptions);
+    const actorId = session?.user ? (session.user as any).id : null;
+
+    const existingCase = await prisma.testCase.findUnique({
+      where: { id: caseId }
+    });
+
     const updatedCase = await prisma.$transaction(async (tx) => {
-      return tx.testCase.update({
+      const updated = await tx.testCase.update({
         where: { id: caseId },
         data: {
           ...caseData,
@@ -47,8 +56,29 @@ export async function PATCH(
               }
             : undefined,
         },
-        include: { steps: true },
+        include: { steps: true, author: true },
       });
+
+      // Notification Logic: If authorId (assignee) changed
+      if (
+        caseData.authorId && 
+        existingCase && 
+        existingCase.authorId !== caseData.authorId &&
+        caseData.authorId !== actorId // Don't notify if assigning to self
+      ) {
+        await tx.notification.create({
+          data: {
+            recipientId: caseData.authorId,
+            actorId: actorId,
+            type: "ASSIGNMENT",
+            entityId: updated.id,
+            title: "Assigned Test Case",
+            message: `You have been assigned to test case: ${updated.title}`,
+          }
+        });
+      }
+
+      return updated;
     });
 
     return NextResponse.json(updatedCase);

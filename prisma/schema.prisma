@@ -90,62 +90,72 @@ enum DeploymentStatus {
   FAILED
 }
 
+enum NotificationType {
+  ASSIGNMENT
+  MENTION
+  SYSTEM
+  RUN_STARTED
+  RUN_COMPLETED
+}
+
 // --- Auth & User Models ---
 
 model User {
-  id              String          @id @default(uuid())
-  email           String          @unique
-  passwordHash    String
-  name            String?
-  role            SystemRole      @default(USER)
-  isActive        Boolean         @default(true)
-  workspaceRoleId String?
-  workspaceRole   WorkspaceRole?  @relation(fields: [workspaceRoleId], references: [id], onDelete: SetNull)
-  projects        ProjectMember[]
-  testCases       TestCase[]
-  assignedRunResults TestRunResult[]
-  authoredRuns    TestRun[]       @relation("RunAuthor")
-  auditLogs       AuditLog[]
-  groups          Group[]         @relation("GroupMembers")
-  passwordResetTokens PasswordResetToken[]
-  lastSeenAt      DateTime?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id                     String               @id @default(uuid())
+  email                  String               @unique
+  passwordHash           String
+  name                   String?
+  role                   SystemRole           @default(USER)
+  isActive               Boolean              @default(true)
+  workspaceRoleId        String?
+  workspaceRole          WorkspaceRole?       @relation(fields: [workspaceRoleId], references: [id], onDelete: SetNull)
+  projects               ProjectMember[]
+  testCases              TestCase[]
+  assignedRunResults     TestRunResult[]
+  authoredRuns           TestRun[]            @relation("RunAuthor")
+  auditLogs              AuditLog[]
+  groups                 Group[]              @relation("GroupMembers")
+  passwordResetTokens    PasswordResetToken[]
+  receivedNotifications  Notification[]       @relation("NotificationRecipient")
+  triggeredNotifications Notification[]       @relation("NotificationActor")
+  lastSeenAt             DateTime?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
 
   @@index([workspaceRoleId])
 }
 
 model PasswordResetToken {
-  id        String   @id @default(uuid())
-  token     String   @unique
+  id        String    @id @default(uuid())
+  token     String    @unique
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
 
   @@index([userId])
 }
 
 model LinkedIssue {
-  id         String   @id @default(uuid())
-  provider   String   @default("JIRA") // JIRA | GITHUB
-  key        String   // e.g. "PROJ-123" or issue number
-  url        String   @db.Text
-  summary    String   @db.Text
-  status     String?  // synced issue status, optional
-  severity   String?  // severity captured at creation time
+  id       String  @id @default(uuid())
+  provider String  @default("JIRA") // JIRA | GITHUB
+  key      String // e.g. "PROJ-123" or issue number
+  url      String  @db.Text
+  summary  String  @db.Text
+  status   String? // synced issue status, optional
+  severity String? // severity captured at creation time
 
-  projectId  String
-  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  caseId     String?
-  testCase   TestCase? @relation(fields: [caseId], references: [id], onDelete: SetNull)
+  caseId   String?
+  testCase TestCase? @relation(fields: [caseId], references: [id], onDelete: SetNull)
 
-  resultId   String?
-  result     TestRunResult? @relation(fields: [resultId], references: [id], onDelete: SetNull)
+  resultId String?
+  result   TestRunResult? @relation(fields: [resultId], references: [id], onDelete: SetNull)
 
-  createdAt  DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([projectId])
   @@index([caseId])
@@ -153,23 +163,23 @@ model LinkedIssue {
 }
 
 model Group {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   title       String
   description String?
   members     User[]    @relation("GroupMembers")
   projects    Project[] @relation("GroupProjects")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model ProjectMember {
-  id         String      @id @default(uuid())
-  userId     String
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  projectId  String
-  project    Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  role       ProjectRole @default(VIEWER)
-  
+  id        String      @id @default(uuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  role      ProjectRole @default(VIEWER)
+
   @@unique([userId, projectId])
   @@index([userId])
   @@index([projectId])
@@ -186,143 +196,143 @@ model ProjectInvitation {
   token     String      @unique
   expiresAt DateTime
   createdAt DateTime    @default(now())
-  
+
   @@unique([email, projectId])
   @@index([token])
 }
 
 model Project {
-  id          String   @id @default(uuid())
-  name        String
-  code        String   @unique // e.g., "PROJ"
-  description String?
-  isArchived    Boolean           @default(false)
-  accessType    ProjectAccessType @default(PUBLIC)
-  caseSequence  Int               @default(0)
-  createdAt     DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  
+  id           String            @id @default(uuid())
+  name         String
+  code         String            @unique // e.g., "PROJ"
+  description  String?
+  isArchived   Boolean           @default(false)
+  accessType   ProjectAccessType @default(PUBLIC)
+  caseSequence Int               @default(0)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
   // Integrations
-  githubOwner      String?
-  githubRepo       String?
-  githubToken      String?
-  githubWorkflowId String?
+  githubOwner       String?
+  githubRepo        String?
+  githubToken       String?
+  githubWorkflowId  String?
   msTeamsWebhookUrl String?
 
-  suites     TestSuite[]
-  testCases  TestCase[]
-  testRuns   TestRun[]
-  testPlans  TestPlan[]
-  members    ProjectMember[]
+  suites             TestSuite[]
+  testCases          TestCase[]
+  testRuns           TestRun[]
+  testPlans          TestPlan[]
+  members            ProjectMember[]
   projectInvitations ProjectInvitation[]
-  auditLogs  AuditLog[]
-  tags       Tag[]
-  attachments Attachment[]
-  customFields CustomField[] @relation("ProjectToCustomField")
-  environments Environment[]
-  milestones   Milestone[]
-  sharedSteps  SharedStep[]
-  pipelines    PipelineSchedule[]
-  groups       Group[] @relation("GroupProjects")
-  linkedIssues LinkedIssue[]
+  auditLogs          AuditLog[]
+  tags               Tag[]
+  attachments        Attachment[]
+  customFields       CustomField[]       @relation("ProjectToCustomField")
+  environments       Environment[]
+  milestones         Milestone[]
+  sharedSteps        SharedStep[]
+  pipelines          PipelineSchedule[]
+  groups             Group[]             @relation("GroupProjects")
+  linkedIssues       LinkedIssue[]
 
   @@index([code])
 }
 
 model TestSuite {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   title       String
   description String?
-  position    Int      @default(0)
-  
+  position    Int     @default(0)
+
   // Project Relation
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   // Self-relation for nested tree structure
-  parentId    String?
-  parent      TestSuite?  @relation("SuiteToSuite", fields: [parentId], references: [id], onDelete: Cascade)
-  children    TestSuite[] @relation("SuiteToSuite")
+  parentId String?
+  parent   TestSuite?  @relation("SuiteToSuite", fields: [parentId], references: [id], onDelete: Cascade)
+  children TestSuite[] @relation("SuiteToSuite")
 
-  testCases   TestCase[]
+  testCases TestCase[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([projectId])
 }
 
 model TestCase {
-  id               String           @id @default(uuid())
-  title            String
-  description      String?          @db.Text
-  preconditions    String?          @db.Text
-  postconditions   String?          @db.Text
-  severity         Severity         @default(NORMAL)
-  priority         Priority         @default(MEDIUM)
-  automationStatus AutomationStatus @default(MANUAL)
-  automationScript String?          @db.Text
-  lastVerificationLog String?       @db.Text
-  githubPrUrl      String?          @db.Text
-  jiraId           String?
-  requirementText  String?          @db.Text
-  isOutdated       Boolean          @default(false)
-  
+  id                  String           @id @default(uuid())
+  title               String
+  description         String?          @db.Text
+  preconditions       String?          @db.Text
+  postconditions      String?          @db.Text
+  severity            Severity         @default(NORMAL)
+  priority            Priority         @default(MEDIUM)
+  automationStatus    AutomationStatus @default(MANUAL)
+  automationScript    String?          @db.Text
+  lastVerificationLog String?          @db.Text
+  githubPrUrl         String?          @db.Text
+  jiraId              String?
+  requirementText     String?          @db.Text
+  isOutdated          Boolean          @default(false)
+
   // Relations
-  projectId        String
-  project          Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
-  suiteId          String?
-  suite            TestSuite?       @relation(fields: [suiteId], references: [id], onDelete: SetNull)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  authorId         String?
-  author           User?            @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  linkedIssues     LinkedIssue[]
+  suiteId String?
+  suite   TestSuite? @relation(fields: [suiteId], references: [id], onDelete: SetNull)
 
-  steps            TestStep[]
-  runResults       TestRunResult[]
-  tags             Tag[]
-  attachments      Attachment[]
-  testPlans        TestPlan[]      @relation("TestPlanToTestCase")
+  authorId     String?
+  author       User?         @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  linkedIssues LinkedIssue[]
 
-  customFields     Json?           // Stores custom field values
-  sequenceNumber   Int              @default(0)
+  steps       TestStep[]
+  runResults  TestRunResult[]
+  tags        Tag[]
+  attachments Attachment[]
+  testPlans   TestPlan[]      @relation("TestPlanToTestCase")
 
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  customFields   Json? // Stores custom field values
+  sequenceNumber Int   @default(0)
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, sequenceNumber])
   @@index([projectId])
   @@index([suiteId])
-  @@unique([projectId, sequenceNumber])
 }
 
 model Tag {
-  id        String     @id @default(uuid())
-  name      String
-  
+  id   String @id @default(uuid())
+  name String
+
   projectId String
-  project   Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
   testCases TestCase[]
 
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([name, projectId])
   @@index([projectId])
 }
 
 model TestStep {
-  id             String   @id @default(uuid())
-  action         String   @db.Text
-  expectedResult String?  @db.Text
-  position       Int      // To maintain order in UI
+  id             String  @id @default(uuid())
+  action         String  @db.Text
+  expectedResult String? @db.Text
+  position       Int // To maintain order in UI
 
-  caseId         String
-  testCase       TestCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  caseId   String
+  testCase TestCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
-  sharedStepId   String?
-  sharedStep     SharedStep? @relation(fields: [sharedStepId], references: [id], onDelete: SetNull)
+  sharedStepId String?
+  sharedStep   SharedStep? @relation(fields: [sharedStepId], references: [id], onDelete: SetNull)
 
   @@index([caseId])
 }
@@ -333,112 +343,112 @@ model TestRun {
   description String?
   status      TestRunStatus @default(ACTIVE)
   isPublic    Boolean       @default(false)
-  
-  projectId   String
-  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  authorId    String?
-  author      User?         @relation("RunAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  planId      String?
-  plan        TestPlan?     @relation(fields: [planId], references: [id], onDelete: SetNull)
+  authorId String?
+  author   User?   @relation("RunAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+
+  planId String?
+  plan   TestPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
 
   environmentId String?
   environment   Environment? @relation(fields: [environmentId], references: [id], onDelete: SetNull)
 
-  milestoneId   String?
-  milestone     Milestone?   @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+  milestoneId String?
+  milestone   Milestone? @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
 
-  reportUrl     String?      @db.Text
+  reportUrl String? @db.Text
 
-  results     TestRunResult[]
+  results TestRunResult[]
 
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([projectId])
 }
 
 model TestRunResult {
-  id           String           @id @default(uuid())
-  status       TestResultStatus @default(IN_PROGRESS)
-  timeSpent    Int?             // Duration in milliseconds
-  errorMessage String?          @db.Text
-  comment      String?          @db.Text
-  stepResults  Json?            // Array of step-level results
-  executionHistory Json?        // Array of past execution logs
+  id               String           @id @default(uuid())
+  status           TestResultStatus @default(IN_PROGRESS)
+  timeSpent        Int? // Duration in milliseconds
+  errorMessage     String?          @db.Text
+  comment          String?          @db.Text
+  stepResults      Json? // Array of step-level results
+  executionHistory Json? // Array of past execution logs
 
-  runId        String
-  testRun      TestRun          @relation(fields: [runId], references: [id], onDelete: Cascade)
+  runId   String
+  testRun TestRun @relation(fields: [runId], references: [id], onDelete: Cascade)
 
-  caseId       String
-  testCase     TestCase         @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  caseId   String
+  testCase TestCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
-  assigneeId   String?
-  assignee     User?            @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+  assigneeId String?
+  assignee   User?   @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
 
   attachments  Attachment[]
   linkedIssues LinkedIssue[]
 
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
+  @@unique([runId, caseId])
   @@index([runId])
   @@index([caseId])
-  @@unique([runId, caseId])
 }
 
 model Attachment {
-  id           String   @id @default(uuid())
+  id           String @id @default(uuid())
   filename     String
   originalName String
   mimeType     String
   size         Int
   url          String
 
-  projectId    String
-  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  testCaseId   String?
-  testCase     TestCase? @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+  testCaseId String?
+  testCase   TestCase? @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
 
-  resultId     String?
-  runResult    TestRunResult? @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  resultId  String?
+  runResult TestRunResult? @relation(fields: [resultId], references: [id], onDelete: Cascade)
 
-  createdAt    DateTime @default(now())
-  
+  createdAt DateTime @default(now())
+
   @@index([projectId])
 }
 
 model TestPlan {
-  id          String     @id @default(uuid())
+  id          String  @id @default(uuid())
   title       String
-  description String?    @db.Text
-  
-  projectId   String
-  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
-  testCases   TestCase[] @relation("TestPlanToTestCase")
-  testRuns    TestRun[]
+  description String? @db.Text
 
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  testCases TestCase[] @relation("TestPlanToTestCase")
+  testRuns  TestRun[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([projectId])
 }
 
 model WorkspaceRole {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   title       String
-  description String?  @db.Text
-  isSystem    Boolean  @default(false)
-  isDefault   Boolean  @default(false)
-  permissions Json     // Array of permission IDs
+  description String? @db.Text
+  isSystem    Boolean @default(false)
+  isDefault   Boolean @default(false)
+  permissions Json // Array of permission IDs
 
-  users       User[]
+  users User[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Invitation {
@@ -447,8 +457,8 @@ model Invitation {
   firstName String?
   lastName  String?
   token     String   @unique
-  roleId    String?  // Reference to WorkspaceRole
-  roleTitle String?  // Store the custom title from the form
+  roleId    String? // Reference to WorkspaceRole
+  roleTitle String? // Store the custom title from the form
   status    String   @default("PENDING") // PENDING, ACCEPTED, EXPIRED
   expiresAt DateTime
 
@@ -461,74 +471,74 @@ model Invitation {
 // --- Dynamic Fields ---
 
 model CustomField {
-  id          String    @id @default(uuid())
-  name        String
-  entity      String    @default("TestCase")
-  type        FieldType
-  options     Json?     // Used for Select/Multi-select options
-  isRequired  Boolean   @default(false)
-  isSystem    Boolean   @default(false)
-  order       Int       @default(0)
-  isGlobal    Boolean   @default(true) // Applies to all projects if true
-  
-  projects    Project[] @relation("ProjectToCustomField")
-  
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         String    @id @default(uuid())
+  name       String
+  entity     String    @default("TestCase")
+  type       FieldType
+  options    Json? // Used for Select/Multi-select options
+  isRequired Boolean   @default(false)
+  isSystem   Boolean   @default(false)
+  order      Int       @default(0)
+  isGlobal   Boolean   @default(true) // Applies to all projects if true
+
+  projects Project[] @relation("ProjectToCustomField")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // --- Environments & Milestones ---
 
 model Environment {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   title       String
   description String?
   slug        String
 
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
-  testRuns    TestRun[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  testRuns TestRun[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([projectId, slug])
   @@index([projectId])
 }
 
 model Milestone {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   title       String
-  description String?  @db.Text
-  status      String   @default("OPEN") // OPEN, COMPLETED
+  description String?   @db.Text
+  status      String    @default("OPEN") // OPEN, COMPLETED
   dueDate     DateTime?
-  
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
-  testRuns    TestRun[]
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  testRuns TestRun[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([projectId])
 }
 
 model SharedStep {
-  id             String   @id @default(uuid())
+  id             String  @id @default(uuid())
   title          String
-  action         String   @db.Text
-  expectedResult String?  @db.Text
-  
-  projectId      String
-  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
-  testSteps      TestStep[]
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
+  action         String  @db.Text
+  expectedResult String? @db.Text
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  testSteps TestStep[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([projectId])
 }
 
@@ -538,33 +548,34 @@ model WorkspaceSetting {
   value     String   @db.Text
   updatedAt DateTime @updatedAt
 }
+
 model PipelineSchedule {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   title       String
   description String?
-  cron        String   // e.g. "0 0 * * *"
-  isActive    Boolean  @default(true)
-  
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  cron        String // e.g. "0 0 * * *"
+  isActive    Boolean @default(true)
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([projectId])
 }
 
 model AuditLog {
-  id          String   @id @default(uuid())
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  action      String
-  entity      String
-  entityId    String?  
-  details     String?  @db.Text
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  entity    String
+  entityId  String?
+  details   String?  @db.Text
+  createdAt DateTime @default(now())
 
   @@index([projectId, createdAt])
 }
@@ -572,7 +583,7 @@ model AuditLog {
 model DeploymentLog {
   id            String           @id @default(uuid())
   status        DeploymentStatus @default(PENDING)
-  trigger       String           // e.g., 'GitHub Webhook', 'Manual'
+  trigger       String // e.g., 'GitHub Webhook', 'Manual'
   logs          String?          @db.Text
   commitHash    String?
   commitMessage String?
@@ -580,4 +591,20 @@ model DeploymentLog {
   updatedAt     DateTime         @updatedAt
 
   @@index([createdAt])
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  recipientId String
+  recipient   User             @relation("NotificationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  actorId     String?
+  actor       User?            @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+  type        NotificationType
+  entityId    String? // e.g., Case ID, Run ID
+  title       String
+  message     String?          @db.Text
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+
+  @@index([recipientId, isRead, createdAt])
 }

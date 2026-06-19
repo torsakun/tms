@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Bell, ChevronDown, Zap, Search, User, LogOut } from "lucide-react";
 import { CommandPalette } from "@/components/ui/CommandPalette";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import NotificationDropdown from "@/components/layout/NotificationDropdown";
 
 const NAV_LINKS = [
   { name: "Projects", href: "/projects" },
@@ -108,12 +109,7 @@ export function TopNav() {
             </kbd>
           </button>
 
-          <button className="relative w-9 h-9 rounded-xl flex items-center justify-center text-text-muted hover:text-text-main hover:bg-surface-hover transition-all">
-            <Bell size={18} />
-            <span
-              className="absolute top-2 right-2 w-2 h-2 rounded-full ring-2 ring-surface bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.6)]"
-            />
-          </button>
+          <NotificationDropdown />
 
           <div className="relative">
             <button
