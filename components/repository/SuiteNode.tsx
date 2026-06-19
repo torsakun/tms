@@ -267,7 +267,7 @@ export function SuiteNode({
         "flex flex-col",
         depth > 0 && "ml-4 mt-1",
         depth === 0 &&
-          "rounded-xl border border-border shadow-sm bg-surface overflow-hidden",
+          "rounded-2xl border border-border/80 shadow-premium bg-surface overflow-hidden",
       )}
     >
       <div

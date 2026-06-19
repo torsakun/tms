@@ -21,22 +21,22 @@ export function WidgetCard({
 }) {
   return (
     <section
-      className={`flex flex-col rounded-2xl ${
+      className={`flex flex-col rounded-2xl transition-all duration-300 ${
         borderless
           ? tinted
-            ? "bg-surface-hover shadow-sm"
+            ? "bg-surface-hover/50 shadow-sm"
             : "bg-surface shadow-sm"
-          : "border border-border bg-surface shadow-sm"
-      } p-6 ${className}`}
+          : "border border-border/80 bg-surface shadow-premium hover:-translate-y-1 hover:border-border"
+      } p-6 relative overflow-hidden group ${className}`}
     >
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-5 relative z-10">
         <div className="min-w-0">
-          <h3 className="text-[15px] font-bold text-text-main truncate tracking-tight">{title}</h3>
+          <h3 className="text-[15px] font-extrabold text-text-main truncate tracking-tight">{title}</h3>
           {hint && <p className="text-[12px] font-medium text-text-muted mt-1">{hint}</p>}
         </div>
-        {right}
+        <div className="relative z-10">{right}</div>
       </div>
-      <div className="flex-1 min-h-0">{children}</div>
+      <div className="flex-1 min-h-0 relative z-10">{children}</div>
     </section>
   );
 }
@@ -211,7 +211,7 @@ export function KpiRibbon({
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-2">
       {/* Massive Hero Block for Pass Rate */}
-      <div className={`md:col-span-5 flex flex-col justify-between rounded-3xl border shadow-lg p-8 md:p-10 ${heroClasses}`}>
+      <div className={`md:col-span-5 flex flex-col justify-between rounded-3xl border shadow-premium p-8 md:p-10 ${heroClasses}`}>
         <div>
           <div className="text-[14px] font-bold tracking-wide uppercase opacity-80 mb-2">
             Global Pass Rate
@@ -239,7 +239,7 @@ export function KpiRibbon({
       </div>
 
       {/* Supporting Metrics Bento */}
-      <div className="md:col-span-7 grid grid-cols-2 rounded-3xl bg-surface border border-border shadow-sm divide-x divide-y divide-border overflow-hidden">
+      <div className="md:col-span-7 grid grid-cols-2 rounded-3xl bg-surface border border-border/80 shadow-premium divide-x divide-y divide-border/80 overflow-hidden">
         <Cell label="Test runs" value={runs.toLocaleString()} sub={`${activeRuns} active in queue`} />
         <Cell label="Automation" value={`${automation.toFixed(0)}%`} sub={`${automatedCount.toLocaleString()} automated`} />
         <Cell label="Test cases" value={cases.toLocaleString()} sub={`${projects} projects tracked`} />

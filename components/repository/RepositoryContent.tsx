@@ -287,7 +287,7 @@ export function RepositoryContent({
           className="flex items-center justify-between px-6 py-3 bg-surface border-b shrink-0"
           style={{
             borderColor: "var(--border-color)",
-            boxShadow: "0 4px 20px rgba(79,70,229,0.30)",
+            boxShadow: "0 4px 15px rgba(0,0,0,0.03)",
           }}
         >
           {/* Left: title + counts */}
@@ -562,7 +562,7 @@ export function RepositoryContent({
 
       {/* Slide-over Detail Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-[55vw] min-w-[600px] bg-surface shadow-[-10px_0_30px_rgba(0,0,0,0.1)] border-l transform transition-transform duration-300 ease-in-out z-[60] flex flex-col ${activeTestCaseId ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 h-full w-[55vw] min-w-[600px] bg-surface shadow-[-10px_0_40px_rgba(0,0,0,0.08)] border-l transform transition-transform duration-300 ease-in-out z-[60] flex flex-col ${activeTestCaseId ? "translate-x-0" : "translate-x-full"}`}
         style={{ borderColor: "var(--border-color)" }}
       >
         {activeTestCase && (
@@ -676,7 +676,7 @@ export function RepositoryContent({
                   </button>
                 </div>
               )}
-              <div className="bg-surface p-5 rounded-xl border border-border shadow-sm">
+              <div className="bg-surface p-5 rounded-2xl border border-border/80 shadow-sm">
                 <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
                   Description
                 </h3>
@@ -687,7 +687,7 @@ export function RepositoryContent({
                 </div>
               </div>
 
-              <div className="bg-surface p-5 rounded-xl border border-border shadow-sm">
+              <div className="bg-surface p-5 rounded-2xl border border-border/80 shadow-sm">
                 <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
                   Pre-conditions
                 </h3>
@@ -704,7 +704,7 @@ export function RepositoryContent({
                 </div>
               </div>
 
-              <div className="bg-surface p-5 rounded-xl border border-border shadow-sm">
+              <div className="bg-surface p-5 rounded-2xl border border-border/80 shadow-sm">
                 <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
                   Post-conditions
                 </h3>
@@ -723,7 +723,7 @@ export function RepositoryContent({
 
               {activeTestCase.customFields &&
                 Object.keys(activeTestCase.customFields).length > 0 && (
-                  <div className="bg-surface p-5 rounded-xl border border-border shadow-sm">
+                  <div className="bg-surface p-5 rounded-2xl border border-border/80 shadow-sm">
                     <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-4">
                       Custom Fields
                     </h3>
@@ -754,7 +754,7 @@ export function RepositoryContent({
                   </div>
                 )}
 
-              <div className="bg-surface p-5 rounded-xl border border-border shadow-sm">
+              <div className="bg-surface p-5 rounded-2xl border border-border/80 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider">
                     Steps

@@ -339,7 +339,7 @@ export default function CreateRolePage() {
 
       <div className="space-y-6">
         {/* Role Settings Card */}
-        <div className="bg-surface rounded-xl border border-border shadow-sm p-6">
+        <div className="bg-surface rounded-2xl border border-border/80 shadow-premium p-6 animate-in zoom-in-95 duration-200">
           <h2 className="text-sm font-bold text-text-main uppercase tracking-wider mb-4">
             Role settings
           </h2>
@@ -354,7 +354,7 @@ export default function CreateRolePage() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. QA Lead"
-                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg bg-surface text-text-main placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all"
+                className="w-full px-4 py-2.5 text-[13px] font-semibold border border-border/80 rounded-xl bg-surface text-text-main placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40"
               />
             </div>
 
@@ -367,7 +367,7 @@ export default function CreateRolePage() {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
                 placeholder="Describe what this role can do…"
-                className="w-full px-3 py-2.5 text-sm border border-border rounded-lg bg-surface text-text-main placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 resize-none transition-all"
+                className="w-full px-4 py-2.5 text-[13px] font-semibold border border-border/80 rounded-xl bg-surface text-text-main placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary resize-none transition-all shadow-inner hover:border-text-muted/40"
               />
             </div>
 
@@ -389,7 +389,7 @@ export default function CreateRolePage() {
         </div>
 
         {/* Permissions Card */}
-        <div className="bg-surface rounded-xl border border-border shadow-sm">
+        <div className="bg-surface rounded-2xl border border-border/80 shadow-premium animate-in zoom-in-95 duration-200">
           <div className="px-6 py-4 border-b border-border">
             <h2 className="text-sm font-bold text-text-main uppercase tracking-wider">
               Access rights
@@ -399,7 +399,7 @@ export default function CreateRolePage() {
             </p>
           </div>
 
-          <div className="divide-y divide-border">
+          <div className="divide-y divide-border/80">
             {PERMISSION_BLOCKS.map((block) => {
               const ruleIds = block.rules.map((r) => r.id);
               const allChecked = ruleIds.every((id) => selectedPermissions[id]);
@@ -407,7 +407,7 @@ export default function CreateRolePage() {
 
               return (
                 <div key={block.id}>
-                  <div className="px-6 py-3 bg-surface-hover/60 flex items-center gap-3">
+                  <div className="px-6 py-4 bg-surface-hover/60 flex items-center gap-3">
                     <input
                       type="checkbox"
                       checked={allChecked}
@@ -426,7 +426,7 @@ export default function CreateRolePage() {
                       </span>
                     </div>
                   </div>
-                  <div className="divide-y divide-slate-50">
+                  <div className="divide-y divide-border/40">
                     {block.rules.map((rule) => (
                       <label
                         key={rule.id}
@@ -460,7 +460,7 @@ export default function CreateRolePage() {
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-5 py-2.5 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
+            className="px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-premium hover:-translate-y-0.5 transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-2 disabled:hover:translate-y-0 disabled:hover:shadow-none"
             style={{ background: "var(--primary)" }}
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}
@@ -468,7 +468,7 @@ export default function CreateRolePage() {
           </button>
           <Link
             href="/workspace/roles"
-            className="px-5 py-2.5 text-sm font-semibold text-text-muted bg-surface-hover hover:bg-slate-200 rounded-lg transition-colors"
+            className="px-5 py-2.5 text-[13px] font-bold text-text-muted bg-surface-hover hover:bg-surface-hover/80 rounded-xl transition-colors"
           >
             Cancel
           </Link>

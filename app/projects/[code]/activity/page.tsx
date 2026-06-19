@@ -177,7 +177,7 @@ export default function AuditLogsPage({
 
       {/* Empty state */}
       {filtered.length === 0 && (
-        <div className="bg-surface rounded-2xl border border-border shadow-sm py-16 text-center">
+        <div className="bg-surface rounded-2xl border border-border/80 shadow-premium py-16 text-center">
           <div className="w-12 h-12 rounded-xl bg-surface-hover flex items-center justify-center mx-auto mb-3">
             <Activity size={20} className="text-slate-300" />
           </div>
@@ -201,7 +201,7 @@ export default function AuditLogsPage({
               <div className="flex-1 h-px bg-surface-hover" />
             </div>
 
-            <div className="bg-surface rounded-2xl border border-border shadow-sm overflow-hidden">
+            <div className="bg-surface rounded-2xl border border-border/80 shadow-premium overflow-hidden">
               {items.map((log, i) => {
                 const cfg = ACTION_CONFIG[log.action] ?? {
                   label: log.action.toLowerCase(),
@@ -217,7 +217,7 @@ export default function AuditLogsPage({
                 return (
                   <div
                     key={log.id}
-                    className={`flex items-start gap-4 px-5 py-4 hover:bg-surface-hover/70 transition-colors ${i > 0 ? "border-t border-border" : ""}`}
+                    className={`flex items-start gap-4 px-5 py-4 hover:bg-surface-hover/70 transition-colors ${i > 0 ? "border-t border-border/50" : ""}`}
                   >
                     {/* Avatar */}
                     <div

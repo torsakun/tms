@@ -339,7 +339,7 @@ export function ProjectList({
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-text-main text-sm group-hover:text-indigo-600 transition-colors">
+                            <span className="font-bold text-text-main text-[15px] group-hover:text-indigo-600 transition-colors">
                               {project.name}
                             </span>
                             {project.isArchived && (
@@ -349,15 +349,15 @@ export function ProjectList({
                             )}
                           </div>
                           <div className="flex items-center gap-1.5 mt-1">
-                            <span className="text-[11px] font-semibold text-text-muted">
+                            <span className="text-[13px] font-medium text-text-muted">
                               {project.testCasesCount} cases
                             </span>
                             <span className="text-slate-300">•</span>
-                            <span className="text-[11px] font-semibold text-text-muted">
+                            <span className="text-[13px] font-medium text-text-muted">
                               {project.suitesCount} suites
                             </span>
                             <span className="text-slate-300">•</span>
-                            <span className="text-[11px] font-semibold text-text-muted">
+                            <span className="text-[13px] font-medium text-text-muted">
                               {timeAgo(project.updatedAt)}
                             </span>
                           </div>
@@ -403,7 +403,7 @@ export function ProjectList({
                           }).map((_, i) => (
                             <div
                               key={i}
-                              className="w-7 h-7 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center text-[10px] font-black text-white shadow-xs"
+                              className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-900 flex items-center justify-center text-[11px] font-black text-white shadow-xs"
                               style={{
                                 background:
                                   PROJECT_PALETTES[i % PROJECT_PALETTES.length].gradient ||
@@ -414,7 +414,7 @@ export function ProjectList({
                             </div>
                           ))}
                           {project.teamMembers > 3 && (
-                            <div className="w-7 h-7 rounded-full border-2 border-white dark:border-slate-900 bg-surface-hover flex items-center justify-center text-[10px] font-bold text-text-muted shadow-xs">
+                            <div className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-900 bg-surface-hover flex items-center justify-center text-[11px] font-bold text-text-muted shadow-xs">
                               +{project.teamMembers - 3}
                             </div>
                           )}
@@ -640,7 +640,7 @@ export function ProjectList({
                         {project.testRunsCount > 0 ? (
                           <Link
                             href={`/projects/${project.code}/runs`}
-                            className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
+                            className="inline-flex items-center gap-1.5 text-[13px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
                           >
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" />
                             {project.activeRunsCount} active{" "}

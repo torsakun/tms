@@ -62,7 +62,7 @@ export default async function RunsPage({
   }));
 
   return (
-    <div className="flex flex-col flex-1 bg-[#f0f2f8] transition-colors min-h-0 overflow-y-auto">
+    <div className="flex flex-col flex-1 bg-background transition-colors min-h-0 overflow-y-auto">
       <div className="max-w-[1400px] mx-auto w-full px-6 py-6 space-y-5">
         {/* Page header */}
         <div className="flex items-center justify-between">
@@ -79,10 +79,9 @@ export default async function RunsPage({
         {/* Stat cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div
-            className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform"
+            className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform shadow-premium"
             style={{
               background: "var(--primary)",
-              boxShadow: "0 4px 20px rgba(79,70,229,0.30)",
             }}
           >
             <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-surface/10" />
@@ -90,7 +89,7 @@ export default async function RunsPage({
               <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
                 Total Runs
               </span>
-              <div className="w-8 h-8 rounded-lg bg-surface/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-surface/20 flex items-center justify-center shadow-inner">
                 <PlayCircle size={15} />
               </div>
             </div>
@@ -100,10 +99,9 @@ export default async function RunsPage({
           </div>
 
           <div
-            className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform"
+            className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform shadow-premium"
             style={{
               background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
-              boxShadow: "0 4px 20px rgba(124,58,237,0.30)",
             }}
           >
             <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-surface/10" />
@@ -111,7 +109,7 @@ export default async function RunsPage({
               <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
                 Active Runs
               </span>
-              <div className="w-8 h-8 rounded-lg bg-surface/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-surface/20 flex items-center justify-center shadow-inner">
                 <Activity size={15} />
               </div>
             </div>
@@ -121,10 +119,9 @@ export default async function RunsPage({
           </div>
 
           <div
-            className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform"
+            className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform shadow-premium"
             style={{
               background: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
-              boxShadow: "0 4px 20px rgba(5,150,105,0.30)",
             }}
           >
             <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-surface/10" />
@@ -132,7 +129,7 @@ export default async function RunsPage({
               <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
                 Pass Rate
               </span>
-              <div className="w-8 h-8 rounded-lg bg-surface/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-surface/20 flex items-center justify-center shadow-inner">
                 <CheckCircle2 size={15} />
               </div>
             </div>
@@ -148,10 +145,9 @@ export default async function RunsPage({
           </div>
 
           <div
-            className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform"
+            className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform shadow-premium"
             style={{
               background: "linear-gradient(135deg, #db2777 0%, #f43f5e 100%)",
-              boxShadow: "0 4px 20px rgba(219,39,119,0.30)",
             }}
           >
             <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-surface/10" />
@@ -159,7 +155,7 @@ export default async function RunsPage({
               <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
                 Fail Rate
               </span>
-              <div className="w-8 h-8 rounded-lg bg-surface/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-surface/20 flex items-center justify-center shadow-inner">
                 <AlertCircle size={15} />
               </div>
             </div>

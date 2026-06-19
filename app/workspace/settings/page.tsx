@@ -93,7 +93,7 @@ export default function WorkspaceSettingsPage() {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="bg-primary hover:bg-primary-hover text-primary-foreground px-5 py-2 rounded-md text-sm font-bold flex items-center transition-all shadow-sm disabled:opacity-50 disabled:shadow-none"
+          className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold hover:bg-primary-hover transition-all duration-300 flex items-center shadow-premium hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
         >
           {saving ? (
             "Saving..."
@@ -121,8 +121,8 @@ export default function WorkspaceSettingsPage() {
             </div>
           )}
 
-          <section className="bg-surface border border-border rounded-xl overflow-hidden shadow-sm">
-            <div className="px-6 py-4 border-b border-border bg-background/50 flex items-center">
+          <section className="bg-surface border border-border/80 rounded-2xl overflow-hidden shadow-premium animate-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-border/80 bg-background/30 flex items-center">
               <Sparkles className="text-amber-500 mr-2" size={18} />
               <h2 className="text-lg font-bold text-text-main">
                 AI Integrations
@@ -143,7 +143,7 @@ export default function WorkspaceSettingsPage() {
                   value={openaiKey}
                   onChange={(e) => setOpenaiKey(e.target.value)}
                   placeholder="sk-..."
-                  className="w-full px-4 py-2.5 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
+                  className="w-full px-4 py-2.5 bg-surface-hover/50 border border-border/80 text-text-main rounded-xl text-[13px] font-semibold focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner placeholder:text-text-muted/50 hover:border-text-muted/40"
                 />
                 <p className="text-xs text-text-muted mt-1">
                   Used for GPT-4o models.
@@ -159,7 +159,7 @@ export default function WorkspaceSettingsPage() {
                   value={geminiKey}
                   onChange={(e) => setGeminiKey(e.target.value)}
                   placeholder="AIzaSy..."
-                  className="w-full px-4 py-2.5 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
+                  className="w-full px-4 py-2.5 bg-surface-hover/50 border border-border/80 text-text-main rounded-xl text-[13px] font-semibold focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner placeholder:text-text-muted/50 hover:border-text-muted/40"
                 />
                 <p className="text-xs text-text-muted mt-1">
                   Used for Gemini 1.5 Pro models.
@@ -175,7 +175,7 @@ export default function WorkspaceSettingsPage() {
                   value={claudeKey}
                   onChange={(e) => setClaudeKey(e.target.value)}
                   placeholder="sk-ant-..."
-                  className="w-full px-4 py-2.5 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
+                  className="w-full px-4 py-2.5 bg-surface-hover/50 border border-border/80 text-text-main rounded-xl text-[13px] font-semibold focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner placeholder:text-text-muted/50 hover:border-text-muted/40"
                 />
                 <p className="text-xs text-text-muted mt-1">
                   Used for Claude 3.5 Sonnet models.
@@ -184,8 +184,8 @@ export default function WorkspaceSettingsPage() {
             </div>
           </section>
 
-          <section className="bg-surface border border-border rounded-xl overflow-hidden shadow-sm">
-            <div className="px-6 py-4 border-b border-border bg-background/50 flex items-center">
+          <section className="bg-surface border border-border/80 rounded-2xl overflow-hidden shadow-premium animate-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-border/80 bg-background/30 flex items-center">
               <svg
                 className="w-5 h-5 text-primary mr-2"
                 viewBox="0 0 24 24"
@@ -212,7 +212,7 @@ export default function WorkspaceSettingsPage() {
                   value={jiraDomain}
                   onChange={(e) => setJiraDomain(e.target.value)}
                   placeholder="e.g. company.atlassian.net"
-                  className="w-full px-4 py-2.5 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
+                  className="w-full px-4 py-2.5 bg-surface-hover/50 border border-border/80 text-text-main rounded-xl text-[13px] font-semibold focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner placeholder:text-text-muted/50 hover:border-text-muted/40"
                 />
               </div>
 
@@ -225,7 +225,7 @@ export default function WorkspaceSettingsPage() {
                   value={jiraEmail}
                   onChange={(e) => setJiraEmail(e.target.value)}
                   placeholder="your.email@company.com"
-                  className="w-full px-4 py-2.5 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
+                  className="w-full px-4 py-2.5 bg-surface-hover/50 border border-border/80 text-text-main rounded-xl text-[13px] font-semibold focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner placeholder:text-text-muted/50 hover:border-text-muted/40"
                 />
               </div>
 
@@ -238,7 +238,7 @@ export default function WorkspaceSettingsPage() {
                   value={jiraToken}
                   onChange={(e) => setJiraToken(e.target.value)}
                   placeholder="ATATT3xFf..."
-                  className="w-full px-4 py-2.5 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
+                  className="w-full px-4 py-2.5 bg-surface-hover/50 border border-border/80 text-text-main rounded-xl text-[13px] font-semibold focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner placeholder:text-text-muted/50 hover:border-text-muted/40"
                 />
                 <p className="text-xs text-text-muted mt-1">
                   Generate an API token from your Atlassian account settings.
@@ -254,7 +254,7 @@ export default function WorkspaceSettingsPage() {
                   value={jiraProjectKey}
                   onChange={(e) => setJiraProjectKey(e.target.value)}
                   placeholder="e.g. QA"
-                  className="w-full px-4 py-2.5 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
+                  className="w-full px-4 py-2.5 bg-surface-hover/50 border border-border/80 text-text-main rounded-xl focus:ring-2 focus:ring-primary/20 focus:bg-background outline-none transition-all shadow-2xs placeholder:text-text-muted/50"
                 />
                 <p className="text-xs text-text-muted mt-1">
                   Default project where AI-drafted bug reports will be created
@@ -264,8 +264,8 @@ export default function WorkspaceSettingsPage() {
             </div>
           </section>
 
-          <section className="bg-surface border border-border rounded-xl overflow-hidden shadow-sm">
-            <div className="px-6 py-4 border-b border-border bg-background/50 flex items-center">
+          <section className="bg-surface border border-border/60 rounded-2xl overflow-hidden shadow-premium">
+            <div className="px-6 py-4 border-b border-border/50 bg-background/30 flex items-center">
               <svg
                 className="w-5 h-5 text-emerald-500 mr-2"
                 viewBox="0 0 24 24"

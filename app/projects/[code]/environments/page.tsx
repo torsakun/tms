@@ -52,7 +52,7 @@ export default function EnvironmentsPage() {
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary hover:bg-primary-hover text-primary-foreground px-4 py-2 rounded-md text-sm font-bold flex items-center transition-colors shadow-sm"
+          className="bg-primary hover:bg-primary-hover text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold flex items-center transition-all duration-300 shadow-premium hover:-translate-y-0.5"
         >
           <Plus size={16} className="mr-2" /> Create environment
         </button>
@@ -60,7 +60,7 @@ export default function EnvironmentsPage() {
 
       <main className="flex-1 overflow-y-auto p-8">
         {environments.length === 0 ? (
-          <div className="text-center py-20 bg-surface rounded-lg border border-border border-dashed">
+          <div className="text-center py-20 bg-surface rounded-2xl border-2 border-border border-dashed shadow-sm">
             <Box
               size={48}
               className="mx-auto text-text-muted opacity-50 mb-4"
@@ -74,20 +74,20 @@ export default function EnvironmentsPage() {
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-primary hover:bg-primary-hover text-primary-foreground px-4 py-2 rounded-md text-sm font-bold transition-colors shadow-sm"
+              className="bg-primary hover:bg-primary-hover text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-300 shadow-premium hover:-translate-y-0.5"
             >
               Create environment
             </button>
           </div>
         ) : (
-          <div className="bg-surface rounded-lg border border-border overflow-hidden">
+          <div className="bg-surface rounded-2xl shadow-premium border border-border/80 overflow-hidden">
             <table className="w-full text-left text-sm">
               <thead className="bg-background/50 border-b border-border text-text-muted">
                 <tr>
-                  <th className="px-6 py-3 font-medium">Title</th>
-                  <th className="px-6 py-3 font-medium">Slug</th>
-                  <th className="px-6 py-3 font-medium">Description</th>
-                  <th className="px-6 py-3 font-medium text-right">Actions</th>
+                  <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">Title</th>
+                  <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">Slug</th>
+                  <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">Description</th>
+                  <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -123,8 +123,8 @@ export default function EnvironmentsPage() {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface w-[500px] rounded-lg shadow-xl overflow-hidden border border-border animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-background">
+          <div className="bg-surface w-[500px] rounded-2xl shadow-premium overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200">
+            <div className="px-6 py-5 border-b border-border/80 flex justify-between items-center bg-surface-hover/50">
               <h3 className="text-lg font-bold text-text-main">
                 Create environment
               </h3>
@@ -140,7 +140,7 @@ export default function EnvironmentsPage() {
             <form onSubmit={handleSubmit}>
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-text-main mb-1">
+                  <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
                     Title <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -148,30 +148,30 @@ export default function EnvironmentsPage() {
                     required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full bg-background border border-border text-text-main rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
+                    className="w-full bg-background border border-border/80 text-text-main rounded-xl px-4 py-2.5 text-[13px] font-semibold focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40"
                     placeholder="e.g. Production"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-main mb-1">
+                  <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
                     Slug
                   </label>
                   <input
                     type="text"
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
-                    className="w-full bg-background border border-border text-text-main rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
+                    className="w-full bg-background border border-border/80 text-text-main rounded-xl px-4 py-2.5 text-[13px] font-semibold focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40"
                     placeholder="e.g. prod (optional)"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-main mb-1">
+                  <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
                     Description
                   </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full bg-background border border-border text-text-main rounded-md px-3 py-2 text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
+                    className="w-full bg-background border border-border/80 text-text-main rounded-xl px-4 py-2.5 text-[13px] font-semibold min-h-[100px] resize-none focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40"
                     placeholder="Brief description of the environment..."
                   />
                 </div>
@@ -180,13 +180,13 @@ export default function EnvironmentsPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-md border border-border text-sm font-medium hover:bg-surface-hover text-text-main transition-colors"
+                  className="px-5 py-2.5 rounded-xl border border-border/80 text-[13px] font-bold hover:border-text-muted/40 hover:bg-surface-hover text-text-main transition-all shadow-sm"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-md bg-primary hover:bg-primary-hover text-primary-foreground text-sm font-medium shadow-sm transition-all"
+                  className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-[13px] font-bold shadow-premium transition-all duration-300 hover:-translate-y-0.5"
                 >
                   Create
                 </button>

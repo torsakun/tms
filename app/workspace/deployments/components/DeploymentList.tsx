@@ -98,8 +98,8 @@ export default function DeploymentList({
   );
 
   return (
-    <div className="bg-surface border border-border rounded-lg shadow-sm">
-      <div className="p-4 border-b border-border flex justify-between items-center">
+    <div className="bg-surface border border-border/80 rounded-2xl shadow-premium animate-in zoom-in-95 duration-200">
+      <div className="px-6 py-4 border-b border-border/80 flex justify-between items-center">
         <h2 className="font-semibold text-text-main">Recent Deployments</h2>
         <div className="flex gap-2">
           <button
@@ -112,7 +112,7 @@ export default function DeploymentList({
           <button
             onClick={triggerDeployment}
             disabled={isTriggering || activeDeployment}
-            className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover disabled:bg-blue-400 text-white text-sm font-medium rounded-md transition-colors shadow-sm"
+            className="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-hover disabled:bg-blue-400 text-white text-[13px] font-bold rounded-xl transition-all duration-300 shadow-premium hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:hover:shadow-none"
           >
             {isTriggering ? (
               <Loader2 size={16} className="animate-spin" />
@@ -127,7 +127,7 @@ export default function DeploymentList({
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-surface-hover/50 border-b border-border">
+            <tr className="bg-surface-hover/70 border-b border-border/80">
               <th className="px-4 py-3 text-xs font-bold text-text-muted uppercase tracking-wider">
                 Status
               </th>
@@ -145,7 +145,7 @@ export default function DeploymentList({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
+          <tbody className="divide-y divide-border/80">
             {deployments.length === 0 ? (
               <tr>
                 <td

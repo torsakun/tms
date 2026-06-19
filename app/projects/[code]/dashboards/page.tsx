@@ -138,8 +138,8 @@ export default async function ProjectOverviewPage({
     severityCounts.find((s) => s.severity === sev)?.count || 0;
 
   return (
-    <div className="flex flex-col flex-1 bg-[#f0f2f8] min-h-0 overflow-y-auto">
-      <div className="max-w-[1200px] mx-auto w-full px-6 py-6 space-y-6">
+    <div className="flex flex-col flex-1 bg-background min-h-0 overflow-y-auto">
+      <div className="max-w-[1200px] mx-auto w-full px-8 py-8 space-y-8">
         {/* Page header */}
         <div className="flex items-center justify-between">
           <div>
@@ -158,7 +158,7 @@ export default async function ProjectOverviewPage({
           </div>
           <Link
             href={`/projects/${code}/settings`}
-            className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-semibold text-text-muted bg-surface border border-border hover:bg-surface-hover shadow-sm transition-all"
+            className="inline-flex items-center gap-2 h-9 px-5 rounded-xl text-[13px] font-bold text-text-muted bg-surface border border-border/80 hover:bg-surface-hover shadow-inner hover:-translate-y-0.5 duration-300 transition-all"
           >
             <Settings size={15} />
             Settings
@@ -179,7 +179,7 @@ export default async function ProjectOverviewPage({
               <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
                 Test Cases
               </span>
-              <div className="w-8 h-8 rounded-lg bg-surface/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-surface/20 flex items-center justify-center shadow-inner">
                 <FileText size={15} />
               </div>
             </div>
@@ -208,7 +208,7 @@ export default async function ProjectOverviewPage({
               <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
                 Test Suites
               </span>
-              <div className="w-8 h-8 rounded-lg bg-surface/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-surface/20 flex items-center justify-center shadow-inner">
                 <Folder size={15} />
               </div>
             </div>
@@ -229,7 +229,7 @@ export default async function ProjectOverviewPage({
               <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
                 Total Runs
               </span>
-              <div className="w-8 h-8 rounded-lg bg-surface/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-surface/20 flex items-center justify-center shadow-inner">
                 <PlayCircle size={15} />
               </div>
             </div>
@@ -258,7 +258,7 @@ export default async function ProjectOverviewPage({
               <span className="text-[10px] font-bold uppercase tracking-widest text-white/70">
                 Active Runs
               </span>
-              <div className="w-8 h-8 rounded-lg bg-surface/20 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-surface/20 flex items-center justify-center shadow-inner">
                 <Activity size={15} />
               </div>
             </div>
@@ -275,10 +275,10 @@ export default async function ProjectOverviewPage({
         </div>
 
         {/* Middle row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Severity breakdown */}
-          <div className="bg-surface rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col">
-            <div className="px-6 py-4 border-b border-border flex items-center gap-2">
+          <div className="bg-surface rounded-2xl border border-border/80 shadow-premium overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b border-border/50 bg-background/30 flex items-center gap-2">
               <AlertTriangle
                 size={16}
                 className="text-amber-500"
@@ -337,8 +337,8 @@ export default async function ProjectOverviewPage({
           </div>
 
           {/* Recent runs */}
-          <div className="bg-surface rounded-2xl border border-border shadow-sm col-span-1 lg:col-span-2 flex flex-col overflow-hidden">
-            <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+          <div className="bg-surface rounded-2xl border border-border/80 shadow-premium col-span-1 lg:col-span-2 flex flex-col overflow-hidden">
+            <div className="px-6 py-4 border-b border-border/50 bg-background/30 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Activity
                   size={16}
@@ -371,7 +371,7 @@ export default async function ProjectOverviewPage({
                   </p>
                   <Link
                     href={`/projects/${code}/runs/create`}
-                    className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-white shadow-sm transition-all hover:-translate-y-0.5"
+                    className="mt-4 inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white shadow-premium duration-300 transition-all hover:-translate-y-0.5"
                     style={{
                       background: "var(--primary)",
                     }}

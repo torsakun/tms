@@ -227,7 +227,7 @@ export function MembersListClient({
             setIsModalOpen(true);
             setTimeout(() => inputRef.current?.focus(), 100);
           }}
-          className="flex items-center px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm hover:-translate-y-0.5 transition-all"
+          className="flex items-center px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-premium hover:-translate-y-0.5 transition-all duration-300"
           style={{ background: "var(--primary)" }}
         >
           <UserPlus size={16} className="mr-2" />
@@ -236,20 +236,20 @@ export function MembersListClient({
       </header>
 
       {/* Members table */}
-      <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden mb-8">
+      <div className="bg-surface rounded-2xl shadow-premium border border-border/80 overflow-hidden mb-8">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-surface-hover border-b border-border">
-              <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">
+              <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">
                 Member
               </th>
-              <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">
+              <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">
                 Email
               </th>
-              <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase">
+              <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">
                 Workspace Role
               </th>
-              <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase text-right">
+              <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider text-right">
                 Actions
               </th>
             </tr>
@@ -322,8 +322,8 @@ export function MembersListClient({
         access.
       </p>
 
-      <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
-        <div className="px-4 py-3 border-b border-border bg-surface-hover">
+      <div className="bg-surface rounded-2xl shadow-premium border border-border/80 overflow-hidden">
+        <div className="px-5 py-4 border-b border-border/80 bg-surface-hover/50">
           <div className="relative">
             <Search
               className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
@@ -334,7 +334,7 @@ export function MembersListClient({
               value={groupSearch}
               onChange={(e) => setGroupSearch(e.target.value)}
               placeholder="Search groups…"
-              className="w-full pl-8 pr-3 py-2 text-sm border border-border rounded-lg bg-surface focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all"
+              className="w-full pl-8 pr-3 py-2.5 text-[13px] font-semibold border border-border/80 rounded-xl bg-surface focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40"
             />
           </div>
         </div>
@@ -373,7 +373,7 @@ export function MembersListClient({
                 <button
                   onClick={() => toggleGroup(group)}
                   disabled={togglingId === group.id}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold transition-all duration-300 shadow-sm hover:-translate-y-0.5 ${
                     group.isAssigned
                       ? "bg-indigo-600 text-white hover:bg-indigo-700"
                       : "bg-surface border border-border text-text-muted hover:border-indigo-300 hover:text-indigo-600"
@@ -402,10 +402,10 @@ export function MembersListClient({
           onClick={resetModal}
         >
           <div
-            className="bg-surface rounded-xl shadow-xl w-full max-w-md overflow-visible animate-in fade-in zoom-in duration-200"
+            className="bg-surface rounded-2xl shadow-premium border border-border/80 w-full max-w-md overflow-visible animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-surface-hover rounded-t-xl">
+            <div className="px-6 py-5 border-b border-border/80 flex justify-between items-center bg-surface-hover/50 rounded-t-2xl">
               <h2 className="text-base font-bold text-text-main">
                 Add Member to Project
               </h2>
@@ -418,7 +418,7 @@ export function MembersListClient({
             </div>
 
             <div className="p-6">
-              <label className="block text-sm font-semibold text-text-main mb-2">
+              <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
                 Search workspace member
               </label>
               <div className="relative">
@@ -437,10 +437,10 @@ export function MembersListClient({
                   onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
                   placeholder="Search by name or email…"
                   autoComplete="off"
-                  className="w-full pl-9 pr-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 bg-surface-hover transition-all"
+                  className="w-full pl-9 pr-3 py-2.5 border border-border/80 rounded-xl text-[13px] font-semibold focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary bg-surface-hover transition-all shadow-inner hover:border-text-muted/40"
                 />
                 {showDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-surface rounded-xl shadow-xl border border-border z-50 overflow-hidden max-h-56 overflow-y-auto">
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-surface rounded-xl shadow-premium border border-border/80 z-50 overflow-hidden max-h-56 overflow-y-auto">
                     {suggestions.map((u) => (
                       <button
                         key={u.id}
@@ -486,14 +486,14 @@ export function MembersListClient({
 
               {members.length > 0 && (
                 <div className="mt-5">
-                  <p className="text-xs font-semibold text-text-muted uppercase tracking-wide mb-2">
+                  <p className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
                     Current members ({members.length})
                   </p>
                   <div className="space-y-1 max-h-40 overflow-y-auto">
                     {members.map((m) => (
                       <div
                         key={m.userId}
-                        className="flex items-center justify-between px-3 py-2 bg-surface-hover rounded-lg"
+                        className="flex items-center justify-between px-4 py-2.5 bg-surface-hover border border-border/80 rounded-xl"
                       >
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-[10px] font-bold shrink-0">
@@ -521,7 +521,7 @@ export function MembersListClient({
               <div className="mt-5 flex justify-end">
                 <button
                   onClick={resetModal}
-                  className="px-4 py-2 text-sm font-semibold text-text-muted bg-surface-hover hover:bg-slate-200 rounded-lg transition-colors"
+                  className="px-5 py-2.5 text-[13px] font-bold text-text-main bg-surface-hover border border-border/80 hover:border-text-muted/40 rounded-xl transition-all shadow-sm hover:-translate-y-0.5"
                 >
                   Done
                 </button>

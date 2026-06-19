@@ -108,21 +108,21 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
               placeholder="Search test plans..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-sm border-none bg-surface text-text-main rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition-colors"
+              className="w-full pl-9 pr-4 py-2.5 text-[13px] font-semibold border border-border/80 bg-surface text-text-main rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/20 shadow-inner transition-all hover:border-text-muted/40"
             />
           </div>
 
           <div className="relative">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center text-sm px-4 py-2 rounded-md transition-colors shadow-[0_2px_10px_rgba(0,0,0,0.03)] ${showFilters ? "bg-surface-hover text-text-main" : "bg-surface text-text-muted hover:text-text-main hover:bg-surface-hover"}`}
+              className={`flex items-center text-[13px] font-bold px-4 py-2.5 rounded-xl transition-all duration-300 border border-border/80 shadow-sm ${showFilters ? "bg-surface-hover text-text-main" : "bg-surface text-text-muted hover:text-text-main hover:bg-surface-hover"}`}
             >
               <Filter size={14} className="mr-2" />
               Sort: {sortBy === "newest" ? "Newest first" : "Oldest first"}
             </button>
 
             {showFilters && (
-              <div className="absolute top-full mt-2 left-0 w-48 bg-surface border-none rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] z-20 py-2 overflow-hidden">
+              <div className="absolute top-full mt-2 left-0 w-48 bg-surface border border-border/80 rounded-2xl shadow-premium z-20 py-2 overflow-hidden animate-in zoom-in-95 duration-200">
                 <button
                   onClick={() => {
                     setSortBy("newest");
@@ -148,7 +148,7 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
       </div>
 
       {plans.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-surface rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-none transition-colors">
+        <div className="flex flex-col items-center justify-center py-20 bg-surface rounded-2xl shadow-premium border border-border/80 transition-all duration-300 animate-in zoom-in-95">
           <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4">
             <FileText size={32} />
           </div>
@@ -161,13 +161,13 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
           </p>
           <Link
             href={`/projects/${code}/plans/create`}
-            className="bg-primary text-primary-foreground shadow-sm px-5 py-2.5 rounded-md font-medium hover:bg-primary-hover transition-colors"
+            className="bg-primary text-primary-foreground shadow-premium px-5 py-2.5 rounded-xl font-bold hover:bg-primary-hover hover:-translate-y-0.5 transition-all duration-300"
           >
             Create new plan
           </Link>
         </div>
       ) : filteredPlans.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 bg-surface rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-none transition-colors">
+        <div className="flex flex-col items-center justify-center py-16 bg-surface rounded-2xl shadow-premium border border-border/80 transition-all duration-300 animate-in zoom-in-95">
           <p className="text-text-muted mb-2">
             No test plans match your search.
           </p>
@@ -179,28 +179,28 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
           </button>
         </div>
       ) : (
-        <div className="bg-surface rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] dark:shadow-none overflow-visible transition-colors">
+        <div className="bg-surface rounded-2xl shadow-premium border border-border/80 overflow-visible transition-all duration-300 animate-in zoom-in-95">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-border/50 bg-surface-hover">
-                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider w-1/3">
+              <tr className="border-b border-border/80 bg-surface-hover/70">
+                <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider w-1/3">
                   Title
                 </th>
-                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider text-center">
+                <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider text-center">
                   Cases
                 </th>
-                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider text-center">
+                <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider text-center">
                   Runs
                 </th>
-                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider">
+                <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">
                   Created
                 </th>
-                <th className="px-6 py-4 text-xs font-semibold text-text-muted uppercase tracking-wider text-right">
+                <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider text-right">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/50">
+            <tbody className="divide-y divide-border/80">
               {filteredPlans.map((plan) => (
                 <tr
                   key={plan.id}
@@ -220,7 +220,7 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
                     )}
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-background border border-border text-text-main">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-background/50 border border-border/80 text-text-main">
                       {plan._count?.testCases || 0}
                     </span>
                   </td>
@@ -239,7 +239,7 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
                     <div className="flex items-center justify-end space-x-2">
                       <Link
                         href={`/projects/${code}/runs/create?plan=${plan.id}`}
-                        className="bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground px-3 py-1.5 rounded text-sm font-semibold transition-colors flex items-center opacity-0 group-hover:opacity-100"
+                        className="bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground px-4 py-2 rounded-xl text-[13px] font-bold transition-all duration-300 flex items-center opacity-0 group-hover:opacity-100 hover:shadow-sm hover:-translate-y-0.5"
                       >
                         <PlayCircle size={14} className="mr-1.5" /> Start run
                       </Link>
@@ -254,13 +254,13 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
                               activeDropdown === plan.id ? null : plan.id,
                             )
                           }
-                          className={`p-1.5 rounded transition-colors ${activeDropdown === plan.id ? "bg-surface-hover text-text-main" : "text-text-muted hover:text-text-main hover:bg-surface-hover"}`}
+                          className={`p-1.5 rounded-xl transition-all ${activeDropdown === plan.id ? "bg-surface-hover text-text-main" : "text-text-muted hover:text-text-main hover:bg-surface-hover"}`}
                         >
                           <MoreHorizontal size={18} />
                         </button>
 
                         {activeDropdown === plan.id && (
-                          <div className="absolute right-0 mt-1 w-40 bg-surface border-none rounded-xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] py-1 z-30 overflow-hidden">
+                          <div className="absolute right-0 mt-1 w-40 bg-surface border border-border/80 rounded-xl shadow-premium py-1 z-30 overflow-hidden animate-in zoom-in-95 duration-200">
                             <Link
                               href={`/projects/${code}/plans/${plan.id}/edit`}
                               className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center"

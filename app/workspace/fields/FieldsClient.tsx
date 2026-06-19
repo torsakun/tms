@@ -31,10 +31,10 @@ function ConfirmDialog({
       onClick={onCancel}
     >
       <div
-        className="bg-surface rounded-xl shadow-xl w-full max-w-sm p-6"
+        className="bg-surface rounded-2xl shadow-premium border border-border/80 w-full max-w-sm p-8 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start gap-3 mb-5">
+        <div className="flex items-start gap-4 mb-6">
           <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
             <AlertTriangle size={18} className="text-rose-500" />
           </div>
@@ -328,7 +328,7 @@ export default function FieldsClient() {
       <div className="flex items-center gap-3 mb-5">
         <button
           onClick={openCreateModal}
-          className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:opacity-90"
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-premium hover:-translate-y-0.5 transition-all duration-300"
           style={{ background: "var(--primary)" }}
         >
           <Plus size={15} /> Create custom field
@@ -343,12 +343,12 @@ export default function FieldsClient() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search fields…"
-            className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-lg bg-surface text-text-main placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition-all"
+            className="w-full pl-9 pr-4 py-2.5 text-[13px] font-semibold border border-border/80 rounded-xl bg-surface-hover/50 text-text-main placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40"
           />
         </div>
       </div>
 
-      <div className="bg-surface rounded-lg border border-border overflow-hidden">
+      <div className="bg-surface rounded-2xl border border-border/80 shadow-premium overflow-visible animate-in zoom-in-95 duration-200">
         {isLoading ? (
           <div className="flex justify-center items-center p-12">
             <Loader2 className="animate-spin text-text-muted" size={32} />
@@ -356,8 +356,8 @@ export default function FieldsClient() {
         ) : (
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-border bg-surface-hover">
-                <th className="px-6 py-3 text-xs font-semibold text-text-main uppercase tracking-wider">
+              <tr className="border-b border-border/80 bg-surface-hover/70">
+                <th className="px-6 py-3.5 text-xs font-semibold text-text-main uppercase tracking-wider">
                   Name
                 </th>
                 <th className="px-6 py-3 text-xs font-semibold text-text-main uppercase tracking-wider">
@@ -381,11 +381,11 @@ export default function FieldsClient() {
                 <th className="px-6 py-3 text-xs font-semibold text-text-main uppercase tracking-wider w-16"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border/50">
+            <tbody className="divide-y divide-border/80">
               {filteredFields.map((field) => (
                 <tr
                   key={field.id}
-                  className={`hover:bg-surface-hover/50 transition-colors ${!field.isActive ? "opacity-40" : ""}`}
+                  className={`border-b border-border/80 last:border-0 hover:bg-surface-hover/70 transition-colors ${!field.isActive ? "opacity-40" : "group"}`}
                 >
                   <td className="px-6 py-3 text-sm text-text-main font-medium">
                     {field.name}
@@ -506,7 +506,7 @@ export default function FieldsClient() {
                         ) : (
                           <button
                             disabled
-                            className="text-slate-300 p-1.5 cursor-not-allowed"
+                            className="text-text-muted opacity-30 p-1.5 cursor-not-allowed"
                             title="Remove from all projects before deleting"
                           >
                             <Trash2 size={16} />
@@ -532,7 +532,7 @@ export default function FieldsClient() {
       {/* Create/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <div className="bg-surface w-full max-w-lg rounded-xl shadow-2xl overflow-hidden border border-border">
+          <div className="bg-surface w-full max-w-lg rounded-2xl shadow-premium overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-border flex justify-between items-center">
               <h2 className="text-xl font-bold text-text-main">
                 {editingField ? "Edit custom field" : "Create custom field"}
@@ -588,7 +588,7 @@ export default function FieldsClient() {
                           required
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          className="w-full bg-background border border-border rounded-md px-3 py-2 text-text-main focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                          className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
                           placeholder="E.g. description"
                         />
                       </div>
@@ -601,7 +601,7 @@ export default function FieldsClient() {
                           min={1}
                           value={order}
                           onChange={(e) => setOrder(Number(e.target.value))}
-                          className="w-full bg-background border border-border rounded-md px-3 py-2 text-text-main focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                          className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
                         />
                       </div>
                     </div>
@@ -613,7 +613,7 @@ export default function FieldsClient() {
                             Entity
                           </label>
                           <select
-                            className="w-full bg-surface-hover border border-border rounded-md px-3 py-2 text-text-muted outline-none appearance-none cursor-not-allowed"
+                            className="w-full bg-surface-hover border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-muted outline-none appearance-none cursor-not-allowed"
                             disabled
                           >
                             <option>Test case</option>
@@ -635,7 +635,7 @@ export default function FieldsClient() {
                                 setActiveTab("GENERAL");
                               }
                             }}
-                            className="w-full bg-background border border-border rounded-md px-3 py-2 text-text-main focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+                            className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
                           >
                             <option value="NUMBER">Number</option>
                             <option value="STRING">Short text</option>
@@ -675,7 +675,7 @@ export default function FieldsClient() {
                         {!isGlobal && (
                           <div className="ml-7 relative">
                             <div
-                              className="w-full bg-background border border-border rounded-md px-3 py-2 text-text-main flex justify-between items-center cursor-pointer"
+                              className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main flex justify-between items-center cursor-pointer shadow-inner hover:border-text-muted/40 transition-all"
                               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                             >
                               <span className="text-sm">
@@ -698,7 +698,7 @@ export default function FieldsClient() {
                               </svg>
                             </div>
                             {isDropdownOpen && (
-                              <div className="absolute z-10 w-full mt-1 bg-surface border border-border rounded-md shadow-lg max-h-60 overflow-y-auto py-2">
+                              <div className="absolute z-10 w-full mt-1 bg-surface border border-border/80 rounded-xl shadow-premium max-h-60 overflow-y-auto py-2">
                                 {allProjects.length === 0 ? (
                                   <div className="px-3 py-2 text-sm text-text-muted text-center">
                                     No projects available
@@ -769,14 +769,14 @@ export default function FieldsClient() {
                           key={opt.id}
                           className="flex items-center space-x-2"
                         >
-                          <div className="bg-background border border-border px-3 py-2 rounded-md flex-1 flex items-center shadow-sm">
+                          <div className="bg-background border border-border/80 px-4 py-2.5 rounded-xl flex-1 flex items-center shadow-inner hover:border-text-muted/40 transition-all">
                             <input
                               type="text"
                               value={opt.value}
                               onChange={(e) =>
                                 handleOptionChange(opt.id, e.target.value)
                               }
-                              className="bg-transparent border-none outline-none w-full text-text-main text-sm"
+                              className="bg-transparent border-none outline-none w-full text-[13px] font-semibold text-text-main placeholder:text-text-muted/50"
                               placeholder={`Option ${idx + 1}`}
                             />
                           </div>
@@ -801,18 +801,18 @@ export default function FieldsClient() {
                 )}
               </div>
 
-              <div className="px-6 py-4 bg-surface-hover flex justify-end space-x-3 border-t border-border rounded-b-xl">
+              <div className="px-6 py-4 bg-surface/80 flex justify-end space-x-3 border-t border-border/80 rounded-b-2xl">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-sm font-medium text-text-main hover:bg-border rounded-md transition-colors"
+                  className="px-4 py-2 text-sm font-bold text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-hover transition-colors flex items-center shadow-sm disabled:opacity-50"
+                  className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold hover:bg-primary-hover transition-all flex items-center shadow-premium hover:-translate-y-0.5 duration-300 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                 >
                   {isSubmitting && (
                     <Loader2 size={14} className="animate-spin mr-2" />

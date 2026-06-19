@@ -85,7 +85,7 @@ function AcceptInviteContent() {
   if (!token) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface-hover px-4">
-        <div className="max-w-md w-full bg-surface rounded-lg shadow-sm border border-border p-8 text-center">
+        <div className="max-w-md w-full bg-surface py-8 px-4 shadow-premium sm:rounded-3xl border border-border/80 sm:px-10 text-center animate-in zoom-in-95 duration-200">
           <h2 className="text-xl font-bold text-text-main mb-2">
             Invalid Link
           </h2>
@@ -94,7 +94,7 @@ function AcceptInviteContent() {
           </p>
           <button
             onClick={() => router.push("/login")}
-            className="w-full bg-[#2563eb] hover:bg-primary-hover text-white font-medium py-2 rounded-md transition-colors"
+            className="w-full flex justify-center py-2.5 px-4 rounded-xl shadow-premium text-[13px] font-bold text-primary-foreground bg-primary hover:bg-primary-hover hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:hover:translate-y-0"
           >
             Go to Login
           </button>
@@ -114,7 +114,7 @@ function AcceptInviteContent() {
   if (!isValidToken) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface-hover px-4">
-        <div className="max-w-md w-full bg-surface rounded-lg shadow-sm border border-border p-8 text-center">
+        <div className="max-w-md w-full bg-surface py-8 px-4 shadow-premium sm:rounded-3xl border border-border/80 sm:px-10 text-center animate-in zoom-in-95 duration-200">
           <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
               width="24"
@@ -137,7 +137,7 @@ function AcceptInviteContent() {
           <p className="text-text-muted mb-6">{error}</p>
           <button
             onClick={() => router.push("/login")}
-            className="w-full bg-[#2563eb] hover:bg-primary-hover text-white font-medium py-2 rounded-md transition-colors"
+            className="w-full flex justify-center py-2.5 px-4 rounded-xl shadow-premium text-[13px] font-bold text-primary-foreground bg-primary hover:bg-primary-hover hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:hover:translate-y-0"
           >
             Go to Login
           </button>
@@ -148,7 +148,7 @@ function AcceptInviteContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-surface-hover px-4">
-      <div className="max-w-md w-full bg-surface rounded-lg shadow-sm border border-border p-8">
+      <div className="max-w-md w-full bg-surface py-8 px-4 shadow-premium sm:rounded-3xl border border-border/80 sm:px-10 animate-in zoom-in-95 duration-200">
         <div className="flex justify-center mb-6">
           <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center">
             <span className="text-white font-bold text-xl">Q</span>
@@ -175,7 +175,7 @@ function AcceptInviteContent() {
               minLength={8}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-text-muted rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main"
             />
           </div>
 
@@ -189,14 +189,14 @@ function AcceptInviteContent() {
               minLength={8}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-text-muted rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main"
             />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full mt-6 bg-[#2563eb] hover:bg-primary-hover disabled:bg-blue-400 text-white font-medium py-2 rounded-md transition-colors flex items-center justify-center"
+            className="w-full mt-6 flex justify-center py-2.5 px-4 rounded-xl shadow-premium text-[13px] font-bold text-primary-foreground bg-primary hover:bg-primary-hover hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:hover:translate-y-0"
           >
             {isSubmitting ? (
               <Loader2 className="animate-spin mr-2" size={20} />

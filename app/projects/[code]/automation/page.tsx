@@ -326,7 +326,7 @@ export default function TESSAAutomationPage({
           </div>
           <button
             onClick={() => setIsPipelineModalOpen(true)}
-            className="flex items-center px-5 py-2.5 bg-primary text-primary-foreground hover:bg-primary-hover rounded-lg font-medium shadow-sm transition-all hover:-translate-y-0.5"
+            className="flex items-center px-5 py-2.5 bg-primary text-primary-foreground hover:bg-primary-hover rounded-xl text-[13px] font-bold shadow-premium transition-all duration-300 hover:-translate-y-0.5"
           >
             <Zap size={18} className="mr-2" /> Create Scheduled Pipeline
           </button>
@@ -334,7 +334,7 @@ export default function TESSAAutomationPage({
 
         {/* Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-surface dark:bg-surface rounded-2xl p-6 border border-border dark:border-border shadow-sm backdrop-blur-sm relative overflow-hidden group">
+          <div className="bg-surface dark:bg-surface rounded-2xl p-6 border border-border dark:border-border shadow-premium backdrop-blur-sm relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-indigo-500/20 transition-all duration-500"></div>
             <div className="flex justify-between items-start mb-4 relative z-10">
               <div>
@@ -358,7 +358,7 @@ export default function TESSAAutomationPage({
             </div>
           </div>
 
-          <div className="bg-surface dark:bg-surface rounded-2xl p-6 border border-border dark:border-border shadow-sm backdrop-blur-sm relative overflow-hidden group">
+          <div className="bg-surface dark:bg-surface rounded-2xl p-6 border border-border dark:border-border shadow-premium backdrop-blur-sm relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-emerald-500/20 transition-all duration-500"></div>
             <div className="flex justify-between items-start mb-4 relative z-10">
               <div>
@@ -387,7 +387,7 @@ export default function TESSAAutomationPage({
             </div>
           </div>
 
-          <div className="bg-surface dark:bg-surface rounded-2xl p-6 border border-border dark:border-border shadow-sm backdrop-blur-sm relative overflow-hidden group">
+          <div className="bg-surface dark:bg-surface rounded-2xl p-6 border border-border dark:border-border shadow-premium backdrop-blur-sm relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-purple-500/20 transition-all duration-500"></div>
             <div className="flex justify-between items-start mb-4 relative z-10">
               <div>
@@ -416,7 +416,7 @@ export default function TESSAAutomationPage({
         </div>
 
         {error && (
-          <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg flex items-center">
+          <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl flex items-center">
             <AlertTriangle size={18} className="mr-2 shrink-0" />
             <span className="font-medium">{error}</span>
           </div>
@@ -440,7 +440,7 @@ export default function TESSAAutomationPage({
               href={prUrl}
               target="_blank"
               rel="noreferrer"
-              className="px-5 py-2.5 bg-emerald-500 text-white font-bold rounded-lg hover:bg-emerald-600 transition-colors flex items-center shadow-lg shadow-emerald-500/20"
+              className="px-5 py-2.5 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 duration-300 transition-all flex items-center shadow-premium hover:-translate-y-0.5"
             >
               <GitPullRequest size={18} className="mr-2" /> View Pull Request
             </a>
@@ -450,7 +450,7 @@ export default function TESSAAutomationPage({
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Batch Generator Panel */}
-          <div className="bg-surface dark:bg-[#111623] rounded-2xl border border-border dark:border-border overflow-hidden flex flex-col shadow-sm h-[500px]">
+          <div className="bg-surface dark:bg-[#111623] rounded-2xl border border-border/80 dark:border-border overflow-hidden flex flex-col shadow-premium h-[500px]">
             <div className="px-6 py-4 border-b border-border dark:border-border flex justify-between items-center bg-surface-hover/50 dark:bg-surface">
               <h3 className="font-semibold text-text-main dark:text-text-main flex items-center">
                 <Bot size={18} className="mr-2 text-indigo-500" /> Suggested for
@@ -463,7 +463,7 @@ export default function TESSAAutomationPage({
             <div className="flex-1 flex flex-col overflow-hidden">
               <div className="overflow-y-auto flex-1">
                 <table className="w-full text-left text-sm text-text-muted dark:text-slate-300">
-                  <thead className="bg-surface-hover dark:bg-surface border-b border-border dark:border-border text-xs uppercase font-semibold text-text-muted dark:text-text-muted sticky top-0">
+                  <thead className="bg-surface-hover/50 dark:bg-surface border-b border-border/80 text-[11px] uppercase font-bold text-text-muted dark:text-text-muted sticky top-0 tracking-wider">
                     <tr>
                       <th className="px-6 py-3 w-10">
                         <input
@@ -585,7 +585,7 @@ export default function TESSAAutomationPage({
                   <button
                     onClick={handleGenerate}
                     disabled={status !== "IDLE" || selectedCaseIds.length === 0}
-                    className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg shadow-[0_0_15px_rgba(79,70,229,0.3)] transition-all disabled:opacity-50 disabled:shadow-none flex justify-center items-center"
+                    className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[13px] font-bold rounded-xl shadow-premium transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0 flex justify-center items-center"
                   >
                     {status === "GENERATING" ? (
                       <>
@@ -603,7 +603,7 @@ export default function TESSAAutomationPage({
                   <button
                     onClick={handlePushToGithub}
                     disabled={status === "PUSHING" || status === "GENERATING"}
-                    className="w-full py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg shadow-[0_0_15px_rgba(35,134,54,0.3)] transition-all disabled:opacity-50 disabled:shadow-none flex justify-center items-center"
+                    className="w-full py-3.5 bg-[#238636] hover:bg-[#2ea043] text-white text-[13px] font-bold rounded-xl shadow-premium transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0 flex justify-center items-center"
                   >
                     {status === "PUSHING" ? (
                       <>
@@ -630,7 +630,7 @@ export default function TESSAAutomationPage({
           {/* Healing Logs & Pipeline */}
           <div className="space-y-8 flex flex-col">
             {/* Flakiness Radar */}
-            <div className="bg-surface dark:bg-[#111623] rounded-2xl border border-border dark:border-border shadow-sm flex-1">
+            <div className="bg-surface dark:bg-[#111623] rounded-2xl border border-border/80 dark:border-border shadow-premium flex-1">
               <div className="px-6 py-4 border-b border-border dark:border-border flex justify-between items-center bg-surface-hover/50 dark:bg-surface rounded-t-2xl">
                 <h3 className="font-semibold text-text-main dark:text-text-main flex items-center">
                   <Activity size={18} className="mr-2 text-rose-500" />{" "}
@@ -680,7 +680,7 @@ export default function TESSAAutomationPage({
             </div>
 
             {/* Pipeline Status */}
-            <div className="bg-surface dark:bg-[#111623] rounded-2xl border border-border dark:border-border shadow-sm">
+            <div className="bg-surface dark:bg-[#111623] rounded-2xl border border-border/80 dark:border-border shadow-premium">
               <div className="px-6 py-4 border-b border-border dark:border-border flex justify-between items-center bg-surface-hover/50 dark:bg-surface rounded-t-2xl">
                 <h3 className="font-semibold text-text-main dark:text-text-main flex items-center">
                   <PlayCircle size={18} className="mr-2 text-primary" />{" "}
@@ -729,7 +729,7 @@ export default function TESSAAutomationPage({
                       <div className="flex items-center space-x-3 w-full md:w-auto justify-end">
                         <button
                           onClick={() => handleTriggerPipeline(pipeline.id)}
-                          className="text-xs font-bold px-3 py-1.5 bg-blue-500/10 text-primary dark:text-blue-400 hover:bg-blue-500/20 rounded-lg transition-colors flex items-center"
+                          className="text-[11px] uppercase tracking-wider font-bold px-4 py-2 bg-blue-500/10 text-primary dark:text-blue-400 hover:bg-blue-500/20 rounded-xl transition-all shadow-sm flex items-center hover:-translate-y-0.5"
                         >
                           <PlayCircle size={14} className="mr-1" /> Run Now
                         </button>
@@ -764,7 +764,7 @@ export default function TESSAAutomationPage({
                         </label>
                         <button
                           onClick={() => handleDeletePipeline(pipeline.id)}
-                          className="text-xs font-bold px-2 py-1.5 text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors flex items-center"
+                          className="text-xs font-bold px-2 py-1.5 text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors flex items-center"
                           title="Delete Schedule"
                         >
                           <Trash2 size={16} />
@@ -782,7 +782,7 @@ export default function TESSAAutomationPage({
       {/* Review Script Modal */}
       {reviewCase && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-surface dark:bg-surface w-full max-w-4xl rounded-2xl shadow-2xl border border-border dark:border-border overflow-hidden flex flex-col h-[80vh]">
+          <div className="bg-surface dark:bg-surface w-full max-w-4xl rounded-2xl shadow-premium border border-border/80 dark:border-border overflow-hidden flex flex-col h-[80vh]">
             <div className="px-6 py-4 border-b border-border dark:border-border flex justify-between items-center bg-surface-hover dark:bg-surface/80">
               <h3 className="font-semibold text-text-main dark:text-text-main flex items-center">
                 <Code2 size={18} className="mr-2 text-indigo-500" /> Review
@@ -815,14 +815,14 @@ export default function TESSAAutomationPage({
             <div className="px-6 py-4 border-t border-border dark:border-border bg-surface-hover dark:bg-surface/80 flex justify-end space-x-3">
               <button
                 onClick={() => setReviewCase(null)}
-                className="px-4 py-2 text-text-muted dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 font-medium rounded-lg transition-colors"
+                className="px-5 py-2.5 text-[13px] font-bold text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveReview}
                 disabled={isSavingScript}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg flex items-center transition-colors disabled:opacity-50"
+                className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white text-[13px] font-bold rounded-xl flex items-center transition-all hover:-translate-y-0.5 duration-300 shadow-premium disabled:opacity-50 disabled:transform-none disabled:shadow-none"
               >
                 {isSavingScript ? (
                   <RefreshCw size={16} className="mr-2 animate-spin" />
@@ -839,7 +839,7 @@ export default function TESSAAutomationPage({
       {/* Create Pipeline Modal */}
       {isPipelineModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-surface dark:bg-[#111623] w-full max-w-md rounded-2xl shadow-2xl border border-border dark:border-border overflow-hidden flex flex-col">
+          <div className="bg-surface dark:bg-[#111623] w-full max-w-md rounded-2xl shadow-premium border border-border/80 dark:border-border overflow-hidden flex flex-col">
             <div className="px-6 py-4 border-b border-border dark:border-border flex justify-between items-center bg-surface-hover dark:bg-surface">
               <h3 className="font-semibold text-text-main dark:text-text-main flex items-center">
                 <PlayCircle size={18} className="mr-2 text-indigo-500" /> Create
@@ -863,7 +863,7 @@ export default function TESSAAutomationPage({
                   value={newPipelineTitle}
                   onChange={(e) => setNewPipelineTitle(e.target.value)}
                   placeholder="e.g. Nightly Regression"
-                  className="w-full bg-surface dark:bg-[#0d1117] border border-text-muted dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-text-main dark:text-text-main focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="w-full bg-surface border border-border/80 rounded-xl px-4 py-3 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 outline-none shadow-inner"
                 />
               </div>
               <div>
@@ -873,7 +873,7 @@ export default function TESSAAutomationPage({
                 <select
                   value={scheduleType}
                   onChange={(e) => setScheduleType(e.target.value)}
-                  className="w-full bg-surface dark:bg-[#0d1117] border border-text-muted dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-text-main dark:text-text-main focus:ring-2 focus:ring-indigo-500 outline-none mb-3"
+                  className="w-full bg-surface border border-border/80 rounded-xl px-4 py-3 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 outline-none mb-3 shadow-inner"
                 >
                   <option value="daily">Daily</option>
                   <option value="weekly">Weekly</option>
@@ -891,7 +891,7 @@ export default function TESSAAutomationPage({
                         type="time"
                         value={scheduleTime}
                         onChange={(e) => setScheduleTime(e.target.value)}
-                        className="w-full bg-surface dark:bg-[#0d1117] border border-text-muted dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-text-main dark:text-text-main focus:ring-2 focus:ring-indigo-500 outline-none"
+                        className="w-full bg-surface border border-border/80 rounded-xl px-4 py-3 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 outline-none shadow-inner"
                       />
                     </div>
                     {scheduleType === "weekly" && (
@@ -902,7 +902,7 @@ export default function TESSAAutomationPage({
                         <select
                           value={scheduleDay}
                           onChange={(e) => setScheduleDay(e.target.value)}
-                          className="w-full bg-surface dark:bg-[#0d1117] border border-text-muted dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-text-main dark:text-text-main focus:ring-2 focus:ring-indigo-500 outline-none"
+                          className="w-full bg-surface border border-border/80 rounded-xl px-4 py-3 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 outline-none shadow-inner"
                         >
                           <option value="1">Monday</option>
                           <option value="2">Tuesday</option>
@@ -925,7 +925,7 @@ export default function TESSAAutomationPage({
                           max="31"
                           value={scheduleDay}
                           onChange={(e) => setScheduleDay(e.target.value)}
-                          className="w-full bg-surface dark:bg-[#0d1117] border border-text-muted dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-text-main dark:text-text-main focus:ring-2 focus:ring-indigo-500 outline-none"
+                          className="w-full bg-surface border border-border/80 rounded-xl px-4 py-3 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 outline-none shadow-inner"
                         />
                       </div>
                     )}
@@ -939,7 +939,7 @@ export default function TESSAAutomationPage({
                       value={customCron}
                       onChange={(e) => setCustomCron(e.target.value)}
                       placeholder="0 0 * * *"
-                      className="w-full bg-surface dark:bg-[#0d1117] border border-text-muted dark:border-slate-700 rounded-lg px-4 py-2 text-sm text-text-main dark:text-text-main font-mono focus:ring-2 focus:ring-indigo-500 outline-none"
+                      className="w-full bg-surface border border-border/80 rounded-xl px-4 py-3 text-[13px] font-semibold text-text-main font-mono focus:ring-4 focus:ring-primary/20 outline-none shadow-inner"
                     />
                     <p className="text-xs text-text-muted mt-2">
                       Example: <code>0 0 * * *</code> (Runs every midnight UTC).
@@ -958,7 +958,7 @@ export default function TESSAAutomationPage({
             <div className="px-6 py-4 border-t border-border dark:border-border bg-surface-hover dark:bg-surface flex justify-end space-x-3">
               <button
                 onClick={() => setIsPipelineModalOpen(false)}
-                className="px-4 py-2 text-text-muted dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 font-medium rounded-lg transition-colors text-sm"
+                className="px-5 py-2.5 text-[13px] font-bold text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition-all"
               >
                 Cancel
               </button>
@@ -969,7 +969,7 @@ export default function TESSAAutomationPage({
                   !newPipelineTitle ||
                   (scheduleType === "custom" && !customCron)
                 }
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-lg flex items-center transition-colors disabled:opacity-50 text-sm shadow-[0_0_15px_rgba(79,70,229,0.3)]"
+                className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-[13px] font-bold text-white rounded-xl flex items-center transition-all hover:-translate-y-0.5 duration-300 disabled:opacity-50 disabled:transform-none shadow-premium"
               >
                 {isCreatingPipeline ? (
                   <RefreshCw size={16} className="mr-2 animate-spin" />

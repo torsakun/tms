@@ -56,8 +56,8 @@ export default function DeploymentLogsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 sm:p-6">
-      <div className="bg-slate-950 w-full max-w-4xl rounded-xl shadow-2xl overflow-hidden flex flex-col h-[80vh] border border-slate-800">
-        <div className="flex justify-between items-center px-6 py-4 border-b border-slate-800 bg-slate-900">
+      <div className="bg-slate-950 w-full max-w-4xl rounded-2xl shadow-premium overflow-hidden flex flex-col h-[80vh] border border-slate-800/80 animate-in zoom-in-95 duration-200">
+        <div className="flex justify-between items-center px-6 py-4 border-b border-slate-800/80 bg-slate-900">
           <div className="flex items-center gap-3">
             <h2 className="text-lg font-mono font-semibold text-slate-200">
               Terminal Output
@@ -68,7 +68,7 @@ export default function DeploymentLogsModal({
           </div>
           <button
             onClick={onClose}
-            className="text-text-muted hover:text-white transition-colors"
+            className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition-colors"
           >
             <X size={20} />
           </button>

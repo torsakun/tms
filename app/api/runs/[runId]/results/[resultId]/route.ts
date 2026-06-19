@@ -27,6 +27,12 @@ export async function PATCH(
       }
     }
 
+    // Get current assignee to check if it changed
+    const currentResult = await prisma.testRunResult.findUnique({
+      where: { id: resultId },
+      select: { assigneeId: true, testCase: { select: { title: true } } },
+    });
+
     const result = await prisma.testRunResult.update({
       where: {
         id: resultId,
@@ -41,6 +47,27 @@ export async function PATCH(
         assigneeId,
       },
     });
+
+    const actor = await getSessionUser();
+    // Trigger notification if assignee changed and it's not the actor themselves
+    if (
+      assigneeId &&
+      currentResult &&
+      currentResult.assigneeId !== assigneeId &&
+      actor &&
+      assigneeId !== actor.id
+    ) {
+      await prisma.notification.create({
+        data: {
+          recipientId: assigneeId,
+          actorId: actor.id,
+          type: "ASSIGNMENT",
+          entityId: resultId,
+          title: "Assigned Test Run",
+          message: `You have been assigned to execute test case: ${currentResult.testCase?.title || "Unknown"}`,
+        },
+      });
+    }
 
     return NextResponse.json(result);
   } catch (error) {

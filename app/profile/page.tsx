@@ -82,7 +82,7 @@ export default function ProfilePage() {
     <div className="w-full max-w-[1000px] mx-auto px-6 py-12 md:px-10">
       {/* ── Impeccable Hero Header ── */}
       <div className="flex items-center gap-5 mb-10">
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/25 shrink-0">
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-indigo-500 to-purple-600 shadow-premium shrink-0">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
         <div>
@@ -114,7 +114,7 @@ export default function ProfilePage() {
 
       <form onSubmit={handleUpdateProfile} className="space-y-8">
         {/* ── Section: Personal Information ── */}
-        <section className="bg-surface border border-border/80 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <section className="bg-surface border border-border/80 rounded-3xl p-8 shadow-premium transition-shadow duration-300">
           <div className="flex items-center gap-4 mb-8 border-b border-border/50 pb-5">
             <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -159,14 +159,14 @@ export default function ProfilePage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your full name"
-                className="w-full px-4 py-3.5 border border-border/80 rounded-xl bg-surface text-text-main font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all hover:border-text-muted/40"
+                className="w-full px-4 py-3.5 border border-border/80 rounded-xl bg-surface text-text-main font-semibold shadow-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40"
               />
             </div>
           </div>
         </section>
 
         {/* ── Section: Security ── */}
-        <section className="bg-surface border border-border/80 rounded-3xl p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <section className="bg-surface border border-border/80 rounded-3xl p-8 shadow-premium transition-shadow duration-300">
           <div className="flex items-center gap-4 mb-8 border-b border-border/50 pb-5">
             <div className="p-3 rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -191,7 +191,7 @@ export default function ProfilePage() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Enter your current password"
-                className="w-full px-4 py-3.5 border border-border/80 rounded-xl bg-surface text-text-main font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all hover:border-text-muted/40"
+                className="w-full px-4 py-3.5 border border-border/80 rounded-xl bg-surface text-text-main font-semibold shadow-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40"
               />
             </div>
 
@@ -206,7 +206,7 @@ export default function ProfilePage() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="At least 8 characters"
-                  className="w-full px-4 py-3.5 border border-border/80 rounded-xl bg-surface text-text-main font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all hover:border-text-muted/40"
+                  className="w-full px-4 py-3.5 border border-border/80 rounded-xl bg-surface text-text-main font-semibold shadow-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40"
                 />
               </div>
               <div className="space-y-2">
@@ -219,7 +219,7 @@ export default function ProfilePage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Type new password again"
-                  className="w-full px-4 py-3.5 border border-border/80 rounded-xl bg-surface text-text-main font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all hover:border-text-muted/40"
+                  className="w-full px-4 py-3.5 border border-border/80 rounded-xl bg-surface text-text-main font-semibold shadow-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40"
                 />
               </div>
             </div>

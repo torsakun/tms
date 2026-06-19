@@ -73,7 +73,7 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
       {/* Basic info */}
       <section className="space-y-5">
         <div>
-          <label className="block text-[15px] font-semibold text-text-main mb-2">
+          <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
             Project Name <span className="text-red-500">*</span>
           </label>
           <input
@@ -81,19 +81,19 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="My Project"
-            className="w-full px-4 py-3 border border-border rounded-xl text-[15px] bg-surface focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all"
+            className="w-full px-4 py-3 border border-border/80 rounded-xl text-[13px] font-semibold bg-surface focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40"
           />
         </div>
 
         <div>
-          <label className="block text-[15px] font-semibold text-text-main mb-2">
+          <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
             Project Code
           </label>
           <input
             type="text"
             value={project.code}
             disabled
-            className="w-full px-4 py-3 border border-border rounded-xl text-[15px] bg-surface-hover text-text-muted cursor-not-allowed"
+            className="w-full px-4 py-3 border border-border/80 rounded-xl text-[13px] font-semibold bg-surface-hover text-text-muted cursor-not-allowed"
           />
           <p className="text-sm text-text-muted mt-1.5">
             Project code cannot be changed after creation.
@@ -101,7 +101,7 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
         </div>
 
         <div>
-          <label className="block text-[15px] font-semibold text-text-main mb-2">
+          <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
             Description
           </label>
           <textarea
@@ -109,7 +109,7 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Describe this project's purpose…"
             rows={4}
-            className="w-full px-4 py-3 border border-border rounded-xl text-[15px] bg-surface focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 resize-none transition-all"
+            className="w-full px-4 py-3 border border-border/80 rounded-xl text-[13px] font-semibold bg-surface focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary resize-none transition-all shadow-inner hover:border-text-muted/40"
           />
         </div>
 
@@ -117,7 +117,7 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
           <button
             onClick={handleSave}
             disabled={saving || !isDirty}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
+            className="flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-premium transition-all hover:-translate-y-0.5 duration-300 disabled:opacity-50 disabled:hover:translate-y-0 disabled:shadow-none"
             style={{ background: "var(--primary)" }}
           >
             {saving ? (
@@ -130,12 +130,12 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
         </div>
       </section>
 
-      <hr className="border-border" />
+      <hr className="border-border/80" />
 
       {/* Danger zone */}
       <section>
-        <h2 className="text-sm font-semibold text-red-600 mb-3">Danger zone</h2>
-        <div className="border border-red-200 rounded-xl p-4 flex items-center justify-between bg-red-50/40">
+        <h2 className="text-[13px] font-bold text-red-600 mb-3 uppercase tracking-wider">Danger zone</h2>
+        <div className="border border-red-200/80 rounded-2xl p-5 flex items-center justify-between bg-red-50/30 shadow-sm">
           <div>
             <div className="text-sm font-semibold text-text-main">
               {project.isArchived ? "Restore project" : "Archive project"}
@@ -149,7 +149,7 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
           <button
             onClick={handleArchiveToggle}
             disabled={archiving}
-            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border transition-all ${
+            className={`flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold rounded-xl border transition-all duration-300 shadow-sm hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:shadow-none ${
               project.isArchived
                 ? "border-green-300 text-green-700 bg-green-50 hover:bg-green-100"
                 : "border-red-300 text-red-700 bg-surface hover:bg-red-50"

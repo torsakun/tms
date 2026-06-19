@@ -73,13 +73,13 @@ function SortableStepItem({
     <div
       ref={setNodeRef}
       style={style}
-      className="group bg-surface border border-border rounded-xl shadow-sm overflow-hidden flex z-10 relative"
+      className="group bg-surface border border-border/80 rounded-2xl shadow-premium overflow-hidden flex z-10 relative transition-all duration-300 hover:shadow-lg"
     >
       {/* Drag Handle & Number */}
       <div
         {...attributes}
         {...listeners}
-        className="w-12 bg-surface-hover border-r border-border flex flex-col items-center py-4 space-y-2 cursor-grab active:cursor-grabbing hover:bg-surface-hover transition-colors"
+        className="w-12 bg-surface-hover/50 border-r border-border/80 flex flex-col items-center py-4 space-y-2 cursor-grab active:cursor-grabbing hover:bg-surface-hover transition-colors"
       >
         <GripVertical size={16} className="text-text-muted" />
         <span className="text-xs font-bold text-text-muted">{index + 1}</span>
@@ -95,7 +95,7 @@ function SortableStepItem({
             {...register(`steps.${index}.action` as const, { required: true })}
             rows={2}
             placeholder="Step description..."
-            className="w-full px-3 py-2 text-sm bg-transparent border border-transparent hover:border-border focus:border-blue-500 focus:bg-surface-hover rounded-md outline-none transition-all resize-none"
+            className="w-full px-4 py-2.5 text-[13px] font-semibold bg-transparent border border-transparent hover:border-border/80 focus:border-primary focus:bg-surface-hover/50 rounded-xl outline-none transition-all resize-none text-text-main"
           />
         </div>
         <div>
@@ -106,7 +106,7 @@ function SortableStepItem({
             {...register(`steps.${index}.expectedResult` as const)}
             rows={2}
             placeholder="What should happen?"
-            className="w-full px-3 py-2 text-sm bg-transparent border border-transparent hover:border-border focus:border-blue-500 focus:bg-surface-hover rounded-md outline-none transition-all resize-none"
+            className="w-full px-4 py-2.5 text-[13px] font-semibold bg-transparent border border-transparent hover:border-border/80 focus:border-primary focus:bg-surface-hover/50 rounded-xl outline-none transition-all resize-none text-text-main"
           />
         </div>
       </div>
@@ -116,7 +116,7 @@ function SortableStepItem({
         <button
           type="button"
           onClick={() => remove(index)}
-          className="p-2 text-text-muted hover:text-red-600 rounded-lg transition-all opacity-0 group-hover:opacity-100"
+          className="p-2 text-text-muted hover:text-red-600 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100 dark:hover:bg-red-500/10"
         >
           <Trash2 size={18} />
         </button>
@@ -292,7 +292,7 @@ export default function TestCaseEditor() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="p-2 hover:bg-surface-hover rounded-full transition-colors"
+            className="p-2 hover:bg-surface-hover rounded-xl transition-colors hover:text-primary"
           >
             <X size={20} className="text-text-muted" />
           </button>
@@ -304,13 +304,13 @@ export default function TestCaseEditor() {
           <button
             type="button"
             onClick={() => router.back()}
-            className="px-4 py-2 text-sm font-medium text-text-muted hover:bg-surface-hover rounded-md transition-colors"
+            className="px-4 py-2.5 text-sm font-bold text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="flex items-center px-4 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary-hover transition-colors shadow-sm"
+            className="flex items-center px-4 py-2.5 text-sm font-bold bg-primary text-primary-foreground rounded-xl hover:bg-primary-hover transition-all duration-300 shadow-premium hover:-translate-y-0.5"
           >
             <Save size={16} className="mr-2" />
             Save Changes
@@ -320,7 +320,7 @@ export default function TestCaseEditor() {
 
       <main className="max-w-5xl mx-auto mt-8 px-4 space-y-6">
         {/* Basic Information Card */}
-        <section className="bg-surface rounded-xl border border-border shadow-sm p-6 space-y-6">
+        <section className="bg-surface rounded-2xl border border-border/80 shadow-premium p-6 space-y-6">
           <div>
             <label className="block text-sm font-semibold text-text-main mb-2">
               Title
@@ -329,8 +329,8 @@ export default function TestCaseEditor() {
               {...register("title", { required: "Title is required" })}
               placeholder="e.g., User can complete checkout with Credit Card"
               className={cn(
-                "w-full px-4 py-2.5 bg-surface-hover border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all",
-                errors.title ? "border-red-500" : "border-border",
+                "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main",
+                errors.title ? "border-red-500" : "border-border/80",
               )}
             />
             {errors.title && (
@@ -349,7 +349,7 @@ export default function TestCaseEditor() {
               </label>
               <select
                 {...register("severity")}
-                className="w-full px-3 py-2 bg-surface-hover border border-border rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none cursor-pointer"
+                className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main appearance-none cursor-pointer"
               >
                 <option value="BLOCKER">Blocker</option>
                 <option value="CRITICAL">Critical</option>
@@ -366,7 +366,7 @@ export default function TestCaseEditor() {
               </label>
               <select
                 {...register("priority")}
-                className="w-full px-3 py-2 bg-surface-hover border border-border rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none cursor-pointer"
+                className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main appearance-none cursor-pointer"
               >
                 <option value="HIGH">High</option>
                 <option value="MEDIUM">Medium</option>
@@ -382,7 +382,7 @@ export default function TestCaseEditor() {
               </label>
               <select
                 {...register("automationStatus")}
-                className="w-full px-3 py-2 bg-surface-hover border border-border rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none cursor-pointer"
+                className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main appearance-none cursor-pointer"
               >
                 <option value="MANUAL">Manual</option>
                 <option value="TO_BE_AUTOMATED">To be automated</option>
@@ -417,10 +417,10 @@ export default function TestCaseEditor() {
                           required: field.isRequired ? "Required" : false,
                         })}
                         className={cn(
-                          "w-full px-3 py-2 bg-surface-hover border rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none appearance-none cursor-pointer transition-all",
+                          "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main appearance-none cursor-pointer",
                           errors?.customFields?.[field.id]
                             ? "border-red-500"
-                            : "border-border",
+                            : "border-border/80",
                         )}
                       >
                         <option value="">Select an option</option>
@@ -438,10 +438,10 @@ export default function TestCaseEditor() {
                           required: field.isRequired ? "Required" : false,
                         })}
                         className={cn(
-                          "w-full px-4 py-2.5 bg-surface-hover border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all",
+                          "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main",
                           errors?.customFields?.[field.id]
                             ? "border-red-500"
-                            : "border-border",
+                            : "border-border/80",
                         )}
                       />
                     )}
@@ -452,10 +452,10 @@ export default function TestCaseEditor() {
                         })}
                         rows={3}
                         className={cn(
-                          "w-full px-4 py-2.5 bg-surface-hover border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-y",
+                          "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main resize-y",
                           errors?.customFields?.[field.id]
                             ? "border-red-500"
-                            : "border-border",
+                            : "border-border/80",
                         )}
                       />
                     )}
@@ -537,8 +537,8 @@ export default function TestCaseEditor() {
 
       {isSharedStepsModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface w-[600px] rounded-lg shadow-xl overflow-hidden border border-border">
-            <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-background">
+          <div className="bg-surface w-[600px] rounded-3xl shadow-premium overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-border/80 flex justify-between items-center bg-background/50">
               <h3 className="text-lg font-bold text-text-main">
                 Insert Shared Step
               </h3>
@@ -560,7 +560,7 @@ export default function TestCaseEditor() {
                   {sharedStepsList.map((step) => (
                     <div
                       key={step.id}
-                      className="p-4 border border-border rounded-lg flex justify-between items-center bg-background hover:border-primary/50 transition-colors"
+                      className="p-4 border border-border/80 rounded-xl flex justify-between items-center bg-surface-hover/50 hover:border-primary/50 transition-all hover:shadow-sm"
                     >
                       <div className="mr-4 overflow-hidden">
                         <div className="font-bold text-text-main truncate">
@@ -579,7 +579,7 @@ export default function TestCaseEditor() {
                           });
                           setIsSharedStepsModalOpen(false);
                         }}
-                        className="px-4 py-2 bg-primary hover:bg-primary-hover transition-colors text-primary-foreground text-sm font-medium rounded-md shadow-sm shrink-0"
+                        className="px-4 py-2 bg-primary hover:bg-primary-hover transition-all duration-300 text-primary-foreground text-[13px] font-bold rounded-xl shadow-sm shrink-0 hover:-translate-y-0.5"
                       >
                         Insert
                       </button>

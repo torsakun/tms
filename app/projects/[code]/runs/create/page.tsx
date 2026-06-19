@@ -155,9 +155,9 @@ function CreateRunContent() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] bg-background/50 items-center justify-center p-8">
-      <div className="bg-surface rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-none border border-border w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden transition-colors">
-        <header className="flex items-center justify-between px-6 py-4 border-b border-border/50 shrink-0">
+    <div className="flex h-[calc(100vh-4rem)] bg-background items-center justify-center p-8">
+      <div className="bg-surface rounded-2xl shadow-premium border border-border/80 w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden transition-colors">
+        <header className="flex items-center justify-between px-6 py-4 border-b border-border/80 shrink-0 bg-surface">
           <h1 className="text-xl font-semibold text-text-main">
             Start new test run
           </h1>
@@ -176,14 +176,14 @@ function CreateRunContent() {
         >
           <div className="p-8 space-y-6 overflow-y-auto">
             {error && (
-              <div className="p-4 bg-red-50 text-red-700 flex items-center rounded-lg border border-red-100">
+              <div className="p-4 bg-red-50 text-red-700 flex items-center rounded-xl border border-red-100">
                 <AlertCircle size={18} className="mr-2 shrink-0" />
                 <p className="text-sm font-medium">{error}</p>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-text-main mb-2">
+              <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
                 Run Title
               </label>
               <input
@@ -191,12 +191,12 @@ function CreateRunContent() {
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-4 py-2.5 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
+                className="w-full px-4 py-3 bg-surface border border-border/80 text-text-main rounded-xl focus:ring-4 focus:ring-primary/20 outline-none transition-all shadow-inner placeholder:text-text-muted/50"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-text-main mb-2">
+              <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
                 Description (Optional)
               </label>
               <textarea
@@ -204,19 +204,19 @@ function CreateRunContent() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What is the goal of this test run?"
-                className="w-full px-4 py-2.5 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none shadow-[0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
+                className="w-full px-4 py-3 bg-surface border border-border/80 text-text-main rounded-xl focus:ring-4 focus:ring-primary/20 outline-none transition-all resize-none shadow-inner placeholder:text-text-muted/50"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-text-main mb-2">
+                <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
                   Environment (Optional)
                 </label>
                 <select
                   value={selectedEnvId}
                   onChange={(e) => setSelectedEnvId(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
+                  className="w-full px-4 py-3 bg-surface border border-border/80 text-text-main rounded-xl focus:ring-4 focus:ring-primary/20 outline-none transition-all shadow-inner"
                 >
                   <option value="">No environment</option>
                   {environments.map((env) => (
@@ -227,13 +227,13 @@ function CreateRunContent() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-text-main mb-2">
+                <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
                   Milestone (Optional)
                 </label>
                 <select
                   value={selectedMilestoneId}
                   onChange={(e) => setSelectedMilestoneId(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-background border border-border text-text-main rounded-lg focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
+                  className="w-full px-4 py-3 bg-surface border border-border/80 text-text-main rounded-xl focus:ring-4 focus:ring-primary/20 outline-none transition-all shadow-inner"
                 >
                   <option value="">No milestone</option>
                   {milestones.map((ms) => (
@@ -247,12 +247,12 @@ function CreateRunContent() {
 
             {/* Modal Trigger */}
             <div className="pt-2">
-              <label className="block text-sm font-semibold text-text-main mb-2">
+              <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
                 Test Cases
               </label>
               <button
                 type="button"
-                className="flex items-center justify-between w-full px-4 py-3 bg-surface border border-border rounded-lg hover:border-primary/50 hover:ring-1 hover:ring-primary/20 transition-all text-left group shadow-[0_2px_10px_rgba(0,0,0,0.02)]"
+                className="flex items-center justify-between w-full px-5 py-4 bg-surface border border-border/80 rounded-xl hover:border-primary/50 hover:ring-4 hover:ring-primary/20 transition-all text-left group shadow-inner"
                 onClick={() => setIsModalOpen(true)}
               >
                 <div>
@@ -276,14 +276,14 @@ function CreateRunContent() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-4 py-2 font-medium text-text-muted hover:text-text-main hover:bg-surface-hover rounded-md transition-colors mr-3"
+              className="px-5 py-2.5 text-[13px] font-bold text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition-all mr-3"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center px-4 py-2 font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary-hover transition-all shadow-sm disabled:opacity-50 disabled:shadow-none"
+              className="flex items-center px-5 py-2.5 text-[13px] font-bold text-primary-foreground bg-primary rounded-xl hover:bg-primary-hover hover:-translate-y-0.5 transition-all shadow-premium duration-300 disabled:opacity-50 disabled:shadow-none disabled:transform-none"
             >
               {loading ? "Starting..." : "Start Run"}
             </button>

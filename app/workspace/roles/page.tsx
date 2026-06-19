@@ -27,10 +27,10 @@ function ConfirmDialog({
       onClick={onCancel}
     >
       <div
-        className="bg-surface rounded-xl shadow-xl w-full max-w-sm p-6"
+        className="bg-surface rounded-2xl shadow-premium border border-border/80 w-full max-w-sm p-8 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start gap-3 mb-5">
+        <div className="flex items-start gap-4 mb-6">
           <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
             <AlertTriangle size={18} className="text-rose-500" />
           </div>
@@ -149,7 +149,7 @@ export default function WorkspaceRolesPage() {
         </div>
         <Link
           href="/workspace/roles/create"
-          className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:opacity-90"
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-premium hover:-translate-y-0.5 transition-all duration-300"
           style={{ background: "var(--primary)" }}
         >
           <Plus size={15} /> New role
@@ -157,11 +157,11 @@ export default function WorkspaceRolesPage() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl overflow-visible bg-surface border border-border shadow-sm">
+      <div className="rounded-2xl overflow-visible bg-surface border border-border/80 shadow-premium">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-border bg-surface-hover/80">
-              <th className="px-5 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider">
+            <tr className="border-b border-border/80 bg-surface-hover/70">
+              <th className="px-5 py-3.5 text-[11px] font-bold text-text-muted uppercase tracking-wider">
                 Role
               </th>
               <th className="px-5 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider w-24 text-center">
@@ -180,7 +180,7 @@ export default function WorkspaceRolesPage() {
             {roles.map((role) => (
               <tr
                 key={role.id}
-                className="border-b border-border last:border-0 hover:bg-surface-hover/70 transition-colors group"
+                className="border-b border-border/80 last:border-0 hover:bg-surface-hover/70 transition-colors group"
               >
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
@@ -188,10 +188,10 @@ export default function WorkspaceRolesPage() {
                       <Shield size={15} className="text-indigo-500" />
                     </div>
                     <div>
-                      <div className="text-sm font-semibold text-text-main">
+                      <div className="text-[15px] font-bold text-text-main">
                         {role.title}
                       </div>
-                      <div className="text-[11px] text-text-muted mt-0.5 max-w-md truncate">
+                      <div className="text-[13px] font-medium text-text-muted mt-0.5 max-w-md truncate">
                         {role.description}
                       </div>
                     </div>
@@ -216,7 +216,7 @@ export default function WorkspaceRolesPage() {
                   )}
                 </td>
                 <td className="px-5 py-4">
-                  <span className="text-sm text-text-muted font-medium">
+                  <span className="text-[13px] font-bold text-text-muted">
                     {role._count?.users || 0}{" "}
                     {(role._count?.users || 0) === 1 ? "member" : "members"}
                   </span>
@@ -229,19 +229,13 @@ export default function WorkspaceRolesPage() {
                       e.nativeEvent.stopImmediatePropagation();
                       setOpenMenuId(openMenuId === role.id ? null : role.id);
                     }}
-                    className="p-1.5 rounded-md text-slate-300 group-hover:text-text-muted hover:bg-surface-hover transition-colors"
+                    className="p-1.5 rounded-xl text-text-muted/60 hover:text-primary hover:bg-primary/10 transition-colors"
                   >
-                    <MoreHorizontal size={16} />
+                    <MoreHorizontal size={18} />
                   </button>
 
                   {openMenuId === role.id && (
-                    <div
-                      className="absolute right-8 top-10 w-48 bg-surface rounded-xl py-1 z-50 overflow-hidden"
-                      style={{
-                        border: "1px solid var(--border-color)",
-                        boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-                      }}
-                    >
+                    <div className="absolute right-8 top-10 w-48 bg-surface rounded-xl py-1 z-50 overflow-hidden shadow-premium border border-border/80 animate-in zoom-in-95 duration-200">
                       <Link
                         href={`/workspace/roles/${role.id}`}
                         className="block px-4 py-2 text-sm font-medium text-text-muted hover:bg-surface-hover transition-colors text-left"

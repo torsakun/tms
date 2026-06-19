@@ -97,24 +97,24 @@ export default function ProjectIntegrationsPage({
       </header>
 
       {error && (
-        <div className="p-4 bg-red-50 text-red-600 rounded-lg border border-red-100 flex items-center">
+        <div className="p-4 bg-red-50 text-red-600 rounded-xl border border-red-100 flex items-center shadow-inner">
           <AlertCircle size={18} className="mr-2" /> {error}
         </div>
       )}
 
       {success && (
-        <div className="p-4 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100 flex items-center">
+        <div className="p-4 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100 flex items-center shadow-inner">
           <CheckCircle2 size={18} className="mr-2" /> {success}
         </div>
       )}
 
-      <div className="bg-surface rounded-xl shadow-sm border border-border p-6 space-y-6">
-        <h2 className="text-xl font-bold text-text-main mb-4 border-b border-border pb-2">
+      <div className="bg-surface rounded-2xl shadow-premium border border-border/80 p-6 space-y-6 animate-in zoom-in-95 duration-200">
+        <h2 className="text-lg font-bold text-text-main mb-4 border-b border-border/80 pb-3">
           GitHub Setup
         </h2>
         <div className="grid grid-cols-2 gap-6">
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-text-main">
+            <label className="text-[13px] font-bold text-text-main uppercase tracking-wider">
               GitHub Owner
             </label>
             <input
@@ -124,7 +124,7 @@ export default function ProjectIntegrationsPage({
                 setSettings({ ...settings, githubOwner: e.target.value })
               }
               placeholder="e.g., torsakun"
-              className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm text-text-main focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+              className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
             />
             <p className="text-xs text-text-muted">
               The organization or user account name.
@@ -132,7 +132,7 @@ export default function ProjectIntegrationsPage({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-text-main">
+            <label className="text-[13px] font-bold text-text-main uppercase tracking-wider">
               GitHub Repository Name
             </label>
             <input
@@ -142,7 +142,7 @@ export default function ProjectIntegrationsPage({
                 setSettings({ ...settings, githubRepo: e.target.value })
               }
               placeholder="e.g., ai_testing"
-              className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm text-text-main focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+              className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
             />
             <p className="text-xs text-text-muted">
               The name of the target repository.
@@ -151,7 +151,7 @@ export default function ProjectIntegrationsPage({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-text-main">
+          <label className="text-[13px] font-bold text-text-main uppercase tracking-wider">
             GitHub Personal Access Token
           </label>
           <input
@@ -161,7 +161,7 @@ export default function ProjectIntegrationsPage({
               setSettings({ ...settings, githubToken: e.target.value })
             }
             placeholder="ghp_..."
-            className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm text-text-main focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+            className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
           />
           <p className="text-xs text-text-muted">
             A token with 'repo' scope access. Leave blank to use the global
@@ -170,7 +170,7 @@ export default function ProjectIntegrationsPage({
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-text-main">
+          <label className="text-[13px] font-bold text-text-main uppercase tracking-wider">
             Actions Workflow Filename
           </label>
           <input
@@ -180,7 +180,7 @@ export default function ProjectIntegrationsPage({
               setSettings({ ...settings, githubWorkflowId: e.target.value })
             }
             placeholder="e.g., playwright.yml"
-            className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm text-text-main focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+            className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
           />
           <p className="text-xs text-text-muted">
             Optional. Specify a custom workflow YAML file name. Defaults to
@@ -188,11 +188,11 @@ export default function ProjectIntegrationsPage({
           </p>
         </div>
 
-        <h2 className="text-xl font-bold text-text-main mt-8 mb-4 border-b border-border pb-2">
+        <h2 className="text-lg font-bold text-text-main mt-8 mb-4 border-b border-border/80 pb-3">
           Microsoft Teams Notifications
         </h2>
         <div className="space-y-2">
-          <label className="text-sm font-semibold text-text-main">
+          <label className="text-[13px] font-bold text-text-main uppercase tracking-wider">
             MS Teams Incoming Webhook URL
           </label>
           <input
@@ -202,7 +202,7 @@ export default function ProjectIntegrationsPage({
               setSettings({ ...settings, msTeamsWebhookUrl: e.target.value })
             }
             placeholder="https://your-company.webhook.office.com/..."
-            className="w-full bg-background border border-border rounded-lg px-4 py-2.5 text-sm text-text-main focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all"
+            className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
           />
           <p className="text-xs text-text-muted">
             When a Test Run completes, a summary card will be posted to this
@@ -210,11 +210,11 @@ export default function ProjectIntegrationsPage({
           </p>
         </div>
 
-        <div className="pt-8 border-t border-border flex justify-end">
+        <div className="pt-8 border-t border-border/80 flex justify-end">
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="flex items-center px-4 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-bold hover:bg-primary-hover transition-colors shadow-sm disabled:opacity-50"
+            className="flex items-center px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-[13px] font-bold hover:bg-primary-hover transition-all duration-300 shadow-premium hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 disabled:shadow-none"
           >
             {isSaving ? (
               <Loader2 size={16} className="mr-2 animate-spin" />
@@ -227,7 +227,7 @@ export default function ProjectIntegrationsPage({
       </div>
 
       {/* Setup Instructions Section */}
-      <div className="bg-surface rounded-xl shadow-sm border border-border p-6 mt-8 space-y-6">
+      <div className="bg-surface rounded-2xl shadow-premium border border-border/80 p-6 mt-8 space-y-6 animate-in zoom-in-95 duration-200">
         <header>
           <h2 className="text-xl font-bold text-text-main">
             Setup Instructions for GitHub Repository
@@ -242,7 +242,7 @@ export default function ProjectIntegrationsPage({
         <div className="space-y-6">
           {/* Step 1 */}
           <div>
-            <h3 className="text-sm font-bold text-text-main mb-2">
+            <h3 className="text-[14px] font-bold text-text-main mb-2">
               1. Add Custom Reporter (<code>tessa-reporter.ts</code>)
             </h3>
             <p className="text-xs text-text-muted mb-3">
@@ -252,7 +252,7 @@ export default function ProjectIntegrationsPage({
             <div className="relative group">
               <textarea
                 readOnly
-                className="w-full h-64 p-4 bg-[#0d1117] border border-slate-800 rounded-lg text-xs font-mono leading-relaxed text-[#c9d1d9] resize-none focus:outline-none"
+                className="w-full h-64 p-4 bg-[#0d1117] border border-slate-800/80 rounded-xl text-xs font-mono leading-relaxed text-[#c9d1d9] resize-none focus:outline-none shadow-inner"
                 value={`import { Reporter, TestCase, TestResult } from '@playwright/test/reporter';
 
 class TessaReporter implements Reporter {
@@ -300,7 +300,7 @@ export default TessaReporter;`}
                     target.innerHTML = originalText;
                   }, 2000);
                 }}
-                className="absolute top-4 right-4 px-3 py-1 bg-slate-800 text-slate-300 rounded text-xs font-semibold hover:bg-slate-700 hover:text-white transition-colors"
+                className="absolute top-4 right-4 px-3 py-1.5 bg-slate-800 text-slate-300 rounded-md text-xs font-bold hover:bg-slate-700 hover:text-white transition-colors shadow-sm"
               >
                 Copy
               </button>
@@ -309,7 +309,7 @@ export default TessaReporter;`}
 
           {/* Step 2 */}
           <div>
-            <h3 className="text-sm font-bold text-text-main mb-2">
+            <h3 className="text-[14px] font-bold text-text-main mb-2">
               2. GitHub Actions Workflow (
               <code>.github/workflows/playwright.yml</code>)
             </h3>
@@ -320,7 +320,7 @@ export default TessaReporter;`}
             <div className="relative group">
               <textarea
                 readOnly
-                className="w-full h-[400px] p-4 bg-[#0d1117] border border-slate-800 rounded-lg text-xs font-mono leading-relaxed text-[#c9d1d9] resize-none focus:outline-none"
+                className="w-full h-[400px] p-4 bg-[#0d1117] border border-slate-800/80 rounded-xl text-xs font-mono leading-relaxed text-[#c9d1d9] resize-none focus:outline-none shadow-inner"
                 value={`name: Playwright Tests
 on:
   workflow_dispatch:
@@ -378,7 +378,7 @@ jobs:
                     target.innerHTML = originalText;
                   }, 2000);
                 }}
-                className="absolute top-4 right-4 px-3 py-1 bg-slate-800 text-slate-300 rounded text-xs font-semibold hover:bg-slate-700 hover:text-white transition-colors"
+                className="absolute top-4 right-4 px-3 py-1.5 bg-slate-800 text-slate-300 rounded-md text-xs font-bold hover:bg-slate-700 hover:text-white transition-colors shadow-sm"
               >
                 Copy
               </button>
@@ -387,7 +387,7 @@ jobs:
 
           {/* Step 3 */}
           <div>
-            <h3 className="text-sm font-bold text-text-main mb-2">
+            <h3 className="text-[14px] font-bold text-text-main mb-2">
               3. Configure GitHub Secrets
             </h3>
             <p className="text-xs text-text-muted">
@@ -395,7 +395,7 @@ jobs:
               <strong>Settings &gt; Secrets and variables &gt; Actions</strong>{" "}
               and add a new repository secret:
             </p>
-            <div className="mt-3 p-4 bg-surface-hover border border-border rounded-lg text-sm">
+            <div className="mt-3 p-5 bg-surface-hover/50 border border-border/80 rounded-xl text-[13px]">
               <div>
                 <strong className="text-text-main">Name:</strong>{" "}
                 <code className="bg-slate-200 px-1 py-0.5 rounded text-text-main">

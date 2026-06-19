@@ -47,7 +47,7 @@ export default function PublicReportPage({
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-surface p-6">
-        <div className="bg-background border border-border p-8 rounded-lg shadow-sm max-w-md w-full text-center">
+        <div className="bg-background border border-border/80 p-8 rounded-2xl shadow-premium max-w-md w-full text-center animate-in zoom-in-95 duration-200">
           <div className="text-red-500 mb-4">
             <svg
               className="w-16 h-16 mx-auto"
@@ -75,23 +75,23 @@ export default function PublicReportPage({
   if (!run) return null;
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10 px-4">
-      <div className="w-full max-w-[1000px] mb-4 flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+    <div className="min-h-screen bg-background flex flex-col items-center py-10 px-4 transition-colors">
+      <div className="w-full max-w-[1000px] mb-5 flex justify-between items-center">
+        <div className="flex items-center space-x-2.5">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
           </span>
-          <span className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+          <span className="text-xs font-black text-text-muted uppercase tracking-widest">
             Live Report
           </span>
         </div>
-        <div className="text-xs text-gray-400">
+        <div className="text-[11px] font-semibold text-text-muted/60">
           Auto-updating every 3 seconds
         </div>
       </div>
 
-      <div className="w-full max-w-[1000px] bg-surface shadow-xl rounded-lg overflow-hidden border border-gray-200">
+      <div className="w-full max-w-[1000px] bg-surface shadow-premium rounded-2xl overflow-hidden border border-border/80 animate-in zoom-in-95 duration-300">
         <PdfReportTemplate
           run={run}
           projectCode={run.project?.code || "UNKNOWN"}

@@ -60,7 +60,7 @@ function AcceptInviteContent() {
     return (
       <div className="min-h-screen bg-surface-hover flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-surface py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
+          <div className="bg-surface py-8 px-4 shadow-premium sm:rounded-3xl border border-border/80 sm:px-10 text-center animate-in zoom-in-95 duration-200">
             <h2 className="text-xl font-bold text-text-main mb-2">
               Invalid Invitation
             </h2>
@@ -83,7 +83,7 @@ function AcceptInviteContent() {
     return (
       <div className="min-h-screen bg-surface-hover flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-surface py-8 px-4 shadow sm:rounded-lg sm:px-10 text-center">
+          <div className="bg-surface py-8 px-4 shadow-premium sm:rounded-3xl border border-border/80 sm:px-10 text-center animate-in zoom-in-95 duration-200">
             <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
               <ShieldCheck size={32} />
             </div>
@@ -95,7 +95,7 @@ function AcceptInviteContent() {
             </p>
             <Link
               href={`/login?redirect=/projects/${projectCode}/repository`}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover"
+              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-primary-foreground bg-primary hover:bg-primary-hover transition-colors"
             >
               Sign In to Continue
             </Link>
@@ -117,10 +117,10 @@ function AcceptInviteContent() {
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-surface py-8 px-4 shadow sm:rounded-lg sm:px-10">
+        <div className="bg-surface py-8 px-4 shadow-premium sm:rounded-3xl border border-border/80 sm:px-10 animate-in zoom-in-95 duration-200">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="p-3 rounded-md bg-red-50 text-red-600 text-sm font-medium">
+              <div className="p-4 rounded-xl bg-red-50 text-red-600 text-[13px] font-bold shadow-inner border border-red-100">
                 {error}
               </div>
             )}
@@ -137,7 +137,7 @@ function AcceptInviteContent() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="appearance-none block w-full px-3 py-2 border border-text-muted rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main"
                 />
               </div>
             </div>
@@ -154,7 +154,7 @@ function AcceptInviteContent() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  className="appearance-none block w-full px-3 py-2 border border-text-muted rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main"
                 />
               </div>
               <p className="mt-1 text-xs text-text-muted">
@@ -178,7 +178,7 @@ function AcceptInviteContent() {
                       confirmPassword: e.target.value,
                     })
                   }
-                  className="appearance-none block w-full px-3 py-2 border border-text-muted rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main"
                 />
               </div>
             </div>
@@ -187,7 +187,7 @@ function AcceptInviteContent() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                className="w-full flex justify-center py-2.5 px-4 rounded-xl shadow-premium text-sm font-bold text-primary-foreground bg-primary hover:bg-primary-hover hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:hover:translate-y-0"
               >
                 {isLoading ? (
                   <Loader2 size={16} className="animate-spin" />

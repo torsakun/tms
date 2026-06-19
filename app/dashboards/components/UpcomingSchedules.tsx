@@ -18,8 +18,8 @@ export function UpcomingSchedules({ schedules }: UpcomingSchedulesProps) {
   if (!schedules || schedules.length === 0) return null;
 
   return (
-    <section className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
-      <div className="flex items-center justify-between border-b border-border px-5 py-4">
+    <section className="flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-premium">
+      <div className="flex items-center justify-between border-b border-border/80 px-5 py-4">
         <h2 className="flex items-center text-base font-extrabold text-text-main">
           <CalendarClock
             className="mr-2 text-primary"
@@ -32,7 +32,7 @@ export function UpcomingSchedules({ schedules }: UpcomingSchedulesProps) {
           {schedules.length} Active
         </span>
       </div>
-      <div className="divide-y divide-border">
+      <div className="divide-y divide-border/80">
         {schedules.map((schedule) => (
           <div
             key={schedule.id}

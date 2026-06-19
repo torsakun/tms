@@ -28,7 +28,7 @@ function ConfirmDialog({
       onClick={onCancel}
     >
       <div
-        className="bg-surface rounded-xl shadow-xl w-full max-w-sm p-6"
+        className="bg-surface rounded-2xl shadow-premium border border-border/80 w-full max-w-sm p-8 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-3 mb-5">
@@ -151,7 +151,7 @@ export default function WorkspaceInvitesPage() {
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:opacity-90"
+          className="inline-flex items-center gap-1.5 px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-premium hover:-translate-y-0.5 transition-all duration-300"
           style={{ background: "var(--primary)" }}
         >
           Invite new member
@@ -170,7 +170,7 @@ export default function WorkspaceInvitesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by email or role…"
-            className="w-full pl-9 pr-4 py-2 text-sm border border-border rounded-lg bg-surface text-text-main placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-300 transition-all"
+            className="w-full pl-9 pr-4 py-2.5 text-[13px] font-semibold border border-border/80 rounded-xl bg-surface-hover/50 text-text-main placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40"
           />
         </div>
       </div>
@@ -181,8 +181,8 @@ export default function WorkspaceInvitesPage() {
           <Loader2 className="animate-spin text-indigo-500" size={28} />
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-surface rounded-xl border border-border shadow-sm py-16 text-center">
-          <Mail size={28} className="text-slate-200 mx-auto mb-3" />
+        <div className="bg-surface rounded-2xl border border-border/80 shadow-premium py-16 text-center animate-in zoom-in-95 duration-200">
+          <Mail size={28} className="text-text-muted/60 mx-auto mb-3" />
           <p className="text-sm font-semibold text-text-muted">
             {search ? "No invites match your search" : "No pending invites"}
           </p>
@@ -193,11 +193,11 @@ export default function WorkspaceInvitesPage() {
           )}
         </div>
       ) : (
-        <div className="rounded-xl overflow-visible bg-surface border border-border shadow-sm">
+        <div className="rounded-2xl overflow-visible bg-surface border border-border/80 shadow-premium animate-in zoom-in-95 duration-200">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-border bg-surface-hover/80">
-                <th className="px-5 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider">
+              <tr className="border-b border-border/80 bg-surface-hover/70">
+                <th className="px-5 py-3.5 text-[11px] font-bold text-text-muted uppercase tracking-wider">
                   Email
                 </th>
                 <th className="px-5 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider">
@@ -218,35 +218,35 @@ export default function WorkspaceInvitesPage() {
                 return (
                   <tr
                     key={invite.id}
-                    className={`border-b border-border last:border-0 hover:bg-surface-hover/70 transition-colors ${i === 0 ? "" : ""}`}
+                    className={`border-b border-border/80 last:border-0 hover:bg-surface-hover/70 transition-colors group`}
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2.5">
                         <div className="w-7 h-7 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
                           <Mail size={13} className="text-indigo-400" />
                         </div>
-                        <span className="text-sm font-semibold text-text-main">
+                        <span className="text-[15px] font-bold text-text-main">
                           {invite.email}
                         </span>
                       </div>
                     </td>
                     <td className="px-5 py-4">
-                      <span className="text-sm text-text-muted">
+                      <span className="text-[13px] font-semibold text-text-muted">
                         {invite.accessRoleName || "Member"}
                       </span>
                     </td>
                     <td className="px-5 py-4">
-                      <span className="text-sm text-text-muted">
+                      <span className="text-[13px] font-medium text-text-muted">
                         {new Date(invite.createdAt).toLocaleDateString()}
                       </span>
                     </td>
                     <td className="px-5 py-4">
                       {isExpired ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-500 border border-rose-100">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-500 border border-rose-100">
                           <Clock size={11} /> Expired
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-sm text-amber-600">
+                        <span className="inline-flex items-center gap-1 text-[13px] font-bold text-amber-600">
                           <Clock size={13} />
                           {new Date(invite.expiresAt).toLocaleDateString()}
                         </span>
@@ -262,18 +262,12 @@ export default function WorkspaceInvitesPage() {
                             openMenuId === invite.id ? null : invite.id,
                           );
                         }}
-                        className="p-1.5 rounded-md text-slate-300 hover:text-text-muted hover:bg-surface-hover transition-colors"
+                        className="p-1.5 rounded-xl text-text-muted/60 hover:text-primary hover:bg-primary/10 transition-colors"
                       >
-                        <MoreHorizontal size={16} />
+                        <MoreHorizontal size={18} />
                       </button>
                       {openMenuId === invite.id && (
-                        <div
-                          className="absolute right-8 top-10 w-48 bg-surface rounded-xl py-1 z-50 overflow-hidden"
-                          style={{
-                            border: "1px solid var(--border-color)",
-                            boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-                          }}
-                        >
+                        <div className="absolute right-8 top-10 w-48 bg-surface rounded-xl py-1 z-50 overflow-hidden shadow-premium border border-border/80 animate-in zoom-in-95 duration-200">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();

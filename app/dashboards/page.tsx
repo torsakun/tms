@@ -903,8 +903,8 @@ function MetricCard({
   }[tone];
 
   return (
-    <article className="group rounded-lg border border-border bg-surface p-4 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md">
-      <div className="flex items-start justify-between gap-3">
+    <article className="group relative overflow-hidden rounded-2xl border border-border/60 bg-surface p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-border hover:shadow-premium">
+      <div className="flex items-start justify-between gap-3 relative z-10">
         <div>
           <p className="text-xs font-bold uppercase text-text-muted">
             {label}
@@ -947,9 +947,9 @@ function Panel({
 }) {
   return (
     <section
-      className={`overflow-hidden rounded-lg border border-border bg-surface shadow-sm ${className}`}
+      className={`overflow-hidden rounded-2xl border border-border/60 bg-surface shadow-sm transition-shadow duration-300 hover:shadow-md ${className}`}
     >
-      <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
+      <div className="flex items-start justify-between gap-4 border-b border-border/50 px-6 py-5 bg-surface-hover/30">
         <div>
           <h2 className="flex items-center gap-2 text-base font-extrabold text-text-main">
             <Icon size={17} className="text-primary" />
@@ -962,7 +962,7 @@ function Panel({
           )}
         </div>
       </div>
-      <div className="p-5">{children}</div>
+      <div className="p-6">{children}</div>
     </section>
   );
 }

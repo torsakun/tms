@@ -61,14 +61,11 @@ export default function SignupPage() {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-6"
-      style={{ background: "var(--bg-background)" }}
-    >
+    <div className="min-h-screen flex items-center justify-center p-6 bg-background">
       <div className="w-full max-w-[420px]">
         <div className="flex items-center gap-3 mb-8 justify-center">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
+            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-premium"
             style={{ background: "var(--primary)" }}
           >
             <Zap className="text-white" size={20} strokeWidth={2.5} />
@@ -78,7 +75,7 @@ export default function SignupPage() {
           </span>
         </div>
 
-        <div className="bg-surface rounded-2xl shadow-sm border border-border p-8">
+        <div className="bg-surface rounded-2xl shadow-premium border border-border/80 p-8">
           {open === null ? (
             <div className="py-12 flex flex-col items-center gap-3 text-text-muted">
               <Loader2 className="animate-spin" size={26} />
@@ -99,7 +96,7 @@ export default function SignupPage() {
               </p>
               <Link
                 href="/login"
-                className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-white shadow-md hover:-translate-y-0.5 transition-all"
+                className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-white shadow-premium hover:-translate-y-0.5 transition-all"
                 style={{
                   background: "var(--primary)",
                 }}
@@ -123,7 +120,7 @@ export default function SignupPage() {
 
               <form className="space-y-4" onSubmit={handleSubmit}>
                 {error && (
-                  <div className="p-3 bg-red-50 text-red-600 flex items-center rounded-xl border border-red-200 text-sm font-medium">
+                  <div className="p-3 bg-rose-500/10 text-rose-500 flex items-center rounded-xl border border-rose-500/20 text-sm font-bold">
                     <AlertCircle size={16} className="mr-2 shrink-0" />
                     {error}
                   </div>
@@ -138,7 +135,7 @@ export default function SignupPage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="John Doe"
-                    className="w-full px-4 py-2.5 bg-surface-hover border border-border rounded-xl text-text-main placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all text-sm"
+                    className="w-full px-4 py-3.5 bg-surface-hover/50 border border-border/80 rounded-xl text-text-main font-semibold placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all text-[15px] hover:border-text-muted/40 shadow-inner"
                   />
                 </div>
                 <div>
@@ -151,7 +148,7 @@ export default function SignupPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@company.com"
-                    className="w-full px-4 py-2.5 bg-surface-hover border border-border rounded-xl text-text-main placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all text-sm"
+                    className="w-full px-4 py-3.5 bg-surface-hover/50 border border-border/80 rounded-xl text-text-main font-semibold placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all text-[15px] hover:border-text-muted/40 shadow-inner"
                   />
                 </div>
                 <div>
@@ -164,13 +161,13 @@ export default function SignupPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full px-4 py-2.5 bg-surface-hover border border-border rounded-xl text-text-main placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all text-sm"
+                    className="w-full px-4 py-3.5 bg-surface-hover/50 border border-border/80 rounded-xl text-text-main font-semibold placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all text-[15px] hover:border-text-muted/40 shadow-inner"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white shadow-md hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:hover:translate-y-0"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white shadow-premium hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:hover:translate-y-0"
                   style={{
                     background: "var(--primary)",
                   }}
@@ -191,7 +188,7 @@ export default function SignupPage() {
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
+                  className="font-bold text-primary hover:text-primary-hover transition-colors"
                 >
                   Sign in
                 </Link>

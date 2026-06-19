@@ -41,12 +41,12 @@ export default async function TestPlansPage({
 
   return (
     <div className="flex flex-col flex-1 bg-background transition-colors min-h-0">
-      <header className="h-16 bg-surface shadow-[0_1px_15px_rgba(0,0,0,0.04)] dark:shadow-none flex items-center justify-between px-8 shrink-0 z-10 relative transition-colors">
+      <header className="h-16 bg-surface border-b border-border/80 flex items-center justify-between px-8 shrink-0 z-10 relative transition-colors">
         <h1 className="text-xl font-bold text-text-main">Test Plans</h1>
         <div className="flex items-center space-x-3">
           <Link
             href={`/projects/${code}/plans/create`}
-            className="bg-primary text-primary-foreground shadow-sm px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-hover transition-colors flex items-center"
+            className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold hover:bg-primary-hover transition-all duration-300 shadow-premium hover:-translate-y-0.5 flex items-center"
           >
             <Plus size={16} className="mr-2" />
             Create test plan

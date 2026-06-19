@@ -13,6 +13,18 @@
   --color-border: var(--border-color);
   --color-text-main: var(--text-main);
   --color-text-muted: var(--text-muted);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-premium: 0 10px 40px -10px rgba(0,0,0,0.12);
+
+  --z-dropdown: 40;
+  --z-sticky: 50;
+  --z-modal-backdrop: 60;
+  --z-modal: 70;
+  --z-toast: 80;
+  --z-tooltip: 90;
 }
 
 /* ── Light Design Tokens ───────────────────────────────── */
@@ -78,15 +90,16 @@ body {
 
 button,
 a {
-  transition: all 0.15s ease-in-out;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 button:active:not(:disabled),
 a:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* ── Accessibility: visible keyboard focus (mouse clicks stay clean) ── */

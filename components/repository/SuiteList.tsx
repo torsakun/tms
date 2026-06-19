@@ -94,8 +94,8 @@ export function SuiteList({
 
   if (q && visibleRoots.length === 0 && unassignedCases.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 bg-surface rounded-xl border border-border border-dashed">
-        <div className="w-14 h-14 bg-indigo-50 text-indigo-400 rounded-full flex items-center justify-center mb-3">
+      <div className="flex flex-col items-center justify-center p-12 bg-surface rounded-2xl border border-border/80 border-dashed">
+        <div className="w-14 h-14 bg-indigo-50 text-indigo-400 rounded-full flex items-center justify-center mb-3 shadow-sm">
           <Folder size={28} />
         </div>
         <h3 className="text-base font-bold text-text-main mb-1">
@@ -110,8 +110,8 @@ export function SuiteList({
 
   if (suites.length === 0 && unassignedCases.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 bg-surface rounded-xl border border-border border-dashed transition-colors">
-        <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4 transition-colors">
+      <div className="flex flex-col items-center justify-center p-12 bg-surface rounded-2xl border border-border/80 border-dashed transition-colors">
+        <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4 transition-colors shadow-sm">
           <Folder size={32} />
         </div>
         <h3 className="text-lg font-semibold text-text-main mb-2">

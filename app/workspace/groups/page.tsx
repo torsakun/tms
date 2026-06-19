@@ -28,10 +28,10 @@ function ConfirmDialog({
       onClick={onCancel}
     >
       <div
-        className="bg-surface rounded-xl shadow-xl w-full max-w-sm p-6"
+        className="bg-surface rounded-2xl shadow-premium border border-border/80 w-full max-w-sm p-8 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start gap-3 mb-5">
+        <div className="flex items-start gap-4 mb-6">
           <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
             <AlertTriangle size={18} className="text-rose-500" />
           </div>
@@ -293,7 +293,7 @@ export default function WorkspaceGroupsPage() {
         </div>
         <button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 transition-all"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white shadow-premium hover:-translate-y-0.5 transition-all duration-300"
           style={{ background: "var(--primary)" }}
         >
           <Plus size={15} strokeWidth={2.5} /> Create Group
@@ -305,7 +305,7 @@ export default function WorkspaceGroupsPage() {
       </p>
 
       {groups.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-border rounded-xl bg-surface">
+        <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border/80 rounded-2xl bg-surface shadow-premium animate-in zoom-in-95 duration-200">
           <div className="bg-indigo-50 p-4 rounded-full mb-4">
             <Users className="text-indigo-400" size={32} />
           </div>
@@ -322,11 +322,11 @@ export default function WorkspaceGroupsPage() {
           </button>
         </div>
       ) : (
-        <div className="bg-surface border border-border rounded-xl shadow-sm overflow-visible">
+        <div className="bg-surface border border-border/80 rounded-2xl shadow-premium overflow-visible">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-border bg-surface-hover/80">
-                <th className="px-6 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider">
+              <tr className="border-b border-border/80 bg-surface-hover/70">
+                <th className="px-6 py-3.5 text-[11px] font-bold text-text-muted uppercase tracking-wider">
                   Group Details
                 </th>
                 <th className="px-6 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider w-32">
@@ -338,11 +338,11 @@ export default function WorkspaceGroupsPage() {
                 <th className="px-6 py-3 w-16"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-border/80">
               {groups.map((group) => (
                 <tr
                   key={group.id}
-                  className="hover:bg-surface-hover/70 transition-colors group/row"
+                  className="border-b border-border/80 last:border-0 hover:bg-surface-hover/70 transition-colors group/row"
                 >
                   <td className="px-6 py-4">
                     <div className="flex flex-col">
@@ -372,7 +372,7 @@ export default function WorkspaceGroupsPage() {
                         ))}
                       </div>
                     ) : (
-                      <span className="text-xs text-slate-300">None</span>
+                      <span className="text-xs text-text-muted opacity-60 font-semibold">None</span>
                     )}
                   </td>
                   <td className="px-6 py-4 text-right relative">
@@ -385,12 +385,12 @@ export default function WorkspaceGroupsPage() {
                           openMenuId === group.id ? null : group.id,
                         );
                       }}
-                      className="text-text-muted hover:text-indigo-600 p-1.5 rounded-md hover:bg-indigo-50 transition-colors"
+                      className="text-text-muted hover:text-primary p-1.5 rounded-xl hover:bg-primary/10 transition-colors"
                     >
                       <MoreHorizontal size={18} />
                     </button>
                     {openMenuId === group.id && (
-                      <div className="absolute right-12 top-10 w-44 bg-surface rounded-xl shadow-xl border border-border z-50 py-1 text-left">
+                      <div className="absolute right-12 top-10 w-44 bg-surface rounded-xl shadow-premium border border-border/80 z-50 py-1 text-left animate-in zoom-in-95 duration-200">
                         <button
                           className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover transition-colors"
                           onClick={(e) => {
@@ -435,7 +435,7 @@ export default function WorkspaceGroupsPage() {
           onClick={() => setDrawerOpen(false)}
         >
           <div
-            className="bg-surface w-full max-w-md h-full shadow-2xl animate-in slide-in-from-right duration-300 flex flex-col"
+            className="bg-surface w-full max-w-md h-full shadow-premium animate-in slide-in-from-right duration-300 flex flex-col border-l border-border/80"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-6 py-4 border-b border-border flex justify-between items-center">

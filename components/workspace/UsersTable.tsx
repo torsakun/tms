@@ -63,12 +63,12 @@ export default function UsersTable({
   };
 
   const chip = (active: boolean) =>
-    [
-      "h-8 flex items-center gap-1.5 px-3 rounded-lg border text-xs font-semibold transition-colors",
-      active
-        ? "border-indigo-200 bg-indigo-50 text-indigo-900"
-        : "border-border bg-surface text-text-main hover:border-border",
-    ].join(" ");
+      [
+        "h-9 flex items-center gap-1.5 px-4 py-2.5 rounded-xl border transition-all duration-300 text-[13px] font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5",
+        active
+          ? "border-indigo-200 bg-indigo-50 text-indigo-900"
+          : "border-border/80 bg-surface text-text-main hover:border-text-muted/40 hover:bg-surface-hover",
+      ].join(" ");
 
   return (
     <>
@@ -84,7 +84,7 @@ export default function UsersTable({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search members…"
-            className="pl-8 pr-4 h-8 text-sm border border-border bg-surface text-text-main rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 w-52 transition-all"
+            className="pl-9 pr-4 py-2 text-[13px] font-semibold border border-border/80 bg-surface text-text-main rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/20 shadow-inner w-52 transition-all hover:border-text-muted/40"
           />
         </div>
 
@@ -98,11 +98,7 @@ export default function UsersTable({
           </button>
           {openMenu === "status" && (
             <div
-              className="absolute left-0 mt-1 w-40 bg-surface rounded-xl py-1 z-30 overflow-hidden"
-              style={{
-                border: "1px solid var(--border-color)",
-                boxShadow: "var(--shadow-sm)",
-              }}
+              className="absolute left-0 mt-2 w-40 bg-surface rounded-2xl py-2 z-30 overflow-hidden animate-in zoom-in-95 duration-200 shadow-premium border border-border/80"
             >
               {(["ALL", "ACTIVE", "INACTIVE"] as StatusFilter[]).map((s) => (
                 <button
@@ -112,7 +108,7 @@ export default function UsersTable({
                     setOpenMenu(null);
                   }}
                   className={[
-                    "w-full text-left px-4 py-2 text-sm font-medium transition-colors flex items-center justify-between",
+                    "w-full text-left px-4 py-2 text-[13px] font-bold transition-colors flex items-center justify-between",
                     status === s
                       ? "bg-indigo-50 text-indigo-900"
                       : "text-text-main hover:bg-surface-hover",
@@ -134,11 +130,11 @@ export default function UsersTable({
       </div>
 
       {/* Table */}
-      <div className="rounded-xl overflow-visible bg-surface border border-border shadow-sm">
+      <div className="rounded-2xl overflow-visible bg-surface border border-border/80 shadow-premium animate-in zoom-in-95 duration-200">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-border bg-surface-hover/80">
-              <th className="px-5 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider">
+            <tr className="border-b border-border/80 bg-surface-hover/70">
+              <th className="px-5 py-3.5 text-[11px] font-bold text-text-muted uppercase tracking-wider">
                 User
               </th>
               <th className="px-5 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider w-28">
@@ -157,7 +153,7 @@ export default function UsersTable({
             {filtered.map((user) => (
               <tr
                 key={user.id}
-                className={`border-b border-border last:border-0 transition-colors group ${user.isActive ? "hover:bg-surface-hover/70" : "opacity-60"}`}
+                className={`border-b border-border/80 last:border-0 transition-colors group ${user.isActive ? "hover:bg-surface-hover/70" : "opacity-60"}`}
               >
                 <td className="px-5 py-3.5 align-middle">
                   <div className="flex items-center gap-3">
@@ -169,11 +165,11 @@ export default function UsersTable({
                     </div>
                     <div>
                       <div
-                        className={`text-sm font-semibold text-text-main ${!user.isActive && "line-through"}`}
+                        className={`text-[15px] font-bold text-text-main ${!user.isActive && "line-through"}`}
                       >
                         {user.name}
                       </div>
-                      <div className="text-[11px] text-text-muted mt-0.5">
+                      <div className="text-[13px] font-medium text-text-muted mt-0.5">
                         {user.email}
                       </div>
                     </div>
@@ -181,12 +177,12 @@ export default function UsersTable({
                 </td>
                 <td className="px-5 py-3.5 align-middle">
                   {user.isActive ? (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600">
+                    <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-emerald-600">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />{" "}
                       Active
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-muted">
+                    <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-text-muted">
                       <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />{" "}
                       Inactive
                     </span>
@@ -194,7 +190,7 @@ export default function UsersTable({
                 </td>
                 <td className="px-5 py-3.5 align-middle">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-sm text-text-main font-medium">
+                    <span className="text-[13px] font-semibold text-text-main">
                       {user.role}
                     </span>
                     {user.isSysAdmin && (
@@ -207,7 +203,7 @@ export default function UsersTable({
                   </div>
                 </td>
                 <td className="px-5 py-3.5 align-middle">
-                  <span className="text-sm text-text-muted">
+                  <span className="text-[13px] font-medium text-text-muted">
                     {user.lastAction}
                   </span>
                 </td>

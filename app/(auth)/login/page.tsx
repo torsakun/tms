@@ -63,10 +63,7 @@ function LoginPageContent() {
   };
 
   return (
-    <div
-      className="min-h-screen flex w-full font-sans"
-      style={{ background: "var(--bg-background)" }}
-    >
+    <div className="min-h-screen flex w-full font-sans bg-background">
       {/* Left Panel */}
       <div
         className="hidden lg:flex w-[52%] relative overflow-hidden flex-col justify-between p-12"
@@ -115,7 +112,7 @@ function LoginPageContent() {
         <div className="relative z-10">
           <div className="flex items-center gap-3">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
+              className="w-10 h-10 rounded-xl flex items-center justify-center shadow-premium"
               style={{
                 background: "linear-gradient(135deg, #6366f1, #8b5cf6)",
               }}
@@ -211,16 +208,16 @@ function LoginPageContent() {
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="w-full lg:w-[48%] flex items-center justify-center p-8 sm:p-12 bg-slate-50 dark:bg-background/95">
+      <div className="w-full lg:w-[48%] flex items-center justify-center p-8 sm:p-12 bg-background">
         <div className="w-full max-w-[440px] animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <div className="bg-surface rounded-[2rem] p-8 sm:p-10 shadow-2xl shadow-indigo-900/5 dark:shadow-indigo-900/20 border border-border/60 relative overflow-hidden">
+          <div className="bg-surface rounded-[2rem] p-8 sm:p-10 shadow-premium border border-border/80 relative overflow-hidden">
             {/* Subtle top glare */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
             
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-10 justify-center">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg"
+              className="w-10 h-10 rounded-xl flex items-center justify-center shadow-premium"
               style={{
                 background: "var(--primary)",
               }}
@@ -244,14 +241,14 @@ function LoginPageContent() {
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             {inviteAccepted && (
-              <div className="p-4 bg-emerald-50 text-emerald-700 flex items-center rounded-xl border border-emerald-200 text-sm font-medium">
+              <div className="p-4 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center rounded-xl border border-emerald-500/20 text-sm font-bold">
                 <CheckCircle2 size={18} className="mr-3 shrink-0" />
                 Invitation accepted! You can now sign in.
               </div>
             )}
 
             {error && (
-              <div className="p-4 bg-red-50 text-red-600 flex items-center rounded-xl border border-red-200 text-sm font-medium">
+              <div className="p-4 bg-rose-500/10 text-rose-500 flex items-center rounded-xl border border-rose-500/20 text-sm font-bold">
                 <AlertCircle size={18} className="mr-3 shrink-0" />
                 {error}
               </div>
@@ -278,7 +275,7 @@ function LoginPageContent() {
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-[13px] font-bold text-indigo-500 hover:text-indigo-600 hover:underline transition-all"
+                  className="text-[13px] font-bold text-primary hover:text-primary-hover hover:underline transition-all"
                 >
                   Forgot password?
                 </Link>
@@ -341,17 +338,17 @@ function LoginPageContent() {
           {msEnabled && (
             <>
               <div className="flex items-center gap-3 my-6">
-                <div className="flex-1 h-px bg-slate-200" />
-                <span className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider">
                   or
                 </span>
-                <div className="flex-1 h-px bg-slate-200" />
+                <div className="flex-1 h-px bg-border" />
               </div>
 
               <button
                 type="button"
                 onClick={() => signIn("azure-ad", { callbackUrl: "/" })}
-                className="w-full flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-xl text-[14px] font-bold text-text-main bg-surface border border-border/80 hover:bg-surface-hover hover:border-text-muted/40 hover:-translate-y-0.5 shadow-sm hover:shadow-md transition-all duration-300"
+                className="w-full flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-xl text-[14px] font-bold text-text-main bg-surface border border-border/80 hover:bg-surface-hover hover:border-text-muted/40 hover:-translate-y-0.5 shadow-sm hover:shadow-premium transition-all duration-300"
               >
                 <svg
                   width="16"
@@ -373,7 +370,7 @@ function LoginPageContent() {
             Access is invite-only. Need an account?{" "}
             <a
               href="mailto:support@qmaster.app?subject=Workspace%20access%20request"
-              className="font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
+              className="font-bold text-primary hover:text-primary-hover transition-colors"
             >
               Contact your admin
             </a>

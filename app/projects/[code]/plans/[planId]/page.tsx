@@ -106,13 +106,13 @@ export default async function TestPlanDetailPage({
         <div className="flex items-center gap-2 shrink-0">
           <Link
             href={`/projects/${code}/plans/${planId}/edit`}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold text-text-muted bg-surface border border-border rounded-lg hover:bg-surface-hover transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-4 py-2 text-[13px] font-bold text-text-muted bg-surface border border-border/80 rounded-xl hover:bg-surface-hover hover:-translate-y-0.5 duration-300 transition-all shadow-inner"
           >
             <Edit2 size={14} /> Edit
           </Link>
           <Link
             href={`/projects/${code}/runs/create?plan=${planId}`}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold text-white rounded-lg shadow-sm hover:brightness-110 transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 text-[13px] font-bold text-white rounded-xl shadow-premium hover:-translate-y-0.5 duration-300 transition-all"
             style={{ background: "var(--primary)" }}
           >
             <PlayCircle size={14} /> Start run

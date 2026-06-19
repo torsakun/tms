@@ -134,15 +134,15 @@ export default function EditPlanPage() {
 
   return (
     <div className="flex h-screen bg-surface-hover items-center justify-center">
-      <div className="bg-surface rounded-xl border border-border shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
-        <header className="flex items-center justify-between px-6 py-4 border-b border-border shrink-0">
+      <div className="bg-surface rounded-2xl border border-border/80 shadow-premium w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden transition-colors">
+        <header className="flex items-center justify-between px-6 py-4 border-b border-border/80 shrink-0 bg-surface">
           <h1 className="text-xl font-semibold text-text-main">
             Edit test plan
           </h1>
           <button
             type="button"
             onClick={() => router.back()}
-            className="p-2 text-text-muted hover:text-text-muted hover:bg-surface-hover rounded-full transition"
+            className="p-2 text-text-muted hover:text-text-main hover:bg-surface-hover rounded-full transition-colors"
           >
             <X size={20} />
           </button>
@@ -154,14 +154,14 @@ export default function EditPlanPage() {
         >
           <div className="p-8 space-y-6 overflow-y-auto">
             {error && (
-              <div className="p-4 bg-red-50 text-red-700 flex items-center rounded-lg border border-red-100">
+              <div className="p-4 bg-red-50 text-red-700 flex items-center rounded-xl border border-red-100">
                 <AlertCircle size={18} className="mr-2 shrink-0" />
                 <p className="text-sm font-medium">{error}</p>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-semibold text-text-main mb-2">
+              <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
                 Plan Title
               </label>
               <input
@@ -170,12 +170,12 @@ export default function EditPlanPage() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Release 1.2 Regression"
-                className="w-full px-4 py-2.5 bg-surface-hover border border-border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all"
+                className="w-full px-4 py-3 bg-surface border border-border/80 text-text-main rounded-xl focus:ring-4 focus:ring-primary/20 outline-none transition-all shadow-inner placeholder:text-text-muted/50"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-text-main mb-2">
+              <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
                 Description (Optional)
               </label>
               <textarea
@@ -183,22 +183,22 @@ export default function EditPlanPage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What is the goal of this test plan?"
-                className="w-full px-4 py-2.5 bg-surface-hover border border-border rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all resize-none"
+                className="w-full px-4 py-3 bg-surface border border-border/80 text-text-main rounded-xl focus:ring-4 focus:ring-primary/20 outline-none transition-all resize-none shadow-inner placeholder:text-text-muted/50"
               />
             </div>
 
             {/* Modal Trigger */}
             <div className="pt-2">
-              <label className="block text-sm font-semibold text-text-main mb-2">
+              <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
                 Test Cases
               </label>
               <button
                 type="button"
-                className="flex items-center justify-between w-full px-4 py-3 bg-surface border border-border rounded-lg hover:border-blue-300 hover:ring-1 hover:ring-blue-500/20 transition-all text-left group"
+                className="flex items-center justify-between w-full px-5 py-4 bg-surface border border-border/80 rounded-xl hover:border-primary/50 hover:ring-4 hover:ring-primary/20 transition-all text-left group shadow-inner"
                 onClick={() => setIsModalOpen(true)}
               >
                 <div>
-                  <div className="text-sm font-medium text-text-main group-hover:text-blue-700 transition-colors">
+                  <div className="text-sm font-medium text-text-main group-hover:text-primary transition-colors">
                     Select test cases
                   </div>
                   <div className="text-xs text-text-muted mt-1">
@@ -207,7 +207,7 @@ export default function EditPlanPage() {
                       : `${selectedIds.size} of ${cases.length} cases selected`}
                   </div>
                 </div>
-                <div className="px-3 py-1.5 bg-surface-hover text-text-muted rounded-md text-sm font-medium group-hover:bg-blue-50 group-hover:text-blue-700 transition-colors">
+                <div className="px-3 py-1.5 bg-background border border-border text-text-main rounded-md text-sm font-medium group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20 transition-colors">
                   Edit selection
                 </div>
               </button>
@@ -218,14 +218,14 @@ export default function EditPlanPage() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-4 py-2 font-medium text-text-muted hover:bg-surface-hover rounded-md transition mr-3"
+              className="px-5 py-2.5 text-[13px] font-bold text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition-all mr-3"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center px-4 py-2 font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary-hover transition shadow-sm disabled:opacity-50"
+              className="flex items-center px-5 py-2.5 text-[13px] font-bold text-primary-foreground bg-primary rounded-xl hover:bg-primary-hover hover:-translate-y-0.5 transition-all shadow-premium duration-300 disabled:opacity-50 disabled:shadow-none disabled:transform-none"
             >
               {loading ? "Saving..." : "Save Changes"}
             </button>

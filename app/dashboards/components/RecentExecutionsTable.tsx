@@ -81,8 +81,8 @@ export function RecentExecutionsTable({
   const currentRuns = enhancedRuns.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <section className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
-      <div className="flex items-center justify-between border-b border-border px-5 py-4">
+    <section className="flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-premium">
+      <div className="flex items-center justify-between border-b border-border/80 px-5 py-4">
         <h2 className="flex items-center text-base font-extrabold text-text-main">
           <Activity
             className="mr-2 text-primary"
@@ -95,7 +95,7 @@ export function RecentExecutionsTable({
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left border-collapse min-w-[500px]">
           <thead>
-            <tr className="border-b border-border bg-surface-hover/70 text-xs font-bold text-text-muted">
+            <tr className="border-b border-border/80 bg-surface-hover/70 text-xs font-bold text-text-muted">
               <th className="px-5 py-3">Run</th>
               <th className="px-5 py-3 w-32">Status</th>
               <th className="px-5 py-3">Progress</th>
@@ -127,7 +127,7 @@ export function RecentExecutionsTable({
               return (
                 <tr
                   key={run.id}
-                  className="group border-b border-border transition-colors duration-150 hover:bg-surface-hover/80"
+                  className="group border-b border-border/80 transition-colors duration-150 hover:bg-surface-hover/80"
                 >
                   <td className="px-5 py-4">
                     <Link
@@ -244,7 +244,7 @@ export function RecentExecutionsTable({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="mt-auto flex items-center justify-between border-t border-border bg-surface-hover/50 px-5 py-3">
+        <div className="mt-auto flex items-center justify-between border-t border-border/80 bg-surface-hover/50 px-5 py-3 rounded-b-2xl">
           <span className="text-xs text-text-muted font-medium">
             Showing {startIndex + 1} to{" "}
             {Math.min(startIndex + itemsPerPage, enhancedRuns.length)} of{" "}
@@ -254,7 +254,7 @@ export function RecentExecutionsTable({
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-text-muted transition-colors hover:bg-surface hover:text-text-main disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/80 text-text-muted transition-colors hover:bg-surface hover:text-text-main disabled:cursor-not-allowed disabled:opacity-50 hover:shadow-sm"
               aria-label="Previous execution page"
             >
               <ChevronLeft size={16} />
@@ -264,7 +264,7 @@ export function RecentExecutionsTable({
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-text-muted transition-colors hover:bg-surface hover:text-text-main disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/80 text-text-muted transition-colors hover:bg-surface hover:text-text-main disabled:cursor-not-allowed disabled:opacity-50 hover:shadow-sm"
               aria-label="Next execution page"
             >
               <ChevronRight size={16} />

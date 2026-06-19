@@ -52,7 +52,7 @@ export default function MilestonesPage() {
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary hover:bg-primary-hover text-primary-foreground px-4 py-2 rounded-md text-sm font-bold flex items-center transition-colors shadow-sm"
+          className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-bold hover:bg-primary-hover transition-all duration-300 flex items-center shadow-premium hover:-translate-y-0.5"
         >
           <Plus size={16} className="mr-2" /> Create milestone
         </button>
@@ -60,7 +60,7 @@ export default function MilestonesPage() {
 
       <main className="flex-1 overflow-y-auto p-8">
         {milestones.length === 0 ? (
-          <div className="text-center py-20 bg-surface rounded-lg border border-border border-dashed">
+          <div className="text-center py-20 bg-surface rounded-2xl border border-border/80 border-dashed animate-in zoom-in-95 duration-200">
             <Flag
               size={48}
               className="mx-auto text-text-muted opacity-50 mb-4"
@@ -74,15 +74,15 @@ export default function MilestonesPage() {
             </p>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-primary hover:bg-primary-hover text-primary-foreground px-4 py-2 rounded-md text-sm font-bold transition-colors shadow-sm"
+              className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold hover:bg-primary-hover transition-all duration-300 shadow-premium hover:-translate-y-0.5"
             >
               Create milestone
             </button>
           </div>
         ) : (
-          <div className="bg-surface rounded-lg border border-border overflow-hidden">
+          <div className="bg-surface rounded-2xl border border-border/80 shadow-premium overflow-hidden">
             <table className="w-full text-left text-sm">
-              <thead className="bg-background/50 border-b border-border text-text-muted">
+              <thead className="bg-surface-hover/70 border-b border-border/80 text-text-muted">
                 <tr>
                   <th className="px-6 py-3 font-medium">Title</th>
                   <th className="px-6 py-3 font-medium">Status</th>
@@ -90,7 +90,7 @@ export default function MilestonesPage() {
                   <th className="px-6 py-3 font-medium text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-border/50">
                 {milestones.map((ms) => (
                   <tr
                     key={ms.id}
@@ -129,8 +129,8 @@ export default function MilestonesPage() {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface w-[500px] rounded-lg shadow-xl overflow-hidden border border-border animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-background">
+          <div className="bg-surface w-[500px] rounded-2xl shadow-premium overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200">
+            <div className="px-6 py-4 border-b border-border/80 flex justify-between items-center bg-background/50">
               <h3 className="text-lg font-bold text-text-main">
                 Create milestone
               </h3>
@@ -152,7 +152,7 @@ export default function MilestonesPage() {
                     required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full bg-background border border-border text-text-main rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
+                    className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main"
                     placeholder="e.g. Sprint 14"
                   />
                 </div>
@@ -164,7 +164,7 @@ export default function MilestonesPage() {
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full bg-background border border-border text-text-main rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
+                    className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main"
                   />
                 </div>
                 <div>
@@ -174,22 +174,22 @@ export default function MilestonesPage() {
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    className="w-full bg-background border border-border text-text-main rounded-md px-3 py-2 text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-primary/50 transition-colors"
+                    className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main min-h-[100px]"
                     placeholder="Goals for this milestone..."
                   />
                 </div>
               </div>
-              <div className="px-6 py-4 bg-background border-t border-border flex justify-end space-x-3">
+              <div className="px-6 py-4 bg-background/50 border-t border-border/80 flex justify-end space-x-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-md border border-border text-sm font-medium hover:bg-surface-hover text-text-main transition-colors"
+                  className="px-4 py-2 rounded-xl border border-border/80 text-[13px] font-bold hover:bg-surface-hover text-text-main transition-colors hover:border-text-muted/40"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-md bg-primary hover:bg-primary-hover text-primary-foreground text-sm font-medium shadow-sm transition-all"
+                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-[13px] font-bold shadow-premium transition-all duration-300 hover:-translate-y-0.5"
                 >
                   Create
                 </button>

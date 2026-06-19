@@ -217,10 +217,10 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
     return (
       <div
         key={run.id}
-        className={`group flex items-center gap-3 px-4 rounded-xl border transition-all animate-list-in ${
+        className={`group flex items-center gap-3 px-4 rounded-2xl border transition-all animate-list-in ${
           hero
-            ? "py-4 bg-indigo-50/40 border-indigo-200 hover:shadow-md"
-            : "py-3 bg-surface border-border hover:border-indigo-200 hover:shadow-sm"
+            ? "py-4 bg-surface border-indigo-200/50 hover:border-indigo-400/80 shadow-premium"
+            : "py-3 bg-surface border-border/60 hover:border-border/80 shadow-sm"
         }`}
         style={{ animationDelay: `${Math.min(idx, 10) * 45}ms` }}
       >
@@ -239,8 +239,8 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
           </div>
         ) : (
           <span
-            className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0 text-white transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-3"
-            style={{ background: chip.bg, boxShadow: `0 3px 10px ${chip.bg}55` }}
+            className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0 text-white transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-3 shadow-sm"
+            style={{ background: chip.bg }}
             aria-hidden="true"
           >
             <ChipIcon size={18} strokeWidth={2.25} />
@@ -281,12 +281,12 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
             onClick={() =>
               setActiveDropdown(activeDropdown === run.id ? null : run.id)
             }
-            className={`p-1.5 rounded-lg transition-colors ${activeDropdown === run.id ? "bg-surface-hover text-text-main" : "text-text-muted hover:text-text-main hover:bg-surface-hover"}`}
+            className={`p-1.5 rounded-xl transition-colors ${activeDropdown === run.id ? "bg-surface-hover text-text-main" : "text-text-muted hover:text-text-main hover:bg-surface-hover"}`}
           >
             <MoreVertical size={18} />
           </button>
           {activeDropdown === run.id && (
-            <div className="absolute right-0 mt-1 w-40 bg-surface border border-border rounded-xl shadow-lg z-30 py-1 overflow-hidden">
+            <div className="absolute right-0 mt-1 w-40 bg-surface border border-border/80 rounded-xl shadow-premium z-30 py-1 overflow-hidden animate-in zoom-in-95 duration-200">
               <Link
                 href={`/projects/${code}/runs/${run.id}`}
                 className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center transition-colors"
@@ -321,7 +321,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
         {role !== "VIEWER" && (
           <Link
             href={`/projects/${code}/runs/create`}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white shadow-premium hover:-translate-y-0.5 transition-all duration-300"
             style={{ background: "var(--primary)" }}
           >
             Start new test run
@@ -338,7 +338,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
             placeholder="Search test runs…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 pr-4 h-8 text-sm border border-border bg-surface text-text-main rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 w-52 transition-all"
+            className="pl-9 pr-4 py-2.5 text-[13px] font-semibold border border-border/80 bg-surface text-text-main rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/20 shadow-inner w-52 transition-all hover:border-text-muted/40"
           />
         </div>
 
@@ -346,10 +346,10 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
           <button
             onClick={() => setShowFilters(!showFilters)}
             className={[
-              "flex items-center h-8 text-xs px-3 rounded-lg border transition-colors font-semibold",
+              "flex items-center py-2.5 text-[13px] font-bold px-4 rounded-xl border transition-all duration-300",
               showFilters || statusFilter !== "ALL"
-                ? "bg-indigo-50 text-indigo-900 border-indigo-200"
-                : "bg-surface text-text-main border-border hover:text-text-main hover:bg-surface-hover",
+                ? "bg-indigo-50 text-indigo-900 border-indigo-200 shadow-sm"
+                : "bg-surface text-text-muted border-border/80 hover:text-text-main hover:bg-surface-hover shadow-sm",
             ].join(" ")}
           >
             <Filter size={13} className="mr-1.5" />
@@ -357,7 +357,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
           </button>
 
           {showFilters && (
-            <div className="absolute top-full mt-1 left-0 w-44 bg-surface border border-border rounded-xl shadow-lg z-20 py-1.5 overflow-hidden">
+            <div className="absolute top-full mt-2 left-0 w-44 bg-surface border border-border/80 rounded-2xl shadow-premium z-20 py-1.5 overflow-hidden animate-in zoom-in-95 duration-200">
               {["ALL", "ACTIVE", "COMPLETED", "ABORTED"].map((s) => (
                 <button
                   key={s}
@@ -383,8 +383,8 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
       </div>
 
       {filteredRuns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-surface rounded-2xl border border-border shadow-sm">
-          <div className="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mb-4">
+        <div className="flex flex-col items-center justify-center py-20 bg-surface rounded-2xl border border-border/80 shadow-premium transition-all duration-300 animate-in zoom-in-95">
+          <div className="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mb-4 shadow-sm">
             <FileText size={32} />
           </div>
           <h3 className="text-lg font-bold text-text-main mb-2">
@@ -398,7 +398,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
           {role !== "VIEWER" && (
             <Link
               href={`/projects/${code}/runs/create`}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 transition-all"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white shadow-premium hover:-translate-y-0.5 transition-all duration-300"
               style={{
                 background: "var(--primary)",
               }}
