@@ -84,6 +84,7 @@ function ResultRow({
   result,
   depth,
   isSelected,
+  isDetailsOpen,
   openResult,
   projectCode,
   runId,
@@ -228,103 +229,105 @@ function ResultRow({
             {result.testCase.title}
           </span>
         </div>
-        <div className="w-48 flex items-center justify-between">
-          <div className="flex items-center">
-            {result.assigneeId ? (
-              (() => {
-                const a = userMeta(result.assignee);
-                return (
-                  <>
-                    <div
-                      className="w-6 h-6 rounded-full text-[10px] text-white flex items-center justify-center font-bold mr-2 shrink-0"
-                      style={{ background: a.color }}
-                    >
-                      {a.initials}
-                    </div>
-                    <span className="text-xs text-text-muted truncate w-24">
-                      {a.display}
-                    </span>
-                  </>
-                );
-              })()
-            ) : (
-              <span className="text-xs text-text-muted italic opacity-70">
-                Unassigned
-              </span>
-            )}
+        {!isDetailsOpen && (
+          <div className="w-48 flex items-center justify-between shrink-0">
+            <div className="flex items-center">
+              {result.assigneeId ? (
+                (() => {
+                  const a = userMeta(result.assignee);
+                  return (
+                    <>
+                      <div
+                        className="w-6 h-6 rounded-full text-[10px] text-white flex items-center justify-center font-bold mr-2 shrink-0"
+                        style={{ background: a.color }}
+                      >
+                        {a.initials}
+                      </div>
+                      <span className="text-xs text-text-muted truncate w-24">
+                        {a.display}
+                      </span>
+                    </>
+                  );
+                })()
+              ) : (
+                <span className="text-xs text-text-muted italic opacity-70">
+                  Unassigned
+                </span>
+              )}
+            </div>
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMenuOpen(!menuOpen);
+                }}
+                className="p-1 text-text-muted hover:text-text-main hover:bg-border rounded transition-all"
+              >
+                <MoreHorizontal size={16} />
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 top-full mt-1 w-40 bg-surface border border-border rounded-md shadow-lg z-50 py-1 overflow-hidden">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuOpen(false);
+                      openResult(result);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
+                  >
+                    Run wizard
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuOpen(false);
+                      onAssignClick(result.id);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
+                  >
+                    Assign
+                  </button>
+                  <button
+                    onClick={handleAssignToMe}
+                    className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
+                  >
+                    Assign to me
+                  </button>
+                  <button
+                    onClick={handleUnassign}
+                    className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
+                  >
+                    Unassign case
+                  </button>
+                  <div className="h-px bg-border my-1"></div>
+                  <button
+                    onClick={handleEdit}
+                    className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
+                  >
+                    Edit case
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setMenuOpen(false);
+                      openResult(result);
+                    }}
+                    className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
+                  >
+                    View case
+                  </button>
+                  <div className="h-px bg-border my-1"></div>
+                  <button
+                    onClick={handleDelete}
+                    className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="relative" ref={menuRef}>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setMenuOpen(!menuOpen);
-              }}
-              className="p-1 text-text-muted hover:text-text-main hover:bg-border rounded transition-all"
-            >
-              <MoreHorizontal size={16} />
-            </button>
-            {menuOpen && (
-              <div className="absolute right-0 top-full mt-1 w-40 bg-surface border border-border rounded-md shadow-lg z-50 py-1 overflow-hidden">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMenuOpen(false);
-                    openResult(result);
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
-                >
-                  Run wizard
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMenuOpen(false);
-                    onAssignClick(result.id);
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
-                >
-                  Assign
-                </button>
-                <button
-                  onClick={handleAssignToMe}
-                  className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
-                >
-                  Assign to me
-                </button>
-                <button
-                  onClick={handleUnassign}
-                  className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
-                >
-                  Unassign case
-                </button>
-                <div className="h-px bg-border my-1"></div>
-                <button
-                  onClick={handleEdit}
-                  className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
-                >
-                  Edit case
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setMenuOpen(false);
-                    openResult(result);
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
-                >
-                  View case
-                </button>
-                <div className="h-px bg-border my-1"></div>
-                <button
-                  onClick={handleDelete}
-                  className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
-                >
-                  Delete
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -982,6 +985,7 @@ export default function RunExecutionClient({
         result={result}
         depth={depth}
         isSelected={isSelected}
+        isDetailsOpen={!!activeResultId}
         openResult={openResult}
         projectCode={projectCode}
         runId={runId}
