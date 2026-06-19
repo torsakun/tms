@@ -7,7 +7,7 @@ import UsersTable from "@/components/workspace/UsersTable";
 
 function getInitials(name: string | null) {
   if (!name) return "U";
-  const parts = name.split(" ");
+  const parts = name.split(" ").filter(Boolean);
   return parts.length >= 2
     ? `${parts[0][0]}${parts[1][0]}`.toUpperCase()
     : name.substring(0, 2).toUpperCase();
