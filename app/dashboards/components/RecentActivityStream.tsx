@@ -59,34 +59,34 @@ export function RecentActivityStream({ auditLogs }: RecentActivityStreamProps) {
   };
 
   return (
-    <div className="bg-[#0f141c] text-slate-300 rounded-2xl border border-slate-800 shadow-xl overflow-hidden flex flex-col h-[400px]">
-      <div className="px-5 py-4 border-b border-slate-800 bg-[#161d28] flex items-center justify-between">
+    <div className="bg-[#0c1017] bg-[radial-gradient(#1e293b_1.2px,transparent_1.2px)] [background-size:16px_16px] text-slate-300 rounded-2xl border border-slate-800/80 shadow-xl overflow-hidden flex flex-col h-[400px]">
+      <div className="px-5 py-4 border-b border-slate-800/60 bg-[#121822]/95 backdrop-blur-xs flex items-center justify-between">
         <h2 className="text-xs font-bold text-slate-200 uppercase tracking-widest flex items-center gap-2">
           <Terminal size={14} className="text-indigo-400 animate-pulse" />
           NOC QA Activity Log
         </h2>
         <span className="flex h-2 w-2 relative">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
         </span>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 font-mono text-[11px] leading-relaxed">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 font-mono text-[11px] leading-relaxed scrollbar-thin">
         {activities.map((act: any) => {
           const style = getEventStyle(act.action);
           return (
-            <div key={act.id} className="flex items-start gap-2.5 pb-2 border-b border-slate-800/40 last:border-0 hover:bg-slate-800/10 px-1 rounded transition-colors">
-              <span className="text-[#64748b] shrink-0">
+            <div key={act.id} className="flex items-start gap-2.5 pb-2 border-b border-slate-900/30 last:border-0 hover:bg-slate-800/30 px-2 py-1 rounded-lg transition-colors duration-150">
+              <span className="text-[#64748b] shrink-0 font-medium select-none">
                 {new Date(act.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </span>
-              <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider shrink-0 border ${style.bg}`}>
+              <span className={`px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider shrink-0 border ${style.bg} select-none`}>
                 {act.project?.code || "SYS"}
               </span>
               <div className="flex-1 min-w-0 text-left">
-                <span className="text-slate-200 font-semibold">
+                <span className="text-indigo-300 font-bold">
                   {act.user ? (act.user.name || act.user.email.split("@")[0]) : "System"}:{" "}
                 </span>
-                <span className="text-slate-400 break-words">{act.details || `${act.action} on ${act.entity}`}</span>
+                <span className="text-slate-300 break-words">{act.details || `${act.action} on ${act.entity}`}</span>
               </div>
             </div>
           );

@@ -12,8 +12,8 @@ export function UpcomingSchedules({ schedules }: UpcomingSchedulesProps) {
   if (!schedules || schedules.length === 0) return null;
 
   return (
-    <div className="bg-surface/90 backdrop-blur-md rounded-2xl border border-indigo-100/50 shadow-sm overflow-hidden flex flex-col mb-6">
-      <div className="px-6 py-4 border-b border-indigo-50 flex justify-between items-center bg-surface-hover/50">
+    <div className="bg-surface/90 backdrop-blur-md rounded-2xl border border-border/80 shadow-sm overflow-hidden flex flex-col mb-6">
+      <div className="px-6 py-4 border-b border-border/60 flex justify-between items-center bg-transparent">
         <h2 className="text-sm font-extrabold text-text-main flex items-center">
           <CalendarClock
             className="mr-2 text-indigo-600"
@@ -22,7 +22,7 @@ export function UpcomingSchedules({ schedules }: UpcomingSchedulesProps) {
           />
           Upcoming Scheduled Pipelines
         </h2>
-        <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full font-bold">
+        <span className="text-[10px] font-black uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200/50 px-2 py-0.5 rounded-md">
           {schedules.length} Active
         </span>
       </div>
@@ -44,7 +44,7 @@ export function UpcomingSchedules({ schedules }: UpcomingSchedulesProps) {
                 />
               </Link>
               <div className="flex items-center mt-2 text-[11px] font-medium text-text-muted">
-                <span className="text-[10px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-1.5 py-0.5 rounded shadow-sm mr-2">
+                <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-1.5 py-0.5 rounded shadow-xs mr-2">
                   {schedule.project.code}
                 </span>
                 <Clock size={12} className="mr-1 text-indigo-400" />
@@ -59,12 +59,13 @@ export function UpcomingSchedules({ schedules }: UpcomingSchedulesProps) {
                 </span>
               </div>
             </div>
-            <div className="text-right flex flex-col items-end">
-              <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
+            <div className="text-right flex flex-col items-end shrink-0">
+              <span className="text-[10px] font-black text-text-muted/80 uppercase tracking-widest mb-1.5">
                 Status
               </span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/50">
-                Active Schedule
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/50 shadow-2xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse" />
+                Active
               </span>
             </div>
           </div>

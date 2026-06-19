@@ -38,18 +38,18 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left border-collapse min-w-[500px]">
           <thead>
-            <tr className="border-b border-border text-[11px] font-extrabold text-text-muted uppercase tracking-wider bg-surface-hover/50">
-              <th className="px-6 py-3.5">Project</th>
-              <th className="px-6 py-3.5 text-right">Cases</th>
-              <th className="px-6 py-3.5">Automation</th>
-              <th className="px-6 py-3.5">Health</th>
+            <tr className="border-b border-border text-[10px] font-black text-text-muted uppercase tracking-widest bg-slate-50/75 dark:bg-slate-900/45 backdrop-blur-xs">
+              <th className="px-6 py-4">Project</th>
+              <th className="px-6 py-4 text-right">Cases</th>
+              <th className="px-6 py-4">Automation</th>
+              <th className="px-6 py-4">Health</th>
             </tr>
           </thead>
           <tbody className="text-sm">
             {currentProjects.map((p) => (
               <tr
                 key={p.code}
-                className="border-b border-border hover:bg-surface-hover/80 transition-colors"
+                className="border-b border-border hover:bg-surface-hover/80 transition-all duration-200"
               >
                 <td className="px-6 py-4">
                   <Link
@@ -59,7 +59,7 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
                     <span className="font-bold text-text-main hover:text-indigo-600 transition-colors">
                       {p.name}
                     </span>
-                    <span className="text-[10px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-1.5 py-0.5 rounded shadow-sm mt-1.5">
+                    <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-1.5 py-0.5 rounded shadow-xs mt-1.5">
                       {p.code}
                     </span>
                   </Link>
@@ -69,9 +69,9 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
                 </td>
                 <td className="px-6 py-4">
                   <div className="flex items-center">
-                    <div className="w-full h-1.5 bg-indigo-50 rounded-full overflow-hidden mr-3 max-w-[80px]">
+                    <div className="w-full h-2 bg-slate-100 dark:bg-slate-800/60 rounded-full overflow-hidden mr-3 max-w-[80px] border border-border/20">
                       <div
-                        className="h-full bg-emerald-500"
+                        className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full"
                         style={{ width: `${p.automated}%` }}
                       ></div>
                     </div>

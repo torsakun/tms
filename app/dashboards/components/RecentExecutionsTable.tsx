@@ -85,10 +85,10 @@ export function RecentExecutionsTable({
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left border-collapse min-w-[500px]">
           <thead>
-            <tr className="border-b border-border text-[11px] font-extrabold text-text-muted uppercase tracking-wider bg-surface-hover/50">
-              <th className="px-6 py-3.5">Run</th>
-              <th className="px-6 py-3.5 w-28">Status</th>
-              <th className="px-6 py-3.5">Progress</th>
+            <tr className="border-b border-border text-[10px] font-black text-text-muted uppercase tracking-widest bg-slate-50/75 dark:bg-slate-900/45 backdrop-blur-xs">
+              <th className="px-6 py-4">Run</th>
+              <th className="px-6 py-4 w-28">Status</th>
+              <th className="px-6 py-4">Progress</th>
             </tr>
           </thead>
           <tbody className="text-sm">
@@ -117,7 +117,7 @@ export function RecentExecutionsTable({
               return (
                 <tr
                   key={run.id}
-                  className="border-b border-border hover:bg-surface-hover/80 transition-colors group"
+                  className="border-b border-border hover:bg-surface-hover/80 transition-all duration-200 group"
                 >
                   <td className="px-6 py-4">
                     <Link
@@ -131,8 +131,8 @@ export function RecentExecutionsTable({
                           className="ml-1 text-text-muted opacity-0 group-hover:opacity-100 transition-opacity"
                         />
                       </span>
-                      <div className="flex items-center mt-1.5">
-                        <span className="text-[10px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-1.5 py-0.5 rounded shadow-sm">
+                      <div className="flex items-center mt-2">
+                        <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-1.5 py-0.5 rounded shadow-xs">
                           {run.project.code}-{run.id.split("-")[0]}
                         </span>
                         <span className="mx-2 text-indigo-200">•</span>
@@ -169,7 +169,7 @@ export function RecentExecutionsTable({
                   </td>
                   <td className="px-6 py-4">
                     <div
-                      className={`w-full h-1.5 bg-surface-hover rounded-full flex overflow-hidden mb-1.5 ${run.liveStatus === "RUNNING" ? "opacity-100" : "opacity-80"}`}
+                      className={`w-full h-2 bg-slate-100 dark:bg-slate-800/60 rounded-full flex overflow-hidden mb-1.5 border border-border/25 ${run.liveStatus === "RUNNING" ? "opacity-100" : "opacity-80"}`}
                     >
                       <div
                         style={{ width: `${passPercent}%` }}
