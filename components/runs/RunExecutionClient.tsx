@@ -191,12 +191,14 @@ function ResultRow({
   return (
     <div
       onClick={() => openResult(result)}
-      className={`flex items-center group cursor-pointer border-b border-border last:border-0 transition-colors ${
-        isSelected ? "bg-indigo-50/60 border-l-4 border-indigo-600" : "hover:bg-surface-hover bg-surface border-l-4 border-transparent"
+      className={`flex items-center group cursor-pointer border-b border-border last:border-0 transition-all duration-200 ${
+        isSelected
+          ? "bg-indigo-50/50 dark:bg-indigo-950/20 border-l-4 border-indigo-600 shadow-xs"
+          : "hover:bg-slate-50/40 dark:hover:bg-slate-800/10 bg-surface border-l-4 border-transparent hover:border-l-indigo-500/30"
       }`}
       style={{ paddingLeft: paddingLeftVal }}
     >
-      <div className="py-1.5 px-3 flex items-center w-full relative">
+      <div className="py-2 px-3 flex items-center w-full relative">
         <input
           type="checkbox"
           className="w-4 h-4 mr-4 rounded border-border text-primary focus:ring-primary/20"
@@ -204,14 +206,14 @@ function ResultRow({
         />
         <div className="w-12 text-text-muted text-xs font-mono mr-2 flex items-center">
           <div
-            className={`w-1.5 h-4 rounded-sm mr-2 ${result.status === "PASSED" ? "bg-emerald-500" : result.status === "FAILED" ? "bg-red-500" : result.status === "BLOCKED" ? "bg-orange-500" : result.status === "SKIPPED" ? "bg-slate-400" : "bg-background border border-border"}`}
+            className={`w-1.5 h-4 rounded-full mr-2 ${result.status === "PASSED" ? "bg-emerald-500" : result.status === "FAILED" ? "bg-red-500" : result.status === "BLOCKED" ? "bg-orange-500" : result.status === "SKIPPED" ? "bg-slate-400" : "bg-background border border-border"}`}
           />
           {result.testCase.sequenceNumber ||
             result.testCase.id.substring(0, 4).toUpperCase()}
         </div>
         <div className="flex-1 flex items-center">
           <span
-            className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-extrabold rounded-md uppercase tracking-wider mr-3 transition-all ${getStatusColor(result.status)}`}
+            className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-extrabold rounded-full uppercase tracking-wider mr-3 transition-all ${getStatusColor(result.status)}`}
           >
             {result.status === "IN_PROGRESS" && (
               <span className="relative flex h-1.5 w-1.5">
@@ -224,7 +226,7 @@ function ResultRow({
               : result.status}
           </span>
           <span
-            className={`text-sm ${isSelected ? "text-primary font-semibold" : "text-text-main font-medium group-hover:text-primary transition-colors"}`}
+            className={`text-sm ${isSelected ? "text-primary font-bold" : "text-text-main font-medium group-hover:text-primary transition-colors"}`}
           >
             {result.testCase.title}
           </span>
@@ -346,6 +348,7 @@ export default function RunExecutionClient({
     | undefined;
   const [run, setRun] = useState(initialRun);
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [activeResultId, setActiveResultId] = useState<string | null>(null);
   const [reportingResult, setReportingResult] = useState<any | null>(null);
   const [stepResults, setStepResults] = useState<Record<string, any>>({});
@@ -691,6 +694,9 @@ export default function RunExecutionClient({
           `${projectCode}-${r.testCase?.sequenceNumber || r.testCase?.id?.substring(0, 4) || ""}`.toLowerCase();
         if (!title.includes(q) && !code.includes(q)) return;
       }
+      if (statusFilter && r.status !== statusFilter) {
+        return;
+      }
       const sId = r.testCase?.suiteId || "unassigned";
       if (!grouped.has(sId)) grouped.set(sId, []);
       grouped.get(sId)!.push(r);
@@ -703,7 +709,7 @@ export default function RunExecutionClient({
       ),
     );
     return grouped;
-  }, [run.results, searchQuery, projectCode]);
+  }, [run.results, searchQuery, statusFilter, projectCode]);
 
   const computeSuiteTime = (suiteId: string): number => {
     let total = 0;
@@ -1050,18 +1056,18 @@ export default function RunExecutionClient({
     return (
       <div
         key={suite.id}
-        className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden mb-2"
+        className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden mb-3 hover:shadow transition-shadow duration-300"
         style={{ borderTop: `3px solid ${accentColor}` }}
       >
         <div
-          className="flex items-center py-2 px-3 border-b border-border bg-surface-hover/80 hover:bg-indigo-50/40 cursor-pointer group transition-colors"
+          className="flex items-center py-2.5 px-4 border-b border-border bg-gradient-to-r from-surface-hover/90 to-surface/80 hover:bg-indigo-500/[0.02] cursor-pointer group transition-colors select-none"
           onClick={() => toggleSuite(suite.id)}
         >
-          <div className="w-5 flex items-center justify-center mr-1 text-text-muted">
+          <div className="w-5 flex items-center justify-center mr-2 text-text-muted transition-transform group-hover:scale-110">
             {isExpanded ? (
-              <ChevronDown size={15} />
+              <ChevronDown size={16} />
             ) : (
-              <ChevronRight size={15} />
+              <ChevronRight size={16} />
             )}
           </div>
           <input
@@ -1069,14 +1075,19 @@ export default function RunExecutionClient({
             className="w-4 h-4 mr-3 rounded border-border text-indigo-600 focus:ring-indigo-300"
             onClick={(e) => e.stopPropagation()}
           />
-          <span className="font-bold text-text-main text-[14px] mr-3 group-hover:text-indigo-600 transition-colors">
+          <span className="font-extrabold text-text-main text-sm mr-3 group-hover:text-indigo-600 transition-colors">
             {suite.title}
           </span>
 
-          <div className="flex items-center text-xs text-text-muted font-medium whitespace-nowrap">
+          <div className="flex items-center text-xs text-text-muted font-medium gap-3 ml-auto shrink-0 select-none">
+            <span className="px-2.5 py-0.5 bg-emerald-500/10 dark:bg-emerald-500/20 text-[10px] font-bold rounded-full text-emerald-600 dark:text-emerald-400 border border-emerald-500/10 whitespace-nowrap">
+              {stats.passed}/{stats.total} Passed
+            </span>
             {renderProgressBar(stats)}
-            <Clock size={12} className="ml-3 mr-1" />
-            {formatRunDuration(computeSuiteTime(suite.id))}
+            <div className="flex items-center text-[10px] text-text-muted bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-border/40 font-semibold">
+              <Clock size={11} className="mr-1" />
+              {formatRunDuration(computeSuiteTime(suite.id))}
+            </div>
           </div>
         </div>
 
@@ -1517,7 +1528,14 @@ export default function RunExecutionClient({
             {/* Metric Cards Row */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 mt-2">
               {/* Progress Card */}
-              <div className="bg-background rounded-xl border border-border p-3 flex items-center justify-between shadow-sm">
+              <div 
+                onClick={() => setStatusFilter(null)}
+                className={`rounded-xl border border-l-4 p-3 flex items-center justify-between shadow-xs transition-all duration-300 cursor-pointer hover:shadow-md hover:-translate-y-0.5 ${
+                  statusFilter === null
+                    ? "bg-gradient-to-br from-indigo-500/[0.08] via-background to-background dark:from-indigo-950/15 border-l-indigo-500 border-indigo-500/35 ring-1 ring-indigo-500/20"
+                    : "bg-gradient-to-br from-indigo-500/[0.02] to-background dark:from-indigo-950/5 border-l-indigo-500/40 border-border hover:border-indigo-500/25"
+                }`}
+              >
                 <div className="flex flex-col">
                   <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Completion rate</span>
                   <div className="flex items-baseline gap-1.5 mt-1">
@@ -1540,13 +1558,19 @@ export default function RunExecutionClient({
                     )}
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/30">
+                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/40">
                   <BarChart2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
               </div>
 
               {/* Status Card */}
-              <div className="bg-background rounded-xl border border-border p-3 flex items-center justify-between shadow-sm">
+              <div 
+                className={`rounded-xl border border-l-4 p-3 flex items-center justify-between shadow-xs transition-all duration-300 bg-gradient-to-br ${
+                  completionRate === 100 
+                    ? "from-emerald-500/[0.03] to-background dark:from-emerald-950/10 border-l-emerald-500 border-border" 
+                    : "from-indigo-500/[0.03] to-background dark:from-indigo-950/10 border-l-indigo-500 border-border"
+                }`}
+              >
                 <div className="flex flex-col justify-center">
                   <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Status</span>
                   <div className="flex items-center gap-1.5 mt-1.5">
@@ -1572,7 +1596,7 @@ export default function RunExecutionClient({
               </div>
 
               {/* Started By Card */}
-              <div className="bg-background rounded-xl border border-border p-3 flex items-center justify-between shadow-sm">
+              <div className="rounded-xl border border-l-4 border-l-purple-500 p-3 flex items-center justify-between shadow-xs transition-all duration-300 bg-gradient-to-br from-purple-500/[0.03] to-background dark:from-purple-950/10 border-border">
                 <div className="flex flex-col justify-center">
                   <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Started by</span>
                   {(() => {
@@ -1592,13 +1616,13 @@ export default function RunExecutionClient({
                     );
                   })()}
                 </div>
-                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/30">
-                  <Eye className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-purple-50 dark:bg-purple-950/30">
+                  <Eye className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 </div>
               </div>
 
               {/* Context Card (Env & Milestone) */}
-              <div className="bg-background rounded-xl border border-border p-3 flex items-center justify-between shadow-sm">
+              <div className="rounded-xl border border-l-4 border-l-blue-500 p-3 flex items-center justify-between shadow-xs transition-all duration-300 bg-gradient-to-br from-blue-500/[0.03] to-background dark:from-blue-950/10 border-border">
                 <div className="flex flex-col justify-center min-w-0">
                   <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Context</span>
                   <div className="mt-1 space-y-0.5 min-w-0">
@@ -1614,8 +1638,8 @@ export default function RunExecutionClient({
                     )}
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/30">
-                  <Settings className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-blue-50 dark:bg-blue-950/30">
+                  <Settings className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
               </div>
             </div>
@@ -1629,11 +1653,11 @@ export default function RunExecutionClient({
 
           {/* Toolbar */}
           <div
-            className="bg-surface border-b px-6 py-2.5 flex items-center justify-between z-10 relative"
+            className="bg-surface border-b px-6 py-2 flex items-center justify-between gap-4 z-10 relative"
             style={{ borderColor: "var(--border-color)" }}
           >
-            <div className="flex gap-2 w-96">
-              <div className="relative flex-1">
+            <div className="flex items-center gap-4 flex-1">
+              <div className="relative w-80">
                 <input
                   type="text"
                   value={searchQuery}
@@ -1642,18 +1666,107 @@ export default function RunExecutionClient({
                   className="w-full pl-3 pr-3 py-1.5 text-sm border border-border bg-surface-hover text-text-main rounded-lg focus:ring-2 focus:ring-indigo-300 focus:outline-none transition-colors"
                 />
               </div>
+
+              {/* Status Filter Tab Pills */}
+              <div className="flex items-center bg-background border border-border rounded-lg p-0.5 shadow-xs">
+                <button
+                  onClick={() => setStatusFilter(null)}
+                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
+                    statusFilter === null
+                      ? "bg-surface text-primary shadow-xs font-extrabold border border-border/40"
+                      : "text-text-muted hover:text-text-main hover:bg-surface-hover"
+                  }`}
+                >
+                  <span>All</span>
+                  <span className="bg-slate-100 dark:bg-slate-800 text-text-muted px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                    {runStats.total}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setStatusFilter("PASSED")}
+                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
+                    statusFilter === "PASSED"
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-xs font-extrabold border border-emerald-500/20"
+                      : "text-text-muted hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/[0.04]"
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span>Passed</span>
+                  <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                    {runStats.passed}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setStatusFilter("FAILED")}
+                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
+                    statusFilter === "FAILED"
+                      ? "bg-red-500/10 text-red-600 dark:text-red-400 shadow-xs font-extrabold border border-red-500/20"
+                      : "text-text-muted hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/[0.04]"
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                  <span>Failed</span>
+                  <span className="bg-red-500/10 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                    {runStats.failed}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setStatusFilter("BLOCKED")}
+                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
+                    statusFilter === "BLOCKED"
+                      ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 shadow-xs font-extrabold border border-orange-500/20"
+                      : "text-text-muted hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-500/[0.04]"
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                  <span>Blocked</span>
+                  <span className="bg-orange-500/10 text-orange-600 dark:text-orange-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                    {runStats.blocked}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setStatusFilter("SKIPPED")}
+                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
+                    statusFilter === "SKIPPED"
+                      ? "bg-slate-500/10 text-slate-600 dark:text-slate-400 shadow-xs font-extrabold border border-slate-500/20"
+                      : "text-text-muted hover:text-slate-600 dark:hover:text-slate-400 hover:bg-slate-500/[0.04]"
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                  <span>Skipped</span>
+                  <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                    {runStats.skipped}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setStatusFilter("IN_PROGRESS")}
+                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
+                    statusFilter === "IN_PROGRESS"
+                      ? "bg-slate-500/10 text-text-main shadow-xs font-extrabold border border-slate-200"
+                      : "text-text-muted hover:text-text-main hover:bg-surface-hover"
+                  }`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400/50" />
+                  <span>Untested</span>
+                  <span className="bg-slate-100 dark:bg-slate-800 text-text-muted px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                    {runStats.untested}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto pb-32 bg-[#f0f2f8] p-3 space-y-2">
             {unassignedResults.length > 0 && (
-              <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden">
-                <div className="flex items-center px-3 py-2 border-b border-border bg-surface-hover/80 cursor-pointer group">
-                  <span className="font-bold text-text-muted text-[13px] uppercase tracking-wider">
+              <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden mb-3 hover:shadow transition-shadow duration-300">
+                <div className="flex items-center py-2.5 px-4 border-b border-border bg-gradient-to-r from-surface-hover/90 to-surface/80 hover:bg-indigo-500/[0.02] cursor-pointer group transition-colors">
+                  <span className="font-extrabold text-text-muted text-[11px] uppercase tracking-wider">
                     Unassigned Cases
                   </span>
                 </div>
-                {unassignedResults.map((r) => renderResultRow(r, 0))}
+                <div className="flex flex-col bg-surface">
+                  {unassignedResults.map((r) => renderResultRow(r, 0))}
+                </div>
               </div>
             )}
             {roots.map((suite) => renderSuiteTree(suite, 0))}
