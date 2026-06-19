@@ -1653,106 +1653,106 @@ export default function RunExecutionClient({
 
           {/* Toolbar */}
           <div
-            className="bg-surface border-b px-6 py-2 flex items-center justify-between gap-4 z-10 relative"
+            className={`bg-surface border-b px-4 py-2 flex z-10 relative transition-all ${
+              activeResultId ? "flex-col items-stretch gap-2.5" : "flex-row items-center justify-between gap-4"
+            }`}
             style={{ borderColor: "var(--border-color)" }}
           >
-            <div className="flex items-center gap-4 flex-1">
-              <div className="relative w-80">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search cases…"
-                  className="w-full pl-3 pr-3 py-1.5 text-sm border border-border bg-surface-hover text-text-main rounded-lg focus:ring-2 focus:ring-indigo-300 focus:outline-none transition-colors"
-                />
-              </div>
+            <div className={`relative ${activeResultId ? "w-full" : "w-80"}`}>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search cases…"
+                className="w-full pl-3 pr-3 py-1.5 text-sm border border-border bg-surface-hover text-text-main rounded-lg focus:ring-2 focus:ring-indigo-300 focus:outline-none transition-colors"
+              />
+            </div>
 
-              {/* Status Filter Tab Pills */}
-              <div className="flex items-center bg-background border border-border rounded-lg p-0.5 shadow-xs">
-                <button
-                  onClick={() => setStatusFilter(null)}
-                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
-                    statusFilter === null
-                      ? "bg-surface text-primary shadow-xs font-extrabold border border-border/40"
-                      : "text-text-muted hover:text-text-main hover:bg-surface-hover"
-                  }`}
-                >
-                  <span>All</span>
-                  <span className="bg-slate-100 dark:bg-slate-800 text-text-muted px-1.5 py-0.5 rounded text-[10px] font-semibold">
-                    {runStats.total}
-                  </span>
-                </button>
-                <button
-                  onClick={() => setStatusFilter("PASSED")}
-                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
-                    statusFilter === "PASSED"
-                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-xs font-extrabold border border-emerald-500/20"
-                      : "text-text-muted hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/[0.04]"
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  <span>Passed</span>
-                  <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
-                    {runStats.passed}
-                  </span>
-                </button>
-                <button
-                  onClick={() => setStatusFilter("FAILED")}
-                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
-                    statusFilter === "FAILED"
-                      ? "bg-red-500/10 text-red-600 dark:text-red-400 shadow-xs font-extrabold border border-red-500/20"
-                      : "text-text-muted hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/[0.04]"
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-                  <span>Failed</span>
-                  <span className="bg-red-500/10 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
-                    {runStats.failed}
-                  </span>
-                </button>
-                <button
-                  onClick={() => setStatusFilter("BLOCKED")}
-                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
-                    statusFilter === "BLOCKED"
-                      ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 shadow-xs font-extrabold border border-orange-500/20"
-                      : "text-text-muted hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-500/[0.04]"
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                  <span>Blocked</span>
-                  <span className="bg-orange-500/10 text-orange-600 dark:text-orange-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
-                    {runStats.blocked}
-                  </span>
-                </button>
-                <button
-                  onClick={() => setStatusFilter("SKIPPED")}
-                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
-                    statusFilter === "SKIPPED"
-                      ? "bg-slate-500/10 text-slate-600 dark:text-slate-400 shadow-xs font-extrabold border border-slate-500/20"
-                      : "text-text-muted hover:text-slate-600 dark:hover:text-slate-400 hover:bg-slate-500/[0.04]"
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                  <span>Skipped</span>
-                  <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
-                    {runStats.skipped}
-                  </span>
-                </button>
-                <button
-                  onClick={() => setStatusFilter("IN_PROGRESS")}
-                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
-                    statusFilter === "IN_PROGRESS"
-                      ? "bg-slate-500/10 text-text-main shadow-xs font-extrabold border border-slate-200"
-                      : "text-text-muted hover:text-text-main hover:bg-surface-hover"
-                  }`}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400/50" />
-                  <span>Untested</span>
-                  <span className="bg-slate-100 dark:bg-slate-800 text-text-muted px-1.5 py-0.5 rounded text-[10px] font-semibold">
-                    {runStats.untested}
-                  </span>
-                </button>
-              </div>
+            {/* Status Filter Tab Pills */}
+            <div className={`flex items-center bg-background border border-border rounded-lg p-0.5 shadow-xs overflow-x-auto ${activeResultId ? "flex-wrap justify-start gap-1" : ""}`}>
+              <button
+                onClick={() => setStatusFilter(null)}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
+                  statusFilter === null
+                    ? "bg-surface text-primary shadow-xs font-extrabold border border-border/40"
+                    : "text-text-muted hover:text-text-main hover:bg-surface-hover"
+                }`}
+              >
+                <span>All</span>
+                <span className="bg-slate-100 dark:bg-slate-800 text-text-muted px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                  {runStats.total}
+                </span>
+              </button>
+              <button
+                onClick={() => setStatusFilter("PASSED")}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
+                  statusFilter === "PASSED"
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-xs font-extrabold border border-emerald-500/20"
+                    : "text-text-muted hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/[0.04]"
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span>Passed</span>
+                <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                  {runStats.passed}
+                </span>
+              </button>
+              <button
+                onClick={() => setStatusFilter("FAILED")}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
+                  statusFilter === "FAILED"
+                    ? "bg-red-500/10 text-red-600 dark:text-red-400 shadow-xs font-extrabold border border-red-500/20"
+                    : "text-text-muted hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/[0.04]"
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                <span>Failed</span>
+                <span className="bg-emerald-500/10 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                  {runStats.failed}
+                </span>
+              </button>
+              <button
+                onClick={() => setStatusFilter("BLOCKED")}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
+                  statusFilter === "BLOCKED"
+                    ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 shadow-xs font-extrabold border border-orange-500/20"
+                    : "text-text-muted hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-500/[0.04]"
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                <span>Blocked</span>
+                <span className="bg-orange-500/10 text-orange-600 dark:text-orange-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                  {runStats.blocked}
+                </span>
+              </button>
+              <button
+                onClick={() => setStatusFilter("SKIPPED")}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
+                  statusFilter === "SKIPPED"
+                    ? "bg-slate-500/10 text-slate-600 dark:text-slate-400 shadow-xs font-extrabold border border-slate-500/20"
+                    : "text-text-muted hover:text-slate-600 dark:hover:text-slate-400 hover:bg-slate-500/[0.04]"
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                <span>Skipped</span>
+                <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                  {runStats.skipped}
+                </span>
+              </button>
+              <button
+                onClick={() => setStatusFilter("IN_PROGRESS")}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
+                  statusFilter === "IN_PROGRESS"
+                    ? "bg-slate-500/10 text-text-main shadow-xs font-extrabold border border-slate-200"
+                    : "text-text-muted hover:text-text-main hover:bg-surface-hover"
+                }`}
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400/50" />
+                <span>Untested</span>
+                <span className="bg-slate-100 dark:bg-slate-800 text-text-muted px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                  {runStats.untested}
+                </span>
+              </button>
             </div>
           </div>
 
