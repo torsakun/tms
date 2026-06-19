@@ -21,6 +21,10 @@ export async function PATCH(
       include: { workspaceRole: true },
     });
 
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     if (!canManageWorkspace(currentUser)) {
       return NextResponse.json(
         { error: "Forbidden: Admin access required" },

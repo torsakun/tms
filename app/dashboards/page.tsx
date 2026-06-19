@@ -22,10 +22,20 @@ import {
 import { ProjectQualityMatrix } from "./components/ProjectQualityMatrix";
 import { RecentExecutionsTable } from "./components/RecentExecutionsTable";
 import { UpcomingSchedules } from "./components/UpcomingSchedules";
+import { DashboardToolbar } from "./components/DashboardToolbar";
+import { QualityHeatmap } from "./components/QualityHeatmap";
+import { RecentActivityStream } from "./components/RecentActivityStream";
 
 export const dynamic = "force-dynamic";
 
-export default async function GlobalDashboardPage() {
+export default async function GlobalDashboardPage(props: {
+  searchParams: Promise<{ timeframe?: string; project?: string }>;
+}) {
+  const resolvedSearchParams = await props.searchParams;
+  const timeframeStr = resolvedSearchParams.timeframe || "14";
+  const projectCodeFilter = resolvedSearchParams.project || "";
+  const timeframeDays = parseInt(timeframeStr);
+
   let dashboardData = {
     metrics: { totalProjects: 0, totalCases: 0, totalRuns: 0, passRate: 0 },
     automation: { automated: 0, manual: 0, toBeAutomated: 0 },
@@ -33,25 +43,49 @@ export default async function GlobalDashboardPage() {
     recentRuns: [] as any[],
     schedules: [] as any[],
     trendData: [] as any[],
+    allProjectsForFilter: [] as any[],
+    heatmapData: [] as any[],
+    auditLogs: [] as any[],
   };
 
   try {
-    const totalProjects = await prisma.project.count();
-    const totalCases = await prisma.testCase.count();
-    const totalRuns = await prisma.testRun.count();
+    const allProjectsForFilter = await prisma.project.findMany({
+      select: { code: true, name: true },
+      orderBy: { name: "asc" },
+    });
+
+    const totalProjects = await prisma.project.count({
+      where: projectCodeFilter ? { code: projectCodeFilter } : {},
+    });
+    const totalCases = await prisma.testCase.count({
+      where: projectCodeFilter ? { project: { code: projectCodeFilter } } : {},
+    });
+    const totalRuns = await prisma.testRun.count({
+      where: projectCodeFilter ? { project: { code: projectCodeFilter } } : {},
+    });
 
     const automatedCasesCount = await prisma.testCase.count({
-      where: { automationStatus: "AUTOMATED" },
+      where: {
+        automationStatus: "AUTOMATED",
+        ...(projectCodeFilter ? { project: { code: projectCodeFilter } } : {}),
+      },
     });
     const manualCasesCount = await prisma.testCase.count({
-      where: { automationStatus: "MANUAL" },
+      where: {
+        automationStatus: "MANUAL",
+        ...(projectCodeFilter ? { project: { code: projectCodeFilter } } : {}),
+      },
     });
     const toBeAutomatedCount = await prisma.testCase.count({
-      where: { automationStatus: "TO_BE_AUTOMATED" },
+      where: {
+        automationStatus: "TO_BE_AUTOMATED",
+        ...(projectCodeFilter ? { project: { code: projectCodeFilter } } : {}),
+      },
     });
 
     // Project Quality Matrix Data
     const projectsList = await prisma.project.findMany({
+      where: projectCodeFilter ? { code: projectCodeFilter } : {},
       include: {
         _count: { select: { testCases: true, testRuns: true } },
         testCases: { select: { automationStatus: true } },
@@ -67,6 +101,7 @@ export default async function GlobalDashboardPage() {
 
     // Recent Runs Table Data
     const recentRuns = await prisma.testRun.findMany({
+      where: projectCodeFilter ? { project: { code: projectCodeFilter } } : {},
       orderBy: { createdAt: "desc" },
       take: 50,
       include: {
@@ -77,24 +112,30 @@ export default async function GlobalDashboardPage() {
 
     // Pipeline Schedules
     const schedules = await prisma.pipelineSchedule.findMany({
-      where: { isActive: true },
+      where: {
+        isActive: true,
+        ...(projectCodeFilter ? { project: { code: projectCodeFilter } } : {}),
+      },
       include: { project: { select: { name: true, code: true } } },
       orderBy: { createdAt: "asc" },
     });
 
-    // Fetch Trend Data for the last 14 days
-    const fourteenDaysAgo = new Date();
-    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    // Fetch Trend Data for the timeframe
+    const trendStartDate = new Date();
+    trendStartDate.setDate(trendStartDate.getDate() - timeframeDays);
 
     const trendRuns = await prisma.testRun.findMany({
-      where: { createdAt: { gte: fourteenDaysAgo } },
+      where: {
+        createdAt: { gte: trendStartDate },
+        ...(projectCodeFilter ? { project: { code: projectCodeFilter } } : {}),
+      },
       include: { results: { select: { status: true } } },
       orderBy: { createdAt: "asc" },
     });
 
     // Group by Date
     const trendMap = new Map();
-    for (let i = 13; i >= 0; i--) {
+    for (let i = timeframeDays - 1; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const dateStr = d.toLocaleDateString(undefined, {
@@ -129,7 +170,80 @@ export default async function GlobalDashboardPage() {
     let totalPassed = 0;
     let totalExecuted = 0;
 
+    // Quality heatmap matrix: 30 days history of runs per project
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const heatmapRuns = await prisma.testRun.findMany({
+      where: {
+        createdAt: { gte: thirtyDaysAgo },
+        ...(projectCodeFilter ? { project: { code: projectCodeFilter } } : {}),
+      },
+      include: {
+        results: { select: { status: true } },
+        project: { select: { name: true, code: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+
+    const projectDaysMap = new Map<string, Map<string, { passed: number, total: number }>>();
+    const dates: string[] = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split("T")[0];
+      dates.push(dateStr);
+    }
+
+    heatmapRuns.forEach((run) => {
+      const dateStr = new Date(run.createdAt).toISOString().split("T")[0];
+      const pCode = run.project.code;
+      if (!projectDaysMap.has(pCode)) {
+        projectDaysMap.set(pCode, new Map());
+      }
+      const dayMap = projectDaysMap.get(pCode)!;
+      if (!dayMap.has(dateStr)) {
+        dayMap.set(dateStr, { passed: 0, total: 0 });
+      }
+      const dayStats = dayMap.get(dateStr)!;
+      run.results.forEach((res) => {
+        dayStats.total++;
+        if (res.status === "PASSED") dayStats.passed++;
+      });
+    });
+
+    const heatmapData = projectsList.map((p) => {
+      const dayMap = projectDaysMap.get(p.code);
+      const dailyHealth = dates.map((dateStr) => {
+        const stats = dayMap?.get(dateStr);
+        const passRate = stats && stats.total > 0 ? (stats.passed / stats.total) * 100 : null;
+        return {
+          date: dateStr,
+          passRate,
+          totalRuns: stats ? 1 : 0,
+        };
+      });
+
+      return {
+        code: p.code,
+        name: p.name,
+        dailyHealth,
+      };
+    });
+
+    // Fetch real AuditLog entries
+    const auditLogs = await prisma.auditLog.findMany({
+      where: projectCodeFilter ? { project: { code: projectCodeFilter } } : {},
+      orderBy: { createdAt: "desc" },
+      take: 25,
+      include: {
+        user: { select: { name: true, email: true } },
+        project: { select: { name: true, code: true } },
+      },
+    });
+
     dashboardData = {
+      allProjectsForFilter,
       metrics: {
         totalProjects,
         totalCases,
@@ -193,6 +307,8 @@ export default async function GlobalDashboardPage() {
       }),
       schedules,
       trendData: Array.from(trendMap.values()),
+      heatmapData,
+      auditLogs,
     };
 
     dashboardData.metrics.passRate =
@@ -201,8 +317,18 @@ export default async function GlobalDashboardPage() {
     console.error("Failed to fetch QA dashboard data:", err);
   }
 
-  const { metrics, automation, projects, recentRuns, schedules, trendData } =
-    dashboardData;
+  const {
+    metrics,
+    automation,
+    projects,
+    recentRuns,
+    schedules,
+    trendData,
+    allProjectsForFilter,
+    heatmapData,
+    auditLogs,
+  } = dashboardData;
+
   const totalAutomationCases =
     automation.automated + automation.manual + automation.toBeAutomated;
   const automatedPercent =
@@ -218,10 +344,10 @@ export default async function GlobalDashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-xl font-bold text-text-main tracking-tight">
-                Dashboard
+                Global QA Dashboard
               </h1>
               <p className="text-xs text-text-muted mt-0.5">
-                Cross-project testing metrics, coverage, and execution health
+                NOC Command Center: cross-project metrics, historical grids, and execution logs
               </p>
             </div>
             <Link
@@ -234,6 +360,9 @@ export default async function GlobalDashboardPage() {
               View all projects
             </Link>
           </div>
+
+          {/* Interactive Filters Panel */}
+          <DashboardToolbar projects={allProjectsForFilter} />
 
           {/* ── Stat cards ──────────────────────────────────── */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -355,10 +484,10 @@ export default async function GlobalDashboardPage() {
                       className="text-indigo-500"
                       strokeWidth={2.5}
                     />
-                    Execution Trends
+                    Execution Trends ({timeframeStr} days)
                   </h2>
                   <p className="text-xs text-text-muted mt-0.5">
-                    Test results over the last 14 days
+                    Test results over the selected timeframe
                   </p>
                 </div>
               </div>
@@ -423,6 +552,16 @@ export default async function GlobalDashboardPage() {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* ── Row 2: Quality Heatmap + Activity Logs Stream ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="col-span-1 lg:col-span-2">
+              <QualityHeatmap heatmapData={heatmapData} />
+            </div>
+            <div className="col-span-1">
+              <RecentActivityStream auditLogs={auditLogs} />
             </div>
           </div>
 

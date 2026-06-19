@@ -24,14 +24,14 @@ export function WorkspaceTabs() {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  const primaryTabs = [
+  const primaryTabs: Array<{ name: string; href: string; exact?: boolean }> = [
     { name: "Users", href: "/workspace", exact: true },
     { name: "Invites", href: "/workspace/invites" },
     { name: "Groups", href: "/workspace/groups" },
     { name: "Roles", href: "/workspace/roles" },
   ];
 
-  const configItems = [
+  const configItems: Array<{ name: string; href: string; exact?: boolean }> = [
     { name: "Fields", href: "/workspace/fields" },
     { name: "Deployments", href: "/workspace/deployments" },
     { name: "Settings", href: "/workspace/settings" },
