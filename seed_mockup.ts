@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient({
   datasources: {
     db: {
-      url: "postgresql://postgres:QaseSecurePassword2026xyz@164.68.113.171:5432/inhouse_qase?schema=public",
+      url: "postgresql://postgres:QaseSecurePassword2026xyz@43.209.225.219:5432/inhouse_qase?schema=public",
     },
   },
 });
