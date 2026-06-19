@@ -196,7 +196,7 @@ function ResultRow({
       }`}
       style={{ paddingLeft: paddingLeftVal }}
     >
-      <div className="py-2.5 px-3 flex items-center w-full relative">
+      <div className="py-1.5 px-3 flex items-center w-full relative">
         <input
           type="checkbox"
           className="w-4 h-4 mr-4 rounded border-border text-primary focus:ring-primary/20"
@@ -211,7 +211,7 @@ function ResultRow({
         </div>
         <div className="flex-1 flex items-center">
           <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-extrabold rounded-md uppercase tracking-wider mr-3 transition-all ${getStatusColor(result.status)}`}
+            className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-extrabold rounded-md uppercase tracking-wider mr-3 transition-all ${getStatusColor(result.status)}`}
           >
             {result.status === "IN_PROGRESS" && (
               <span className="relative flex h-1.5 w-1.5">
@@ -1050,11 +1050,11 @@ export default function RunExecutionClient({
     return (
       <div
         key={suite.id}
-        className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden mb-3"
+        className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden mb-2"
         style={{ borderTop: `3px solid ${accentColor}` }}
       >
         <div
-          className="flex items-center py-3 px-4 border-b border-border bg-surface-hover/80 hover:bg-indigo-50/40 cursor-pointer group transition-colors"
+          className="flex items-center py-2 px-3 border-b border-border bg-surface-hover/80 hover:bg-indigo-50/40 cursor-pointer group transition-colors"
           onClick={() => toggleSuite(suite.id)}
         >
           <div className="w-5 flex items-center justify-center mr-1 text-text-muted">
@@ -1084,7 +1084,7 @@ export default function RunExecutionClient({
           <div className="flex flex-col bg-surface">
             {results.map((r) => renderResultRow(r, depth + 1))}
             {children.length > 0 && (
-              <div className="px-4 pb-3 space-y-2 mt-1">
+              <div className="px-2 pb-2 mt-0.5 space-y-1.5">
                 {children.map((child) => renderSuiteTree(child, depth + 1))}
               </div>
             )}
@@ -1645,10 +1645,10 @@ export default function RunExecutionClient({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto pb-32 bg-[#f0f2f8] p-4 space-y-3">
+          <div className="flex-1 overflow-y-auto pb-32 bg-[#f0f2f8] p-3 space-y-2">
             {unassignedResults.length > 0 && (
               <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden">
-                <div className="flex items-center px-4 py-3 border-b border-border bg-surface-hover/80 cursor-pointer group">
+                <div className="flex items-center px-3 py-2 border-b border-border bg-surface-hover/80 cursor-pointer group">
                   <span className="font-bold text-text-muted text-[13px] uppercase tracking-wider">
                     Unassigned Cases
                   </span>
@@ -1668,22 +1668,22 @@ export default function RunExecutionClient({
           {activeResult && activeResult.testCase && (
             <>
               <header
-                className="flex items-center justify-between px-6 py-4 border-b bg-surface shrink-0"
+                className="flex items-center justify-between px-4 py-2 border-b bg-surface shrink-0"
                 style={{ borderColor: "var(--border-color)" }}
               >
                 <div className="flex items-center gap-3 truncate">
                   <div
-                    className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${getStatusColor(activeResult.status)}`}
+                    className={`w-5.5 h-5.5 rounded-full flex items-center justify-center shrink-0 ${getStatusColor(activeResult.status)}`}
                   >
                     {activeResult.status === "PASSED" && (
-                      <CheckCircle2 size={12} />
+                      <CheckCircle2 size={13} />
                     )}
-                    {activeResult.status === "FAILED" && <XCircle size={12} />}
+                    {activeResult.status === "FAILED" && <XCircle size={13} />}
                     {activeResult.status === "BLOCKED" && (
-                      <MinusCircle size={12} />
+                      <MinusCircle size={13} />
                     )}
                   </div>
-                  <h2 className="text-lg font-bold text-text-main truncate">
+                  <h2 className="text-base font-extrabold text-text-main truncate">
                     {activeResult.testCase.title}
                   </h2>
                   <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded shadow-sm shrink-0">
@@ -1727,44 +1727,44 @@ export default function RunExecutionClient({
                 </div>
 
                 {/* Global Status Buttons */}
-                <div className="px-6 py-4 border-b border-border/50 bg-background/30">
+                <div className="px-4 py-2 border-b border-border/50 bg-background/30">
                   <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => updateResult(activeResult.id, "PASSED")}
-                      className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${
+                      className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${
                         activeResult.status === "PASSED"
                           ? "bg-emerald-500 text-white border-emerald-500 shadow-sm"
                           : "bg-surface text-emerald-600 border-border hover:bg-emerald-50/50"
                       }`}
                     >
-                      <CheckCircle2 size={14} />
+                      <CheckCircle2 size={16} />
                       Passed
                     </button>
                     <button
                       onClick={() => updateResult(activeResult.id, "FAILED")}
-                      className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${
+                      className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${
                         activeResult.status === "FAILED"
                           ? "bg-red-500 text-white border-red-500 shadow-sm"
                           : "bg-surface text-red-600 border-border hover:bg-red-50/50"
                       }`}
                     >
-                      <XCircle size={14} />
+                      <XCircle size={16} />
                       Failed
                     </button>
                     <button
                       onClick={() => updateResult(activeResult.id, "BLOCKED")}
-                      className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${
+                      className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${
                         activeResult.status === "BLOCKED"
                           ? "bg-amber-500 text-white border-amber-500 shadow-sm"
                           : "bg-surface text-amber-600 border-border hover:bg-amber-50/50"
                       }`}
                     >
-                      <MinusCircle size={14} />
+                      <MinusCircle size={16} />
                       Blocked
                     </button>
                     <button
                       onClick={() => updateResult(activeResult.id, "SKIPPED")}
-                      className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${
+                      className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${
                         activeResult.status === "SKIPPED"
                           ? "bg-slate-500 text-white border-slate-500 shadow-sm"
                           : "bg-surface text-slate-600 border-border hover:bg-slate-50/50"
@@ -1774,7 +1774,7 @@ export default function RunExecutionClient({
                     </button>
                     <button
                       onClick={() => updateResult(activeResult.id, "INVALID")}
-                      className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${
+                      className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${
                         activeResult.status === "INVALID"
                           ? "bg-purple-500 text-white border-purple-500 shadow-sm"
                           : "bg-surface text-purple-600 border-border hover:bg-purple-50/50"
@@ -1786,9 +1786,9 @@ export default function RunExecutionClient({
                 </div>
 
                 {/* Case Details */}
-                <div className="px-6 py-5 border-b border-border/50 flex gap-6">
-                  <div className="flex-1 pr-6 border-r border-border/50">
-                    <details className="group/det bg-surface border border-border/60 rounded-xl p-3.5" open>
+                <div className="px-4 py-3 border-b border-border/50 flex gap-4">
+                  <div className="flex-1 pr-4 border-r border-border/50">
+                    <details className="group/det bg-surface border border-border/60 rounded-lg p-2.5" open>
                       <summary className="cursor-pointer select-none list-none flex items-center justify-between text-xs font-bold text-text-muted hover:text-text-main transition-colors">
                         <span className="flex items-center gap-2 uppercase tracking-wider">
                           <Eye size={14} className="text-text-muted" />
@@ -1796,7 +1796,7 @@ export default function RunExecutionClient({
                         </span>
                         <ChevronDown size={14} className="transition-transform duration-200 group-open/det:rotate-180 text-text-muted" />
                       </summary>
-                      <div className="mt-4 pt-3 border-t border-border/40 space-y-4 pl-1">
+                      <div className="mt-2.5 pt-2 border-t border-border/40 space-y-3 pl-1">
                         <div>
                           <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
                             Description
@@ -1825,9 +1825,9 @@ export default function RunExecutionClient({
                       </div>
                     </details>
                   </div>
-                  <div className="w-56 pl-6 shrink-0 text-sm space-y-4">
+                  <div className="w-52 pl-4 shrink-0 text-xs space-y-2.5">
                     <div>
-                      <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
+                      <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">
                         Executed by
                       </div>
                       {(() => {
@@ -1842,7 +1842,7 @@ export default function RunExecutionClient({
                             >
                               {a.initials}
                             </div>
-                            <span className="text-text-muted font-medium">
+                            <span className="text-text-muted font-semibold">
                               {a.display}
                             </span>
                           </div>
@@ -1850,26 +1850,26 @@ export default function RunExecutionClient({
                       })()}
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
+                      <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">
                         Time spent
                       </div>
-                      <div className="text-text-muted">
+                      <div className="text-text-muted font-medium">
                         {formatRunDuration(activeResult.timeSpent || 0)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
+                      <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">
                         Started at
                       </div>
-                      <div className="text-text-muted">
+                      <div className="text-text-muted font-medium">
                         {formatThaiTime(activeResult.createdAt)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
+                      <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">
                         Environment
                       </div>
-                      <div className="text-text-muted">
+                      <div className="text-text-muted font-medium">
                         {(run as any).environment?.title || "Not specified"}
                       </div>
                     </div>
@@ -1877,7 +1877,7 @@ export default function RunExecutionClient({
                 </div>
 
                 {/* Steps List or Automation Terminal */}
-                <div className="px-6 py-4 pb-20">
+                <div className="px-4 py-3 pb-16">
                   {activeResult.testCase.automationStatus === "AUTOMATED" ? (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between mb-2">
@@ -2018,28 +2018,28 @@ export default function RunExecutionClient({
                           return (
                             <div
                               key={step.id}
-                              className="bg-surface rounded-xl border border-border shadow-sm p-5 mb-4 last:mb-0 hover:border-indigo-200/80 transition-all flex flex-col gap-4"
+                              className="bg-surface rounded-lg border border-border shadow-xs p-3.5 mb-3 last:mb-0 hover:border-indigo-200/80 transition-all flex flex-col gap-2.5"
                             >
-                              <div className="flex-1 space-y-4 max-w-full">
+                              <div className="flex-1 space-y-2.5 max-w-full">
                                 <div className="flex items-start gap-3">
-                                  <span className="flex items-center justify-center w-6 h-6 rounded bg-slate-100 dark:bg-slate-800 text-text-muted font-bold text-xs shrink-0 mt-0.5 shadow-xs">
+                                  <span className="flex items-center justify-center w-5.5 h-5.5 rounded bg-slate-100 dark:bg-slate-800 text-text-muted font-bold text-xs shrink-0 mt-0.5 shadow-xs">
                                     {idx + 1}
                                   </span>
-                                  <div className="text-sm font-semibold text-text-main whitespace-pre-wrap leading-relaxed">
+                                  <div className="text-sm font-bold text-text-main whitespace-pre-wrap leading-normal">
                                     {step.action}
                                   </div>
                                 </div>
 
-                                <div className="flex flex-wrap gap-2 pt-1">
+                                <div className="flex flex-wrap gap-2 pt-0.5">
                                   <button
                                     onClick={() =>
                                       updateStepResult(step.id, {
                                         status: "PASSED",
                                       })
                                     }
-                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${stepStatus === "PASSED" ? "bg-emerald-500 text-white border-emerald-500 shadow-sm" : "bg-background text-emerald-600 border-border hover:bg-slate-50"}`}
+                                    className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "PASSED" ? "bg-emerald-500 text-white border-emerald-500 shadow-sm" : "bg-background text-emerald-600 border-border hover:bg-slate-50"}`}
                                   >
-                                    <CheckCircle2 size={13} />
+                                    <CheckCircle2 size={15} />
                                     Passed
                                   </button>
                                   <button
@@ -2048,9 +2048,9 @@ export default function RunExecutionClient({
                                         status: "FAILED",
                                       })
                                     }
-                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${stepStatus === "FAILED" ? "bg-red-500 text-white border-red-500 shadow-sm" : "bg-background text-red-600 border-border hover:bg-slate-50"}`}
+                                    className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "FAILED" ? "bg-red-500 text-white border-red-500 shadow-sm" : "bg-background text-red-600 border-border hover:bg-slate-50"}`}
                                   >
-                                    <XCircle size={13} />
+                                    <XCircle size={15} />
                                     Failed
                                   </button>
                                   <button
@@ -2059,9 +2059,9 @@ export default function RunExecutionClient({
                                         status: "BLOCKED",
                                       })
                                     }
-                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${stepStatus === "BLOCKED" ? "bg-amber-500 text-white border-amber-500 shadow-sm" : "bg-background text-amber-600 border-border hover:bg-slate-50"}`}
+                                    className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "BLOCKED" ? "bg-amber-500 text-white border-amber-500 shadow-sm" : "bg-background text-amber-600 border-border hover:bg-slate-50"}`}
                                   >
-                                    <MinusCircle size={13} />
+                                    <MinusCircle size={15} />
                                     Blocked
                                   </button>
                                   <button
@@ -2070,14 +2070,14 @@ export default function RunExecutionClient({
                                         status: "SKIPPED",
                                       })
                                     }
-                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${stepStatus === "SKIPPED" ? "bg-slate-500 text-white border-slate-500 shadow-sm" : "bg-background text-slate-600 border-border hover:bg-slate-50"}`}
+                                    className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "SKIPPED" ? "bg-slate-500 text-white border-slate-500 shadow-sm" : "bg-background text-slate-600 border-border hover:bg-slate-50"}`}
                                   >
                                     Skipped
                                   </button>
                                 </div>
 
                                 <div className="pt-1">
-                                  <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">
+                                  <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">
                                     Actual result
                                   </div>
                                   <textarea
@@ -2097,7 +2097,7 @@ export default function RunExecutionClient({
                                       })
                                     }
                                     onPaste={(e) => handlePaste(e, step.id)}
-                                    className="w-full text-sm bg-background text-text-main border border-border rounded-lg p-3 min-h-[60px] focus:outline-none focus:ring-2 focus:ring-primary/20 transition shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
+                                    className="w-full text-xs bg-background text-text-main border border-border rounded-md p-2 min-h-[48px] focus:outline-none focus:ring-2 focus:ring-primary/20 transition shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
                                     placeholder="Type actual result here..."
                                   />
                                 </div>
@@ -2177,7 +2177,7 @@ export default function RunExecutionClient({
                                   />
                                   <label
                                     htmlFor={`file-upload-${step.id}`}
-                                    className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-border hover:border-primary/50 bg-background hover:bg-slate-50/50 rounded-lg text-xs font-semibold text-text-muted hover:text-primary cursor-pointer transition-all w-full"
+                                    className="flex items-center justify-center gap-1.5 py-2 border border-dashed border-border hover:border-primary/50 bg-background hover:bg-slate-50/50 rounded-md text-[11px] font-semibold text-text-muted hover:text-primary cursor-pointer transition-all w-full"
                                   >
                                     <span>Drag &amp; drop or click to upload screenshots / logs</span>
                                     {uploadingStepId === step.id && (
