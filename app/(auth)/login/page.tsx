@@ -211,8 +211,12 @@ function LoginPageContent() {
       </div>
 
       {/* Right Panel - Login Form */}
-      <div className="w-full lg:w-[48%] flex items-center justify-center p-8 sm:p-12 bg-surface">
-        <div className="w-full max-w-[400px]">
+      <div className="w-full lg:w-[48%] flex items-center justify-center p-8 sm:p-12 bg-slate-50 dark:bg-background/95">
+        <div className="w-full max-w-[440px] animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <div className="bg-surface rounded-[2rem] p-8 sm:p-10 shadow-2xl shadow-indigo-900/5 dark:shadow-indigo-900/20 border border-border/60 relative overflow-hidden">
+            {/* Subtle top glare */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
+            
           {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-3 mb-10 justify-center">
             <div
@@ -229,11 +233,11 @@ function LoginPageContent() {
           </div>
 
           {/* Header */}
-          <div className="mb-8">
-            <h2 className="text-[2rem] font-extrabold text-text-main tracking-tight leading-tight mb-2">
+          <div className="mb-10 text-center">
+            <h2 className="text-[32px] sm:text-[40px] font-black text-text-main tracking-tight leading-none mb-3">
               Welcome back
             </h2>
-            <p className="text-text-muted text-[15px]">
+            <p className="text-text-muted text-[15px] font-medium">
               Sign in to your workspace to continue
             </p>
           </div>
@@ -253,8 +257,8 @@ function LoginPageContent() {
               </div>
             )}
 
-            <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-text-main">
+            <div className="space-y-2">
+              <label className="block text-[11px] font-black uppercase tracking-widest text-text-main opacity-80">
                 Work Email
               </label>
               <input
@@ -263,18 +267,18 @@ function LoginPageContent() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@company.com"
-                className="w-full px-4 py-3 bg-surface-hover border border-border rounded-xl text-text-main placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 transition-all text-[15px]"
+                className="w-full px-4 py-3.5 bg-surface-hover/50 border border-border/80 rounded-xl text-text-main font-semibold placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-[15px] hover:border-text-muted/40 shadow-inner"
               />
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="block text-sm font-semibold text-text-main">
+                <label className="block text-[11px] font-black uppercase tracking-widest text-text-main opacity-80">
                   Password
                 </label>
                 <Link
                   href="/forgot-password"
-                  className="text-sm font-semibold text-indigo-500 hover:text-indigo-700 transition-colors"
+                  className="text-[13px] font-bold text-indigo-500 hover:text-indigo-600 hover:underline transition-all"
                 >
                   Forgot password?
                 </Link>
@@ -285,19 +289,19 @@ function LoginPageContent() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 bg-surface-hover border border-border rounded-xl text-text-main placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/30 focus:border-indigo-400 transition-all text-[15px]"
+                className="w-full px-4 py-3.5 bg-surface-hover/50 border border-border/80 rounded-xl text-text-main font-semibold placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-[15px] hover:border-text-muted/40 shadow-inner"
               />
             </div>
 
-            <div className="pt-1">
+            <div className="pt-3">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl text-sm font-bold text-white shadow-md hover:shadow-lg hover:-translate-y-0.5 focus:outline-none disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-md transition-all duration-200"
+                className="w-full flex items-center justify-center gap-2 py-4 px-4 rounded-xl text-[15px] font-black tracking-wide text-white shadow-xl shadow-indigo-500/20 hover:shadow-2xl hover:shadow-indigo-500/40 hover:-translate-y-1 focus:outline-none disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-indigo-500/20 transition-all duration-300"
                 style={{
                   background: loading
                     ? "#6366f1"
-                    : "var(--primary)",
+                    : "linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%)",
                 }}
               >
                 {loading ? (
@@ -347,7 +351,7 @@ function LoginPageContent() {
               <button
                 type="button"
                 onClick={() => signIn("azure-ad", { callbackUrl: "/" })}
-                className="w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl text-sm font-semibold text-text-main bg-surface border border-border hover:bg-surface-hover hover:border-border shadow-sm transition-all"
+                className="w-full flex items-center justify-center gap-2.5 py-3.5 px-4 rounded-xl text-[14px] font-bold text-text-main bg-surface border border-border/80 hover:bg-surface-hover hover:border-text-muted/40 hover:-translate-y-0.5 shadow-sm hover:shadow-md transition-all duration-300"
               >
                 <svg
                   width="16"
@@ -377,21 +381,22 @@ function LoginPageContent() {
 
           {/* Decorative divider */}
           <div className="mt-10 pt-6 border-t border-border text-center">
-            <p className="text-[11px] text-text-muted font-medium tracking-wider uppercase">
+            <p className="text-[11px] text-text-muted font-black tracking-wider uppercase">
               Trusted by QA teams worldwide
             </p>
             <div className="flex justify-center gap-6 mt-3">
               {["99.9% uptime", "SOC 2", "GDPR"].map((label) => (
                 <span
                   key={label}
-                  className="text-[11px] font-bold text-text-muted flex items-center gap-1"
+                  className="text-[11px] font-bold text-text-muted flex items-center gap-1.5 transition-colors hover:text-text-main"
                 >
-                  <span className="w-1 h-1 rounded-full bg-indigo-400 inline-block" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 inline-block shadow-[0_0_6px_rgba(129,140,248,0.5)]" />
                   {label}
                 </span>
               ))}
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

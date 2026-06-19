@@ -3,16 +3,10 @@ import Link from "next/link";
 import {
   FileText,
   PlayCircle,
-  BarChart2,
   CheckCircle2,
-  AlertCircle,
-  XCircle,
-  ChevronRight,
-  TrendingUp,
   ShieldCheck,
   Folder,
   Activity,
-  Clock,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import {
@@ -25,8 +19,76 @@ import { UpcomingSchedules } from "./components/UpcomingSchedules";
 import { DashboardToolbar } from "./components/DashboardToolbar";
 import { QualityHeatmap } from "./components/QualityHeatmap";
 import { RecentActivityStream } from "./components/RecentActivityStream";
+import {
+  WidgetCard,
+  RankList,
+  SegmentBar,
+  KpiRibbon,
+} from "./components/DashboardWidgets";
 
 export const dynamic = "force-dynamic";
+
+type TrendDatum = {
+  date: string;
+  passed: number;
+  failed: number;
+  blocked: number;
+  skipped: number;
+};
+
+type DashboardProject = {
+  code: string;
+  name: string;
+  cases: number;
+  runs: number;
+  automated: number;
+  lastRunHealth: number | null;
+};
+
+type RecentRun = {
+  id: string;
+  title: string;
+  status: string;
+  createdAt: Date;
+  project: { name: string; code: string };
+  metrics: {
+    total: number;
+    passed: number;
+    failed: number;
+    blocked: number;
+    skipped: number;
+    untested: number;
+  };
+};
+
+type Schedule = {
+  id: string;
+  title: string;
+  cron: string;
+  project: { name: string; code: string };
+};
+
+type ProjectFilter = { code: string; name: string };
+
+type HeatmapProject = {
+  code: string;
+  name: string;
+  dailyHealth: Array<{
+    date: string;
+    passRate: number | null;
+    totalRuns: number;
+  }>;
+};
+
+type AuditLogEntry = {
+  id: string;
+  action: string;
+  entity: string;
+  details: string | null;
+  createdAt: Date;
+  user: { name: string | null; email: string } | null;
+  project: { name: string; code: string } | null;
+};
 
 export default async function GlobalDashboardPage(props: {
   searchParams: Promise<{ timeframe?: string; project?: string }>;
@@ -39,13 +101,28 @@ export default async function GlobalDashboardPage(props: {
   let dashboardData = {
     metrics: { totalProjects: 0, totalCases: 0, totalRuns: 0, passRate: 0 },
     automation: { automated: 0, manual: 0, toBeAutomated: 0 },
-    projects: [] as any[],
-    recentRuns: [] as any[],
-    schedules: [] as any[],
-    trendData: [] as any[],
-    allProjectsForFilter: [] as any[],
-    heatmapData: [] as any[],
-    auditLogs: [] as any[],
+    projects: [] as DashboardProject[],
+    recentRuns: [] as RecentRun[],
+    schedules: [] as Schedule[],
+    trendData: [] as TrendDatum[],
+    allProjectsForFilter: [] as ProjectFilter[],
+    heatmapData: [] as HeatmapProject[],
+    auditLogs: [] as AuditLogEntry[],
+  };
+
+  // ── Extra analytics widgets (computed below) ──
+  let widgets = {
+    topFailing: [] as Array<{ title: string; suite: string; failed: number; total: number }>,
+    flaky: [] as Array<{ title: string; suite: string; passed: number; failed: number }>,
+    openDefects: [] as Array<{ id: string; key: string; url: string; summary: string; severity: string | null; project: string }>,
+    openDefectCount: 0,
+    execByUser: [] as Array<{ name: string; count: number }>,
+    runStatus: { ACTIVE: 0, COMPLETED: 0, ABORTED: 0 } as Record<string, number>,
+    statusDist: { PASSED: 0, FAILED: 0, BLOCKED: 0, SKIPPED: 0, IN_PROGRESS: 0 } as Record<string, number>,
+    avgDurationMs: 0,
+    coverageBySuite: [] as Array<{ title: string; total: number; passRate: number }>,
+    priorityDist: [] as Array<{ priority: string; count: number }>,
+    envBreakdown: [] as Array<{ title: string; count: number }>,
   };
 
   try {
@@ -242,6 +319,142 @@ export default async function GlobalDashboardPage(props: {
       },
     });
 
+    // ── Analytics widgets (one broad results fetch + a couple aggregates) ──
+    const winStart = new Date();
+    winStart.setDate(winStart.getDate() - timeframeDays);
+    const runWindowWhere: any = {
+      createdAt: { gte: winStart },
+      ...(projectCodeFilter ? { project: { code: projectCodeFilter } } : {}),
+    };
+
+    const windowResults = await prisma.testRunResult.findMany({
+      where: { testRun: runWindowWhere },
+      select: {
+        status: true,
+        assigneeId: true,
+        assignee: { select: { name: true, email: true } },
+        testCase: {
+          select: {
+            id: true,
+            title: true,
+            suite: { select: { title: true } },
+          },
+        },
+      },
+    });
+
+    const windowRuns = await prisma.testRun.findMany({
+      where: runWindowWhere,
+      select: {
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        environment: { select: { title: true } },
+      },
+    });
+
+    const linkedIssues = await prisma.linkedIssue.findMany({
+      where: projectCodeFilter ? { project: { code: projectCodeFilter } } : {},
+      orderBy: { createdAt: "desc" },
+      take: 50,
+      select: {
+        id: true,
+        key: true,
+        url: true,
+        summary: true,
+        status: true,
+        severity: true,
+        project: { select: { code: true } },
+      },
+    });
+
+    const priorityGroups = await prisma.testCase.groupBy({
+      by: ["priority"],
+      where: projectCodeFilter ? { project: { code: projectCodeFilter } } : {},
+      _count: { _all: true },
+    });
+
+    // status distribution
+    const statusDist = { PASSED: 0, FAILED: 0, BLOCKED: 0, SKIPPED: 0, IN_PROGRESS: 0 } as Record<string, number>;
+    // per-case + per-suite aggregation
+    const caseAgg = new Map<string, { title: string; suite: string; passed: number; failed: number; total: number }>();
+    const suiteAgg = new Map<string, { passed: number; total: number }>();
+    const userAgg = new Map<string, { name: string; count: number }>();
+    for (const r of windowResults) {
+      if (r.status in statusDist) statusDist[r.status]++;
+      const tc = r.testCase;
+      if (tc) {
+        const e = caseAgg.get(tc.id) || { title: tc.title, suite: tc.suite?.title || "No Suite", passed: 0, failed: 0, total: 0 };
+        e.total++;
+        if (r.status === "PASSED") e.passed++;
+        if (r.status === "FAILED") e.failed++;
+        caseAgg.set(tc.id, e);
+        const sName = tc.suite?.title || "No Suite";
+        const s = suiteAgg.get(sName) || { passed: 0, total: 0 };
+        s.total++;
+        if (r.status === "PASSED") s.passed++;
+        suiteAgg.set(sName, s);
+      }
+      if (r.assigneeId) {
+        const name = r.assignee?.name || r.assignee?.email?.split("@")[0] || "Unknown";
+        const u = userAgg.get(r.assigneeId) || { name, count: 0 };
+        u.count++;
+        userAgg.set(r.assigneeId, u);
+      }
+    }
+
+    const runStatus = { ACTIVE: 0, COMPLETED: 0, ABORTED: 0 } as Record<string, number>;
+    const durations: number[] = [];
+    const envAgg = new Map<string, number>();
+    for (const r of windowRuns) {
+      const k = r.status === "COMPLETED" ? "COMPLETED" : r.status === "ABORTED" ? "ABORTED" : "ACTIVE";
+      runStatus[k]++;
+      const dur = new Date(r.updatedAt).getTime() - new Date(r.createdAt).getTime();
+      if (dur > 0) durations.push(dur);
+      const env = r.environment?.title || "Unspecified";
+      envAgg.set(env, (envAgg.get(env) || 0) + 1);
+    }
+
+    const isOpen = (s: string | null) => !s || !/closed|done|resolved|fixed/i.test(s);
+    const openDefectsList = linkedIssues.filter((i) => isOpen(i.status));
+
+    widgets = {
+      topFailing: [...caseAgg.values()]
+        .filter((c) => c.failed > 0)
+        .sort((a, b) => b.failed - a.failed)
+        .slice(0, 6)
+        .map((c) => ({ title: c.title, suite: c.suite, failed: c.failed, total: c.total })),
+      flaky: [...caseAgg.values()]
+        .filter((c) => c.passed > 0 && c.failed > 0)
+        .sort((a, b) => Math.min(b.passed, b.failed) - Math.min(a.passed, a.failed))
+        .slice(0, 6)
+        .map((c) => ({ title: c.title, suite: c.suite, passed: c.passed, failed: c.failed })),
+      openDefects: openDefectsList.slice(0, 6).map((i) => ({
+        id: i.id,
+        key: i.key,
+        url: i.url,
+        summary: i.summary,
+        severity: i.severity,
+        project: i.project.code,
+      })),
+      openDefectCount: openDefectsList.length,
+      execByUser: [...userAgg.values()].sort((a, b) => b.count - a.count).slice(0, 6),
+      runStatus,
+      statusDist,
+      avgDurationMs: durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : 0,
+      coverageBySuite: [...suiteAgg.entries()]
+        .map(([title, v]) => ({ title, total: v.total, passRate: v.total ? Math.round((v.passed / v.total) * 100) : 0 }))
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 6),
+      priorityDist: priorityGroups
+        .map((g) => ({ priority: (g.priority as string) || "None", count: g._count._all }))
+        .sort((a, b) => b.count - a.count),
+      envBreakdown: [...envAgg.entries()]
+        .map(([title, count]) => ({ title, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 6),
+    };
+
     dashboardData = {
       allProjectsForFilter,
       metrics: {
@@ -335,252 +548,421 @@ export default async function GlobalDashboardPage(props: {
     totalAutomationCases > 0
       ? (automation.automated / totalAutomationCases) * 100
       : 0;
+  const failedOrBlocked = recentRuns.reduce(
+    (sum, run) => sum + run.metrics.failed + run.metrics.blocked,
+    0,
+  );
+  const activeRuns = recentRuns.filter(
+    (run) => run.status !== "COMPLETED" && run.metrics.untested > 0,
+  ).length;
+
+  const statCards: Array<{
+    label: string;
+    value: string;
+    detail: string;
+    icon: React.ComponentType<{ size?: number; className?: string }>;
+    tone: Tone;
+    progress?: number;
+  }> = [
+    {
+      label: "Test cases",
+      value: metrics.totalCases.toLocaleString(),
+      detail: `${metrics.totalProjects.toLocaleString()} projects tracked`,
+      icon: FileText,
+      tone: "indigo",
+    },
+    {
+      label: "Automation",
+      value: `${automatedPercent.toFixed(1)}%`,
+      detail: `${automation.automated.toLocaleString()} automated cases`,
+      icon: ShieldCheck,
+      tone: "emerald",
+      progress: automatedPercent,
+    },
+    {
+      label: "Test runs",
+      value: metrics.totalRuns.toLocaleString(),
+      detail: `${activeRuns.toLocaleString()} active in queue or progress`,
+      icon: PlayCircle,
+      tone: "sky",
+    },
+    {
+      label: "Pass rate",
+      value: `${metrics.passRate.toFixed(1)}%`,
+      detail:
+        failedOrBlocked > 0
+          ? `${failedOrBlocked.toLocaleString()} failed or blocked results`
+          : "No recent failures detected",
+      icon: CheckCircle2,
+      tone:
+        metrics.passRate >= 90
+          ? "emerald"
+          : metrics.passRate >= 70
+            ? "amber"
+            : "rose",
+      progress: metrics.passRate,
+    },
+  ];
+
+  const maxExec = Math.max(1, ...widgets.execByUser.map((u) => u.count));
+  const maxPrio = Math.max(1, ...widgets.priorityDist.map((p) => p.count));
+  const maxEnv = Math.max(1, ...widgets.envBreakdown.map((e) => e.count));
+  const avgMin = Math.round(widgets.avgDurationMs / 60000);
+  const avgDurationLabel =
+    avgMin >= 60
+      ? `${Math.floor(avgMin / 60)}h ${avgMin % 60}m`
+      : `${avgMin}m`;
+  const PRIORITY_COLOR: Record<string, string> = {
+    HIGH: "#ef4444",
+    CRITICAL: "#dc2626",
+    MEDIUM: "#f59e0b",
+    LOW: "#10b981",
+    TRIVIAL: "#94a3b8",
+    NONE: "#cbd5e1",
+  };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 bg-background font-sans text-text-main">
+    <div className="flex flex-col flex-1 min-h-0 bg-background font-sans text-text-main selection:bg-primary/20">
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[1400px] mx-auto px-6 py-6 space-y-6">
-          {/* Page header */}
-          <div className="flex items-center justify-between border-b border-border/40 pb-5">
+        <div className="mx-auto flex w-full max-w-[1500px] flex-col gap-8 px-4 py-8 md:px-8">
+          {/* Header */}
+          <div className="flex flex-wrap items-end justify-between gap-4 mb-2">
+            <div>
+              <h1 className="text-[32px] md:text-[40px] font-black tracking-tight bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400 bg-clip-text text-transparent leading-none">
+                QA Dashboard
+              </h1>
+              <p className="text-[14px] font-medium text-text-muted mt-2">
+                Cross-project quality, automation & execution risk ·{" "}
+                {timeframeStr}-day window
+              </p>
+            </div>
             <div className="flex items-center gap-3">
-              <div className="relative flex h-3.5 w-3.5 shrink-0 items-center justify-center">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </div>
-              <div>
-                <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400 bg-clip-text text-transparent">
-                  Global QA Dashboard
-                </h1>
-                <p className="text-xs text-text-muted mt-1 font-medium">
-                  NOC Command Center • Cross-project metrics, 30-day activity, and real-time logs
-                </p>
-              </div>
-            </div>
-            <Link
-              href="/projects"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-white shadow-md hover:-translate-y-0.5 active:translate-y-0 hover:shadow-indigo-500/20 transition-all"
-              style={{
-                background: "linear-gradient(135deg, var(--primary) 0%, #6366f1 100%)",
-              }}
-            >
-              View all projects
-            </Link>
-          </div>
-
-          {/* Interactive Filters Panel */}
-          <DashboardToolbar projects={allProjectsForFilter} />
-
-          {/* ── Stat cards ──────────────────────────────────── */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            {/* Total Test Cases */}
-            <div
-              className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-1.5 hover:scale-[1.02] duration-300 transition-all cursor-pointer"
-              style={{
-                background: "linear-gradient(135deg, #4f46e5 0%, #5c56e9 50%, #3b82f6 100%)",
-                boxShadow: "0 10px 25px -5px rgba(79,70,229,0.45)",
-              }}
-            >
-              <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white/10" />
-              <div className="flex items-center justify-between mb-3.5">
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/80">
-                  Test Cases
-                </span>
-                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                  <FileText size={15} />
-                </div>
-              </div>
-              <div className="text-3xl font-black tracking-tight">
-                {metrics.totalCases}
-              </div>
-              <div className="text-[11px] font-bold text-white/70 mt-1.5">
-                {metrics.totalProjects} projects
-              </div>
-            </div>
-
-            {/* Global Automation */}
-            <div
-              className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-1.5 hover:scale-[1.02] duration-300 transition-all cursor-pointer"
-              style={{
-                background: "linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%)",
-                boxShadow: "0 10px 25px -5px rgba(5,150,105,0.45)",
-              }}
-            >
-              <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white/10" />
-              <div className="flex items-center justify-between mb-3.5">
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/80">
-                  Automation
-                </span>
-                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                  <ShieldCheck size={15} />
-                </div>
-              </div>
-              <div className="text-3xl font-black tracking-tight">
-                {automatedPercent.toFixed(1)}%
-              </div>
-              <div className="w-full h-1.5 bg-white/25 rounded-full mt-3.5 overflow-hidden">
-                <div
-                  className="h-full bg-white rounded-full"
-                  style={{ width: `${automatedPercent}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Total Test Runs */}
-            <div
-              className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-1.5 hover:scale-[1.02] duration-300 transition-all cursor-pointer"
-              style={{
-                background: "linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a855f7 100%)",
-                boxShadow: "0 10px 25px -5px rgba(124,58,237,0.45)",
-              }}
-            >
-              <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white/10" />
-              <div className="flex items-center justify-between mb-3.5">
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/80">
-                  Test Runs
-                </span>
-                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                  <PlayCircle size={15} />
-                </div>
-              </div>
-              <div className="text-3xl font-black tracking-tight">
-                {metrics.totalRuns}
-              </div>
-              <div className="flex items-center gap-1 text-[11px] font-bold text-white/70 mt-1.5">
-                <TrendingUp size={11} /> Execution volume
-              </div>
-            </div>
-
-            {/* Global Pass Rate */}
-            <div
-              className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-1.5 hover:scale-[1.02] duration-300 transition-all cursor-pointer"
-              style={{
-                background: "linear-gradient(135deg, #db2777 0%, #ec4899 50%, #f43f5e 100%)",
-                boxShadow: "0 10px 25px -5px rgba(219,39,119,0.45)",
-              }}
-            >
-              <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-white/10" />
-              <div className="flex items-center justify-between mb-3.5">
-                <span className="text-[10px] font-black uppercase tracking-widest text-white/80">
-                  Pass Rate
-                </span>
-                <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                  <CheckCircle2 size={15} />
-                </div>
-              </div>
-              <div className="text-3xl font-black tracking-tight">
-                {metrics.passRate.toFixed(1)}%
-              </div>
-              <div className="w-full h-1.5 bg-white/25 rounded-full mt-3.5 overflow-hidden">
-                <div
-                  className="h-full bg-white rounded-full"
-                  style={{ width: `${metrics.passRate}%` }}
-                />
-              </div>
+              <DashboardToolbar projects={allProjectsForFilter} />
+              <Link
+                href="/projects"
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-[14px] font-bold text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary-hover hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+              >
+                <Folder size={16} /> Projects
+              </Link>
             </div>
           </div>
 
-          {/* ── Trend + Donut ───────────────────────────────── */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="bg-surface rounded-2xl border border-border shadow-sm col-span-1 lg:col-span-2 overflow-hidden flex flex-col">
-              <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-                <div>
-                  <h2 className="text-sm font-bold text-text-main flex items-center gap-2">
-                    <Activity
-                      size={16}
-                      className="text-indigo-500"
-                      strokeWidth={2.5}
-                    />
-                    Execution Trends ({timeframeStr} days)
-                  </h2>
-                  <p className="text-xs text-text-muted mt-0.5">
-                    Test results over the selected timeframe
-                  </p>
-                </div>
-              </div>
-              <div className="flex-1 p-5 min-h-[280px]">
-                <ExecutionTrendChart data={trendData} />
-              </div>
-            </div>
+          {/* Huge KPI Hero Block */}
+          <KpiRibbon
+            passRate={metrics.passRate}
+            runs={metrics.totalRuns}
+            activeRuns={activeRuns}
+            automation={automatedPercent}
+            automatedCount={automation.automated}
+            cases={metrics.totalCases}
+            projects={metrics.totalProjects}
+            atRisk={failedOrBlocked}
+          />
 
-            <div className="bg-surface rounded-2xl border border-border shadow-sm flex flex-col">
-              <div className="px-5 py-4 border-b border-border">
-                <h2 className="text-sm font-bold text-text-main flex items-center gap-2">
-                  <ShieldCheck
-                    size={16}
-                    className="text-emerald-500"
-                    strokeWidth={2.5}
+          {/* Main Analytics Bento (Asymmetric) */}
+          <section className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            {/* Left wide area */}
+            <div className="lg:col-span-8 flex flex-col gap-6">
+              <WidgetCard title={`Execution Trends (${timeframeStr}d)`} hint="Passed & failed over time" borderless tinted>
+                <div className="h-[280px]">
+                  <ExecutionTrendChart data={trendData} />
+                </div>
+              </WidgetCard>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <WidgetCard title="Result distribution" hint="Outcomes in window" borderless>
+                  <SegmentBar
+                    segments={[
+                      { label: "Passed", value: widgets.statusDist.PASSED, color: "var(--emerald-500)" },
+                      { label: "Failed", value: widgets.statusDist.FAILED, color: "var(--rose-500)" },
+                      { label: "Blocked", value: widgets.statusDist.BLOCKED, color: "var(--amber-500)" },
+                      { label: "Skipped", value: widgets.statusDist.SKIPPED, color: "var(--slate-400)" },
+                      { label: "Untested", value: widgets.statusDist.IN_PROGRESS, color: "var(--slate-200)" },
+                    ]}
                   />
-                  Automation
-                </h2>
-                <p className="text-xs text-text-muted mt-0.5">
-                  Coverage across all projects
-                </p>
+                </WidgetCard>
+                <WidgetCard title="Run status" hint="Runs in window" borderless>
+                  <SegmentBar
+                    segments={[
+                      { label: "Active", value: widgets.runStatus.ACTIVE, color: "var(--indigo-500)" },
+                      { label: "Completed", value: widgets.runStatus.COMPLETED, color: "var(--emerald-500)" },
+                      { label: "Aborted", value: widgets.runStatus.ABORTED, color: "var(--rose-600)" },
+                    ]}
+                  />
+                </WidgetCard>
               </div>
-              <div className="flex-1 p-5 flex flex-col items-center justify-center">
-                <div className="relative w-full h-[200px]">
+            </div>
+
+            {/* Right column */}
+            <div className="lg:col-span-4 flex flex-col gap-6">
+              <WidgetCard title="Avg run duration" hint="Across window" className="bg-primary/5 text-primary-800 dark:text-primary-300 dark:bg-primary/10 border-primary/20">
+                <div className="flex flex-col items-center justify-center h-full py-6">
+                  <div className="text-[48px] font-extrabold tracking-tighter leading-none">
+                    {avgDurationLabel}
+                  </div>
+                  <div className="text-[13px] font-medium opacity-80 mt-2">
+                    {metrics.totalRuns} runs · {activeRuns} active
+                  </div>
+                </div>
+              </WidgetCard>
+
+              <WidgetCard title="Automation coverage" hint="Manual vs automated" borderless>
+                <div className="h-[200px]">
                   <AutomationDonutChart data={automation} />
                 </div>
-                <div className="w-full mt-4 space-y-1.5">
-                  {[
-                    {
-                      label: "Automated",
-                      value: automation.automated,
-                      color: "#10b981",
-                    },
-                    {
-                      label: "To Be Automated",
-                      value: automation.toBeAutomated,
-                      color: "#f59e0b",
-                    },
-                    {
-                      label: "Manual",
-                      value: automation.manual,
-                      color: "#cbd5e1",
-                    },
-                  ].map(({ label, value, color }) => (
-                    <div
-                      key={label}
-                      className="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-surface-hover transition-colors"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ background: color }}
-                        />
-                        <span className="text-xs font-semibold text-text-muted">
-                          {label}
-                        </span>
-                      </div>
-                      <span className="text-xs font-bold text-text-main bg-surface-hover px-2 py-0.5 rounded-md">
-                        {value}
-                      </span>
-                    </div>
-                  ))}
+              </WidgetCard>
+            </div>
+          </section>
+
+          {/* Attention / Risk Areas */}
+          <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
+            <WidgetCard title="Top failing cases" hint="Most failures in window" borderless>
+              <RankList
+                empty="No failures in this window"
+                items={widgets.topFailing.map((c) => ({
+                  label: c.title,
+                  sub: c.suite,
+                  value: `${c.failed}×`,
+                  valueColor: "var(--rose-600)",
+                }))}
+              />
+            </WidgetCard>
+            <WidgetCard title="Flaky tests" hint="Mixed pass/fail history" borderless>
+              <RankList
+                empty="No flaky tests"
+                items={widgets.flaky.map((c) => ({
+                  label: c.title,
+                  sub: c.suite,
+                  value: `${c.passed}✓ / ${c.failed}✗`,
+                  valueColor: "var(--amber-600)",
+                }))}
+              />
+            </WidgetCard>
+            <WidgetCard
+              title="Open defects"
+              hint="Linked issues still open"
+              borderless
+              right={
+                <span className="text-[12px] font-bold text-rose-700 bg-rose-100 dark:bg-rose-900/30 dark:text-rose-400 px-2.5 py-0.5 rounded-full">
+                  {widgets.openDefectCount}
+                </span>
+              }
+            >
+              <RankList
+                empty="No open defects 🎉"
+                items={widgets.openDefects.map((d) => ({
+                  label: d.key,
+                  sub: d.summary,
+                  href: d.url,
+                  value: d.severity || d.project,
+                  valueColor: "var(--rose-500)",
+                }))}
+              />
+            </WidgetCard>
+          </section>
+
+          {/* Tables and Heatmap */}
+          <section className="flex flex-col gap-6">
+            <QualityHeatmap heatmapData={heatmapData} />
+            
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 items-start mt-4">
+              <div className="flex min-w-0 flex-col gap-6">
+                <RecentExecutionsTable recentRuns={recentRuns} />
+                <ProjectQualityMatrix projects={projects} />
+              </div>
+              <div className="flex min-w-0 flex-col gap-6">
+                <RecentActivityStream auditLogs={auditLogs} />
+                
+                {/* Secondary Stats */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <WidgetCard title="Executions by tester" hint="Results recorded in window" borderless tinted>
+                    <RankList
+                      empty="No assigned executions"
+                      items={widgets.execByUser.map((u) => ({
+                        label: u.name,
+                        value: u.count.toLocaleString(),
+                        bar: (u.count / maxExec) * 100,
+                        barColor: "var(--indigo-500)",
+                      }))}
+                    />
+                  </WidgetCard>
+                  <WidgetCard title="Coverage by suite" hint="Executed cases · pass rate" borderless tinted>
+                    <RankList
+                      empty="No executions"
+                      items={widgets.coverageBySuite.map((s) => {
+                        const col = s.passRate >= 80 ? "var(--emerald-500)" : s.passRate >= 50 ? "var(--amber-500)" : "var(--rose-500)";
+                        return {
+                          label: s.title,
+                          sub: `${s.total} executed`,
+                          value: `${s.passRate}%`,
+                          valueColor: col,
+                          bar: s.passRate,
+                          barColor: col,
+                        };
+                      })}
+                    />
+                  </WidgetCard>
                 </div>
+
+                <UpcomingSchedules schedules={schedules} />
               </div>
             </div>
-          </div>
-
-          {/* ── Row 2: Quality Heatmap + Activity Logs Stream ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="col-span-1 lg:col-span-2">
-              <QualityHeatmap heatmapData={heatmapData} />
-            </div>
-            <div className="col-span-1">
-              <RecentActivityStream auditLogs={auditLogs} />
-            </div>
-          </div>
-
-          {/* ── Bottom: Matrix + Executions ──────────────────── */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <ProjectQualityMatrix projects={projects} />
-            <div className="flex flex-col gap-4">
-              <UpcomingSchedules schedules={schedules} />
-              <RecentExecutionsTable recentRuns={recentRuns} />
-            </div>
-          </div>
+          </section>
         </div>
       </div>
     </div>
+  );
+}
+
+function OverviewItem({
+  label,
+  value,
+  helper,
+  tone = "slate",
+}: {
+  label: string;
+  value: string;
+  helper: string;
+  tone?: "slate" | "rose" | "emerald";
+}) {
+  const valueTone =
+    tone === "rose"
+      ? "text-rose-600 dark:text-rose-300"
+      : tone === "emerald"
+        ? "text-emerald-700 dark:text-emerald-300"
+        : "text-text-main";
+
+  return (
+    <div className="border-t border-border px-5 py-4 first:border-t-0 sm:border-l sm:border-t-0 sm:first:border-l-0">
+      <div className={`font-mono text-xl font-extrabold tabular-nums ${valueTone}`}>
+        {value}
+      </div>
+      <div className="mt-1 text-xs font-semibold text-text-muted">{label}</div>
+      <div className="mt-0.5 text-xs text-text-muted/85">{helper}</div>
+    </div>
+  );
+}
+
+function StatusPill({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "emerald" | "amber" | "rose" | "sky" | "indigo";
+}) {
+  const toneClass = {
+    emerald: "border-emerald-400/20 bg-emerald-400/10 text-emerald-200 dark:text-emerald-300",
+    amber: "border-amber-400/20 bg-amber-400/10 text-amber-200 dark:text-amber-300",
+    rose: "border-rose-400/20 bg-rose-400/10 text-rose-200 dark:text-rose-300",
+    sky: "border-sky-400/20 bg-sky-400/10 text-sky-200 dark:text-sky-300",
+    indigo: "border-indigo-400/20 bg-indigo-400/10 text-indigo-200 dark:text-indigo-300",
+  }[tone];
+
+  return (
+    <div className={`rounded-md border px-3 py-2 ${toneClass}`}>
+      <div className="text-xs font-semibold opacity-80">{label}</div>
+      <div className="mt-0.5 font-mono text-lg font-extrabold tabular-nums">
+        {value}
+      </div>
+    </div>
+  );
+}
+
+type Tone = "indigo" | "emerald" | "sky" | "amber" | "rose";
+
+function MetricCard({
+  label,
+  value,
+  detail,
+  icon: Icon,
+  tone,
+  progress,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  tone: Tone;
+  progress?: number;
+}) {
+  const toneClass = {
+    indigo: "bg-indigo-50 text-indigo-700 border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/20",
+    emerald: "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/20",
+    sky: "bg-sky-50 text-sky-700 border-sky-100 dark:bg-sky-500/10 dark:text-sky-300 dark:border-sky-500/20",
+    amber: "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-500/20",
+    rose: "bg-rose-50 text-rose-700 border-rose-100 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-500/20",
+  }[tone];
+  const barClass = {
+    indigo: "bg-indigo-500",
+    emerald: "bg-emerald-500",
+    sky: "bg-sky-500",
+    amber: "bg-amber-500",
+    rose: "bg-rose-500",
+  }[tone];
+
+  return (
+    <article className="group rounded-lg border border-border bg-surface p-4 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase text-text-muted">
+            {label}
+          </p>
+          <p className="mt-2 font-mono text-2xl font-extrabold tabular-nums text-text-main">
+            {value}
+          </p>
+        </div>
+        <div className={`rounded-md border p-2 ${toneClass}`}>
+          <Icon size={18} />
+        </div>
+      </div>
+      <p className="mt-3 min-h-5 text-sm font-medium text-text-muted">
+        {detail}
+      </p>
+      {typeof progress === "number" && (
+        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-surface-hover">
+          <div
+            className={`h-full rounded-full transition-all duration-300 ${barClass}`}
+            style={{ width: `${Math.max(0, Math.min(progress, 100))}%` }}
+          />
+        </div>
+      )}
+    </article>
+  );
+}
+
+function Panel({
+  icon: Icon,
+  title,
+  description,
+  children,
+  className = "",
+}: {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <section
+      className={`overflow-hidden rounded-lg border border-border bg-surface shadow-sm ${className}`}
+    >
+      <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
+        <div>
+          <h2 className="flex items-center gap-2 text-base font-extrabold text-text-main">
+            <Icon size={17} className="text-primary" />
+            {title}
+          </h2>
+          {description && (
+            <p className="mt-1 text-sm leading-5 text-text-muted">
+              {description}
+            </p>
+          )}
+        </div>
+      </div>
+      <div className="p-5">{children}</div>
+    </section>
   );
 }

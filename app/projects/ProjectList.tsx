@@ -198,7 +198,7 @@ export function ProjectList({
       {/* ── Page header ───────────────────────────────────── */}
       <div className="flex items-center justify-between mb-6 border-b border-border/40 pb-5">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400 bg-clip-text text-transparent">
+          <h1 className="text-[32px] md:text-[40px] font-black tracking-tight bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400 bg-clip-text text-transparent leading-none">
             Projects
           </h1>
           <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-indigo-50 text-indigo-600 border border-indigo-100/50 shadow-2xs">

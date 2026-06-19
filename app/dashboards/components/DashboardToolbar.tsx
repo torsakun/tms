@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Calendar, Folder } from "lucide-react";
+import { Calendar, Filter, Folder, RotateCcw } from "lucide-react";
 
 interface DashboardToolbarProps {
   projects: Array<{ code: string; name: string }>;
@@ -35,48 +35,58 @@ export function DashboardToolbar({ projects }: DashboardToolbarProps) {
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 p-3.5 bg-surface/90 backdrop-blur-md border border-border/80 rounded-2xl shadow-xs">
-      <div className="flex flex-wrap items-center gap-3">
-        {/* Project Filter */}
-        <div className="flex items-center bg-background border border-border/80 rounded-xl px-3.5 py-2 gap-2.5 shadow-2xs hover:border-indigo-500/40 focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500/50 transition-all duration-200">
-          <Folder size={14} className="text-indigo-500" />
-          <select
-            value={projectCode}
-            onChange={handleProjectChange}
-            className="bg-transparent text-xs font-bold text-text-main focus:outline-none cursor-pointer pr-3 outline-none"
-          >
-            <option value="">All Projects</option>
-            {projects.map((p) => (
-              <option key={p.code} value={p.code}>
-                {p.name} ({p.code})
-              </option>
-            ))}
-          </select>
+    <section className="rounded-lg border border-border bg-surface px-4 py-3 shadow-sm">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-2 text-sm font-bold text-text-main">
+          <span className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-primary/15 bg-primary-light text-primary">
+            <Filter size={15} />
+          </span>
+          Dashboard filters
         </div>
 
-        {/* Timeframe Filter */}
-        <div className="flex items-center bg-background border border-border/80 rounded-xl px-3.5 py-2 gap-2.5 shadow-2xs hover:border-violet-500/40 focus-within:ring-2 focus-within:ring-violet-500/20 focus-within:border-violet-500/50 transition-all duration-200">
-          <Calendar size={14} className="text-violet-500" />
-          <select
-            value={timeframe}
-            onChange={handleTimeframeChange}
-            className="bg-transparent text-xs font-bold text-text-main focus:outline-none cursor-pointer pr-3 outline-none"
-          >
-            <option value="7">Last 7 Days</option>
-            <option value="14">Last 14 Days</option>
-            <option value="30">Last 30 Days</option>
-          </select>
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+          <label className="flex min-w-0 items-center gap-2 rounded-md border border-border bg-background px-3 py-2 transition-[border-color,box-shadow] duration-200 hover:border-primary/35 focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15 sm:min-w-[260px]">
+            <Folder size={15} className="shrink-0 text-primary" />
+            <span className="sr-only">Project</span>
+            <select
+              value={projectCode}
+              onChange={handleProjectChange}
+              className="min-w-0 flex-1 cursor-pointer bg-transparent text-sm font-semibold text-text-main outline-none"
+            >
+              <option value="">All Projects</option>
+              {projects.map((p) => (
+                <option key={p.code} value={p.code}>
+                  {p.name} ({p.code})
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 transition-[border-color,box-shadow] duration-200 hover:border-primary/35 focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15">
+            <Calendar size={15} className="shrink-0 text-primary" />
+            <span className="sr-only">Timeframe</span>
+            <select
+              value={timeframe}
+              onChange={handleTimeframeChange}
+              className="cursor-pointer bg-transparent text-sm font-semibold text-text-main outline-none"
+            >
+              <option value="7">Last 7 Days</option>
+              <option value="14">Last 14 Days</option>
+              <option value="30">Last 30 Days</option>
+            </select>
+          </label>
+
+          {(projectCode || timeframe !== "14") && (
+            <button
+              onClick={handleClearFilters}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border bg-surface px-3 text-sm font-bold text-text-muted hover:border-primary/35 hover:bg-surface-hover hover:text-text-main"
+            >
+              <RotateCcw size={15} />
+              Reset
+            </button>
+          )}
         </div>
       </div>
-
-      {(projectCode || timeframe !== "14") && (
-        <button
-          onClick={handleClearFilters}
-          className="text-xs font-black uppercase tracking-wider text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50/50 active:bg-indigo-100 border border-indigo-200/60 rounded-xl px-3 py-2 shadow-sm transition-all duration-200"
-        >
-          Reset filters
-        </button>
-      )}
-    </div>
+    </section>
   );
 }

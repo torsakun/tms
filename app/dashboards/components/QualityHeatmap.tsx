@@ -17,11 +17,13 @@ interface QualityHeatmapProps {
 
 export function QualityHeatmap({ heatmapData }: QualityHeatmapProps) {
   const getCellColor = (passRate: number | null) => {
-    if (passRate === null) return "bg-slate-100 dark:bg-slate-800/30 border border-slate-200/10 dark:border-slate-800/40";
-    if (passRate >= 90) return "bg-[#10b981] hover:bg-[#34d399] border border-emerald-600/25 shadow-[0_0_8px_rgba(16,185,129,0.2)]";
-    if (passRate >= 70) return "bg-[#34d399]/85 hover:bg-[#6ee7b7] border border-emerald-500/25 shadow-[0_0_6px_rgba(52,211,153,0.15)]";
-    if (passRate >= 50) return "bg-[#fbbf24] hover:bg-[#fcd34d] border border-amber-500/25 shadow-[0_0_6px_rgba(251,191,36,0.15)]";
-    return "bg-[#f43f5e] hover:bg-[#fb7185] border border-rose-600/25 shadow-[0_0_8px_rgba(244,63,94,0.25)]";
+    if (passRate === null) {
+      return "border-border/60 bg-surface-hover";
+    }
+    if (passRate >= 90) return "border-emerald-600/20 bg-emerald-500";
+    if (passRate >= 70) return "border-emerald-500/20 bg-emerald-300";
+    if (passRate >= 50) return "border-amber-500/25 bg-amber-400";
+    return "border-rose-600/25 bg-rose-500";
   };
 
   const getCellTooltip = (date: string, passRate: number | null) => {
@@ -35,27 +37,27 @@ export function QualityHeatmap({ heatmapData }: QualityHeatmapProps) {
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col h-full">
-      <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-transparent">
-        <h2 className="text-base font-extrabold text-text-main flex items-center">
+    <section className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
+      <div className="flex items-center justify-between gap-4 border-b border-border px-5 py-4">
+        <h2 className="flex items-center text-base font-extrabold text-text-main">
           <CheckCircle
-            className="mr-2 text-indigo-600"
+            className="mr-2 text-primary"
             size={18}
             strokeWidth={2.5}
           />
-          Quality Grid (30-day History)
+          Quality Grid
         </h2>
-        <div className="flex items-center gap-2 text-[10px] font-bold text-text-muted">
+        <div className="flex items-center gap-2 text-xs font-bold text-text-muted">
           <span>Less</span>
-          <span className="w-2.5 h-2.5 rounded-[3px] bg-slate-100 dark:bg-slate-800/30 border border-slate-200/10" />
-          <span className="w-2.5 h-2.5 rounded-[3px] bg-[#f43f5e] border border-rose-600/20" />
-          <span className="w-2.5 h-2.5 rounded-[3px] bg-[#fbbf24] border border-amber-500/20" />
-          <span className="w-2.5 h-2.5 rounded-[3px] bg-[#34d399]/85 border border-emerald-500/20" />
-          <span className="w-2.5 h-2.5 rounded-[3px] bg-[#10b981] border border-emerald-600/20" />
+          <span className="h-2.5 w-2.5 rounded-[3px] border border-border/60 bg-surface-hover" />
+          <span className="h-2.5 w-2.5 rounded-[3px] border border-rose-600/20 bg-rose-500" />
+          <span className="h-2.5 w-2.5 rounded-[3px] border border-amber-500/20 bg-amber-400" />
+          <span className="h-2.5 w-2.5 rounded-[3px] border border-emerald-500/20 bg-emerald-300" />
+          <span className="h-2.5 w-2.5 rounded-[3px] border border-emerald-600/20 bg-emerald-500" />
           <span>More</span>
         </div>
       </div>
-      <div className="p-6 overflow-x-auto flex-1 scrollbar-thin">
+      <div className="flex-1 overflow-x-auto p-5">
         {heatmapData.length === 0 ? (
           <div className="text-center py-8 text-text-muted font-medium text-sm">
             No project metrics found.
@@ -63,21 +65,24 @@ export function QualityHeatmap({ heatmapData }: QualityHeatmapProps) {
         ) : (
           <div className="space-y-4">
             {heatmapData.map((project) => (
-              <div key={project.code} className="flex items-center justify-between gap-4 relative">
-                <div className="w-32 shrink-0 flex flex-col sticky left-0 bg-surface z-10 pr-2 shadow-[4px_0_8px_-4px_rgba(0,0,0,0.05)]">
+              <div
+                key={project.code}
+                className="relative flex items-center justify-between gap-4"
+              >
+                <div className="sticky left-0 z-10 flex w-36 shrink-0 flex-col bg-surface pr-3">
                   <span className="text-xs font-bold text-text-main truncate">
                     {project.name}
                   </span>
-                  <span className="text-[9px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-1.5 py-0.5 rounded shadow-xs w-max mt-1.5">
+                  <span className="mt-1.5 w-max rounded border border-primary/15 bg-primary-light px-1.5 py-0.5 text-xs font-bold text-primary">
                     {project.code}
                   </span>
                 </div>
-                <div className="flex-1 flex gap-[2.5px] justify-end relative">
+                <div className="relative flex flex-1 justify-end gap-1">
                   {project.dailyHealth.map((day) => (
                     <div
                       key={day.date}
                       title={getCellTooltip(day.date, day.passRate)}
-                      className={`w-3.5 h-3.5 rounded-[2px] shrink-0 transition-all cursor-pointer hover:scale-125 hover:z-20 hover:shadow-md duration-150 ${getCellColor(day.passRate)}`}
+                      className={`h-3.5 w-3.5 shrink-0 cursor-pointer rounded-[3px] border transition-transform duration-150 hover:z-20 hover:scale-125 ${getCellColor(day.passRate)}`}
                     />
                   ))}
                 </div>
@@ -86,6 +91,6 @@ export function QualityHeatmap({ heatmapData }: QualityHeatmapProps) {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }

@@ -12,7 +12,13 @@ import {
 } from "lucide-react";
 
 interface ProjectQualityMatrixProps {
-  projects: any[];
+  projects: Array<{
+    code: string;
+    name: string;
+    cases: number;
+    automated: number;
+    lastRunHealth: number | null;
+  }>;
 }
 
 export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
@@ -24,11 +30,11 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
   const currentProjects = projects.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="bg-surface rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col h-full">
-      <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-transparent">
-        <h2 className="text-base font-extrabold text-text-main flex items-center">
+    <section className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <h2 className="flex items-center text-base font-extrabold text-text-main">
           <Folder
-            className="mr-2 text-indigo-600"
+            className="mr-2 text-primary"
             size={18}
             strokeWidth={2.5}
           />
@@ -38,49 +44,49 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left border-collapse min-w-[500px]">
           <thead>
-            <tr className="border-b border-border text-[10px] font-black text-text-muted uppercase tracking-widest bg-slate-50/75 dark:bg-slate-900/45 backdrop-blur-xs">
-              <th className="px-6 py-4">Project</th>
-              <th className="px-6 py-4 text-right">Cases</th>
-              <th className="px-6 py-4">Automation</th>
-              <th className="px-6 py-4">Health</th>
+            <tr className="border-b border-border bg-surface-hover/70 text-xs font-bold text-text-muted">
+              <th className="px-5 py-3">Project</th>
+              <th className="px-5 py-3 text-right">Cases</th>
+              <th className="px-5 py-3">Automation</th>
+              <th className="px-5 py-3">Health</th>
             </tr>
           </thead>
           <tbody className="text-sm">
             {currentProjects.map((p) => (
               <tr
                 key={p.code}
-                className="border-b border-border hover:bg-surface-hover/80 transition-all duration-200"
+                className="border-b border-border transition-colors duration-150 hover:bg-surface-hover/80"
               >
-                <td className="px-6 py-4">
+                <td className="px-5 py-4">
                   <Link
                     href={`/projects/${p.code}/repository`}
                     className="flex flex-col items-start"
                   >
-                    <span className="font-bold text-text-main hover:text-indigo-600 transition-colors">
+                    <span className="font-bold text-text-main transition-colors hover:text-primary">
                       {p.name}
                     </span>
-                    <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-1.5 py-0.5 rounded shadow-xs mt-1.5">
+                    <span className="mt-1.5 rounded border border-primary/15 bg-primary-light px-1.5 py-0.5 text-xs font-bold text-primary">
                       {p.code}
                     </span>
                   </Link>
                 </td>
-                <td className="px-6 py-4 text-right font-bold text-text-muted">
+                <td className="px-5 py-4 text-right font-mono font-bold tabular-nums text-text-muted">
                   {p.cases}
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-5 py-4">
                   <div className="flex items-center">
-                    <div className="w-full h-2 bg-slate-100 dark:bg-slate-800/60 rounded-full overflow-hidden mr-3 max-w-[80px] border border-border/20">
+                    <div className="mr-3 h-2 w-full max-w-[96px] overflow-hidden rounded-full border border-border/20 bg-surface-hover">
                       <div
-                        className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full"
+                        className="h-full rounded-full bg-emerald-500"
                         style={{ width: `${p.automated}%` }}
                       ></div>
                     </div>
-                    <span className="text-xs font-bold text-text-muted">
+                    <span className="font-mono text-xs font-bold tabular-nums text-text-muted">
                       {p.automated.toFixed(0)}%
                     </span>
                   </div>
                 </td>
-                <td className="px-6 py-4">
+                <td className="px-5 py-4">
                   {p.lastRunHealth !== null ? (
                     <div className="flex items-center">
                       {p.lastRunHealth >= 90 ? (
@@ -96,12 +102,12 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
                       ) : (
                         <XCircle size={16} className="text-red-500 mr-1.5" />
                       )}
-                      <span className="font-bold text-text-main">
+                      <span className="font-mono font-bold tabular-nums text-text-main">
                         {p.lastRunHealth.toFixed(0)}%
                       </span>
                     </div>
                   ) : (
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted bg-surface-hover border border-border/60 shadow-sm px-2 py-1 rounded-md">
+                    <span className="rounded-md border border-border bg-surface-hover px-2 py-1 text-xs font-bold text-text-muted">
                       No runs
                     </span>
                   )}
@@ -124,17 +130,18 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="px-6 py-4 border-t border-indigo-50 flex items-center justify-between bg-surface-hover/50 mt-auto">
+        <div className="mt-auto flex items-center justify-between border-t border-border bg-surface-hover/50 px-5 py-3">
           <span className="text-xs text-text-muted font-medium">
             Showing {startIndex + 1} to{" "}
             {Math.min(startIndex + itemsPerPage, projects.length)} of{" "}
             {projects.length}
           </span>
-          <div className="flex space-x-2">
+          <div className="flex gap-2">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="p-1.5 rounded-md border border-border text-text-muted hover:bg-surface-hover hover:text-text-main disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-text-muted transition-colors hover:bg-surface hover:text-text-main disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label="Previous project page"
             >
               <ChevronLeft size={16} />
             </button>
@@ -143,13 +150,14 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="p-1.5 rounded-md border border-border text-text-muted hover:bg-surface-hover hover:text-text-main disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-text-muted transition-colors hover:bg-surface hover:text-text-main disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label="Next project page"
             >
               <ChevronRight size={16} />
             </button>
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }

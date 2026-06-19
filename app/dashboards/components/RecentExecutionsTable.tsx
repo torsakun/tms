@@ -14,7 +14,21 @@ import {
 import { formatThaiTime } from "@/lib/utils";
 
 interface RecentExecutionsTableProps {
-  recentRuns: any[];
+  recentRuns: Array<{
+    id: string;
+    title: string;
+    status: string;
+    createdAt: Date;
+    project: { name: string; code: string };
+    metrics: {
+      total: number;
+      passed: number;
+      failed: number;
+      blocked: number;
+      skipped: number;
+      untested: number;
+    };
+  }>;
 }
 
 export function RecentExecutionsTable({
@@ -44,17 +58,13 @@ export function RecentExecutionsTable({
           !isCompleted;
 
         let liveStatus = "COMPLETED";
-        let sortPriority = 4;
 
         if (!isCompleted && !isAutomatedAction) {
           liveStatus = "MANUAL_ACTIVE";
-          sortPriority = 3;
         } else if (isRunning) {
           liveStatus = "RUNNING";
-          sortPriority = 1;
         } else if (isQueued) {
           liveStatus = "QUEUED";
-          sortPriority = 2;
         }
 
         return { ...run, liveStatus, isCompleted };
@@ -71,11 +81,11 @@ export function RecentExecutionsTable({
   const currentRuns = enhancedRuns.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="bg-surface rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col h-full">
-      <div className="px-6 py-5 border-b border-border flex justify-between items-center bg-transparent">
-        <h2 className="text-base font-extrabold text-text-main flex items-center">
+    <section className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
+        <h2 className="flex items-center text-base font-extrabold text-text-main">
           <Activity
-            className="mr-2 text-indigo-600"
+            className="mr-2 text-primary"
             size={18}
             strokeWidth={2.5}
           />
@@ -85,10 +95,10 @@ export function RecentExecutionsTable({
       <div className="overflow-x-auto flex-1">
         <table className="w-full text-left border-collapse min-w-[500px]">
           <thead>
-            <tr className="border-b border-border text-[10px] font-black text-text-muted uppercase tracking-widest bg-slate-50/75 dark:bg-slate-900/45 backdrop-blur-xs">
-              <th className="px-6 py-4">Run</th>
-              <th className="px-6 py-4 w-28">Status</th>
-              <th className="px-6 py-4">Progress</th>
+            <tr className="border-b border-border bg-surface-hover/70 text-xs font-bold text-text-muted">
+              <th className="px-5 py-3">Run</th>
+              <th className="px-5 py-3 w-32">Status</th>
+              <th className="px-5 py-3">Progress</th>
             </tr>
           </thead>
           <tbody className="text-sm">
@@ -117,59 +127,59 @@ export function RecentExecutionsTable({
               return (
                 <tr
                   key={run.id}
-                  className="border-b border-border hover:bg-surface-hover/80 transition-all duration-200 group"
+                  className="group border-b border-border transition-colors duration-150 hover:bg-surface-hover/80"
                 >
-                  <td className="px-6 py-4">
+                  <td className="px-5 py-4">
                     <Link
                       href={`/projects/${run.project.code}/runs/${run.id}`}
                       className="flex flex-col"
                     >
-                      <span className="font-bold text-text-main hover:text-indigo-600 transition-colors flex items-center">
+                      <span className="flex items-center font-bold text-text-main transition-colors hover:text-primary">
                         {run.title}
                         <ChevronRight
                           size={14}
                           className="ml-1 text-text-muted opacity-0 group-hover:opacity-100 transition-opacity"
                         />
                       </span>
-                      <div className="flex items-center mt-2">
-                        <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-1.5 py-0.5 rounded shadow-xs">
+                      <div className="mt-2 flex items-center">
+                        <span className="rounded border border-primary/15 bg-primary-light px-1.5 py-0.5 text-xs font-bold text-primary">
                           {run.project.code}-{run.id.split("-")[0]}
                         </span>
-                        <span className="mx-2 text-indigo-200">•</span>
-                        <span className="text-[11px] font-medium text-text-muted flex items-center">
-                          <Clock size={11} className="mr-1 text-indigo-400" />
+                        <span className="mx-2 text-border">•</span>
+                        <span className="flex items-center text-xs font-medium text-text-muted">
+                          <Clock size={12} className="mr-1 text-text-muted" />
                           {formatThaiTime(run.createdAt)}
                         </span>
                       </div>
                     </Link>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-5 py-4">
                     {run.liveStatus === "COMPLETED" && (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                      <span className="inline-flex items-center rounded-md border border-emerald-200/60 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
                         <CheckCircle2 size={12} className="mr-1.5" /> Completed
                       </span>
                     )}
                     {run.liveStatus === "MANUAL_ACTIVE" && (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-sky-50 text-sky-700 border border-sky-200/60 shadow-sm">
+                      <span className="inline-flex items-center rounded-md border border-sky-200/60 bg-sky-50 px-2.5 py-1 text-xs font-bold text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300">
                         <PlayCircle size={12} className="mr-1.5 text-sky-500" />{" "}
-                        Active (Manual)
+                        Manual
                       </span>
                     )}
                     {run.liveStatus === "RUNNING" && (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-200/60">
+                      <span className="inline-flex items-center rounded-md border border-blue-200/60 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300">
                         <Loader2 size={12} className="mr-1.5 animate-spin" />{" "}
                         Running
                       </span>
                     )}
                     {run.liveStatus === "QUEUED" && (
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200/60 shadow-[0_0_8px_rgba(245,158,11,0.2)] animate-pulse">
-                        <Clock size={12} className="mr-1.5" /> In Queue
+                      <span className="inline-flex items-center rounded-md border border-amber-200/60 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+                        <Clock size={12} className="mr-1.5" /> Queued
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-5 py-4">
                     <div
-                      className={`w-full h-2 bg-slate-100 dark:bg-slate-800/60 rounded-full flex overflow-hidden mb-1.5 border border-border/25 ${run.liveStatus === "RUNNING" ? "opacity-100" : "opacity-80"}`}
+                      className={`mb-1.5 flex h-2 w-full overflow-hidden rounded-full border border-border/25 bg-surface-hover ${run.liveStatus === "RUNNING" ? "opacity-100" : "opacity-80"}`}
                     >
                       <div
                         style={{ width: `${passPercent}%` }}
@@ -197,14 +207,14 @@ export function RecentExecutionsTable({
                         title={`Untested: ${run.metrics.untested}`}
                       />
                     </div>
-                    <div className="flex space-x-2 text-[11px] font-bold mt-1.5">
+                    <div className="mt-1.5 flex gap-2 text-xs font-bold">
                       {run.metrics.passed > 0 && (
-                        <span className="text-emerald-600 bg-emerald-50 px-1.5 rounded">
+                        <span className="rounded bg-emerald-50 px-1.5 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
                           {run.metrics.passed}P
                         </span>
                       )}
                       {run.metrics.failed > 0 && (
-                        <span className="text-red-600 bg-red-50 px-1.5 rounded">
+                        <span className="rounded bg-red-50 px-1.5 text-red-700 dark:bg-red-500/10 dark:text-red-300">
                           {run.metrics.failed}F
                         </span>
                       )}
@@ -234,17 +244,18 @@ export function RecentExecutionsTable({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="px-6 py-4 border-t border-indigo-50 flex items-center justify-between bg-surface-hover/50 mt-auto">
+        <div className="mt-auto flex items-center justify-between border-t border-border bg-surface-hover/50 px-5 py-3">
           <span className="text-xs text-text-muted font-medium">
             Showing {startIndex + 1} to{" "}
             {Math.min(startIndex + itemsPerPage, enhancedRuns.length)} of{" "}
             {enhancedRuns.length}
           </span>
-          <div className="flex space-x-2">
+          <div className="flex gap-2">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="p-1.5 rounded-md border border-border text-text-muted hover:bg-surface-hover hover:text-text-main disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-text-muted transition-colors hover:bg-surface hover:text-text-main disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label="Previous execution page"
             >
               <ChevronLeft size={16} />
             </button>
@@ -253,13 +264,14 @@ export function RecentExecutionsTable({
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="p-1.5 rounded-md border border-border text-text-muted hover:bg-surface-hover hover:text-text-main disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-text-muted transition-colors hover:bg-surface hover:text-text-main disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label="Next execution page"
             >
               <ChevronRight size={16} />
             </button>
           </div>
         </div>
       )}
-    </div>
+    </section>
   );
 }
