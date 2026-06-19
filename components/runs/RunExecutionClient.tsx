@@ -184,13 +184,16 @@ function ResultRow({
     router.push(`/projects/${projectCode}/cases/${result.testCase.id}/edit`);
   };
 
+  const leftPadding = depth * 24 + 16;
+  const paddingLeftVal = isSelected ? `${leftPadding - 4}px` : `${leftPadding}px`;
+
   return (
     <div
       onClick={() => openResult(result)}
       className={`flex items-center group cursor-pointer border-b border-border last:border-0 transition-colors ${
-        isSelected ? "bg-indigo-50/60" : "hover:bg-surface-hover bg-surface"
+        isSelected ? "bg-indigo-50/60 border-l-4 border-indigo-600" : "hover:bg-surface-hover bg-surface border-l-4 border-transparent"
       }`}
-      style={{ paddingLeft: `${depth * 24 + 16}px` }}
+      style={{ paddingLeft: paddingLeftVal }}
     >
       <div className="py-2.5 px-3 flex items-center w-full relative">
         <input
@@ -1383,7 +1386,7 @@ export default function RunExecutionClient({
       <div className="flex h-[calc(100vh-4rem)] w-full bg-[#f0f2f8] overflow-hidden relative transition-colors">
         {/* Main Suite/Case Tree View */}
         <main
-          className="flex-1 flex flex-col min-w-0 bg-surface border-r transition-colors"
+          className={`flex flex-col min-w-0 bg-surface border-r transition-all duration-300 ease-in-out ${activeResultId ? "w-[40%] shrink-0" : "flex-1 w-full"}`}
           style={{ borderColor: "var(--border-color)" }}
         >
           <header
@@ -1507,6 +1510,112 @@ export default function RunExecutionClient({
               </div>
             </div>
 
+            {/* Metric Cards Row */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4 mt-2">
+              {/* Progress Card */}
+              <div className="bg-background rounded-xl border border-border p-3 flex items-center justify-between shadow-sm">
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Completion rate</span>
+                  <div className="flex items-baseline gap-1.5 mt-1">
+                    <span className="text-lg font-extrabold text-text-main">{completionRate}%</span>
+                    <span className="text-[10px] text-text-muted">({runStats.total - runStats.untested}/{runStats.total})</span>
+                  </div>
+                  {/* Segmented Progress Bar */}
+                  <div className="flex h-1.5 w-32 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mt-1.5 border border-border/50">
+                    {runStats.passed > 0 && (
+                      <div style={{ width: `${(runStats.passed / runStats.total) * 100}%` }} className="bg-emerald-500" />
+                    )}
+                    {runStats.failed > 0 && (
+                      <div style={{ width: `${(runStats.failed / runStats.total) * 100}%` }} className="bg-red-500" />
+                    )}
+                    {runStats.blocked > 0 && (
+                      <div style={{ width: `${(runStats.blocked / runStats.total) * 100}%` }} className="bg-orange-500" />
+                    )}
+                    {runStats.skipped > 0 && (
+                      <div style={{ width: `${(runStats.skipped / runStats.total) * 100}%` }} className="bg-slate-400" />
+                    )}
+                  </div>
+                </div>
+                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/30">
+                  <BarChart2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+              </div>
+
+              {/* Status Card */}
+              <div className="bg-background rounded-xl border border-border p-3 flex items-center justify-between shadow-sm">
+                <div className="flex flex-col justify-center">
+                  <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Status</span>
+                  <div className="flex items-center gap-1.5 mt-1.5">
+                    {completionRate === 100 ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200/50">
+                        <CheckCircle2 size={12} className="text-emerald-500" />
+                        Completed
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400 border border-indigo-200/50">
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600 dark:bg-indigo-400"></span>
+                        </span>
+                        In Progress
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/30">
+                  <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+              </div>
+
+              {/* Started By Card */}
+              <div className="bg-background rounded-xl border border-border p-3 flex items-center justify-between shadow-sm">
+                <div className="flex flex-col justify-center">
+                  <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Started by</span>
+                  {(() => {
+                    const a = userMeta((run as any).author);
+                    return (
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <div
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
+                          style={{ background: a.color }}
+                        >
+                          {a.initials}
+                        </div>
+                        <span className="text-xs text-text-main font-semibold truncate max-w-[120px]">
+                          {a.display}
+                        </span>
+                      </div>
+                    );
+                  })()}
+                </div>
+                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/30">
+                  <Eye className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+              </div>
+
+              {/* Context Card (Env & Milestone) */}
+              <div className="bg-background rounded-xl border border-border p-3 flex items-center justify-between shadow-sm">
+                <div className="flex flex-col justify-center min-w-0">
+                  <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Context</span>
+                  <div className="mt-1 space-y-0.5 min-w-0">
+                    <div className="text-xs text-text-main font-semibold truncate flex items-center gap-1">
+                      <span className="text-text-muted font-normal">Env:</span>
+                      {(run as any).environment?.title || "Not specified"}
+                    </div>
+                    {(run as any).milestone && (
+                      <div className="text-xs text-text-main font-semibold truncate flex items-center gap-1">
+                        <span className="text-text-muted font-normal">Milestone:</span>
+                        {(run as any).milestone.title}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/30">
+                  <Settings className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                </div>
+              </div>
+            </div>
+
             <div className="flex items-center space-x-6 border-b border-border">
               <div className="pb-3 border-b-2 border-indigo-500 text-indigo-600 font-semibold text-sm cursor-pointer transition-colors">
                 Test cases
@@ -1547,121 +1656,9 @@ export default function RunExecutionClient({
           </div>
         </main>
 
-        {/* Right Sidebar */}
-        <aside
-          className="w-72 shrink-0 bg-surface flex flex-col overflow-y-auto transition-colors border-l"
-          style={{ borderColor: "var(--border-color)" }}
-        >
-          <div className="p-6 flex flex-col items-center border-b border-border">
-            <div
-              className="w-40 h-40 rounded-full flex items-center justify-center relative"
-              style={{ background: renderConicGradient() }}
-            >
-              <div className="w-32 h-32 bg-surface rounded-full flex flex-col items-center justify-center absolute shadow-sm">
-                <span className="text-[11px] text-text-muted font-medium mb-0.5">
-                  Completion rate
-                </span>
-                <span className="text-3xl font-extrabold text-text-main">
-                  {completionRate}%
-                </span>
-                <span className="text-[11px] text-text-muted mt-0.5">
-                  {runStats.total - runStats.untested} of {runStats.total}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-5 space-y-4 text-sm">
-            <div>
-              <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
-                Status
-              </div>
-              <div className="flex items-center text-text-muted font-medium">
-                {completionRate === 100 ? (
-                  <>
-                    <CheckCircle2
-                      size={14}
-                      className="text-emerald-500 mr-1.5"
-                    />{" "}
-                    Completed
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw size={14} className="text-indigo-500 mr-1.5" />{" "}
-                    In Progress
-                  </>
-                )}
-              </div>
-            </div>
-            <div className="h-px bg-surface-hover" />
-            <div>
-              <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
-                Started by
-              </div>
-              {(() => {
-                const a = userMeta((run as any).author);
-                return (
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                      style={{ background: a.color }}
-                    >
-                      {a.initials}
-                    </div>
-                    <span className="text-text-muted font-medium">
-                      {a.display}
-                    </span>
-                  </div>
-                );
-              })()}
-            </div>
-            <div className="h-px bg-surface-hover" />
-            <div>
-              <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
-                Started at
-              </div>
-              <div className="flex items-center text-text-muted">
-                <Clock size={13} className="mr-1.5 text-text-muted" />
-                {formatThaiTime(run.createdAt)}
-              </div>
-            </div>
-            <div className="h-px bg-surface-hover" />
-            <div>
-              <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
-                Environment
-              </div>
-              <div className="text-text-muted">
-                {(run as any).environment?.title || "Not specified"}
-              </div>
-            </div>
-            {(run as any).milestone && (
-              <>
-                <div className="h-px bg-surface-hover" />
-                <div>
-                  <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
-                    Milestone
-                  </div>
-                  <div className="text-text-muted">
-                    {(run as any).milestone.title}
-                  </div>
-                </div>
-              </>
-            )}
-            <div className="h-px bg-surface-hover" />
-            <div>
-              <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
-                External issue
-              </div>
-              <button className="w-full py-2 bg-surface-hover border border-border hover:bg-surface-hover hover:border-indigo-200 hover:text-indigo-600 text-text-muted font-semibold rounded-lg transition-colors mt-1 text-xs shadow-sm">
-                Select an integration
-              </button>
-            </div>
-          </div>
-        </aside>
-
-        {/* Slide-over Execution Panel */}
+        {/* Execution Workspace Panel */}
         <div
-          className={`fixed top-0 right-0 h-full w-[55vw] min-w-[600px] bg-surface shadow-[-10px_0_30px_rgba(0,0,0,0.1)] border-l transform transition-transform duration-300 ease-in-out z-40 flex flex-col ${activeResultId ? "translate-x-0" : "translate-x-full"}`}
+          className={`bg-surface flex flex-col border-l transition-all duration-300 ease-in-out ${activeResultId ? "w-[60%] opacity-100" : "w-0 opacity-0 overflow-hidden border-l-transparent"}`}
           style={{ borderColor: "var(--border-color)" }}
         >
           {activeResult && activeResult.testCase && (
@@ -1726,44 +1723,58 @@ export default function RunExecutionClient({
                 </div>
 
                 {/* Global Status Buttons */}
-                <div className="px-6 py-6 border-b border-border/50">
-                  <div className="flex space-x-2">
+                <div className="px-6 py-4 border-b border-border/50 bg-background/30">
+                  <div className="flex flex-wrap gap-2">
                     <button
                       onClick={() => updateResult(activeResult.id, "PASSED")}
-                      className={`px-4 py-1.5 text-sm font-bold rounded border transition ${activeResult.status === "PASSED" ? "bg-emerald-500 text-white border-emerald-500" : "bg-surface text-emerald-600 border-border hover:bg-surface-hover"}`}
+                      className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${
+                        activeResult.status === "PASSED"
+                          ? "bg-emerald-500 text-white border-emerald-500 shadow-sm"
+                          : "bg-surface text-emerald-600 border-border hover:bg-emerald-50/50"
+                      }`}
                     >
-                      <CheckCircle2
-                        size={16}
-                        className="inline mr-1.5 -mt-0.5"
-                      />
+                      <CheckCircle2 size={14} />
                       Passed
                     </button>
                     <button
                       onClick={() => updateResult(activeResult.id, "FAILED")}
-                      className={`px-4 py-1.5 text-sm font-bold rounded border transition ${activeResult.status === "FAILED" ? "bg-[#de350b] text-white border-[#de350b]" : "bg-surface text-text-muted border-border hover:bg-surface-hover"}`}
+                      className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${
+                        activeResult.status === "FAILED"
+                          ? "bg-red-500 text-white border-red-500 shadow-sm"
+                          : "bg-surface text-red-600 border-border hover:bg-red-50/50"
+                      }`}
                     >
-                      <XCircle size={16} className="inline mr-1.5 -mt-0.5" />
+                      <XCircle size={14} />
                       Failed
                     </button>
                     <button
                       onClick={() => updateResult(activeResult.id, "BLOCKED")}
-                      className={`px-4 py-1.5 text-sm font-bold rounded border transition ${activeResult.status === "BLOCKED" ? "bg-[#ff991f] text-white border-[#ff991f]" : "bg-surface text-text-muted border-border hover:bg-surface-hover"}`}
+                      className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${
+                        activeResult.status === "BLOCKED"
+                          ? "bg-amber-500 text-white border-amber-500 shadow-sm"
+                          : "bg-surface text-amber-600 border-border hover:bg-amber-50/50"
+                      }`}
                     >
-                      <MinusCircle
-                        size={16}
-                        className="inline mr-1.5 -mt-0.5"
-                      />
+                      <MinusCircle size={14} />
                       Blocked
                     </button>
                     <button
                       onClick={() => updateResult(activeResult.id, "SKIPPED")}
-                      className={`px-4 py-1.5 text-sm font-bold rounded border transition ${activeResult.status === "SKIPPED" ? "bg-[#97a0af] text-white border-[#97a0af]" : "bg-surface text-text-muted border-border hover:bg-surface-hover"}`}
+                      className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${
+                        activeResult.status === "SKIPPED"
+                          ? "bg-slate-500 text-white border-slate-500 shadow-sm"
+                          : "bg-surface text-slate-600 border-border hover:bg-slate-50/50"
+                      }`}
                     >
                       Skipped
                     </button>
                     <button
                       onClick={() => updateResult(activeResult.id, "INVALID")}
-                      className={`px-4 py-1.5 text-sm font-bold rounded border transition ${activeResult.status === "INVALID" ? "bg-[#6554c0] text-white border-[#6554c0]" : "bg-surface text-text-muted border-border hover:bg-surface-hover"}`}
+                      className={`px-4 py-2 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${
+                        activeResult.status === "INVALID"
+                          ? "bg-purple-500 text-white border-purple-500 shadow-sm"
+                          : "bg-surface text-purple-600 border-border hover:bg-purple-50/50"
+                      }`}
                     >
                       Invalid
                     </button>
@@ -1771,29 +1782,44 @@ export default function RunExecutionClient({
                 </div>
 
                 {/* Case Details */}
-                <div className="px-6 py-6 border-b border-border/50 flex">
+                <div className="px-6 py-5 border-b border-border/50 flex gap-6">
                   <div className="flex-1 pr-6 border-r border-border/50">
-                    <h3 className="text-sm font-bold text-text-main mb-2">
-                      Description
-                    </h3>
-                    <p className="text-[15px] text-text-muted leading-relaxed mb-6">
-                      {activeResult.testCase.description ||
-                        "No description provided."}
-                    </p>
-                    <h3 className="text-sm font-bold text-text-main mb-2">
-                      Pre-conditions
-                    </h3>
-                    <div className="text-[15px] text-text-muted leading-relaxed mb-6">
-                      {activeResult.testCase.preconditions ? (
-                        <div
-                          dangerouslySetInnerHTML={{
-                            __html: activeResult.testCase.preconditions,
-                          }}
-                        />
-                      ) : (
-                        "None"
-                      )}
-                    </div>
+                    <details className="group/det bg-surface border border-border/60 rounded-xl p-3.5" open>
+                      <summary className="cursor-pointer select-none list-none flex items-center justify-between text-xs font-bold text-text-muted hover:text-text-main transition-colors">
+                        <span className="flex items-center gap-2 uppercase tracking-wider">
+                          <Eye size={14} className="text-text-muted" />
+                          Description &amp; pre-conditions
+                        </span>
+                        <ChevronDown size={14} className="transition-transform duration-200 group-open/det:rotate-180 text-text-muted" />
+                      </summary>
+                      <div className="mt-4 pt-3 border-t border-border/40 space-y-4 pl-1">
+                        <div>
+                          <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
+                            Description
+                          </h3>
+                          <p className="text-sm text-text-main leading-relaxed">
+                            {activeResult.testCase.description ||
+                              "No description provided."}
+                          </p>
+                        </div>
+                        <div>
+                          <h3 className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-1">
+                            Pre-conditions
+                          </h3>
+                          <div className="text-sm text-text-main leading-relaxed">
+                            {activeResult.testCase.preconditions ? (
+                              <div
+                                dangerouslySetInnerHTML={{
+                                  __html: activeResult.testCase.preconditions,
+                                }}
+                              />
+                            ) : (
+                              "None"
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </details>
                   </div>
                   <div className="w-56 pl-6 shrink-0 text-sm space-y-4">
                     <div>
@@ -1988,31 +2014,28 @@ export default function RunExecutionClient({
                           return (
                             <div
                               key={step.id}
-                              className="flex py-6 border-b border-border/50 last:border-0"
+                              className="bg-surface rounded-xl border border-border shadow-sm p-5 mb-4 last:mb-0 hover:border-indigo-200/80 transition-all flex flex-col gap-4"
                             >
-                              <div className="w-8 shrink-0">
-                                <div className="w-6 h-6 rounded bg-background flex items-center justify-center text-text-muted font-bold text-xs">
-                                  {idx + 1}
-                                </div>
-                              </div>
                               <div className="flex-1 space-y-4 max-w-full">
-                                <div className="text-[15px] text-text-main whitespace-pre-wrap">
-                                  {step.action}
+                                <div className="flex items-start gap-3">
+                                  <span className="flex items-center justify-center w-6 h-6 rounded bg-slate-100 dark:bg-slate-800 text-text-muted font-bold text-xs shrink-0 mt-0.5 shadow-xs">
+                                    {idx + 1}
+                                  </span>
+                                  <div className="text-sm font-semibold text-text-main whitespace-pre-wrap leading-relaxed">
+                                    {step.action}
+                                  </div>
                                 </div>
 
-                                <div className="flex space-x-2 pt-1">
+                                <div className="flex flex-wrap gap-2 pt-1">
                                   <button
                                     onClick={() =>
                                       updateStepResult(step.id, {
                                         status: "PASSED",
                                       })
                                     }
-                                    className={`px-4 py-2 text-[13px] font-bold rounded-lg border transition ${stepStatus === "PASSED" ? "bg-emerald-500 text-white border-emerald-500" : "bg-surface text-emerald-600 border-border hover:bg-surface-hover"}`}
+                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${stepStatus === "PASSED" ? "bg-emerald-500 text-white border-emerald-500 shadow-sm" : "bg-background text-emerald-600 border-border hover:bg-slate-50"}`}
                                   >
-                                    <CheckCircle2
-                                      size={12}
-                                      className="inline mr-1 -mt-0.5"
-                                    />
+                                    <CheckCircle2 size={13} />
                                     Passed
                                   </button>
                                   <button
@@ -2021,12 +2044,9 @@ export default function RunExecutionClient({
                                         status: "FAILED",
                                       })
                                     }
-                                    className={`px-4 py-2 text-[13px] font-bold rounded-lg border transition ${stepStatus === "FAILED" ? "bg-[#de350b] text-white border-[#de350b]" : "bg-surface text-text-muted border-border hover:bg-surface-hover"}`}
+                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${stepStatus === "FAILED" ? "bg-red-500 text-white border-red-500 shadow-sm" : "bg-background text-red-600 border-border hover:bg-slate-50"}`}
                                   >
-                                    <XCircle
-                                      size={12}
-                                      className="inline mr-1 -mt-0.5"
-                                    />
+                                    <XCircle size={13} />
                                     Failed
                                   </button>
                                   <button
@@ -2035,12 +2055,9 @@ export default function RunExecutionClient({
                                         status: "BLOCKED",
                                       })
                                     }
-                                    className={`px-4 py-2 text-[13px] font-bold rounded-lg border transition ${stepStatus === "BLOCKED" ? "bg-[#ff991f] text-white border-[#ff991f]" : "bg-surface text-text-muted border-border hover:bg-surface-hover"}`}
+                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${stepStatus === "BLOCKED" ? "bg-amber-500 text-white border-amber-500 shadow-sm" : "bg-background text-amber-600 border-border hover:bg-slate-50"}`}
                                   >
-                                    <MinusCircle
-                                      size={12}
-                                      className="inline mr-1 -mt-0.5"
-                                    />
+                                    <MinusCircle size={13} />
                                     Blocked
                                   </button>
                                   <button
@@ -2049,14 +2066,14 @@ export default function RunExecutionClient({
                                         status: "SKIPPED",
                                       })
                                     }
-                                    className={`px-4 py-2 text-[13px] font-bold rounded-lg border transition ${stepStatus === "SKIPPED" ? "bg-[#97a0af] text-white border-[#97a0af]" : "bg-surface text-text-muted border-border hover:bg-surface-hover"}`}
+                                    className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition-all flex items-center gap-1.5 ${stepStatus === "SKIPPED" ? "bg-slate-500 text-white border-slate-500 shadow-sm" : "bg-background text-slate-600 border-border hover:bg-slate-50"}`}
                                   >
                                     Skipped
                                   </button>
                                 </div>
 
                                 <div className="pt-1">
-                                  <div className="text-sm font-bold text-text-main mb-2">
+                                  <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2">
                                     Actual result
                                   </div>
                                   <textarea
@@ -2076,8 +2093,8 @@ export default function RunExecutionClient({
                                       })
                                     }
                                     onPaste={(e) => handlePaste(e, step.id)}
-                                    className="w-full text-sm bg-background text-text-main border border-border rounded-md p-3 min-h-[60px] focus:outline-none focus:ring-2 focus:ring-primary/20 transition shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
-                                    placeholder="Paste image here or select from attachment..."
+                                    className="w-full text-sm bg-background text-text-main border border-border rounded-lg p-3 min-h-[60px] focus:outline-none focus:ring-2 focus:ring-primary/20 transition shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
+                                    placeholder="Type actual result here..."
                                   />
                                 </div>
 
@@ -2156,16 +2173,13 @@ export default function RunExecutionClient({
                                   />
                                   <label
                                     htmlFor={`file-upload-${step.id}`}
-                                    className="text-primary text-[13px] font-bold hover:underline flex items-center cursor-pointer w-fit transition-colors"
+                                    className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-border hover:border-primary/50 bg-background hover:bg-slate-50/50 rounded-lg text-xs font-semibold text-text-muted hover:text-primary cursor-pointer transition-all w-full"
                                   >
-                                    <span className="text-lg mr-1.5 leading-none mb-0.5">
-                                      +
-                                    </span>{" "}
-                                    Add attachment
+                                    <span>Drag &amp; drop or click to upload screenshots / logs</span>
                                     {uploadingStepId === step.id && (
                                       <RefreshCw
                                         size={12}
-                                        className="ml-2 animate-spin text-text-muted"
+                                        className="animate-spin text-text-muted"
                                       />
                                     )}
                                   </label>
@@ -2259,13 +2273,6 @@ export default function RunExecutionClient({
           </div>
         )}
 
-        {/* Backdrop for sliding panel */}
-        {activeResultId && (
-          <div
-            className="fixed inset-0 bg-slate-900/20 z-30 transition-opacity"
-            onClick={() => setActiveResultId(null)}
-          />
-        )}
 
         {/* Complete Run Modal */}
         {isCompleteModalOpen && (
