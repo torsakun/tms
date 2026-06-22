@@ -89,7 +89,7 @@ function CreateRunContent() {
                 const planData = await planRes.json();
                 setTitle(`Run: ${planData.title}`);
                 setSelectedIds(
-                  new Set(planData.testCases.map((c: any) => c.id)),
+                  new Set((planData.testCases || []).map((c: any) => c.id)),
                 );
               } else {
                 setSelectedIds(new Set(casesData.map((c: any) => c.id)));

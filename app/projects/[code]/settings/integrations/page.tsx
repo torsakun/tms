@@ -35,12 +35,13 @@ export default function ProjectIntegrationsPage({
         const res = await fetch(`/api/projects/${code}/integrations`);
         if (res.ok) {
           const data = await res.json();
+          const integ = data.integrations || {};
           setSettings({
-            githubOwner: data.integrations.githubOwner || "",
-            githubRepo: data.integrations.githubRepo || "",
-            githubToken: data.integrations.githubToken || "",
-            githubWorkflowId: data.integrations.githubWorkflowId || "",
-            msTeamsWebhookUrl: data.integrations.msTeamsWebhookUrl || "",
+            githubOwner: integ.githubOwner || "",
+            githubRepo: integ.githubRepo || "",
+            githubToken: integ.githubToken || "",
+            githubWorkflowId: integ.githubWorkflowId || "",
+            msTeamsWebhookUrl: integ.msTeamsWebhookUrl || "",
           });
         }
       } catch (err) {

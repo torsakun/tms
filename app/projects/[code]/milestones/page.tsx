@@ -2,16 +2,52 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Plus, Settings, Trash2, Flag } from "lucide-react";
+import { Plus, Pencil, Trash2, Flag } from "lucide-react";
+import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export default function MilestonesPage() {
   const params = useParams();
   const projectCode = params.code as string;
   const [milestones, setMilestones] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
+
+  const openCreate = () => {
+    setEditingId(null);
+    setTitle("");
+    setDescription("");
+    setDueDate("");
+    setIsModalOpen(true);
+  };
+
+  const openEdit = (ms: any) => {
+    setEditingId(ms.id);
+    setTitle(ms.title);
+    setDescription(ms.description || "");
+    setDueDate(ms.dueDate ? new Date(ms.dueDate).toISOString().slice(0, 10) : "");
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    setConfirmDeleteId(null);
+    const backup = milestones;
+    setMilestones((prev) => prev.filter((m) => m.id !== id));
+    try {
+      const res = await fetch(`/api/projects/${projectCode}/milestones/${id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error();
+      toast.success("Milestone deleted");
+    } catch {
+      setMilestones(backup);
+      toast.error("Failed to delete milestone");
+    }
+  };
 
   useEffect(() => {
     fetch(`/api/projects/${projectCode}/milestones`)
@@ -25,21 +61,31 @@ export default function MilestonesPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`/api/projects/${projectCode}/milestones`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description, dueDate }),
-      });
+      const res = await fetch(
+        editingId
+          ? `/api/projects/${projectCode}/milestones/${editingId}`
+          : `/api/projects/${projectCode}/milestones`,
+        {
+          method: editingId ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, description, dueDate }),
+        },
+      );
       if (res.ok) {
-        const newMs = await res.json();
-        setMilestones([newMs, ...milestones]);
+        const saved = await res.json();
+        setMilestones((prev) =>
+          editingId
+            ? prev.map((m) => (m.id === editingId ? saved : m))
+            : [saved, ...prev],
+        );
         setIsModalOpen(false);
-        setTitle("");
-        setDescription("");
-        setDueDate("");
+        toast.success(editingId ? "Milestone updated" : "Milestone created");
+      } else {
+        toast.error("Failed to save milestone");
       }
     } catch (err) {
       console.error(err);
+      toast.error("Failed to save milestone");
     }
   };
 
@@ -51,7 +97,7 @@ export default function MilestonesPage() {
           <h1 className="text-2xl font-bold text-text-main">Milestones</h1>
         </div>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={openCreate}
           className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-bold hover:bg-primary-hover transition-all duration-300 flex items-center shadow-premium hover:-translate-y-0.5"
         >
           <Plus size={16} className="mr-2" /> Create milestone
@@ -73,7 +119,7 @@ export default function MilestonesPage() {
               or specific test cycles.
             </p>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={openCreate}
               className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold hover:bg-primary-hover transition-all duration-300 shadow-premium hover:-translate-y-0.5"
             >
               Create milestone
@@ -112,10 +158,18 @@ export default function MilestonesPage() {
                         : "-"}
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
-                      <button className="p-1.5 text-text-muted hover:text-text-main transition-colors">
-                        <Settings size={16} />
+                      <button
+                        onClick={() => openEdit(ms)}
+                        className="p-1.5 text-text-muted hover:text-text-main transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil size={16} />
                       </button>
-                      <button className="p-1.5 text-text-muted hover:text-red-500 transition-colors">
+                      <button
+                        onClick={() => setConfirmDeleteId(ms.id)}
+                        className="p-1.5 text-text-muted hover:text-red-500 transition-colors"
+                        title="Delete"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </td>
@@ -132,7 +186,7 @@ export default function MilestonesPage() {
           <div className="bg-surface w-[500px] rounded-2xl shadow-premium overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-border/80 flex justify-between items-center bg-background/50">
               <h3 className="text-lg font-bold text-text-main">
-                Create milestone
+                {editingId ? "Edit milestone" : "Create milestone"}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -191,12 +245,21 @@ export default function MilestonesPage() {
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-[13px] font-bold shadow-premium transition-all duration-300 hover:-translate-y-0.5"
                 >
-                  Create
+                  {editingId ? "Save changes" : "Create"}
                 </button>
               </div>
             </form>
           </div>
         </div>
+      )}
+
+      {confirmDeleteId && (
+        <ConfirmDialog
+          title="Delete milestone"
+          message="This milestone will be permanently deleted. Linked runs keep their data."
+          onConfirm={() => handleDelete(confirmDeleteId)}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
       )}
     </div>
   );

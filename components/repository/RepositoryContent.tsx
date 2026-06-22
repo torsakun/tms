@@ -365,10 +365,6 @@ export function RepositoryContent({
                 </button>
               </div>
               <button className="flex items-center px-3 py-1.5 bg-surface hover:bg-surface-hover border border-border text-text-main text-[13px] font-medium rounded-lg transition-colors shadow-sm">
-                <Sparkles size={14} className="mr-1.5 text-amber-500" /> Run
-                advisor
-              </button>
-              <button className="flex items-center px-3 py-1.5 bg-surface hover:bg-surface-hover border border-border text-text-main text-[13px] font-medium rounded-lg transition-colors shadow-sm">
                 <Cpu size={14} className="mr-1.5 text-indigo-500" /> Automate
               </button>
             </div>
@@ -576,7 +572,15 @@ export function RepositoryContent({
                   {`${projectCode}-${activeTestCase.sequenceNumber || activeTestCase.id.substring(0, 4)}`}
                 </span>
                 <div className="flex items-center gap-1">
-                  <button className="text-text-muted hover:text-text-muted hover:bg-surface-hover p-1.5 rounded-lg transition-colors">
+                  <button
+                    onClick={() => {
+                      const code = `${projectCode}-${activeTestCase.sequenceNumber || activeTestCase.id.substring(0, 4)}`;
+                      navigator.clipboard?.writeText(code);
+                      toast.success(`Copied ${code}`);
+                    }}
+                    title="Copy case ID"
+                    className="text-text-muted hover:text-text-main hover:bg-surface-hover p-1.5 rounded-lg transition-colors"
+                  >
                     <Copy size={15} />
                   </button>
                   <button
@@ -618,10 +622,6 @@ export function RepositoryContent({
                   <Trash2 size={15} />
                 </button>
                 <div className="w-px h-6 bg-slate-200 mx-1"></div>
-                <button className="bg-surface border border-border hover:bg-surface-hover text-text-muted px-3 py-1.5 rounded-lg text-[13px] font-semibold flex items-center transition-colors shadow-sm">
-                  <Sparkles size={13} className="mr-1.5 text-amber-500" /> Run
-                  advisor
-                </button>
                 <button
                   className="text-white shadow-sm px-3 py-1.5 rounded-lg text-[13px] font-semibold flex items-center transition-all hover:-translate-y-0.5"
                   style={{
@@ -633,19 +633,9 @@ export function RepositoryContent({
               </div>
 
               <div className="flex gap-6">
-                <button className="pb-3 pt-1 border-b-2 border-indigo-500 text-indigo-600 font-bold text-sm">
+                <span className="pb-3 pt-1 border-b-2 border-indigo-500 text-indigo-600 font-bold text-sm">
                   General
-                </button>
-                {["Properties", "Runs", "History", "Defects", "Comments"].map(
-                  (tab) => (
-                    <button
-                      key={tab}
-                      className="pb-3 pt-1 border-b-2 border-transparent text-text-muted hover:text-text-muted font-medium text-sm transition-colors"
-                    >
-                      {tab}
-                    </button>
-                  ),
-                )}
+                </span>
               </div>
             </header>
 
@@ -691,13 +681,9 @@ export function RepositoryContent({
                 <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
                   Pre-conditions
                 </h3>
-                <div className="text-sm text-text-main leading-relaxed">
+                <div className="text-sm text-text-main leading-relaxed whitespace-pre-wrap break-words">
                   {activeTestCase.preconditions ? (
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: activeTestCase.preconditions,
-                      }}
-                    />
+                    activeTestCase.preconditions
                   ) : (
                     <span className="text-text-muted italic">Not set</span>
                   )}
@@ -708,13 +694,9 @@ export function RepositoryContent({
                 <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
                   Post-conditions
                 </h3>
-                <div className="text-sm text-text-main leading-relaxed">
+                <div className="text-sm text-text-main leading-relaxed whitespace-pre-wrap break-words">
                   {activeTestCase.postconditions ? (
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: activeTestCase.postconditions,
-                      }}
-                    />
+                    activeTestCase.postconditions
                   ) : (
                     <span className="text-text-muted italic">Not set</span>
                   )}

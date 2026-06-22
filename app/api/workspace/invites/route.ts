@@ -42,14 +42,17 @@ export async function POST(req: Request) {
   if (!canManageUsers(actor)) return forbidden();
   try {
     const body = await req.json();
-    const { email, firstName, lastName, roleId } = body;
+    const { email, roleId } = body;
 
-    if (!email || !firstName || !lastName || !roleId) {
+    if (!email || !roleId) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Email and role are required" },
         { status: 400 },
       );
     }
+    // Names are optional (bulk invites derive a first name from the address).
+    const firstName = body.firstName || email.split("@")[0];
+    const lastName = body.lastName || "";
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({ where: { email } });

@@ -1977,16 +1977,8 @@ export default function RunExecutionClient({
                           <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
                             Pre-conditions
                           </h3>
-                          <div className="text-sm text-text-main leading-relaxed">
-                            {activeResult.testCase.preconditions ? (
-                              <div
-                                dangerouslySetInnerHTML={{
-                                  __html: activeResult.testCase.preconditions,
-                                }}
-                              />
-                            ) : (
-                              "None"
-                            )}
+                          <div className="text-sm text-text-main leading-relaxed whitespace-pre-wrap break-words">
+                            {activeResult.testCase.preconditions || "None"}
                           </div>
                         </div>
                       </div>

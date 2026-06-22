@@ -18,6 +18,45 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [bulkText, setBulkText] = useState("");
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkResult, setBulkResult] = useState<{ sent: number; failed: number } | null>(null);
+
+  const handleBulkInvite = async () => {
+    setError("");
+    setBulkResult(null);
+    const emails = Array.from(
+      new Set(
+        bulkText
+          .split(/[\n,;\s]+/)
+          .map((e) => e.trim().toLowerCase())
+          .filter(Boolean),
+      ),
+    );
+    const valid = emails.filter((e) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e));
+    if (valid.length === 0) {
+      setError("Enter at least one valid email address.");
+      return;
+    }
+    setBulkBusy(true);
+    let sent = 0;
+    let failed = 0;
+    for (const em of valid) {
+      try {
+        const r = await fetch("/api/workspace/invites", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: em, roleId }),
+        });
+        r.ok ? sent++ : failed++;
+      } catch {
+        failed++;
+      }
+    }
+    setBulkBusy(false);
+    setBulkResult({ sent, failed });
+    if (sent > 0) setTimeout(onClose, 1800);
+  };
 
   React.useEffect(() => {
     fetch("/api/workspace/roles")
@@ -197,16 +236,62 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
               </div>
             </form>
           ) : (
-            <div className="py-8 text-center">
-              <div className="w-12 h-12 rounded-xl bg-surface-hover flex items-center justify-center mx-auto mb-3">
-                <UserPlus size={20} className="text-slate-300" />
+            <div className="space-y-4">
+              {error && (
+                <div className="p-3 text-sm text-rose-600 bg-rose-50 rounded-lg border border-rose-100">
+                  {error}
+                </div>
+              )}
+              {bulkResult && (
+                <div className="p-3 text-sm rounded-lg border bg-emerald-50 border-emerald-100 text-emerald-700">
+                  Sent {bulkResult.sent} invitation
+                  {bulkResult.sent !== 1 ? "s" : ""}
+                  {bulkResult.failed > 0 && (
+                    <span className="text-rose-600">
+                      {" "}
+                      · {bulkResult.failed} failed (already a member / invalid)
+                    </span>
+                  )}
+                </div>
+              )}
+              <div>
+                <label className={labelCls}>
+                  Email addresses <span className="text-rose-400">*</span>
+                </label>
+                <textarea
+                  value={bulkText}
+                  onChange={(e) => setBulkText(e.target.value)}
+                  rows={6}
+                  placeholder={"alice@company.com\nbob@company.com, carol@company.com"}
+                  className={inputCls + " resize-y font-mono text-[13px]"}
+                />
+                <p className="text-xs text-text-muted mt-1.5">
+                  Separate by new line, comma, or space. Names are derived from
+                  each address.
+                </p>
               </div>
-              <p className="text-sm font-semibold text-text-muted">
-                Bulk invite coming soon
-              </p>
-              <p className="text-xs text-text-muted mt-1">
-                Use the Single tab to invite members one at a time.
-              </p>
+              <div>
+                <label className={labelCls}>
+                  Role <span className="text-rose-400">*</span>
+                </label>
+                {isLoadingRoles ? (
+                  <div className="flex items-center gap-2 text-sm text-text-muted py-2.5">
+                    <Loader2 size={14} className="animate-spin" /> Loading roles…
+                  </div>
+                ) : (
+                  <select
+                    value={roleId}
+                    onChange={(e) => setRoleId(e.target.value)}
+                    className={inputCls + " appearance-none cursor-pointer"}
+                  >
+                    {roles.map((r) => (
+                      <option key={r.id} value={r.id}>
+                        {r.title}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -220,21 +305,39 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
           >
             Cancel
           </button>
-          <button
-            form="invite-form"
-            type="submit"
-            disabled={isSubmitting || success || isLoadingRoles || !roleId}
-            className="px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
-            style={{ background: "var(--primary)" }}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 size={14} className="animate-spin" /> Sending…
-              </>
-            ) : (
-              "Invite"
-            )}
-          </button>
+          {activeTab === "single" ? (
+            <button
+              form="invite-form"
+              type="submit"
+              disabled={isSubmitting || success || isLoadingRoles || !roleId}
+              className="px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
+              style={{ background: "var(--primary)" }}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" /> Sending…
+                </>
+              ) : (
+                "Invite"
+              )}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleBulkInvite}
+              disabled={bulkBusy || isLoadingRoles || !roleId || !bulkText.trim()}
+              className="px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
+              style={{ background: "var(--primary)" }}
+            >
+              {bulkBusy ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" /> Sending…
+                </>
+              ) : (
+                "Send invites"
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

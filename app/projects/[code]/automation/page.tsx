@@ -669,9 +669,6 @@ export default function TESSAAutomationPage({
                             </span>
                           </div>
                         </div>
-                        <button className="opacity-0 group-hover:opacity-100 transition-opacity bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 px-3 py-1.5 rounded text-xs font-bold flex items-center shadow-sm">
-                          <Sparkles size={12} className="mr-1" /> Auto-Heal
-                        </button>
                       </div>
                     ))}
                   </div>

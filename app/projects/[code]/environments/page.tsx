@@ -2,16 +2,53 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Plus, Settings, Trash2, Box } from "lucide-react";
+import { Plus, Pencil, Trash2, Box } from "lucide-react";
+import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export default function EnvironmentsPage() {
   const params = useParams();
   const projectCode = params.code as string;
   const [environments, setEnvironments] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [slug, setSlug] = useState("");
+
+  const openCreate = () => {
+    setEditingId(null);
+    setTitle("");
+    setDescription("");
+    setSlug("");
+    setIsModalOpen(true);
+  };
+
+  const openEdit = (env: any) => {
+    setEditingId(env.id);
+    setTitle(env.title);
+    setDescription(env.description || "");
+    setSlug(env.slug || "");
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    setConfirmDeleteId(null);
+    const backup = environments;
+    setEnvironments((prev) => prev.filter((e) => e.id !== id));
+    try {
+      const res = await fetch(
+        `/api/projects/${projectCode}/environments/${id}`,
+        { method: "DELETE" },
+      );
+      if (!res.ok) throw new Error();
+      toast.success("Environment deleted");
+    } catch {
+      setEnvironments(backup);
+      toast.error("Failed to delete environment");
+    }
+  };
 
   useEffect(() => {
     fetch(`/api/projects/${projectCode}/environments`)
@@ -25,21 +62,31 @@ export default function EnvironmentsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`/api/projects/${projectCode}/environments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, description, slug }),
-      });
+      const res = await fetch(
+        editingId
+          ? `/api/projects/${projectCode}/environments/${editingId}`
+          : `/api/projects/${projectCode}/environments`,
+        {
+          method: editingId ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, description, slug }),
+        },
+      );
       if (res.ok) {
-        const newEnv = await res.json();
-        setEnvironments([newEnv, ...environments]);
+        const saved = await res.json();
+        setEnvironments((prev) =>
+          editingId
+            ? prev.map((e) => (e.id === editingId ? saved : e))
+            : [saved, ...prev],
+        );
         setIsModalOpen(false);
-        setTitle("");
-        setDescription("");
-        setSlug("");
+        toast.success(editingId ? "Environment updated" : "Environment created");
+      } else {
+        toast.error("Failed to save environment");
       }
     } catch (err) {
       console.error(err);
+      toast.error("Failed to save environment");
     }
   };
 
@@ -51,7 +98,7 @@ export default function EnvironmentsPage() {
           <h1 className="text-2xl font-bold text-text-main">Environments</h1>
         </div>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={openCreate}
           className="bg-primary hover:bg-primary-hover text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold flex items-center transition-all duration-300 shadow-premium hover:-translate-y-0.5"
         >
           <Plus size={16} className="mr-2" /> Create environment
@@ -73,7 +120,7 @@ export default function EnvironmentsPage() {
               to specify where your tests are executed.
             </p>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={openCreate}
               className="bg-primary hover:bg-primary-hover text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-300 shadow-premium hover:-translate-y-0.5"
             >
               Create environment
@@ -106,10 +153,18 @@ export default function EnvironmentsPage() {
                       {env.description || "-"}
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
-                      <button className="p-1.5 text-text-muted hover:text-text-main transition-colors">
-                        <Settings size={16} />
+                      <button
+                        onClick={() => openEdit(env)}
+                        className="p-1.5 text-text-muted hover:text-text-main transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil size={16} />
                       </button>
-                      <button className="p-1.5 text-text-muted hover:text-red-500 transition-colors">
+                      <button
+                        onClick={() => setConfirmDeleteId(env.id)}
+                        className="p-1.5 text-text-muted hover:text-red-500 transition-colors"
+                        title="Delete"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </td>
@@ -126,14 +181,12 @@ export default function EnvironmentsPage() {
           <div className="bg-surface w-[500px] rounded-2xl shadow-premium overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200">
             <div className="px-6 py-5 border-b border-border/80 flex justify-between items-center bg-surface-hover/50">
               <h3 className="text-lg font-bold text-text-main">
-                Create environment
+                {editingId ? "Edit environment" : "Create environment"}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="text-text-muted hover:text-text-main transition-colors"
               >
-                <Settings size={20} className="hidden" />{" "}
-                {/* just placeholder */}
                 &times;
               </button>
             </div>
@@ -188,12 +241,21 @@ export default function EnvironmentsPage() {
                   type="submit"
                   className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-[13px] font-bold shadow-premium transition-all duration-300 hover:-translate-y-0.5"
                 >
-                  Create
+                  {editingId ? "Save changes" : "Create"}
                 </button>
               </div>
             </form>
           </div>
         </div>
+      )}
+
+      {confirmDeleteId && (
+        <ConfirmDialog
+          title="Delete environment"
+          message="This environment will be permanently deleted. Runs using it will keep their data but lose the link."
+          onConfirm={() => handleDelete(confirmDeleteId)}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
       )}
     </div>
   );

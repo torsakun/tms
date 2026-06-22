@@ -129,17 +129,6 @@ const SuiteItem = ({
               >
                 <Plus size={14} />
               </button>
-              <button className="p-0.5 hover:text-text-muted transition-colors">
-                <svg
-                  className="w-3.5 h-3.5"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <circle cx="5" cy="12" r="2" />
-                  <circle cx="12" cy="12" r="2" />
-                  <circle cx="19" cy="12" r="2" />
-                </svg>
-              </button>
             </div>
           )}
         </div>

@@ -2,16 +2,53 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { Plus, Settings, Trash2, Share2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Share2 } from "lucide-react";
+import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 export default function SharedStepsPage() {
   const params = useParams();
   const projectCode = params.code as string;
   const [sharedSteps, setSharedSteps] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [action, setAction] = useState("");
   const [expectedResult, setExpectedResult] = useState("");
+
+  const openCreate = () => {
+    setEditingId(null);
+    setTitle("");
+    setAction("");
+    setExpectedResult("");
+    setIsModalOpen(true);
+  };
+
+  const openEdit = (step: any) => {
+    setEditingId(step.id);
+    setTitle(step.title);
+    setAction(step.action || "");
+    setExpectedResult(step.expectedResult || "");
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    setConfirmDeleteId(null);
+    const backup = sharedSteps;
+    setSharedSteps((prev) => prev.filter((s) => s.id !== id));
+    try {
+      const res = await fetch(
+        `/api/projects/${projectCode}/shared-steps/${id}`,
+        { method: "DELETE" },
+      );
+      if (!res.ok) throw new Error();
+      toast.success("Shared step deleted");
+    } catch {
+      setSharedSteps(backup);
+      toast.error("Failed to delete shared step");
+    }
+  };
 
   useEffect(() => {
     fetch(`/api/projects/${projectCode}/shared-steps`)
@@ -25,21 +62,31 @@ export default function SharedStepsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch(`/api/projects/${projectCode}/shared-steps`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, action, expectedResult }),
-      });
+      const res = await fetch(
+        editingId
+          ? `/api/projects/${projectCode}/shared-steps/${editingId}`
+          : `/api/projects/${projectCode}/shared-steps`,
+        {
+          method: editingId ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, action, expectedResult }),
+        },
+      );
       if (res.ok) {
-        const newStep = await res.json();
-        setSharedSteps([newStep, ...sharedSteps]);
+        const saved = await res.json();
+        setSharedSteps((prev) =>
+          editingId
+            ? prev.map((s) => (s.id === editingId ? saved : s))
+            : [saved, ...prev],
+        );
         setIsModalOpen(false);
-        setTitle("");
-        setAction("");
-        setExpectedResult("");
+        toast.success(editingId ? "Shared step updated" : "Shared step created");
+      } else {
+        toast.error("Failed to save shared step");
       }
     } catch (err) {
       console.error(err);
+      toast.error("Failed to save shared step");
     }
   };
 
@@ -51,7 +98,7 @@ export default function SharedStepsPage() {
           <h1 className="text-2xl font-bold text-text-main">Shared Steps</h1>
         </div>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={openCreate}
           className="bg-primary hover:bg-primary-hover text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold flex items-center transition-all duration-300 shadow-premium hover:-translate-y-0.5"
         >
           <Plus size={16} className="mr-2" /> Create shared step
@@ -73,7 +120,7 @@ export default function SharedStepsPage() {
               test cases, saving you time when steps change.
             </p>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={openCreate}
               className="bg-primary hover:bg-primary-hover text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-300 shadow-premium hover:-translate-y-0.5"
             >
               Create shared step
@@ -104,10 +151,18 @@ export default function SharedStepsPage() {
                       {step.expectedResult || "-"}
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
-                      <button className="p-1.5 text-text-muted hover:text-text-main transition-colors">
-                        <Settings size={16} />
+                      <button
+                        onClick={() => openEdit(step)}
+                        className="p-1.5 text-text-muted hover:text-text-main transition-colors"
+                        title="Edit"
+                      >
+                        <Pencil size={16} />
                       </button>
-                      <button className="p-1.5 text-text-muted hover:text-red-500 transition-colors">
+                      <button
+                        onClick={() => setConfirmDeleteId(step.id)}
+                        className="p-1.5 text-text-muted hover:text-red-500 transition-colors"
+                        title="Delete"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </td>
@@ -124,7 +179,7 @@ export default function SharedStepsPage() {
           <div className="bg-surface w-[600px] rounded-3xl shadow-premium overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200">
             <div className="px-6 py-5 border-b border-border/80 flex justify-between items-center bg-surface-hover/50">
               <h3 className="text-lg font-bold text-text-main">
-                Create shared step
+                {editingId ? "Edit shared step" : "Create shared step"}
               </h3>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -186,12 +241,21 @@ export default function SharedStepsPage() {
                   type="submit"
                   className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-[13px] font-bold shadow-premium transition-all duration-300 hover:-translate-y-0.5"
                 >
-                  Create
+                  {editingId ? "Save changes" : "Create"}
                 </button>
               </div>
             </form>
           </div>
         </div>
+      )}
+
+      {confirmDeleteId && (
+        <ConfirmDialog
+          title="Delete shared step"
+          message="This shared step will be permanently deleted. Test cases referencing it keep their own steps."
+          onConfirm={() => handleDelete(confirmDeleteId)}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
       )}
     </div>
   );
