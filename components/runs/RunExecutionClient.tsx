@@ -1451,7 +1451,7 @@ export default function RunExecutionClient({
         </div>
       )}
 
-      <div className="flex h-[calc(100vh-4rem)] w-full bg-[#f0f2f8] overflow-hidden relative transition-colors">
+      <div className="flex h-[calc(100vh-4rem)] w-full bg-background overflow-hidden relative transition-colors">
         {/* Main Suite/Case Tree View */}
         <main
           className={`flex flex-col min-w-0 bg-surface border-r transition-all duration-300 ease-in-out ${activeResultId ? "w-[50%] shrink-0" : "flex-1 w-full"}`}
@@ -1810,7 +1810,7 @@ export default function RunExecutionClient({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto pb-32 bg-[#f0f2f8] p-3 space-y-2">
+          <div className="flex-1 overflow-y-auto pb-32 bg-background p-3 space-y-2">
             {unassignedResults.length > 0 && (
               <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden mb-3 hover:shadow transition-shadow duration-300">
                 <div className="flex items-center py-2.5 px-4 border-b border-border bg-gradient-to-r from-surface-hover/90 to-surface/80 hover:bg-indigo-500/[0.02] cursor-pointer group transition-colors">

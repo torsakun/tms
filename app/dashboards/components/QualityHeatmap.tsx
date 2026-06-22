@@ -64,30 +64,68 @@ export function QualityHeatmap({ heatmapData }: QualityHeatmapProps) {
           </div>
         ) : (
           <div className="space-y-4">
-            {heatmapData.map((project) => (
-              <div
-                key={project.code}
-                className="relative flex items-center justify-between gap-4"
-              >
-                <div className="sticky left-0 z-10 flex w-36 shrink-0 flex-col bg-surface pr-3">
-                  <span className="text-xs font-bold text-text-main truncate">
-                    {project.name}
-                  </span>
-                  <span className="mt-1.5 w-max rounded border border-primary/15 bg-primary-light px-1.5 py-0.5 text-xs font-bold text-primary">
-                    {project.code}
-                  </span>
+            {heatmapData.map((project) => {
+              const active = project.dailyHealth.filter(
+                (d) => d.passRate !== null,
+              );
+              const avg = active.length
+                ? Math.round(
+                    active.reduce((s, d) => s + (d.passRate || 0), 0) /
+                      active.length,
+                  )
+                : null;
+              const last = [...project.dailyHealth]
+                .reverse()
+                .find((d) => d.passRate !== null);
+              const avgColor =
+                avg === null
+                  ? "var(--text-muted)"
+                  : avg >= 90
+                    ? "#10b981"
+                    : avg >= 70
+                      ? "#22c55e"
+                      : avg >= 50
+                        ? "#f59e0b"
+                        : "#ef4444";
+              return (
+                <div key={project.code} className="relative flex items-center gap-4">
+                  <div className="sticky left-0 z-10 flex w-32 shrink-0 flex-col bg-surface pr-3">
+                    <span className="text-xs font-bold text-text-main truncate">
+                      {project.name}
+                    </span>
+                    <span className="mt-1.5 w-max rounded border border-primary/15 bg-primary-light px-1.5 py-0.5 text-xs font-bold text-primary">
+                      {project.code}
+                    </span>
+                  </div>
+                  <div className="relative flex flex-1 justify-end gap-1">
+                    {project.dailyHealth.map((day) => (
+                      <div
+                        key={day.date}
+                        title={getCellTooltip(day.date, day.passRate)}
+                        className={`h-3.5 w-3.5 shrink-0 cursor-pointer rounded-[3px] border transition-transform duration-150 hover:z-20 hover:scale-125 ${getCellColor(day.passRate)}`}
+                      />
+                    ))}
+                  </div>
+                  {/* Per-project summary — keeps the row informative when cells are sparse */}
+                  <div className="flex w-28 shrink-0 flex-col items-end border-l border-border/60 pl-3">
+                    <span
+                      className="text-base font-extrabold leading-none"
+                      style={{ color: avgColor }}
+                    >
+                      {avg === null ? "—" : `${avg}%`}
+                    </span>
+                    <span className="mt-1 text-[10px] font-semibold text-text-muted">
+                      avg · {active.length} active{active.length === 1 ? " day" : " days"}
+                    </span>
+                    <span className="mt-0.5 text-[10px] text-text-muted">
+                      {last
+                        ? `last ${new Date(last.date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}`
+                        : "never run"}
+                    </span>
+                  </div>
                 </div>
-                <div className="relative flex flex-1 justify-end gap-1">
-                  {project.dailyHealth.map((day) => (
-                    <div
-                      key={day.date}
-                      title={getCellTooltip(day.date, day.passRate)}
-                      className={`h-3.5 w-3.5 shrink-0 cursor-pointer rounded-[3px] border transition-transform duration-150 hover:z-20 hover:scale-125 ${getCellColor(day.passRate)}`}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
