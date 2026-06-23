@@ -1,9 +1,9 @@
 "use client";
 
-import React, { use } from "react";
+import React, { use, useState } from "react";
 import useSWR from "swr";
 import { PdfReportTemplate } from "@/components/runs/PdfReportTemplate";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -22,6 +22,15 @@ export default function PublicReportPage({
   params: Promise<{ runId: string }>;
 }) {
   const { runId } = use(params);
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+
+  // Open a fullscreen viewer when an evidence screenshot is clicked.
+  const handleImageClick = (e: React.MouseEvent) => {
+    const t = e.target as HTMLElement;
+    if (t.tagName === "IMG" && (t as HTMLImageElement).alt === "Evidence") {
+      setLightboxSrc((t as HTMLImageElement).src);
+    }
+  };
 
   // Poll every 3 seconds for real-time updates
   const {
@@ -91,12 +100,37 @@ export default function PublicReportPage({
         </div>
       </div>
 
-      <div className="w-full max-w-[1000px] bg-surface shadow-premium rounded-2xl overflow-hidden border border-border/80 animate-in zoom-in-95 duration-300">
+      <div
+        onClick={handleImageClick}
+        className="w-full max-w-[1000px] bg-surface shadow-premium rounded-2xl overflow-hidden border border-border/80 animate-in zoom-in-95 duration-300 [&_img[alt='Evidence']]:cursor-zoom-in"
+      >
         <PdfReportTemplate
           run={run}
           projectCode={run.project?.code || "UNKNOWN"}
         />
       </div>
+
+      {lightboxSrc && (
+        <div
+          onClick={() => setLightboxSrc(null)}
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 p-6 animate-in fade-in duration-150 cursor-zoom-out"
+        >
+          <button
+            onClick={() => setLightboxSrc(null)}
+            className="absolute top-5 right-5 p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            aria-label="Close"
+          >
+            <X size={22} />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={lightboxSrc}
+            alt="Evidence (enlarged)"
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-2xl object-contain"
+          />
+        </div>
+      )}
     </div>
   );
 }
