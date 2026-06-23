@@ -472,7 +472,13 @@ export function PdfReportTemplate({
               </tr>
             </thead>
             <tbody>
-              {run.results?.map((res: any, index: number) => {
+              {[...(run.results || [])]
+                .sort(
+                  (a: any, b: any) =>
+                    (a.testCase?.sequenceNumber || 0) -
+                    (b.testCase?.sequenceNumber || 0),
+                )
+                .map((res: any, index: number) => {
                 const tc = res.testCase;
                 const code = `${projectCode}-${tc.sequenceNumber || tc.id.substring(0, 4)}`;
                 const rowBgColor = index % 2 === 0 ? "#ffffff" : "#f8fafc";
