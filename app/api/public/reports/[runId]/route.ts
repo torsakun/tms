@@ -12,11 +12,21 @@ export async function GET(
     const run = await prisma.testRun.findUnique({
       where: { id: runId },
       include: {
-        project: { select: { code: true } },
+        project: { select: { code: true, name: true } },
+        author: { select: { name: true, email: true } },
+        environment: { select: { title: true } },
+        milestone: { select: { title: true } },
         results: {
           include: {
+            assignee: { select: { name: true, email: true } },
+            linkedIssues: {
+              select: { id: true, key: true, url: true, summary: true, severity: true },
+            },
             testCase: {
-              include: { steps: true },
+              include: {
+                steps: true,
+                suite: { select: { id: true, title: true } },
+              },
             },
           },
         },

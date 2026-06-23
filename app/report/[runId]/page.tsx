@@ -23,6 +23,7 @@ export default function PublicReportPage({
 }) {
   const { runId } = use(params);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+  const [hidePassed, setHidePassed] = useState(false);
 
   // Open a fullscreen viewer when an evidence screenshot is clicked.
   const handleImageClick = (e: React.MouseEvent) => {
@@ -95,8 +96,20 @@ export default function PublicReportPage({
             Live Report
           </span>
         </div>
-        <div className="text-[11px] font-semibold text-text-muted/60">
-          Auto-updating every 3 seconds
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setHidePassed((v) => !v)}
+            className={`text-[11px] font-bold px-3 py-1.5 rounded-lg border transition-colors ${
+              hidePassed
+                ? "bg-rose-50 text-rose-600 border-rose-200"
+                : "bg-surface text-text-muted border-border hover:text-text-main"
+            }`}
+          >
+            {hidePassed ? "Showing failed only" : "Show failed only"}
+          </button>
+          <div className="text-[11px] font-semibold text-text-muted/60">
+            Auto-updating every 3 seconds
+          </div>
         </div>
       </div>
 
@@ -107,6 +120,7 @@ export default function PublicReportPage({
         <PdfReportTemplate
           run={run}
           projectCode={run.project?.code || "UNKNOWN"}
+          hidePassed={hidePassed}
         />
       </div>
 

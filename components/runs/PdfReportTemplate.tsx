@@ -4,11 +4,13 @@ import { formatThaiTime } from "@/lib/utils";
 interface PdfReportTemplateProps {
   run: any;
   projectCode: string;
+  hidePassed?: boolean;
 }
 
 export function PdfReportTemplate({
   run,
   projectCode,
+  hidePassed = false,
 }: PdfReportTemplateProps) {
   // Calculate summary metrics
   const total = run.results?.length || 0;
@@ -34,6 +36,31 @@ export function PdfReportTemplate({
   const minutes = Math.floor(totalTimeSpent / 60000);
   const seconds = Math.floor((totalTimeSpent % 60000) / 1000);
   const durationStr = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+
+  const fmtDur = (ms: number) => {
+    if (!ms) return "—";
+    const m = Math.floor(ms / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  };
+  const userLabel = (u: any) =>
+    u ? u.name || u.email?.split("@")[0] || "—" : "Unassigned";
+
+  // Order cases by suite, then sequence — matching the execution view.
+  const sortedResults = [...(run.results || [])].sort((a: any, b: any) => {
+    const sa = a.testCase?.suite?.title || "~Unassigned";
+    const sb = b.testCase?.suite?.title || "~Unassigned";
+    if (sa !== sb) return sa.localeCompare(sb);
+    return (a.testCase?.sequenceNumber || 0) - (b.testCase?.sequenceNumber || 0);
+  });
+  // Per-suite mini summary (executed / total + passed).
+  const suiteStats: Record<string, { total: number; passed: number }> = {};
+  for (const r of sortedResults) {
+    const s = r.testCase?.suite?.title || "Unassigned";
+    suiteStats[s] = suiteStats[s] || { total: 0, passed: 0 };
+    suiteStats[s].total++;
+    if (r.status === "PASSED") suiteStats[s].passed++;
+  }
 
   return (
     <div
@@ -99,8 +126,59 @@ export function PdfReportTemplate({
             </div>
           </div>
         </div>
-        <div style={{ marginTop: "30px", fontSize: "14px", color: "#cbd5e1" }}>
-          <strong>Generated on:</strong> {formatThaiTime(new Date())}
+        <div
+          style={{
+            marginTop: "28px",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "28px",
+            fontSize: "13px",
+            color: "#cbd5e1",
+          }}
+        >
+          {[
+            ["Status", (run.status || "—").replace("_", " ")],
+            ["Started by", userLabel(run.author)],
+            [
+              "Started at",
+              run.createdAt ? formatThaiTime(new Date(run.createdAt)) : "—",
+            ],
+            ["Environment", run.environment?.title || "Not specified"],
+            ...(run.milestone?.title
+              ? [["Milestone", run.milestone.title]]
+              : []),
+          ].map(([label, value]) => (
+            <div key={label as string}>
+              <div
+                style={{
+                  fontSize: "10px",
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                  color: "#64748b",
+                  marginBottom: "3px",
+                }}
+              >
+                {label}
+              </div>
+              <div style={{ color: "#e2e8f0", fontWeight: 600 }}>{value}</div>
+            </div>
+          ))}
+          <div>
+            <div
+              style={{
+                fontSize: "10px",
+                textTransform: "uppercase",
+                letterSpacing: "1px",
+                color: "#64748b",
+                marginBottom: "3px",
+              }}
+            >
+              Generated
+            </div>
+            <div style={{ color: "#e2e8f0", fontWeight: 600 }}>
+              {formatThaiTime(new Date())}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -388,10 +466,83 @@ export function PdfReportTemplate({
                   letterSpacing: "1px",
                 }}
               >
-                Completion
+                Pass Rate
               </div>
             </div>
           </div>
+
+          {/* Segmented status distribution bar */}
+          {total > 0 && (
+            <div style={{ marginTop: "20px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  width: "100%",
+                  height: "14px",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  border: "1px solid var(--border-color)",
+                }}
+              >
+                {[
+                  { n: passed, c: "#16a34a" },
+                  { n: failed, c: "#dc2626" },
+                  { n: blocked, c: "#d97706" },
+                  { n: skipped, c: "#0891b2" },
+                  { n: untested, c: "#94a3b8" },
+                ].map(
+                  (seg, i) =>
+                    seg.n > 0 && (
+                      <div
+                        key={i}
+                        style={{
+                          width: `${(seg.n / total) * 100}%`,
+                          backgroundColor: seg.c,
+                        }}
+                      />
+                    ),
+                )}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "16px",
+                  marginTop: "10px",
+                }}
+              >
+                {[
+                  { label: "Passed", n: passed, c: "#16a34a" },
+                  { label: "Failed", n: failed, c: "#dc2626" },
+                  { label: "Blocked", n: blocked, c: "#d97706" },
+                  { label: "Skipped", n: skipped, c: "#0891b2" },
+                  { label: "Untested", n: untested, c: "#94a3b8" },
+                ].map((seg) => (
+                  <div
+                    key={seg.label}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      fontSize: "12px",
+                      color: "#475569",
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: "10px",
+                        height: "10px",
+                        borderRadius: "3px",
+                        backgroundColor: seg.c,
+                      }}
+                    />
+                    {seg.label}{" "}
+                    <strong style={{ color: "#0f172a" }}>{seg.n}</strong>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Detailed Results Table */}
@@ -472,15 +623,21 @@ export function PdfReportTemplate({
               </tr>
             </thead>
             <tbody>
-              {[...(run.results || [])]
-                .sort(
-                  (a: any, b: any) =>
-                    (a.testCase?.sequenceNumber || 0) -
-                    (b.testCase?.sequenceNumber || 0),
-                )
-                .map((res: any, index: number) => {
+              {sortedResults.map((res: any, index: number) => {
+                if (hidePassed && res.status === "PASSED") return null;
                 const tc = res.testCase;
                 const code = `${projectCode}-${tc.sequenceNumber || tc.id.substring(0, 4)}`;
+                const suiteName = tc?.suite?.title || "Unassigned";
+                // Header shows on the first VISIBLE case of each suite.
+                const visible = (r: any) =>
+                  !hidePassed || r.status !== "PASSED";
+                const prevVisibleSuite = sortedResults
+                  .slice(0, index)
+                  .filter(visible)
+                  .map((r: any) => r.testCase?.suite?.title || "Unassigned")
+                  .pop();
+                const showSuiteHeader = suiteName !== prevVisibleSuite;
+                const ss = suiteStats[suiteName];
                 const rowBgColor = index % 2 === 0 ? "#ffffff" : "#f8fafc";
 
                 // Status Badge styling
@@ -557,6 +714,44 @@ export function PdfReportTemplate({
                     </div>,
                   );
                 }
+                if (res.linkedIssues && res.linkedIssues.length > 0) {
+                  globalElements.push(
+                    <div key="global-defects" style={{ marginTop: "8px" }}>
+                      <strong
+                        style={{
+                          display: "block",
+                          fontSize: "11px",
+                          textTransform: "uppercase",
+                          color: "#b91c1c",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        Linked Defects:
+                      </strong>
+                      {res.linkedIssues.map((iss: any) => (
+                        <a
+                          key={iss.id}
+                          href={iss.url}
+                          style={{
+                            display: "inline-block",
+                            fontSize: "12px",
+                            color: "#dc2626",
+                            backgroundColor: "#fee2e2",
+                            border: "1px solid #fecaca",
+                            borderRadius: "4px",
+                            padding: "2px 8px",
+                            marginRight: "6px",
+                            marginBottom: "4px",
+                            textDecoration: "none",
+                          }}
+                        >
+                          {iss.key}
+                          {iss.severity ? ` · ${iss.severity}` : ""} — {iss.summary}
+                        </a>
+                      ))}
+                    </div>,
+                  );
+                }
                 if (res.attachments && Array.isArray(res.attachments)) {
                   res.attachments.forEach((att: any, attIdx: number) => {
                     globalElements.push(
@@ -596,8 +791,38 @@ export function PdfReportTemplate({
                 }
 
                 return (
+                  <React.Fragment key={res.id}>
+                  {showSuiteHeader && (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        style={{
+                          backgroundColor: "#eef2ff",
+                          borderTop: "2px solid #c7d2fe",
+                          borderBottom: "1px solid #c7d2fe",
+                          padding: "10px 16px",
+                          fontSize: "13px",
+                          fontWeight: 800,
+                          color: "#3730a3",
+                        }}
+                      >
+                        {suiteName}
+                        {ss && (
+                          <span
+                            style={{
+                              marginLeft: "10px",
+                              fontSize: "11px",
+                              fontWeight: 700,
+                              color: "#6366f1",
+                            }}
+                          >
+                            {ss.passed}/{ss.total} passed
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  )}
                   <tr
-                    key={res.id}
                     style={{
                       backgroundColor: rowBgColor,
                       pageBreakInside: "avoid",
@@ -648,6 +873,29 @@ export function PdfReportTemplate({
                       >
                         {res.status}
                       </span>
+                      <div
+                        style={{
+                          marginTop: "12px",
+                          fontSize: "11px",
+                          color: "#64748b",
+                          lineHeight: "1.7",
+                        }}
+                      >
+                        <div>
+                          <strong style={{ color: "#475569" }}>By:</strong>{" "}
+                          {userLabel(res.assignee)}
+                        </div>
+                        {res.status !== "IN_PROGRESS" && res.updatedAt && (
+                          <div>
+                            <strong style={{ color: "#475569" }}>On:</strong>{" "}
+                            {formatThaiTime(new Date(res.updatedAt))}
+                          </div>
+                        )}
+                        <div>
+                          <strong style={{ color: "#475569" }}>Time:</strong>{" "}
+                          {fmtDur(res.timeSpent || 0)}
+                        </div>
+                      </div>
                     </td>
 
                     {/* Columns 2, 3, 4: Inner table for Steps */}
@@ -880,6 +1128,7 @@ export function PdfReportTemplate({
                       )}
                     </td>
                   </tr>
+                  </React.Fragment>
                 );
               })}
             </tbody>
