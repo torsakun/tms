@@ -1415,6 +1415,20 @@ export default function RunExecutionClient({
         }
       }
 
+      // Page numbers — "Page X of Y" centered in the bottom margin of each page
+      const totalPages = sliceOffsets.length;
+      for (let i = 0; i < totalPages; i++) {
+        pdf.setPage(i + 1);
+        pdf.setFontSize(8);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text(
+          `Page ${i + 1} of ${totalPages}`,
+          pdfWidth / 2,
+          pdfHeight - 5,
+          { align: "center" },
+        );
+      }
+
       const cleanTitle = run.title.replace(/[^a-z0-9]/gi, "_").toLowerCase();
       const dateStr = new Date().toISOString().split("T")[0];
       pdf.save(`run_${cleanTitle}_${dateStr}.pdf`);

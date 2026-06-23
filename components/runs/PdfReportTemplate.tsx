@@ -760,18 +760,35 @@ export function PdfReportTemplate({
                         style={{ marginTop: "8px" }}
                       >
                         {att.url.match(/\.(jpeg|jpg|gif|png)$/i) ? (
-                          <img
-                            src={att.url}
-                            alt="Evidence"
-                            style={{
-                              maxWidth: "100%",
-                              maxHeight: "200px",
-                              border: "1px solid var(--border-color)",
-                              borderRadius: "4px",
-                              display: "block",
-                            }}
-                            crossOrigin="anonymous"
-                          />
+                          <>
+                            <img
+                              src={att.url}
+                              alt="Evidence"
+                              style={{
+                                maxWidth: "100%",
+                                maxHeight: "200px",
+                                border: "1px solid var(--border-color)",
+                                borderRadius: "4px",
+                                display: "block",
+                              }}
+                              crossOrigin="anonymous"
+                            />
+                            <div
+                              style={{
+                                fontSize: "10px",
+                                color: "#94a3b8",
+                                marginTop: "3px",
+                                fontStyle: "italic",
+                              }}
+                            >
+                              {att.name ||
+                                att.originalName ||
+                                decodeURIComponent(
+                                  att.url.split("/").pop()?.split("?")[0] || "",
+                                ) ||
+                                "Evidence"}
+                            </div>
+                          </>
                         ) : (
                           <a
                             href={att.url}
@@ -1033,18 +1050,38 @@ export function PdfReportTemplate({
                                             {att.url.match(
                                               /\.(jpeg|jpg|gif|png)$/i,
                                             ) ? (
-                                              <img
-                                                src={att.url}
-                                                alt="Evidence"
-                                                style={{
-                                                  maxWidth: "100%",
-                                                  maxHeight: "200px",
-                                                  border: "1px solid var(--border-color)",
-                                                  borderRadius: "4px",
-                                                  display: "block",
-                                                }}
-                                                crossOrigin="anonymous"
-                                              />
+                                              <>
+                                                <img
+                                                  src={att.url}
+                                                  alt="Evidence"
+                                                  style={{
+                                                    maxWidth: "100%",
+                                                    maxHeight: "200px",
+                                                    border: "1px solid var(--border-color)",
+                                                    borderRadius: "4px",
+                                                    display: "block",
+                                                  }}
+                                                  crossOrigin="anonymous"
+                                                />
+                                                <div
+                                                  style={{
+                                                    fontSize: "10px",
+                                                    color: "#94a3b8",
+                                                    marginTop: "3px",
+                                                    fontStyle: "italic",
+                                                  }}
+                                                >
+                                                  {att.name ||
+                                                    att.originalName ||
+                                                    decodeURIComponent(
+                                                      att.url
+                                                        .split("/")
+                                                        .pop()
+                                                        ?.split("?")[0] || "",
+                                                    ) ||
+                                                    "Evidence"}
+                                                </div>
+                                              </>
                                             ) : (
                                               <a
                                                 href={att.url}
