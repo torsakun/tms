@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { s3Client, S3_BUCKET } from "@/lib/s3";
 
 export async function GET(
@@ -8,27 +7,30 @@ export async function GET(
   { params }: { params: Promise<{ filename: string }> },
 ) {
   try {
-    const resolvedParams = await params;
-    const filename = resolvedParams.filename;
+    const { filename } = await params;
 
     // Prevent directory traversal
     if (filename.includes("..") || filename.includes("/")) {
       return new NextResponse("Bad Request", { status: 400 });
     }
 
-    const command = new GetObjectCommand({
-      Bucket: S3_BUCKET,
-      Key: filename,
-    });
+    const obj = await s3Client.send(
+      new GetObjectCommand({ Bucket: S3_BUCKET, Key: filename }),
+    );
 
-    // Generate a presigned URL valid for 1 hour
-    const signedUrl = await getSignedUrl(s3Client, command, {
-      expiresIn: 3600,
-    });
+    // Stream the object back from our own origin so the image is same-origin.
+    // Redirecting to a presigned S3 URL breaks CORS-loaded <img crossOrigin>
+    // (e.g. the public report + PDF export), so we proxy the bytes instead.
+    const bytes = await obj.Body!.transformToByteArray();
 
-    return NextResponse.redirect(signedUrl);
+    return new NextResponse(Buffer.from(bytes), {
+      headers: {
+        "Content-Type": obj.ContentType || "application/octet-stream",
+        "Cache-Control": "public, max-age=86400, immutable",
+      },
+    });
   } catch (error) {
-    console.error("Error generating presigned URL:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
+    console.error("Error serving upload:", error);
+    return new NextResponse("Not Found", { status: 404 });
   }
 }
