@@ -194,13 +194,18 @@ export default async function GlobalDashboardPage(props: {
     const trendStartDate = new Date();
     trendStartDate.setDate(trendStartDate.getDate() - timeframeDays);
 
-    const trendRuns = await prisma.testRun.findMany({
+    // Bucket by the day each result was actually executed (updatedAt), not the
+    // run's creation date — so a run created earlier but executed today moves
+    // today's bar.
+    const trendResults = await prisma.testRunResult.findMany({
       where: {
-        createdAt: { gte: trendStartDate },
-        ...(projectCodeFilter ? { project: { code: projectCodeFilter } } : {}),
+        updatedAt: { gte: trendStartDate },
+        status: { not: "IN_PROGRESS" },
+        ...(projectCodeFilter
+          ? { testRun: { project: { code: projectCodeFilter } } }
+          : {}),
       },
-      include: { results: { select: { status: true } } },
-      orderBy: { createdAt: "asc" },
+      select: { status: true, updatedAt: true },
     });
 
     // Group by Date
@@ -221,19 +226,17 @@ export default async function GlobalDashboardPage(props: {
       });
     }
 
-    for (const run of trendRuns) {
-      const dateStr = new Date(run.createdAt).toLocaleDateString(undefined, {
+    for (const res of trendResults) {
+      const dateStr = new Date(res.updatedAt).toLocaleDateString(undefined, {
         month: "short",
         day: "numeric",
       });
-      if (trendMap.has(dateStr)) {
-        const item = trendMap.get(dateStr);
-        run.results.forEach((res) => {
-          if (res.status === "PASSED") item.passed++;
-          if (res.status === "FAILED") item.failed++;
-          if (res.status === "BLOCKED") item.blocked++;
-          if (res.status === "SKIPPED") item.skipped++;
-        });
+      const item = trendMap.get(dateStr);
+      if (item) {
+        if (res.status === "PASSED") item.passed++;
+        if (res.status === "FAILED") item.failed++;
+        if (res.status === "BLOCKED") item.blocked++;
+        if (res.status === "SKIPPED") item.skipped++;
       }
     }
 

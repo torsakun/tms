@@ -58,6 +58,27 @@ export function RepositoryContent({
   const router = useRouter();
   const { role } = useProjectRole();
   const [activeTestCaseId, setActiveTestCaseId] = useState<string | null>(null);
+  const [detailTab, setDetailTab] = useState<
+    "general" | "defects" | "history"
+  >("general");
+  const [history, setHistory] = useState<any[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (detailTab !== "history" || !activeTestCaseId) return;
+    let alive = true;
+    setHistoryLoading(true);
+    fetch(`/api/projects/${projectCode}/cases/${activeTestCaseId}/history`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d) => {
+        if (alive) setHistory(Array.isArray(d) ? d : []);
+      })
+      .catch(() => alive && setHistory([]))
+      .finally(() => alive && setHistoryLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [detailTab, activeTestCaseId, projectCode]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchScope, setSearchScope] = useState<"all" | "title">("all");
   const [isBulkEditModalOpen, setIsBulkEditModalOpen] = useState(false);
@@ -497,7 +518,10 @@ export function RepositoryContent({
               cases={cases}
               activeSuiteId={activeSuiteId}
               projectCode={projectCode}
-              onSelectCase={(tc: any) => setActiveTestCaseId(tc.id)}
+              onSelectCase={(tc: any) => {
+                setDetailTab("general");
+                setActiveTestCaseId(tc.id);
+              }}
               searchQuery={searchQuery}
               searchScope={searchScope}
             />
@@ -633,13 +657,35 @@ export function RepositoryContent({
               </div>
 
               <div className="flex gap-6">
-                <span className="pb-3 pt-1 border-b-2 border-indigo-500 text-indigo-600 font-bold text-sm">
+                <button
+                  onClick={() => setDetailTab("general")}
+                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors ${detailTab === "general" ? "border-indigo-500 text-indigo-600 font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                >
                   General
-                </span>
+                </button>
+                <button
+                  onClick={() => setDetailTab("defects")}
+                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors flex items-center gap-1.5 ${detailTab === "defects" ? "border-indigo-500 text-indigo-600 font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                >
+                  Defects
+                  {activeTestCase.linkedIssues?.length > 0 && (
+                    <span className="text-[10px] font-bold bg-rose-50 text-rose-500 px-1.5 py-0.5 rounded-full">
+                      {activeTestCase.linkedIssues.length}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => setDetailTab("history")}
+                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors ${detailTab === "history" ? "border-indigo-500 text-indigo-600 font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                >
+                  History
+                </button>
               </div>
             </header>
 
             <div className="flex-1 overflow-y-auto bg-surface p-5 space-y-4">
+              {detailTab === "general" && (
+              <>
               {activeTestCase.isOutdated && (
                 <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl flex flex-col space-y-3 shadow-sm mb-4">
                   <div className="flex items-start">
@@ -787,8 +833,17 @@ export function RepositoryContent({
                 )}
               </div>
 
-              {activeTestCase.linkedIssues &&
-                activeTestCase.linkedIssues.length > 0 && (
+              <TestCaseAutomationPanel
+                testCase={activeTestCase}
+                projectCode={projectCode}
+                onUpdate={() => window.location.reload()}
+              />
+              </>
+              )}
+
+              {detailTab === "defects" &&
+                (activeTestCase.linkedIssues &&
+                activeTestCase.linkedIssues.length > 0 ? (
                   <div className="bg-surface p-5 rounded-xl border border-border shadow-sm">
                     <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-1.5">
                       <Ticket size={12} className="text-rose-500" /> Linked
@@ -822,13 +877,88 @@ export function RepositoryContent({
                       ))}
                     </div>
                   </div>
-                )}
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <Ticket size={28} className="text-slate-300 mb-3" />
+                    <p className="text-sm font-semibold text-text-muted">
+                      No linked defects
+                    </p>
+                    <p className="text-xs text-text-muted mt-1 max-w-xs">
+                      Defects reported during a run and linked to this case will
+                      appear here.
+                    </p>
+                  </div>
+                ))}
 
-              <TestCaseAutomationPanel
-                testCase={activeTestCase}
-                projectCode={projectCode}
-                onUpdate={() => window.location.reload()}
-              />
+              {detailTab === "history" &&
+                (historyLoading ? (
+                  <div className="flex items-center justify-center py-16 text-sm text-text-muted">
+                    <Loader2 size={16} className="animate-spin mr-2" /> Loading
+                    history…
+                  </div>
+                ) : history.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 text-center">
+                    <PlayCircle size={28} className="text-slate-300 mb-3" />
+                    <p className="text-sm font-semibold text-text-muted">
+                      No execution history
+                    </p>
+                    <p className="text-xs text-text-muted mt-1 max-w-xs">
+                      This case hasn&apos;t been included in any test run yet.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {history.map((h: any) => {
+                      const meta =
+                        {
+                          PASSED: { c: "#10b981", l: "Passed" },
+                          FAILED: { c: "#ef4444", l: "Failed" },
+                          BLOCKED: { c: "#f59e0b", l: "Blocked" },
+                          SKIPPED: { c: "#94a3b8", l: "Skipped" },
+                          INVALID: { c: "#8b5cf6", l: "Invalid" },
+                          IN_PROGRESS: { c: "#cbd5e1", l: "Untested" },
+                        }[h.status as string] || {
+                          c: "#cbd5e1",
+                          l: h.status,
+                        };
+                      return (
+                        <a
+                          key={h.id}
+                          href={`/projects/${projectCode}/runs/${h.testRun?.id}`}
+                          className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors"
+                        >
+                          <span
+                            className="w-2 h-2 rounded-full shrink-0"
+                            style={{ background: meta.c }}
+                          />
+                          <span className="flex-1 min-w-0">
+                            <span className="block text-sm font-semibold text-text-main truncate">
+                              {h.testRun?.title || "Run"}
+                            </span>
+                            <span className="block text-[11px] text-text-muted">
+                              {new Date(h.createdAt).toLocaleString("en-GB", {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                              {h.assignee
+                                ? ` · ${h.assignee.name || h.assignee.email?.split("@")[0]}`
+                                : ""}
+                            </span>
+                          </span>
+                          <span
+                            className="text-[11px] font-bold shrink-0"
+                            style={{ color: meta.c }}
+                          >
+                            {meta.l}
+                          </span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                ))}
             </div>
           </>
         )}

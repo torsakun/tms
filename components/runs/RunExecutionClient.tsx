@@ -280,6 +280,18 @@ function ResultRow({
             {result.testCase.title}
           </span>
         </div>
+        {result.status !== "IN_PROGRESS" && result.updatedAt && (
+          <span
+            className="hidden lg:flex items-center gap-1 text-[11px] text-text-muted whitespace-nowrap mr-3 shrink-0"
+            title={`Executed ${new Date(result.updatedAt).toLocaleString()}`}
+          >
+            <Clock size={11} />
+            {new Date(result.updatedAt).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+            })}
+          </span>
+        )}
         {!isDetailsOpen && (
           <div className="w-48 flex items-center justify-between shrink-0">
             <div className="flex items-center">

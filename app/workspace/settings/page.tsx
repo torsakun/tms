@@ -106,7 +106,7 @@ export default function WorkspaceSettingsPage() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-8">
-        <div className="max-w-3xl space-y-8">
+        <div className="mx-auto max-w-6xl columns-1 lg:columns-2 gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid">
           {error && (
             <div className="p-4 bg-red-50 text-red-700 rounded-lg flex items-center border border-red-100">
               <AlertCircle size={18} className="mr-2" />
