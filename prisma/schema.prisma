@@ -118,6 +118,7 @@ model User {
   passwordResetTokens    PasswordResetToken[]
   receivedNotifications  Notification[]       @relation("NotificationRecipient")
   triggeredNotifications Notification[]       @relation("NotificationActor")
+  comments               Comment[]
   lastSeenAt             DateTime?
   createdAt              DateTime             @default(now())
   updatedAt              DateTime             @updatedAt
@@ -293,6 +294,7 @@ model TestCase {
   runResults  TestRunResult[]
   tags        Tag[]
   attachments Attachment[]
+  comments    Comment[]
   testPlans   TestPlan[]      @relation("TestPlanToTestCase")
 
   customFields   Json? // Stores custom field values
@@ -361,12 +363,32 @@ model TestRun {
 
   reportUrl String? @db.Text
 
-  results TestRunResult[]
+  results  TestRunResult[]
+  comments Comment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([projectId])
+}
+
+model Comment {
+  id       String  @id @default(uuid())
+  body     String  @db.Text
+  authorId String?
+  author   User?   @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  caseId String?
+  case   TestCase? @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  runId String?
+  run   TestRun? @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([caseId, createdAt])
+  @@index([runId, createdAt])
 }
 
 model TestRunResult {
@@ -601,6 +623,7 @@ model Notification {
   actor       User?            @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
   type        NotificationType
   entityId    String? // e.g., Case ID, Run ID
+  link        String? // in-app href to navigate to on click
   title       String
   message     String?          @db.Text
   isRead      Boolean          @default(false)

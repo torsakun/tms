@@ -28,8 +28,10 @@ export async function getProjectRole(projectCode: string, userId: string): Promi
     }
   });
 
-  // If not explicitly added, default to EDITOR to simplify project access
-  return member ? member.role : 'EDITOR';
+  // Non-members get read-only (VIEWER) access. Editing/admin actions require
+  // explicit membership (or system ADMIN, handled above). System admins keep
+  // full access; users added via project invites get their assigned role.
+  return member ? member.role : 'VIEWER';
 }
 
 export async function requireProjectRole(projectCode: string, userId: string, allowedRoles: ProjectRole[]): Promise<boolean> {

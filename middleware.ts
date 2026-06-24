@@ -16,6 +16,7 @@ export const config = {
     "/api/projects/:path*",
     "/api/runs/:path*",
     "/api/cases/:path*",
-    "/api/workspace/:path*"
+    "/api/workspace/:path*",
+    "/api/search"
   ],
 };

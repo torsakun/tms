@@ -9,6 +9,8 @@ import {
   Users,
   CornerDownLeft,
   Folder,
+  FileText,
+  PlayCircle,
 } from "lucide-react";
 
 interface Cmd {
@@ -29,6 +31,11 @@ export function CommandPalette() {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
   const [projects, setProjects] = useState<{ code: string; name: string }[]>([]);
+  const [results, setResults] = useState<{ cases: any[]; runs: any[] }>({
+    cases: [],
+    runs: [],
+  });
+  const [searching, setSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const close = useCallback(() => {
@@ -72,6 +79,31 @@ export function CommandPalette() {
     if (open) setTimeout(() => inputRef.current?.focus(), 0);
   }, [open, projects.length]);
 
+  // Debounced global search across cases & runs
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setResults({ cases: [], runs: [] });
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    const ctrl = new AbortController();
+    const t = setTimeout(() => {
+      fetch(`/api/search?q=${encodeURIComponent(q)}`, { signal: ctrl.signal })
+        .then((r) => r.json())
+        .then((d) =>
+          setResults({ cases: d.cases || [], runs: d.runs || [] }),
+        )
+        .catch(() => {})
+        .finally(() => setSearching(false));
+    }, 220);
+    return () => {
+      clearTimeout(t);
+      ctrl.abort();
+    };
+  }, [query]);
+
   const go = useCallback(
     (href: string) => {
       router.push(href);
@@ -96,13 +128,33 @@ export function CommandPalette() {
     return [...base, ...projectCmds];
   }, [projects, go]);
 
+  // Live search hits (cases + runs) — only shown when a query is present.
+  const searchCmds = useMemo<Cmd[]>(() => {
+    const caseCmds: Cmd[] = results.cases.map((c) => ({
+      id: `case-${c.id}`,
+      label: c.title,
+      hint: `${c.code} · ${c.projectName}`,
+      icon: FileText,
+      run: () => go(`/projects/${c.projectCode}/cases/${c.id}/edit`),
+    }));
+    const runCmds: Cmd[] = results.runs.map((r) => ({
+      id: `run-${r.id}`,
+      label: r.title,
+      hint: `Run · ${r.projectName}`,
+      icon: PlayCircle,
+      run: () => go(`/projects/${r.projectCode}/runs/${r.id}`),
+    }));
+    return [...caseCmds, ...runCmds];
+  }, [results, go]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return commands;
-    return commands.filter(
+    const localMatches = commands.filter(
       (c) => c.label.toLowerCase().includes(q) || c.hint?.toLowerCase().includes(q),
     );
-  }, [commands, query]);
+    return [...localMatches, ...searchCmds];
+  }, [commands, query, searchCmds]);
 
   useEffect(() => setActive(0), [query]);
 
@@ -139,7 +191,7 @@ export function CommandPalette() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onListKey}
-            placeholder="Search projects, jump to a section…"
+            placeholder="Search cases, runs, projects…"
             className="flex-1 py-3.5 text-[15px] text-text-main placeholder-slate-400 bg-transparent outline-none"
           />
           <kbd className="text-[10px] font-semibold text-text-muted bg-surface-hover px-1.5 py-0.5 rounded">
@@ -150,7 +202,7 @@ export function CommandPalette() {
         <div className="max-h-80 overflow-y-auto py-2">
           {filtered.length === 0 ? (
             <div className="px-4 py-8 text-center text-sm text-text-muted">
-              No matches for “{query}”
+              {searching ? "Searching…" : `No matches for “${query}”`}
             </div>
           ) : (
             filtered.map((c, i) => {

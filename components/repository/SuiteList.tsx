@@ -12,6 +12,8 @@ interface SuiteListProps {
   onSelectCase?: (testCase: any) => void;
   searchQuery?: string;
   searchScope?: "all" | "title";
+  priorityFilter?: Set<string>;
+  automationFilter?: Set<string>;
 }
 
 export function SuiteList({
@@ -22,20 +24,45 @@ export function SuiteList({
   onSelectCase,
   searchQuery = "",
   searchScope = "all",
+  priorityFilter,
+  automationFilter,
 }: SuiteListProps) {
   const q = searchQuery.trim().toLowerCase();
   const filteredCases = useMemo(() => {
-    if (!q) return cases;
+    const hasPriority = priorityFilter && priorityFilter.size > 0;
+    const hasAutomation = automationFilter && automationFilter.size > 0;
     return cases.filter((tc) => {
-      const title = (tc.title || "").toLowerCase();
-      if (title.includes(q)) return true;
-      if (searchScope === "title") return false;
-      const code =
-        `${projectCode}-${tc.sequenceNumber || tc.id?.substring(0, 2)}`.toLowerCase();
-      const desc = (tc.description || "").toLowerCase();
-      return code.includes(q) || desc.includes(q);
+      // Text search
+      if (q) {
+        const title = (tc.title || "").toLowerCase();
+        const titleHit = title.includes(q);
+        if (searchScope === "title") {
+          if (!titleHit) return false;
+        } else if (!titleHit) {
+          const code =
+            `${projectCode}-${tc.sequenceNumber || tc.id?.substring(0, 2)}`.toLowerCase();
+          const desc = (tc.description || "").toLowerCase();
+          if (!code.includes(q) && !desc.includes(q)) return false;
+        }
+      }
+      // Advanced filters
+      if (
+        hasPriority &&
+        !priorityFilter!.has((tc.priority || "NOT_SET").toUpperCase())
+      )
+        return false;
+      if (
+        hasAutomation &&
+        !automationFilter!.has((tc.automationStatus || "MANUAL").toUpperCase())
+      )
+        return false;
+      return true;
     });
-  }, [cases, q, projectCode, searchScope]);
+  }, [cases, q, projectCode, searchScope, priorityFilter, automationFilter]);
+  const isFiltering =
+    !!q ||
+    (priorityFilter?.size || 0) > 0 ||
+    (automationFilter?.size || 0) > 0;
   // Scroll to active suite when activeSuiteId changes
   useEffect(() => {
     if (activeSuiteId) {
@@ -82,17 +109,17 @@ export function SuiteList({
 
   // When searching, only show suites that have matching cases in their subtree
   const visibleRoots = useMemo(() => {
-    if (!q) return roots;
+    if (!isFiltering) return roots;
     const subtreeHasMatch = (suite: any): boolean => {
       if ((casesBySuiteId.get(suite.id) || []).length > 0) return true;
       return (childrenMap.get(suite.id) || []).some(subtreeHasMatch);
     };
     return roots.filter(subtreeHasMatch);
-  }, [roots, childrenMap, casesBySuiteId, q]);
+  }, [roots, childrenMap, casesBySuiteId, isFiltering]);
 
   const unassignedCases = casesBySuiteId.get("unassigned") || [];
 
-  if (q && visibleRoots.length === 0 && unassignedCases.length === 0) {
+  if (isFiltering && visibleRoots.length === 0 && unassignedCases.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 bg-surface rounded-2xl border border-border/80 border-dashed">
         <div className="w-14 h-14 bg-indigo-50 text-indigo-400 rounded-full flex items-center justify-center mb-3 shadow-sm">
@@ -102,7 +129,9 @@ export function SuiteList({
           No matching test cases
         </h3>
         <p className="text-sm text-text-muted text-center max-w-sm">
-          No cases match &ldquo;{searchQuery}&rdquo;. Try a different search.
+          {q
+            ? `No cases match “${searchQuery}”. Try a different search or filter.`
+            : "No cases match the selected filters."}
         </p>
       </div>
     );

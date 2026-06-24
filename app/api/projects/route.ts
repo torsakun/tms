@@ -1,8 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const { name, code, description } = body;
 
@@ -32,6 +39,13 @@ export async function POST(req: Request) {
         name,
         code: formattedCode,
         description,
+        // The creator owns the project as an ADMIN member.
+        members: {
+          create: {
+            userId: (session.user as any).id,
+            role: "ADMIN",
+          },
+        },
       },
     });
 

@@ -7,6 +7,7 @@ import { useRouter, useParams } from "next/navigation";
 import { X, AlertCircle } from "lucide-react";
 import { DUMMY_CASES, DUMMY_SUITES } from "@/types/repository";
 import { TestCaseSelectionModal } from "@/components/runs/TestCaseSelectionModal";
+import { Button } from "@/components/ui/Button";
 import { Suspense } from "react";
 
 function EditRunContent() {
@@ -268,20 +269,16 @@ function EditRunContent() {
           </div>
 
           <div className="flex justify-end p-6 border-t border-border/50 shrink-0 bg-surface">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => router.back()}
-              className="px-5 py-2.5 text-[13px] font-bold text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition-all mr-3"
             >
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex items-center px-5 py-2.5 text-[13px] font-bold text-primary-foreground bg-primary rounded-xl hover:bg-primary-hover hover:-translate-y-0.5 transition-all shadow-premium duration-300 disabled:opacity-50 disabled:shadow-none disabled:transform-none"
-            >
+            </Button>
+            <Button type="submit" loading={loading}>
               {loading ? "Saving..." : "Save Changes"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

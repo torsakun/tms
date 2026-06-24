@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 interface ProjectQualityMatrixProps {
   projects: Array<{
@@ -137,24 +138,28 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
             {projects.length}
           </span>
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="secondary"
+              iconOnly
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/80 text-text-muted transition-colors hover:bg-surface hover:text-text-main disabled:cursor-not-allowed disabled:opacity-50 hover:shadow-sm"
+              className="text-text-muted hover:text-text-main"
               aria-label="Previous project page"
             >
               <ChevronLeft size={16} />
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="secondary"
+              iconOnly
               onClick={() =>
                 setCurrentPage((prev) => Math.min(prev + 1, totalPages))
               }
               disabled={currentPage === totalPages}
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-border/80 text-text-muted transition-colors hover:bg-surface hover:text-text-main disabled:cursor-not-allowed disabled:opacity-50 hover:shadow-sm"
+              className="text-text-muted hover:text-text-main"
               aria-label="Next project page"
             >
               <ChevronRight size={16} />
-            </button>
+            </Button>
           </div>
         </div>
       )}

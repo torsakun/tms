@@ -8,6 +8,7 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 export default function ProjectIntegrationsPage({
   params,
@@ -212,18 +213,15 @@ export default function ProjectIntegrationsPage({
         </div>
 
         <div className="pt-8 border-t border-border/80 flex justify-end">
-          <button
+          <Button
+            variant="primary"
             onClick={handleSave}
-            disabled={isSaving}
-            className="flex items-center px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-[13px] font-bold hover:bg-primary-hover transition-all duration-300 shadow-premium hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 disabled:shadow-none"
+            loading={isSaving}
+            className="shadow-premium hover:-translate-y-0.5"
           >
-            {isSaving ? (
-              <Loader2 size={16} className="mr-2 animate-spin" />
-            ) : (
-              <Save size={16} className="mr-2" />
-            )}
+            {!isSaving && <Save size={16} />}
             Save Settings
-          </button>
+          </Button>
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { Plus, Pencil, Trash2, Box } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Button } from "@/components/ui/Button";
 
 export default function EnvironmentsPage() {
   const params = useParams();
@@ -97,12 +98,13 @@ export default function EnvironmentsPage() {
           <Box className="text-text-muted" size={24} />
           <h1 className="text-2xl font-bold text-text-main">Environments</h1>
         </div>
-        <button
+        <Button
+          variant="primary"
           onClick={openCreate}
-          className="bg-primary hover:bg-primary-hover text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold flex items-center transition-all duration-300 shadow-premium hover:-translate-y-0.5"
+          className="shadow-premium hover:-translate-y-0.5"
         >
-          <Plus size={16} className="mr-2" /> Create environment
-        </button>
+          <Plus size={16} /> Create environment
+        </Button>
       </header>
 
       <main className="flex-1 overflow-y-auto p-8">
@@ -119,12 +121,13 @@ export default function EnvironmentsPage() {
               Create test environments (like Staging, Production, iOS, Android)
               to specify where your tests are executed.
             </p>
-            <button
+            <Button
+              variant="primary"
               onClick={openCreate}
-              className="bg-primary hover:bg-primary-hover text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold transition-all duration-300 shadow-premium hover:-translate-y-0.5"
+              className="shadow-premium hover:-translate-y-0.5"
             >
               Create environment
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="bg-surface rounded-2xl shadow-premium border border-border/80 overflow-hidden">
@@ -153,20 +156,26 @@ export default function EnvironmentsPage() {
                       {env.description || "-"}
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconOnly
                         onClick={() => openEdit(env)}
-                        className="p-1.5 text-text-muted hover:text-text-main transition-colors"
+                        className="text-text-muted hover:text-text-main"
                         title="Edit"
                       >
                         <Pencil size={16} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconOnly
                         onClick={() => setConfirmDeleteId(env.id)}
-                        className="p-1.5 text-text-muted hover:text-red-500 transition-colors"
+                        className="text-text-muted hover:text-red-500"
                         title="Delete"
                       >
                         <Trash2 size={16} />
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -230,19 +239,20 @@ export default function EnvironmentsPage() {
                 </div>
               </div>
               <div className="px-6 py-4 bg-background border-t border-border flex justify-end space-x-3">
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl border border-border/80 text-[13px] font-bold hover:border-text-muted/40 hover:bg-surface-hover text-text-main transition-all shadow-sm"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-[13px] font-bold shadow-premium transition-all duration-300 hover:-translate-y-0.5"
+                  variant="primary"
+                  className="shadow-premium hover:-translate-y-0.5"
                 >
                   {editingId ? "Save changes" : "Create"}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

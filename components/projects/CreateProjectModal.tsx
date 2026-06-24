@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { X, HelpCircle, AlertCircle, Loader2 } from "lucide-react";
+import { X, HelpCircle, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 export function CreateProjectModal() {
   const router = useRouter();
@@ -265,27 +266,17 @@ export function CreateProjectModal() {
 
         {/* Footer */}
         <footer className="flex items-center justify-end px-6 py-4 bg-surface-hover border-t border-border shrink-0 space-x-3">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="px-4 py-2 text-sm font-medium text-text-main bg-surface border border-text-muted rounded-md hover:bg-surface-hover transition-colors"
-          >
+          <Button type="button" variant="secondary" onClick={handleClose}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             form="create-project-form"
             type="submit"
-            disabled={loading || !name || !code}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-primary-foreground bg-primary rounded-md hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!name || !code}
+            loading={loading}
           >
-            {loading ? (
-              <>
-                <Loader2 size={14} className="animate-spin" /> Creating…
-              </>
-            ) : (
-              "Create project"
-            )}
-          </button>
+            {loading ? "Creating…" : "Create project"}
+          </Button>
         </footer>
       </div>
     </div>

@@ -7,11 +7,11 @@ import {
   Ticket,
   AlertTriangle,
   CheckCircle2,
-  Loader2,
   Database,
   Folder,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
 
 interface BulkJiraImpactModalProps {
   isOpen: boolean;
@@ -265,17 +265,13 @@ export function BulkJiraImpactModal({
                       if (e.key === "Enter") handleJiraFetch();
                     }}
                   />
-                  <button
+                  <Button
                     onClick={handleJiraFetch}
-                    disabled={isFetchingJira || !jiraTicketId.trim()}
-                    className="px-6 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-all disabled:opacity-50 flex items-center"
+                    disabled={!jiraTicketId.trim()}
+                    loading={isFetchingJira}
                   >
-                    {isFetchingJira ? (
-                      <Loader2 size={18} className="animate-spin" />
-                    ) : (
-                      "Fetch Story"
-                    )}
-                  </button>
+                    {!isFetchingJira && "Fetch Story"}
+                  </Button>
                 </div>
                 {newRequirementText !== null && (
                   <div className="mt-4">
@@ -561,48 +557,41 @@ export function BulkJiraImpactModal({
 
         <div className="px-6 py-4 border-t border-border bg-surface shrink-0 flex justify-end space-x-3">
           {step === "REVIEW" && (
-            <button
-              onClick={() => setStep("INPUT")}
-              className="px-4 py-2 rounded-md font-medium text-text-muted hover:text-text-main hover:bg-surface-hover transition-colors"
-            >
+            <Button variant="ghost" onClick={() => setStep("INPUT")}>
               Back
-            </button>
+            </Button>
           )}
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-md font-medium text-text-muted hover:text-text-main hover:bg-surface-hover transition-colors"
-          >
+          <Button variant="ghost" onClick={onClose}>
             Cancel
-          </button>
+          </Button>
 
           {step === "INPUT" && (
-            <button
+            <Button
               onClick={handleAnalyze}
-              className="flex items-center px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-bold shadow-[0_0_15px_rgba(79,70,229,0.4)] transition-all"
+              className="bg-indigo-600 hover:bg-indigo-700 shadow-[0_0_15px_rgba(79,70,229,0.4)]"
             >
-              <Sparkles size={16} className="mr-2" />
+              <Sparkles size={16} />
               Analyze Batch
-            </button>
+            </Button>
           )}
 
           {step === "REVIEW" && casesNeedingUpdate.length > 0 && (
-            <button
+            <Button
+              variant="success"
               onClick={handleAccept}
-              disabled={selectedCaseIds.size === 0 || isSaving}
-              className="flex items-center px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md font-bold shadow-[0_0_10px_rgba(16,185,129,0.4)] transition-all disabled:opacity-50 disabled:shadow-none"
+              disabled={selectedCaseIds.size === 0}
+              loading={isSaving}
+              className="shadow-[0_0_10px_rgba(16,185,129,0.4)] disabled:shadow-none"
             >
               {isSaving ? (
-                <>
-                  <Loader2 size={16} className="mr-2 animate-spin" />
-                  Updating {selectedCaseIds.size} cases...
-                </>
+                `Updating ${selectedCaseIds.size} cases...`
               ) : (
                 <>
-                  <CheckCircle2 size={16} className="mr-2" />
+                  <CheckCircle2 size={16} />
                   Accept {selectedCaseIds.size} Updates
                 </>
               )}
-            </button>
+            </Button>
           )}
         </div>
       </div>

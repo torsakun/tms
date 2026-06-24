@@ -17,6 +17,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
+import { ButtonLink } from "@/components/ui/Button";
 
 function timeAgo(dateString: string) {
   const date = new Date(dateString);
@@ -205,14 +206,17 @@ export function ProjectList({
             {initialProjects.length}
           </span>
         </div>
-        <Link
+        <ButtonLink
           href="?create=true"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider text-white shadow-md hover:-translate-y-0.5 active:translate-y-0 hover:shadow-indigo-500/20 transition-all"
-          style={{ background: "linear-gradient(135deg, var(--primary) 0%, #6366f1 100%)" }}
+          size="md"
+          className="text-white shadow-md hover:-translate-y-0.5 active:translate-y-0 hover:shadow-indigo-500/20"
+          style={{
+            background: "linear-gradient(135deg, var(--primary) 0%, #6366f1 100%)",
+          }}
         >
           <Plus size={14} strokeWidth={3} />
           New project
-        </Link>
+        </ButtonLink>
       </div>
 
       {/* ── Toolbar ──────────────────────────────────────── */}

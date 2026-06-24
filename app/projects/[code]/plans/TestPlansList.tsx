@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import {
   Search,
   Filter,
@@ -113,13 +114,15 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
           </div>
 
           <div className="relative">
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center text-[13px] font-bold px-4 py-2.5 rounded-xl transition-all duration-300 border border-border/80 shadow-sm ${showFilters ? "bg-surface-hover text-text-main" : "bg-surface text-text-muted hover:text-text-main hover:bg-surface-hover"}`}
+              className={showFilters ? "text-text-main" : "text-text-muted hover:text-text-main"}
             >
-              <Filter size={14} className="mr-2" />
+              <Filter size={14} />
               Sort: {sortBy === "newest" ? "Newest first" : "Oldest first"}
-            </button>
+            </Button>
 
             {showFilters && (
               <div className="absolute top-full mt-2 left-0 w-48 bg-surface border border-border/80 rounded-2xl shadow-premium z-20 py-2 overflow-hidden animate-in zoom-in-95 duration-200">
@@ -159,24 +162,26 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
             Create a test plan to group test cases together. You can use test
             plans to create runs faster.
           </p>
-          <Link
+          <ButtonLink
             href={`/projects/${code}/plans/create`}
-            className="bg-primary text-primary-foreground shadow-premium px-5 py-2.5 rounded-xl font-bold hover:bg-primary-hover hover:-translate-y-0.5 transition-all duration-300"
+            className="shadow-premium hover:-translate-y-0.5"
           >
             Create new plan
-          </Link>
+          </ButtonLink>
         </div>
       ) : filteredPlans.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 bg-surface rounded-2xl shadow-premium border border-border/80 transition-all duration-300 animate-in zoom-in-95">
           <p className="text-text-muted mb-2">
             No test plans match your search.
           </p>
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setSearchQuery("")}
-            className="text-primary hover:underline text-sm font-medium"
+            className="text-primary hover:text-primary hover:underline"
           >
             Clear search
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="bg-surface rounded-2xl shadow-premium border border-border/80 overflow-visible transition-all duration-300 animate-in zoom-in-95">
@@ -237,12 +242,13 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end space-x-2">
-                      <Link
+                      <ButtonLink
                         href={`/projects/${code}/runs/create?plan=${plan.id}`}
-                        className="bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground px-4 py-2 rounded-xl text-[13px] font-bold transition-all duration-300 flex items-center opacity-0 group-hover:opacity-100 hover:shadow-sm hover:-translate-y-0.5"
+                        size="sm"
+                        className="bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground opacity-0 group-hover:opacity-100 hover:shadow-sm hover:-translate-y-0.5"
                       >
-                        <PlayCircle size={14} className="mr-1.5" /> Start run
-                      </Link>
+                        <PlayCircle size={14} /> Start run
+                      </ButtonLink>
 
                       <div
                         className="relative"

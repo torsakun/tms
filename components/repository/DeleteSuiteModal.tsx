@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { X, AlertTriangle } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 interface DeleteSuiteModalProps {
   isOpen: boolean;
@@ -118,25 +118,17 @@ export function DeleteSuiteModal({
         </div>
 
         <div className="px-6 py-4 flex justify-end space-x-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-surface-hover hover:bg-slate-200 text-text-main text-sm font-medium rounded transition-colors"
-            disabled={isDeleting}
-          >
+          <Button variant="secondary" onClick={onClose} disabled={isDeleting}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="danger"
             onClick={handleDelete}
-            disabled={!selectedOption || isDeleting}
-            className={cn(
-              "px-4 py-2 text-sm font-medium rounded transition-colors flex items-center",
-              !selectedOption
-                ? "bg-surface-hover text-text-muted cursor-not-allowed"
-                : "bg-red-500 hover:bg-red-600 text-white",
-            )}
+            disabled={!selectedOption}
+            loading={isDeleting}
           >
             {isDeleting ? "Deleting..." : "Delete"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

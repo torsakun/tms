@@ -8,10 +8,10 @@ import {
   Key,
   Shield,
   ChevronDown,
-  Loader2,
   AlertTriangle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
 import { toast } from "sonner";
 
 function ConfirmDialog({
@@ -44,19 +44,10 @@ function ConfirmDialog({
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 text-sm font-semibold text-text-muted bg-surface-hover hover:bg-slate-200 rounded-lg transition-colors"
-          >
+          <Button variant="secondary" onClick={onCancel}>
             Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors"
-            style={{ background: "var(--primary)" }}
-          >
-            Confirm
-          </button>
+          </Button>
+          <Button onClick={onConfirm}>Confirm</Button>
         </div>
       </div>
     </div>
@@ -293,26 +284,20 @@ export default function UserActionMenu({
                 value={resetLink}
                 className="flex-1 px-3 py-2 text-xs bg-surface-hover border border-border rounded-lg text-text-muted truncate"
               />
-              <button
+              <Button
                 onClick={() => {
                   navigator.clipboard?.writeText(resetLink);
                   toast.success("Link copied");
                 }}
-                className="px-3 py-2 text-sm font-semibold text-white rounded-lg shadow-sm shrink-0"
-                style={{
-                  background: "var(--primary)",
-                }}
+                className="shrink-0"
               >
                 Copy
-              </button>
+              </Button>
             </div>
             <div className="flex justify-end mt-5">
-              <button
-                onClick={() => setResetLink(null)}
-                className="px-4 py-2 text-sm font-semibold text-text-muted bg-surface-hover hover:bg-slate-200 rounded-lg transition-colors"
-              >
+              <Button variant="secondary" onClick={() => setResetLink(null)}>
                 Done
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -353,30 +338,17 @@ export default function UserActionMenu({
             </div>
 
             <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowRoleModal(false)}
-                className="px-4 py-2 text-sm font-medium text-text-muted bg-surface-hover hover:bg-slate-200 rounded-lg transition-colors"
-              >
+              <Button variant="secondary" onClick={() => setShowRoleModal(false)}>
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleRoleSave}
-                disabled={
-                  isLoading ||
-                  !selectedRoleId ||
-                  selectedRoleId === currentRoleId
-                }
-                className="px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary-hover rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center min-w-[120px]"
+                loading={isLoading}
+                disabled={!selectedRoleId || selectedRoleId === currentRoleId}
+                className="min-w-[120px]"
               >
-                {isLoading ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin mr-2" />
-                    Saving...
-                  </>
-                ) : (
-                  "Save Changes"
-                )}
-              </button>
+                {isLoading ? "Saving..." : "Save Changes"}
+              </Button>
             </div>
           </div>
         </div>

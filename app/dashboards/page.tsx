@@ -1,6 +1,6 @@
 import React from "react";
-import Link from "next/link";
 import { Folder } from "lucide-react";
+import { ButtonLink } from "@/components/ui/Button";
 import { prisma } from "@/lib/prisma";
 import {
   ExecutionTrendChart,
@@ -587,12 +587,12 @@ export default async function GlobalDashboardPage(props: {
             </div>
             <div className="flex items-center gap-3">
               <DashboardToolbar projects={allProjectsForFilter} />
-              <Link
+              <ButtonLink
                 href="/projects"
-                className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-[14px] font-bold text-primary-foreground shadow-md shadow-primary/20 hover:bg-primary-hover hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5"
+                className="shadow-md shadow-primary/20 hover:shadow-lg hover:-translate-y-0.5"
               >
                 <Folder size={16} /> Projects
-              </Link>
+              </ButtonLink>
             </div>
           </div>
 

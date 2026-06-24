@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { X, Loader2, CheckCircle2, UserPlus } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 interface InviteUserModalProps {
   onClose: () => void;
@@ -298,45 +299,27 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-2 px-6 py-4 border-t border-border shrink-0">
-          <button
-            onClick={onClose}
-            type="button"
-            className="px-4 py-2 text-sm font-semibold text-text-muted bg-surface-hover hover:bg-slate-200 rounded-lg transition-colors"
-          >
+          <Button onClick={onClose} type="button" variant="secondary">
             Cancel
-          </button>
+          </Button>
           {activeTab === "single" ? (
-            <button
+            <Button
               form="invite-form"
               type="submit"
-              disabled={isSubmitting || success || isLoadingRoles || !roleId}
-              className="px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
-              style={{ background: "var(--primary)" }}
+              disabled={success || isLoadingRoles || !roleId}
+              loading={isSubmitting}
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 size={14} className="animate-spin" /> Sending…
-                </>
-              ) : (
-                "Invite"
-              )}
-            </button>
+              {isSubmitting ? "Sending…" : "Invite"}
+            </Button>
           ) : (
-            <button
+            <Button
               type="button"
               onClick={handleBulkInvite}
-              disabled={bulkBusy || isLoadingRoles || !roleId || !bulkText.trim()}
-              className="px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-2"
-              style={{ background: "var(--primary)" }}
+              disabled={isLoadingRoles || !roleId || !bulkText.trim()}
+              loading={bulkBusy}
             >
-              {bulkBusy ? (
-                <>
-                  <Loader2 size={14} className="animate-spin" /> Sending…
-                </>
-              ) : (
-                "Send invites"
-              )}
-            </button>
+              {bulkBusy ? "Sending…" : "Send invites"}
+            </Button>
           )}
         </div>
       </div>

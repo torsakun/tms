@@ -22,6 +22,7 @@ import {
   DollarSign,
   Clock,
 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 export default function TESSAAutomationPage({
   params,
@@ -324,12 +325,12 @@ export default function TESSAAutomationPage({
               tests, and managing pipelines.
             </p>
           </div>
-          <button
+          <Button
             onClick={() => setIsPipelineModalOpen(true)}
-            className="flex items-center px-5 py-2.5 bg-primary text-primary-foreground hover:bg-primary-hover rounded-xl text-[13px] font-bold shadow-premium transition-all duration-300 hover:-translate-y-0.5"
+            className="shadow-premium hover:-translate-y-0.5"
           >
-            <Zap size={18} className="mr-2" /> Create Scheduled Pipeline
-          </button>
+            <Zap size={18} /> Create Scheduled Pipeline
+          </Button>
         </div>
 
         {/* Stats Row */}
@@ -582,41 +583,40 @@ export default function TESSAAutomationPage({
 
               <div className="p-6 mt-auto border-t border-border dark:border-border bg-surface-hover dark:bg-surface/30">
                 {!showPushBtn ? (
-                  <button
+                  <Button
+                    fullWidth
+                    size="lg"
                     onClick={handleGenerate}
+                    loading={status === "GENERATING"}
                     disabled={status !== "IDLE" || selectedCaseIds.length === 0}
-                    className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white text-[13px] font-bold rounded-xl shadow-premium transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0 flex justify-center items-center"
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white shadow-premium hover:-translate-y-0.5 disabled:shadow-none disabled:hover:translate-y-0"
                   >
                     {status === "GENERATING" ? (
-                      <>
-                        <RefreshCw size={18} className="mr-2 animate-spin" />{" "}
-                        Batch Generating ({selectedCaseIds.length})...
-                      </>
+                      <>Batch Generating ({selectedCaseIds.length})...</>
                     ) : (
                       <>
-                        <Sparkles size={18} className="mr-2" /> Ask TESSA to
-                        Generate Scripts
+                        <Sparkles size={18} /> Ask TESSA to Generate Scripts
                       </>
                     )}
-                  </button>
+                  </Button>
                 ) : (
-                  <button
+                  <Button
+                    fullWidth
+                    size="lg"
                     onClick={handlePushToGithub}
+                    loading={status === "PUSHING"}
                     disabled={status === "PUSHING" || status === "GENERATING"}
-                    className="w-full py-3.5 bg-[#238636] hover:bg-[#2ea043] text-white text-[13px] font-bold rounded-xl shadow-premium transition-all duration-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0 flex justify-center items-center"
+                    className="bg-[#238636] hover:bg-[#2ea043] text-white shadow-premium hover:-translate-y-0.5 disabled:shadow-none disabled:hover:translate-y-0"
                   >
                     {status === "PUSHING" ? (
-                      <>
-                        <RefreshCw size={18} className="mr-2 animate-spin" />{" "}
-                        Creating Pull Request...
-                      </>
+                      <>Creating Pull Request...</>
                     ) : (
                       <>
-                        <GitPullRequest size={18} className="mr-2" /> Push{" "}
-                        {pendingCasesCount} Scripts to GitHub PR
+                        <GitPullRequest size={18} /> Push {pendingCasesCount}{" "}
+                        Scripts to GitHub PR
                       </>
                     )}
-                  </button>
+                  </Button>
                 )}
                 <p className="text-center text-xs text-text-muted mt-3 flex items-center justify-center">
                   <Activity size={12} className="mr-1" /> TESSA estimates this
@@ -724,12 +724,13 @@ export default function TESSAAutomationPage({
                         </div>
                       </div>
                       <div className="flex items-center space-x-3 w-full md:w-auto justify-end">
-                        <button
+                        <Button
+                          size="sm"
                           onClick={() => handleTriggerPipeline(pipeline.id)}
-                          className="text-[11px] uppercase tracking-wider font-bold px-4 py-2 bg-blue-500/10 text-primary dark:text-blue-400 hover:bg-blue-500/20 rounded-xl transition-all shadow-sm flex items-center hover:-translate-y-0.5"
+                          className="uppercase tracking-wider bg-blue-500/10 text-primary dark:text-blue-400 hover:bg-blue-500/20 shadow-sm hover:-translate-y-0.5"
                         >
-                          <PlayCircle size={14} className="mr-1" /> Run Now
-                        </button>
+                          <PlayCircle size={14} /> Run Now
+                        </Button>
 
                         <label className="flex items-center cursor-pointer group">
                           <div className="relative">
@@ -810,24 +811,18 @@ export default function TESSAAutomationPage({
             </div>
 
             <div className="px-6 py-4 border-t border-border dark:border-border bg-surface-hover dark:bg-surface/80 flex justify-end space-x-3">
-              <button
-                onClick={() => setReviewCase(null)}
-                className="px-5 py-2.5 text-[13px] font-bold text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition-all"
-              >
+              <Button variant="ghost" onClick={() => setReviewCase(null)}>
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleSaveReview}
+                loading={isSavingScript}
                 disabled={isSavingScript}
-                className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white text-[13px] font-bold rounded-xl flex items-center transition-all hover:-translate-y-0.5 duration-300 shadow-premium disabled:opacity-50 disabled:transform-none disabled:shadow-none"
+                className="shadow-premium hover:-translate-y-0.5 disabled:transform-none disabled:shadow-none"
               >
-                {isSavingScript ? (
-                  <RefreshCw size={16} className="mr-2 animate-spin" />
-                ) : (
-                  <Save size={16} className="mr-2" />
-                )}
+                {!isSavingScript && <Save size={16} />}
                 {isSavingScript ? "Saving..." : "Save Changes"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -953,28 +948,25 @@ export default function TESSAAutomationPage({
             </div>
 
             <div className="px-6 py-4 border-t border-border dark:border-border bg-surface-hover dark:bg-surface flex justify-end space-x-3">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => setIsPipelineModalOpen(false)}
-                className="px-5 py-2.5 text-[13px] font-bold text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition-all"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleCreatePipeline}
+                loading={isCreatingPipeline}
                 disabled={
                   isCreatingPipeline ||
                   !newPipelineTitle ||
                   (scheduleType === "custom" && !customCron)
                 }
-                className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-[13px] font-bold text-white rounded-xl flex items-center transition-all hover:-translate-y-0.5 duration-300 disabled:opacity-50 disabled:transform-none shadow-premium"
+                className="shadow-premium hover:-translate-y-0.5 disabled:transform-none"
               >
-                {isCreatingPipeline ? (
-                  <RefreshCw size={16} className="mr-2 animate-spin" />
-                ) : (
-                  <Save size={16} className="mr-2" />
-                )}
+                {!isCreatingPipeline && <Save size={16} />}
                 {isCreatingPipeline ? "Creating..." : "Save Pipeline"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

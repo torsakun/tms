@@ -8,6 +8,7 @@ import {
   Sparkles,
   CheckCircle2,
 } from "lucide-react";
+import { Button, ButtonLink } from "@/components/ui/Button";
 
 export default function WorkspaceSettingsPage() {
   const [config, setConfig] = useState<any>({});
@@ -90,19 +91,13 @@ export default function WorkspaceSettingsPage() {
             Workspace Settings
           </h1>
         </div>
-        <button
+        <Button
           onClick={handleSave}
-          disabled={saving}
-          className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold hover:bg-primary-hover transition-all duration-300 flex items-center shadow-premium hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+          loading={saving}
+          className="shadow-premium hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:hover:shadow-none"
         >
-          {saving ? (
-            "Saving..."
-          ) : (
-            <>
-              <Save size={16} className="mr-2" /> Save Changes
-            </>
-          )}
-        </button>
+          <Save size={16} /> Save Changes
+        </Button>
       </header>
 
       <main className="flex-1 overflow-y-auto p-8">
@@ -295,13 +290,14 @@ export default function WorkspaceSettingsPage() {
                     This export excludes sensitive data like passwords.
                   </p>
                 </div>
-                <a
+                <ButtonLink
                   href="/api/workspace/export"
                   download
-                  className="shrink-0 bg-surface hover:bg-surface-hover border border-border text-text-main px-4 py-2 rounded-md text-sm font-semibold flex items-center transition-colors"
+                  variant="secondary"
+                  className="shrink-0"
                 >
                   <svg
-                    className="w-4 h-4 mr-2"
+                    className="w-4 h-4"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -314,7 +310,7 @@ export default function WorkspaceSettingsPage() {
                     <line x1="12" y1="15" x2="12" y2="3"></line>
                   </svg>
                   Export Backup
-                </a>
+                </ButtonLink>
               </div>
 
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 border border-blue-100 rounded-lg bg-blue-50/50">

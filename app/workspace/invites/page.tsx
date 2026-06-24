@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { InviteUserModal } from "@/components/workspace/InviteUserModal";
+import { Button } from "@/components/ui/Button";
 
 function ConfirmDialog({
   message,
@@ -43,18 +44,12 @@ function ConfirmDialog({
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 text-sm font-semibold text-text-muted bg-surface-hover hover:bg-slate-200 rounded-lg transition-colors"
-          >
+          <Button variant="secondary" onClick={onCancel}>
             Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="px-4 py-2 text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-lg transition-colors"
-          >
+          </Button>
+          <Button variant="danger" onClick={onConfirm}>
             Confirm
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -149,13 +144,12 @@ export default function WorkspaceInvitesPage() {
             {invites.length}
           </span>
         </div>
-        <button
+        <Button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-premium hover:-translate-y-0.5 transition-all duration-300"
-          style={{ background: "var(--primary)" }}
+          className="shadow-premium hover:-translate-y-0.5 duration-300"
         >
           Invite new member
-        </button>
+        </Button>
       </div>
 
       {/* Search */}

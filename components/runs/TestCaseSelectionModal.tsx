@@ -10,6 +10,7 @@ import {
   Square,
   StopCircle,
 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 interface Suite {
   id: string;
@@ -494,20 +495,12 @@ export function TestCaseSelectionModal({
 
         {/* Footer */}
         <footer className="px-6 py-4 border-t border-border/50 bg-surface flex justify-end space-x-3 shrink-0">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-text-muted hover:text-text-main hover:bg-surface-hover rounded transition-colors"
-          >
+          <Button type="button" variant="ghost" onClick={onClose}>
             Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            className="px-6 py-2 text-sm font-semibold text-primary-foreground bg-primary hover:bg-primary-hover rounded shadow-sm transition-colors"
-          >
+          </Button>
+          <Button type="button" onClick={handleSave}>
             Done
-          </button>
+          </Button>
         </footer>
       </div>
     </div>

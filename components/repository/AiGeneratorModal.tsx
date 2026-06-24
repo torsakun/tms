@@ -13,6 +13,7 @@ import {
   Ticket,
   Loader2,
 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 interface AiGeneratorModalProps {
   isOpen: boolean;
@@ -436,17 +437,13 @@ export function AiGeneratorModal({
                             if (e.key === "Enter") handleJiraFetch();
                           }}
                         />
-                        <button
+                        <Button
                           onClick={handleJiraFetch}
-                          disabled={isFetchingJira || !jiraTicketId.trim()}
-                          className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium transition-all shadow-sm disabled:opacity-50 flex items-center"
+                          disabled={!jiraTicketId.trim()}
+                          loading={isFetchingJira}
                         >
-                          {isFetchingJira ? (
-                            <Loader2 size={18} className="animate-spin" />
-                          ) : (
-                            "Fetch"
-                          )}
-                        </button>
+                          {!isFetchingJira && "Fetch"}
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -559,48 +556,38 @@ export function AiGeneratorModal({
 
         <div className="px-6 py-4 border-t border-border bg-surface shrink-0 flex justify-end space-x-3">
           {step === "REVIEW" && (
-            <button
-              onClick={() => setStep("INPUT")}
-              className="px-4 py-2 rounded-md font-medium text-text-muted hover:text-text-main hover:bg-surface-hover transition-colors"
-            >
+            <Button variant="ghost" onClick={() => setStep("INPUT")}>
               Back
-            </button>
+            </Button>
           )}
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-md font-medium text-text-muted hover:text-text-main hover:bg-surface-hover transition-colors"
-          >
+          <Button variant="ghost" onClick={onClose}>
             Cancel
-          </button>
+          </Button>
 
           {step === "INPUT" && (
-            <button
-              onClick={handleGenerate}
-              className="flex items-center px-5 py-2 bg-primary hover:bg-primary-hover text-primary-foreground rounded-md font-bold shadow-sm transition-all"
-            >
-              <Sparkles size={16} className="mr-2" />
+            <Button onClick={handleGenerate}>
+              <Sparkles size={16} />
               Generate
-            </button>
+            </Button>
           )}
 
           {step === "REVIEW" && (
-            <button
+            <Button
+              variant="success"
               onClick={handleSave}
-              disabled={selectedIndices.size === 0 || isSaving}
-              className="flex items-center px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md font-bold shadow-[0_0_10px_rgba(16,185,129,0.4)] transition-all disabled:opacity-50 disabled:shadow-none"
+              disabled={selectedIndices.size === 0}
+              loading={isSaving}
+              className="shadow-[0_0_10px_rgba(16,185,129,0.4)] disabled:shadow-none"
             >
               {isSaving ? (
-                <>
-                  <Loader2 size={16} className="mr-2 animate-spin" />
-                  Saving...
-                </>
+                "Saving..."
               ) : (
                 <>
-                  <CheckCircle2 size={16} className="mr-2" />
+                  <CheckCircle2 size={16} />
                   Save Selected
                 </>
               )}
-            </button>
+            </Button>
           )}
         </div>
       </div>

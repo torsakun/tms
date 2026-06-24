@@ -11,6 +11,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import DeploymentLogsModal from "./DeploymentLogsModal";
+import { Button } from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 
 export default function DeploymentList({
@@ -109,18 +110,15 @@ export default function DeploymentList({
           >
             <RefreshCw size={16} />
           </button>
-          <button
+          <Button
             onClick={triggerDeployment}
-            disabled={isTriggering || activeDeployment}
-            className="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-hover disabled:bg-blue-400 text-white text-[13px] font-bold rounded-xl transition-all duration-300 shadow-premium hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+            loading={isTriggering}
+            disabled={activeDeployment}
+            className="shadow-premium hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:hover:shadow-none"
           >
-            {isTriggering ? (
-              <Loader2 size={16} className="animate-spin" />
-            ) : (
-              <Play size={16} />
-            )}
+            <Play size={16} />
             Deploy Now
-          </button>
+          </Button>
         </div>
       </div>
 

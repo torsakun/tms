@@ -7,6 +7,8 @@ import {
   XCircle,
   MinusCircle,
   RefreshCw,
+  RotateCcw,
+  MessageSquare,
   ArrowLeft,
   Eye,
   Edit3,
@@ -34,6 +36,8 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { createRoot } from "react-dom/client";
 import { PdfReportTemplate } from "./PdfReportTemplate";
+import { CommentThread } from "@/components/ui/CommentThread";
+import { Button } from "@/components/ui/Button";
 import { formatThaiTime } from "@/lib/utils";
 
 const AVATAR_COLORS = [
@@ -571,6 +575,46 @@ export default function RunExecutionClient({
     } catch (e) {
       console.error(e);
       toast.error("Error completing run: " + e);
+    }
+  };
+
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [isReopening, setIsReopening] = useState(false);
+  const handleReopenRun = async () => {
+    setIsReopening(true);
+    try {
+      const res = await fetch(`/api/runs/${runId}/reopen`, { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to reopen run");
+      }
+      toast.success("Run reopened");
+      router.refresh();
+    } catch (e: any) {
+      toast.error("Error reopening run: " + (e.message || e));
+    } finally {
+      setIsReopening(false);
+    }
+  };
+
+  const [isRerunning, setIsRerunning] = useState(false);
+  const failedCount = run.results.filter(
+    (r: any) => r.status === "FAILED" || r.status === "BLOCKED",
+  ).length;
+  const handleRerunFailed = async () => {
+    setIsRerunning(true);
+    try {
+      const res = await fetch(`/api/runs/${runId}/rerun`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to re-run");
+      toast.success("Created re-run of failed cases");
+      router.push(`/projects/${projectCode}/runs/${data.run.id}`);
+      router.refresh();
+    } catch (e: any) {
+      toast.error("Error re-running: " + (e.message || e));
+    } finally {
+      setIsRerunning(false);
+      setMainMenuOpen(false);
     }
   };
 
@@ -1450,6 +1494,34 @@ export default function RunExecutionClient({
 
   return (
     <>
+      {/* Comments slide-over */}
+      <div
+        className={`fixed top-0 right-0 h-full w-[440px] max-w-[90vw] bg-surface shadow-[-10px_0_40px_rgba(0,0,0,0.12)] border-l border-border transform transition-transform duration-300 ease-in-out z-[70] flex flex-col ${isCommentsOpen ? "translate-x-0" : "translate-x-full"}`}
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
+          <h2 className="text-base font-bold text-text-main flex items-center gap-2">
+            <MessageSquare size={16} className="text-primary" /> Comments
+          </h2>
+          <button
+            onClick={() => setIsCommentsOpen(false)}
+            className="text-text-muted hover:text-text-main"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-5">
+          {isCommentsOpen && (
+            <CommentThread endpoint={`/api/runs/${runId}/comments`} />
+          )}
+        </div>
+      </div>
+      {isCommentsOpen && (
+        <div
+          onClick={() => setIsCommentsOpen(false)}
+          className="fixed inset-0 bg-black/30 z-[65]"
+        />
+      )}
+
       {isReportModalOpen && run.reportUrl && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-surface w-full max-w-6xl h-[90vh] rounded-xl shadow-2xl flex flex-col border border-border overflow-hidden">
@@ -1504,68 +1576,74 @@ export default function RunExecutionClient({
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 {run.reportUrl && (
-                  <button
+                  <Button
+                    size="md"
                     onClick={() => setIsReportModalOpen(true)}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded text-sm font-bold transition-all flex items-center shadow-[0_0_10px_rgba(79,70,229,0.4)]"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-[0_0_10px_rgba(79,70,229,0.4)]"
                   >
-                    <BarChart2 size={14} className="mr-2" /> View Report
-                  </button>
+                    <BarChart2 size={14} /> View Report
+                  </Button>
                 )}
-                <button
+                <Button
+                  size="md"
                   onClick={handleTriggerGitHub}
-                  disabled={isTriggeringGitHub}
-                  className="bg-[#238636] hover:bg-[#2ea043] text-white px-3 py-1.5 rounded text-sm font-bold transition-all flex items-center shadow-[0_0_10px_rgba(35,134,54,0.4)] disabled:opacity-50"
+                  loading={isTriggeringGitHub}
+                  className="bg-[#238636] hover:bg-[#2ea043] text-white shadow-[0_0_10px_rgba(35,134,54,0.4)]"
                 >
-                  {isTriggeringGitHub ? (
-                    <Loader2 size={14} className="mr-2 animate-spin" />
-                  ) : (
-                    <Terminal size={14} className="mr-2" />
-                  )}
-                  {isTriggeringGitHub
-                    ? `Triggering...`
-                    : "Trigger GitHub Action"}
-                </button>
-                <button
+                  {!isTriggeringGitHub && <Terminal size={14} />}
+                  {isTriggeringGitHub ? `Triggering...` : "Trigger GitHub Action"}
+                </Button>
+                <Button
+                  size="md"
                   onClick={handleRunAllAutomated}
-                  disabled={
-                    isExecutingAllAutomated ||
-                    process.env.NEXT_PUBLIC_IS_DEMO === "true"
-                  }
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded text-sm font-bold transition-all flex items-center shadow-[0_0_10px_rgba(245,158,11,0.4)] disabled:opacity-50"
+                  loading={isExecutingAllAutomated}
+                  disabled={process.env.NEXT_PUBLIC_IS_DEMO === "true"}
+                  className="bg-amber-500 hover:bg-amber-600 text-white shadow-[0_0_10px_rgba(245,158,11,0.4)]"
                   title={
                     process.env.NEXT_PUBLIC_IS_DEMO === "true"
                       ? "Local Playwright execution is disabled in Vercel Demo mode"
                       : ""
                   }
                 >
-                  {isExecutingAllAutomated ? (
-                    <Loader2 size={14} className="mr-2 animate-spin" />
-                  ) : (
-                    <PlayCircle size={14} className="mr-2" />
-                  )}
+                  {!isExecutingAllAutomated && <PlayCircle size={14} />}
                   {isExecutingAllAutomated
                     ? `Running (${automatedProgress.current}/${automatedProgress.total})`
                     : "Run Local"}
-                </button>
-                <button
-                  onClick={handleOpenWizard}
-                  className="bg-primary hover:bg-primary-hover text-primary-foreground px-3 py-1.5 rounded text-sm font-bold transition-all flex items-center shadow-sm"
+                </Button>
+                <Button size="md" onClick={handleOpenWizard}>
+                  <PlayCircle size={14} /> Open wizard
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onClick={() => setIsCommentsOpen(true)}
                 >
-                  <PlayCircle size={14} className="mr-2" /> Open wizard
-                </button>
-                <button
-                  onClick={() => setIsCompleteModalOpen(true)}
-                  className="bg-primary hover:bg-primary-hover text-primary-foreground px-3 py-1.5 rounded text-sm font-bold transition-all flex items-center shadow-sm"
-                >
-                  <Check size={14} className="mr-2" /> Complete
-                </button>
+                  <MessageSquare size={14} /> Comments
+                </Button>
+                {run.status === "COMPLETED" || run.status === "ABORTED" ? (
+                  <Button
+                    size="md"
+                    onClick={handleReopenRun}
+                    loading={isReopening}
+                    className="bg-amber-500 hover:bg-amber-600 text-white"
+                  >
+                    {!isReopening && <RotateCcw size={14} />}
+                    Reopen
+                  </Button>
+                ) : (
+                  <Button size="md" onClick={() => setIsCompleteModalOpen(true)}>
+                    <Check size={14} /> Complete
+                  </Button>
+                )}
                 <div className="relative" ref={mainMenuRef}>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    iconOnly
                     onClick={() => setMainMenuOpen(!mainMenuOpen)}
-                    className="bg-background border border-border hover:bg-surface-hover text-text-main px-2 py-1.5 rounded text-sm font-bold transition-colors flex items-center"
                   >
                     <MoreHorizontal size={14} />
-                  </button>
+                  </Button>
                   {mainMenuOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-surface dark:bg-[#1C1C1C] border border-border rounded-md shadow-lg z-50 overflow-hidden">
                       <button
@@ -1599,6 +1677,26 @@ export default function RunExecutionClient({
                         <Edit size={14} className="mr-2 text-text-muted" /> Edit
                         run
                       </button>
+                      {failedCount > 0 && (
+                        <button
+                          onClick={handleRerunFailed}
+                          disabled={isRerunning}
+                          className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center transition-colors border-t border-border disabled:opacity-50"
+                        >
+                          {isRerunning ? (
+                            <Loader2
+                              size={14}
+                              className="mr-2 animate-spin text-text-muted"
+                            />
+                          ) : (
+                            <RotateCcw
+                              size={14}
+                              className="mr-2 text-text-muted"
+                            />
+                          )}
+                          Re-run failed ({failedCount})
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

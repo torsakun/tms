@@ -47,9 +47,19 @@ export async function PATCH(req: Request) {
 
     const userId = (session.user as any).id;
 
-    // Mark all as read
+    let id: string | undefined;
+    try {
+      const body = await req.json();
+      id = body?.id;
+    } catch {
+      // no body — mark all
+    }
+
+    // Mark a single notification as read, or all unread if no id provided.
     await prisma.notification.updateMany({
-      where: { recipientId: userId, isRead: false },
+      where: id
+        ? { id, recipientId: userId }
+        : { recipientId: userId, isRead: false },
       data: { isRead: true },
     });
 

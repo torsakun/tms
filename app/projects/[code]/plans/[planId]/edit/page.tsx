@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { X, AlertCircle, Loader2 } from "lucide-react";
 import { TestCaseSelectionModal } from "@/components/runs/TestCaseSelectionModal";
+import { Button } from "@/components/ui/Button";
 
 export default function EditPlanPage() {
   const router = useRouter();
@@ -215,20 +216,16 @@ export default function EditPlanPage() {
           </div>
 
           <div className="flex justify-end p-6 border-t border-border shrink-0 bg-surface">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => router.back()}
-              className="px-5 py-2.5 text-[13px] font-bold text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition-all mr-3"
             >
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex items-center px-5 py-2.5 text-[13px] font-bold text-primary-foreground bg-primary rounded-xl hover:bg-primary-hover hover:-translate-y-0.5 transition-all shadow-premium duration-300 disabled:opacity-50 disabled:shadow-none disabled:transform-none"
-            >
+            </Button>
+            <Button type="submit" loading={loading}>
               {loading ? "Saving..." : "Save Changes"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

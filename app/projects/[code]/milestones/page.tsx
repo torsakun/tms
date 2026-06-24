@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { Plus, Pencil, Trash2, Flag } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Button } from "@/components/ui/Button";
 
 export default function MilestonesPage() {
   const params = useParams();
@@ -96,12 +97,13 @@ export default function MilestonesPage() {
           <Flag className="text-text-muted" size={24} />
           <h1 className="text-2xl font-bold text-text-main">Milestones</h1>
         </div>
-        <button
+        <Button
+          variant="primary"
           onClick={openCreate}
-          className="bg-primary text-primary-foreground px-4 py-2 rounded-xl text-sm font-bold hover:bg-primary-hover transition-all duration-300 flex items-center shadow-premium hover:-translate-y-0.5"
+          className="shadow-premium hover:-translate-y-0.5"
         >
-          <Plus size={16} className="mr-2" /> Create milestone
-        </button>
+          <Plus size={16} /> Create milestone
+        </Button>
       </header>
 
       <main className="flex-1 overflow-y-auto p-8">
@@ -118,12 +120,13 @@ export default function MilestonesPage() {
               Create milestones to group your test runs into Sprints, Releases,
               or specific test cycles.
             </p>
-            <button
+            <Button
+              variant="primary"
               onClick={openCreate}
-              className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold hover:bg-primary-hover transition-all duration-300 shadow-premium hover:-translate-y-0.5"
+              className="shadow-premium hover:-translate-y-0.5"
             >
               Create milestone
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="bg-surface rounded-2xl border border-border/80 shadow-premium overflow-hidden">
@@ -158,20 +161,26 @@ export default function MilestonesPage() {
                         : "-"}
                     </td>
                     <td className="px-6 py-4 text-right space-x-2">
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconOnly
                         onClick={() => openEdit(ms)}
-                        className="p-1.5 text-text-muted hover:text-text-main transition-colors"
+                        className="text-text-muted hover:text-text-main"
                         title="Edit"
                       >
                         <Pencil size={16} />
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconOnly
                         onClick={() => setConfirmDeleteId(ms.id)}
-                        className="p-1.5 text-text-muted hover:text-red-500 transition-colors"
+                        className="text-text-muted hover:text-red-500"
                         title="Delete"
                       >
                         <Trash2 size={16} />
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 ))}
@@ -234,19 +243,20 @@ export default function MilestonesPage() {
                 </div>
               </div>
               <div className="px-6 py-4 bg-background/50 border-t border-border/80 flex justify-end space-x-3">
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-border/80 text-[13px] font-bold hover:bg-surface-hover text-text-main transition-colors hover:border-text-muted/40"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-[13px] font-bold shadow-premium transition-all duration-300 hover:-translate-y-0.5"
+                  variant="primary"
+                  className="shadow-premium hover:-translate-y-0.5"
                 >
                   {editingId ? "Save changes" : "Create"}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

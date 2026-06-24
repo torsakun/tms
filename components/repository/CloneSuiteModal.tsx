@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, ChevronDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 interface CloneSuiteModalProps {
   isOpen: boolean;
@@ -229,20 +230,16 @@ export function CloneSuiteModal({
         </div>
 
         <div className="px-6 py-4 border-t border-border/50 flex justify-end space-x-3 bg-surface-hover rounded-b-lg">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-surface-hover hover:bg-slate-200 text-text-main text-sm font-medium rounded transition-colors"
-            disabled={isCloning}
-          >
+          <Button variant="secondary" onClick={onClose} disabled={isCloning}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={handleClone}
-            disabled={isCloning}
-            className="px-4 py-2 bg-[#4834d4] hover:bg-primary-hover text-white text-sm font-medium rounded transition-colors flex items-center"
+            loading={isCloning}
+            className="bg-[#4834d4] hover:bg-primary-hover text-white"
           >
             {isCloning ? "Cloning..." : "Clone"}
-          </button>
+          </Button>
         </div>
       </div>
 

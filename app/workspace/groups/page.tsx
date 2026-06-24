@@ -12,6 +12,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/Button";
 
 function ConfirmDialog({
   message,
@@ -43,18 +44,12 @@ function ConfirmDialog({
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 text-sm font-semibold text-text-muted bg-surface-hover hover:bg-slate-200 rounded-lg transition-colors"
-          >
+          <Button variant="secondary" onClick={onCancel}>
             Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="px-4 py-2 text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-lg transition-colors"
-          >
+          </Button>
+          <Button variant="danger" onClick={onConfirm}>
             Delete
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -291,13 +286,12 @@ export default function WorkspaceGroupsPage() {
             {groups.length}
           </span>
         </div>
-        <button
+        <Button
           onClick={openCreate}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white shadow-premium hover:-translate-y-0.5 transition-all duration-300"
-          style={{ background: "var(--primary)" }}
+          className="shadow-premium hover:-translate-y-0.5 duration-300"
         >
           <Plus size={15} strokeWidth={2.5} /> Create Group
-        </button>
+        </Button>
       </div>
 
       <p className="text-sm text-text-muted mb-5">
@@ -314,12 +308,13 @@ export default function WorkspaceGroupsPage() {
             Groups help you manage permissions and roles for multiple users at
             once.
           </p>
-          <button
+          <Button
+            variant="ghost"
             onClick={openCreate}
-            className="text-indigo-600 font-semibold hover:text-indigo-700 transition-colors"
+            className="text-indigo-600 hover:text-indigo-700 hover:bg-transparent"
           >
             Create your first group
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="bg-surface border border-border/80 rounded-2xl shadow-premium overflow-visible">
@@ -546,24 +541,20 @@ export default function WorkspaceGroupsPage() {
             </div>
 
             <div className="px-6 py-4 border-t border-border bg-surface-hover/60 flex justify-end gap-3">
-              <button
+              <Button
+                variant="secondary"
                 onClick={() => setDrawerOpen(false)}
-                className="px-4 py-2 text-sm font-semibold text-text-muted bg-surface border border-border rounded-lg hover:bg-surface-hover transition-colors"
                 disabled={isSubmitting}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg shadow-sm hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:hover:translate-y-0"
-                style={{
-                  background: "var(--primary)",
-                }}
+                loading={isSubmitting}
+                className="hover:-translate-y-0.5"
               >
-                {isSubmitting && <Loader2 size={14} className="animate-spin" />}
                 {editingId ? "Save Changes" : "Create Group"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

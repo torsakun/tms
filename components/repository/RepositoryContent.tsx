@@ -37,6 +37,8 @@ import { ImportCasesModal } from "@/components/repository/ImportCasesModal";
 import { BulkEditModal } from "@/components/repository/BulkEditModal";
 import { useSuiteSelection } from "@/components/providers/SuiteSelectionProvider";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { CommentThread } from "@/components/ui/CommentThread";
+import { Button, ButtonLink } from "@/components/ui/Button";
 
 interface RepositoryContentProps {
   projectCode: string;
@@ -59,21 +61,29 @@ export function RepositoryContent({
   const { role } = useProjectRole();
   const [activeTestCaseId, setActiveTestCaseId] = useState<string | null>(null);
   const [detailTab, setDetailTab] = useState<
-    "general" | "defects" | "history"
+    "general" | "defects" | "comments" | "history"
   >("general");
   const [history, setHistory] = useState<any[]>([]);
+  const [changes, setChanges] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
   React.useEffect(() => {
     if (detailTab !== "history" || !activeTestCaseId) return;
     let alive = true;
     setHistoryLoading(true);
-    fetch(`/api/projects/${projectCode}/cases/${activeTestCaseId}/history`)
-      .then((r) => (r.ok ? r.json() : []))
-      .then((d) => {
-        if (alive) setHistory(Array.isArray(d) ? d : []);
+    Promise.all([
+      fetch(`/api/projects/${projectCode}/cases/${activeTestCaseId}/history`)
+        .then((r) => (r.ok ? r.json() : []))
+        .catch(() => []),
+      fetch(`/api/projects/${projectCode}/cases/${activeTestCaseId}/changes`)
+        .then((r) => (r.ok ? r.json() : []))
+        .catch(() => []),
+    ])
+      .then(([h, c]) => {
+        if (!alive) return;
+        setHistory(Array.isArray(h) ? h : []);
+        setChanges(Array.isArray(c) ? c : []);
       })
-      .catch(() => alive && setHistory([]))
       .finally(() => alive && setHistoryLoading(false));
     return () => {
       alive = false;
@@ -81,6 +91,30 @@ export function RepositoryContent({
   }, [detailTab, activeTestCaseId, projectCode]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchScope, setSearchScope] = useState<"all" | "title">("all");
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [priorityFilter, setPriorityFilter] = useState<Set<string>>(new Set());
+  const [automationFilter, setAutomationFilter] = useState<Set<string>>(
+    new Set(),
+  );
+  const filterRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node))
+        setFilterOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
+  const activeFilterCount = priorityFilter.size + automationFilter.size;
+  const toggleSetValue = (
+    setter: React.Dispatch<React.SetStateAction<Set<string>>>,
+    value: string,
+  ) =>
+    setter((prev) => {
+      const next = new Set(prev);
+      next.has(value) ? next.delete(value) : next.add(value);
+      return next;
+    });
   const [isBulkEditModalOpen, setIsBulkEditModalOpen] = useState(false);
   const [isBulkEditing, setIsBulkEditing] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -253,6 +287,10 @@ export function RepositoryContent({
     window.open(`/api/projects/${projectCode}/export-qase`, "_blank");
   };
 
+  const handleExportCsv = () => {
+    window.open(`/api/projects/${projectCode}/export-csv`, "_blank");
+  };
+
   const activeTestCase = cases.find((c) => c.id === activeTestCaseId);
 
   const handleCloneCase = async () => {
@@ -420,43 +458,45 @@ export function RepositoryContent({
               )}
               {role !== "VIEWER" && (
                 <>
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    loading={isSyncing}
                     onClick={() => setConfirmSync(true)}
-                    disabled={isSyncing}
                     title="Sync to GitHub"
-                    className="flex items-center gap-1.5 bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 hover:bg-sky-500/20 px-3 py-1.5 rounded-lg text-[13px] font-bold shadow-sm disabled:opacity-50 transition-all"
+                    className="bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20 hover:bg-sky-500/20 font-bold"
                   >
-                    {isSyncing ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <CloudUpload size={14} />
-                    )}{" "}
+                    {!isSyncing && <CloudUpload size={14} />}
                     Sync
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="md"
                     onClick={() => setIsBulkJiraModalOpen(true)}
                     title="Story Impact Analysis"
-                    className="flex items-center gap-1.5 bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 hover:bg-violet-500/20 px-3 py-1.5 rounded-lg text-[13px] font-bold shadow-sm transition-all"
+                    className="bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20 hover:bg-violet-500/20 font-bold"
                   >
                     <Ticket size={14} /> Impact
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="md"
                     onClick={() => setIsAiModalOpen(true)}
                     title="Generate AI Tests"
-                    className="flex items-center gap-1.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 px-3 py-1.5 rounded-lg text-[13px] font-bold shadow-sm transition-all"
+                    className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 hover:bg-amber-500/20 font-bold"
                   >
                     <Sparkles size={14} /> AI Gen
-                  </button>
-                  <Link
+                  </Button>
+                  <ButtonLink
                     href={`/projects/${projectCode}/cases/create`}
-                    className="flex items-center gap-1.5 bg-primary text-primary-foreground hover:bg-primary-hover px-3 py-1.5 rounded-lg text-[13px] font-semibold transition-colors shadow-sm"
+                    size="md"
                   >
                     <Plus size={14} /> Test Case
-                  </Link>
+                  </ButtonLink>
                   <div className="relative group">
-                    <button className="flex items-center gap-1.5 bg-surface border border-border hover:bg-surface-hover text-text-main px-3 py-1.5 rounded-lg text-[13px] font-medium transition-colors shadow-sm">
+                    <Button variant="secondary" size="md">
                       <Settings size={14} /> Options
-                    </button>
+                    </Button>
                     <div className="absolute right-0 top-full mt-1 w-48 bg-surface border border-border rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                       <div className="p-1 flex flex-col gap-0.5">
                         <button
@@ -465,6 +505,13 @@ export function RepositoryContent({
                         >
                           <Download size={14} className="mr-2 text-text-muted" />{" "}
                           Export Qase
+                        </button>
+                        <button
+                          onClick={handleExportCsv}
+                          className="flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-lg text-left"
+                        >
+                          <Download size={14} className="mr-2 text-text-muted" />{" "}
+                          Export CSV (Excel)
                         </button>
                         <button
                           onClick={() => setIsImportModalOpen(true)}
@@ -508,6 +555,85 @@ export function RepositoryContent({
             <option value="all">By all fields</option>
             <option value="title">By title</option>
           </select>
+
+          {/* ── Advanced filter ── */}
+          <div className="relative" ref={filterRef}>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={() => setFilterOpen((o) => !o)}
+              className={
+                activeFilterCount > 0 || filterOpen
+                  ? "bg-indigo-50 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                  : ""
+              }
+            >
+              <Filter size={14} />
+              Filter
+              {activeFilterCount > 0 && (
+                <span className="text-[10px] font-bold bg-indigo-600 text-white rounded-full px-1.5 py-0.5 leading-none">
+                  {activeFilterCount}
+                </span>
+              )}
+            </Button>
+            {filterOpen && (
+              <div className="absolute left-0 mt-1.5 w-60 bg-surface border border-border rounded-xl shadow-lg z-50 p-3 animate-fade-up">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-extrabold uppercase tracking-wider text-text-muted">
+                    Priority
+                  </span>
+                  {activeFilterCount > 0 && (
+                    <button
+                      onClick={() => {
+                        setPriorityFilter(new Set());
+                        setAutomationFilter(new Set());
+                      }}
+                      className="text-[11px] font-semibold text-indigo-600 hover:underline"
+                    >
+                      Clear all
+                    </button>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {["HIGH", "MEDIUM", "LOW", "NOT_SET"].map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => toggleSetValue(setPriorityFilter, p)}
+                      className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${
+                        priorityFilter.has(p)
+                          ? "bg-indigo-600 text-white border-indigo-600"
+                          : "bg-surface-hover text-text-muted border-border hover:text-text-main"
+                      }`}
+                    >
+                      {p === "NOT_SET" ? "Not set" : p.charAt(0) + p.slice(1).toLowerCase()}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-[11px] font-extrabold uppercase tracking-wider text-text-muted block mb-2">
+                  Automation
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    ["MANUAL", "Manual"],
+                    ["TO_BE_AUTOMATED", "To automate"],
+                    ["AUTOMATED", "Automated"],
+                  ].map(([v, label]) => (
+                    <button
+                      key={v}
+                      onClick={() => toggleSetValue(setAutomationFilter, v)}
+                      className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${
+                        automationFilter.has(v)
+                          ? "bg-indigo-600 text-white border-indigo-600"
+                          : "bg-surface-hover text-text-muted border-border hover:text-text-main"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Hierarchical Content */}
@@ -524,6 +650,8 @@ export function RepositoryContent({
               }}
               searchQuery={searchQuery}
               searchScope={searchScope}
+              priorityFilter={priorityFilter}
+              automationFilter={automationFilter}
             />
           </div>
         </div>
@@ -673,6 +801,12 @@ export function RepositoryContent({
                       {activeTestCase.linkedIssues.length}
                     </span>
                   )}
+                </button>
+                <button
+                  onClick={() => setDetailTab("comments")}
+                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors ${detailTab === "comments" ? "border-indigo-500 text-indigo-600 font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                >
+                  Comments
                 </button>
                 <button
                   onClick={() => setDetailTab("history")}
@@ -890,24 +1024,99 @@ export function RepositoryContent({
                   </div>
                 ))}
 
+              {detailTab === "comments" && activeTestCaseId && (
+                <CommentThread
+                  endpoint={`/api/projects/${projectCode}/cases/${activeTestCaseId}/comments`}
+                />
+              )}
+
               {detailTab === "history" &&
                 (historyLoading ? (
                   <div className="flex items-center justify-center py-16 text-sm text-text-muted">
                     <Loader2 size={16} className="animate-spin mr-2" /> Loading
                     history…
                   </div>
-                ) : history.length === 0 ? (
+                ) : history.length === 0 && changes.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 text-center">
                     <PlayCircle size={28} className="text-slate-300 mb-3" />
                     <p className="text-sm font-semibold text-text-muted">
-                      No execution history
+                      No history yet
                     </p>
                     <p className="text-xs text-text-muted mt-1 max-w-xs">
-                      This case hasn&apos;t been included in any test run yet.
+                      No edits or test-run executions recorded for this case.
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-5">
+                    {changes.length > 0 && (
+                      <div>
+                        <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-text-muted mb-2">
+                          Changes
+                        </h4>
+                        <div className="space-y-2">
+                          {changes.map((ch: any) => {
+                            const FIELD_LABELS: Record<string, string> = {
+                              title: "Title",
+                              description: "Description",
+                              preconditions: "Preconditions",
+                              postconditions: "Postconditions",
+                              priority: "Priority",
+                              severity: "Severity",
+                              automationStatus: "Automation",
+                              suiteId: "Suite",
+                              requirementText: "Requirement",
+                              steps: "Steps",
+                            };
+                            const who =
+                              ch.user?.name ||
+                              ch.user?.email?.split("@")[0] ||
+                              "Someone";
+                            const labels = (ch.fields || []).map(
+                              (f: string) => FIELD_LABELS[f] || f,
+                            );
+                            return (
+                              <div
+                                key={ch.id}
+                                className="flex items-start gap-3 p-3 rounded-lg border border-border bg-surface-hover/40"
+                              >
+                                <Edit3
+                                  size={14}
+                                  className="text-indigo-500 shrink-0 mt-0.5"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm text-text-main">
+                                    <span className="font-semibold">{who}</span>{" "}
+                                    {ch.action === "CREATED"
+                                      ? "created this case"
+                                      : labels.length > 0
+                                        ? `updated ${labels.join(", ")}`
+                                        : "updated this case"}
+                                  </p>
+                                  <p className="text-[11px] text-text-muted mt-0.5">
+                                    {new Date(ch.createdAt).toLocaleString(
+                                      "en-GB",
+                                      {
+                                        day: "2-digit",
+                                        month: "short",
+                                        year: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      },
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {history.length > 0 && (
+                      <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-text-muted mb-2">
+                        Execution history
+                      </h4>
+                    )}
+                    <div className="space-y-2">
                     {history.map((h: any) => {
                       const meta =
                         {
@@ -957,6 +1166,7 @@ export function RepositoryContent({
                         </a>
                       );
                     })}
+                    </div>
                   </div>
                 ))}
             </div>

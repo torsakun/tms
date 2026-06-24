@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FileUpload } from "@/components/ui/FileUpload";
+import { Button } from "@/components/ui/Button";
 
 // --- Types matching our Prisma Schema ---
 
@@ -197,20 +198,17 @@ function CreateCaseContent({
           </h1>
         </div>
         <div className="flex items-center space-x-3">
-          <button
+          <Button
             type="button"
+            variant="ghost"
             onClick={() => router.back()}
-            className="px-4 py-2.5 text-sm font-bold text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition-colors"
           >
             Cancel
-          </button>
-          <button
-            type="submit"
-            className="flex items-center px-4 py-2.5 text-sm font-bold bg-primary text-primary-foreground rounded-xl hover:bg-primary-hover transition-all duration-300 shadow-premium hover:-translate-y-0.5"
-          >
-            <Save size={16} className="mr-2" />
+          </Button>
+          <Button type="submit">
+            <Save size={16} />
             Save Case
-          </button>
+          </Button>
         </div>
       </header>
 

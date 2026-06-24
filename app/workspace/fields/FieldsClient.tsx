@@ -14,6 +14,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 import { toast } from "sonner";
 
 function ConfirmDialog({
@@ -46,18 +47,12 @@ function ConfirmDialog({
           </div>
         </div>
         <div className="flex justify-end gap-2">
-          <button
-            onClick={onCancel}
-            className="px-4 py-2 text-sm font-semibold text-text-muted bg-surface-hover hover:bg-slate-200 rounded-lg transition-colors"
-          >
+          <Button variant="secondary" onClick={onCancel}>
             Cancel
-          </button>
-          <button
-            onClick={onConfirm}
-            className="px-4 py-2 text-sm font-semibold text-white bg-rose-500 hover:bg-rose-600 rounded-lg transition-colors"
-          >
+          </Button>
+          <Button variant="danger" onClick={onConfirm}>
             Delete
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -326,13 +321,12 @@ export default function FieldsClient() {
       </div>
 
       <div className="flex items-center gap-3 mb-5">
-        <button
+        <Button
           onClick={openCreateModal}
-          className="inline-flex items-center gap-1.5 px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-premium hover:-translate-y-0.5 transition-all duration-300"
-          style={{ background: "var(--primary)" }}
+          className="shadow-premium hover:-translate-y-0.5"
         >
           <Plus size={15} /> Create custom field
-        </button>
+        </Button>
         <div className="relative w-72">
           <Search
             className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
@@ -790,35 +784,34 @@ export default function FieldsClient() {
                         </div>
                       ))}
                     </div>
-                    <button
+                    <Button
                       type="button"
+                      variant="ghost"
+                      size="sm"
                       onClick={handleAddOption}
-                      className="text-primary text-sm font-bold flex items-center hover:text-blue-700 transition-colors"
+                      className="text-primary hover:text-blue-700"
                     >
-                      <Plus size={16} className="mr-1" /> Add new value
-                    </button>
+                      <Plus size={16} /> Add new value
+                    </Button>
                   </div>
                 )}
               </div>
 
               <div className="px-6 py-4 bg-surface/80 flex justify-end space-x-3 border-t border-border/80 rounded-b-2xl">
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-sm font-bold text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition-colors"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-[13px] font-bold hover:bg-primary-hover transition-all flex items-center shadow-premium hover:-translate-y-0.5 duration-300 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                  loading={isSubmitting}
+                  className="shadow-premium hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                 >
-                  {isSubmitting && (
-                    <Loader2 size={14} className="animate-spin mr-2" />
-                  )}
                   Save
-                </button>
+                </Button>
               </div>
             </form>
           </div>

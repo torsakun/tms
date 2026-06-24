@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Calendar, Filter, Folder, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 interface DashboardToolbarProps {
   projects: Array<{ code: string; name: string }>;
@@ -77,13 +78,15 @@ export function DashboardToolbar({ projects }: DashboardToolbarProps) {
           </label>
 
           {(projectCode || timeframe !== "14") && (
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={handleClearFilters}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border bg-surface px-3 text-sm font-bold text-text-muted hover:border-primary/35 hover:bg-surface-hover hover:text-text-main"
+              className="text-text-muted hover:border-primary/35 hover:text-text-main"
             >
               <RotateCcw size={15} />
               Reset
-            </button>
+            </Button>
           )}
         </div>
       </div>

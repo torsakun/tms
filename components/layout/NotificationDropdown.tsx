@@ -11,6 +11,7 @@ type Notification = {
   id: string;
   type: "ASSIGNMENT" | "MENTION" | "SYSTEM" | "RUN_STARTED" | "RUN_COMPLETED";
   entityId: string | null;
+  link: string | null;
   title: string;
   message: string | null;
   isRead: boolean;
@@ -88,10 +89,9 @@ export default function NotificationDropdown() {
       markAsRead(notification.id);
     }
     setIsOpen(false);
-
-    // If there's an entityId, we can route somewhere. We could enhance this to include projectId.
-    // For now, if entityId looks like a case or run, you can customize the routing.
-    // Assuming the title/message might contain context, or we can just open it.
+    if (notification.link) {
+      router.push(notification.link);
+    }
   };
 
   const formatTimeAgo = (dateString: string) => {

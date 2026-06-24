@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { X, AlertCircle, Sparkles, Loader2 } from "lucide-react";
 import { TestCaseSelectionModal } from "@/components/runs/TestCaseSelectionModal";
+import { Button } from "@/components/ui/Button";
 
 export default function CreatePlanPage() {
   const router = useRouter();
@@ -229,20 +230,16 @@ export default function CreatePlanPage() {
           </div>
 
           <div className="flex justify-end p-6 border-t border-border/50 shrink-0 bg-surface">
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => router.back()}
-              className="px-5 py-2.5 text-[13px] font-bold text-text-muted hover:text-text-main hover:bg-surface-hover rounded-xl transition-all mr-3"
             >
               Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex items-center px-5 py-2.5 text-[13px] font-bold text-primary-foreground bg-primary rounded-xl hover:bg-primary-hover hover:-translate-y-0.5 transition-all shadow-premium duration-300 disabled:opacity-50 disabled:shadow-none disabled:transform-none"
-            >
+            </Button>
+            <Button type="submit" loading={loading}>
               {loading ? "Creating..." : "Create Plan"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
@@ -287,26 +284,24 @@ export default function CreatePlanPage() {
               />
             </div>
             <div className="px-6 py-4 bg-background border-t border-border/50 flex justify-end space-x-3">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
                 onClick={() => setIsAiModalOpen(false)}
-                className="px-5 py-2.5 rounded-xl border border-border/80 text-[13px] font-bold hover:bg-surface-hover text-text-main transition-all"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
+                variant="primary"
+                className="bg-amber-500 hover:bg-amber-600 text-white focus-visible:ring-amber-400/40"
                 onClick={handleAISmartSelect}
-                className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[13px] font-bold shadow-premium hover:-translate-y-0.5 duration-300 transition-all flex items-center disabled:opacity-50 disabled:shadow-none disabled:hover:translate-y-0"
+                loading={isAiLoading}
                 disabled={isAiLoading || !releaseNotes.trim()}
               >
-                {isAiLoading ? (
-                  <Loader2 size={16} className="mr-2 animate-spin" />
-                ) : (
-                  <Sparkles size={16} className="mr-2" />
-                )}
+                {!isAiLoading && <Sparkles size={16} />}
                 {isAiLoading ? "Analyzing..." : "Auto-Select Cases"}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { X, Upload, Loader2, HelpCircle } from "lucide-react";
+import { X, HelpCircle } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 interface ImportCasesModalProps {
   isOpen: boolean;
@@ -168,22 +169,17 @@ export function ImportCasesModal({
         </div>
 
         <footer className="px-6 py-4 border-t border-border flex items-center justify-end space-x-3 bg-surface-hover shrink-0">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-surface border border-text-muted text-text-main text-sm font-medium rounded-md shadow-sm hover:bg-surface-hover transition-colors"
-          >
+          <Button variant="secondary" onClick={onClose}>
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="primary"
             onClick={handleImport}
-            disabled={isImporting || !file}
-            className="flex items-center px-4 py-2 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-md shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!file}
+            loading={isImporting}
           >
-            {isImporting ? (
-              <Loader2 size={16} className="mr-2 animate-spin" />
-            ) : null}
             Import test cases
-          </button>
+          </Button>
         </footer>
       </div>
     </div>

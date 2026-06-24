@@ -5,6 +5,20 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { logAudit } from "@/lib/audit-logger";
+
+// Scalar fields whose changes we record in the case change history.
+const TRACKED_FIELDS = [
+  "title",
+  "description",
+  "preconditions",
+  "postconditions",
+  "priority",
+  "severity",
+  "automationStatus",
+  "suiteId",
+  "requirementText",
+] as const;
 
 export async function GET(
   req: Request,
@@ -80,6 +94,29 @@ export async function PATCH(
 
       return updated;
     });
+
+    // Record a field-level change history entry (best-effort, never blocks).
+    if (existingCase) {
+      const changes: Record<string, { from: any; to: any }> = {};
+      for (const f of TRACKED_FIELDS) {
+        if (f in caseData) {
+          const before = (existingCase as any)[f] ?? null;
+          const after = (caseData as any)[f] ?? null;
+          if (before !== after) changes[f] = { from: before, to: after };
+        }
+      }
+      if (steps) changes["steps"] = { from: "edited", to: "edited" };
+      if (Object.keys(changes).length > 0) {
+        await logAudit({
+          projectId: existingCase.projectId,
+          userId: actorId || "system",
+          action: "UPDATED",
+          entity: "TEST_CASE",
+          entityId: caseId,
+          details: { fields: Object.keys(changes), changes },
+        });
+      }
+    }
 
     return NextResponse.json(updatedCase);
   } catch (error) {
