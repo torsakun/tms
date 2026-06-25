@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 export default function ProfilePage() {
   const { data: session, update } = useSession();
@@ -228,27 +229,27 @@ export default function ProfilePage() {
 
         {/* ── Actions ── */}
         <div className="pt-2 flex justify-end gap-4">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="lg"
             onClick={() => router.back()}
             disabled={loading}
-            className="px-8 py-4 rounded-xl text-[15px] font-black tracking-wide text-text-main bg-surface border border-border/80 hover:bg-surface-hover hover:border-text-muted/40 transition-all duration-300 disabled:opacity-50"
           >
-            CANCEL
-          </button>
-          <button
+            Cancel
+          </Button>
+          <Button
             type="submit"
-            disabled={loading}
-            className="group relative inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl text-[15px] font-black tracking-wide text-white overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/30 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+            size="lg"
+            loading={loading}
+            className="text-white hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-500/30"
             style={{ background: "linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%)" }}
           >
-            {loading ? (
-              <Loader2 size={20} className="animate-spin" />
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:scale-110"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            {!loading && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
             )}
-            SAVE CHANGES
-          </button>
+            Save changes
+          </Button>
         </div>
       </form>
     </div>

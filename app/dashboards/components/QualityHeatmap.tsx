@@ -26,14 +26,19 @@ export function QualityHeatmap({ heatmapData }: QualityHeatmapProps) {
     return "border-rose-600/25 bg-rose-500";
   };
 
-  const getCellTooltip = (date: string, passRate: number | null) => {
+  const getCellTooltip = (
+    date: string,
+    passRate: number | null,
+    totalRuns: number,
+  ) => {
     const formattedDate = new Date(date).toLocaleDateString(undefined, {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
     if (passRate === null) return `${formattedDate}: No runs executed`;
-    return `${formattedDate}: Pass Rate ${passRate.toFixed(1)}%`;
+    const runLabel = `${totalRuns} run${totalRuns === 1 ? "" : "s"}`;
+    return `${formattedDate}: Pass Rate ${passRate.toFixed(1)}% · ${runLabel}`;
   };
 
   return (
@@ -101,7 +106,7 @@ export function QualityHeatmap({ heatmapData }: QualityHeatmapProps) {
                     {project.dailyHealth.map((day) => (
                       <div
                         key={day.date}
-                        title={getCellTooltip(day.date, day.passRate)}
+                        title={getCellTooltip(day.date, day.passRate, day.totalRuns)}
                         className={`h-3.5 w-3.5 shrink-0 cursor-pointer rounded-[3px] border transition-transform duration-150 hover:z-20 hover:scale-125 ${getCellColor(day.passRate)}`}
                       />
                     ))}

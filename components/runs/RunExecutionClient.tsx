@@ -8,7 +8,6 @@ import {
   MinusCircle,
   RefreshCw,
   RotateCcw,
-  MessageSquare,
   ArrowLeft,
   Eye,
   Edit3,
@@ -36,7 +35,6 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { createRoot } from "react-dom/client";
 import { PdfReportTemplate } from "./PdfReportTemplate";
-import { CommentThread } from "@/components/ui/CommentThread";
 import { Button } from "@/components/ui/Button";
 import { formatThaiTime } from "@/lib/utils";
 
@@ -578,7 +576,6 @@ export default function RunExecutionClient({
     }
   };
 
-  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   const [isReopening, setIsReopening] = useState(false);
   const handleReopenRun = async () => {
     setIsReopening(true);
@@ -1494,34 +1491,6 @@ export default function RunExecutionClient({
 
   return (
     <>
-      {/* Comments slide-over */}
-      <div
-        className={`fixed top-0 right-0 h-full w-[440px] max-w-[90vw] bg-surface shadow-[-10px_0_40px_rgba(0,0,0,0.12)] border-l border-border transform transition-transform duration-300 ease-in-out z-[70] flex flex-col ${isCommentsOpen ? "translate-x-0" : "translate-x-full"}`}
-      >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
-          <h2 className="text-base font-bold text-text-main flex items-center gap-2">
-            <MessageSquare size={16} className="text-primary" /> Comments
-          </h2>
-          <button
-            onClick={() => setIsCommentsOpen(false)}
-            className="text-text-muted hover:text-text-main"
-          >
-            <X size={20} />
-          </button>
-        </div>
-        <div className="flex-1 overflow-y-auto p-5">
-          {isCommentsOpen && (
-            <CommentThread endpoint={`/api/runs/${runId}/comments`} />
-          )}
-        </div>
-      </div>
-      {isCommentsOpen && (
-        <div
-          onClick={() => setIsCommentsOpen(false)}
-          className="fixed inset-0 bg-black/30 z-[65]"
-        />
-      )}
-
       {isReportModalOpen && run.reportUrl && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-surface w-full max-w-6xl h-[90vh] rounded-xl shadow-2xl flex flex-col border border-border overflow-hidden">
@@ -1612,13 +1581,6 @@ export default function RunExecutionClient({
                 </Button>
                 <Button size="md" onClick={handleOpenWizard}>
                   <PlayCircle size={14} /> Open wizard
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onClick={() => setIsCommentsOpen(true)}
-                >
-                  <MessageSquare size={14} /> Comments
                 </Button>
                 {run.status === "COMPLETED" || run.status === "ABORTED" ? (
                   <Button
