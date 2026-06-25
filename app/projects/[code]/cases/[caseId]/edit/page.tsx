@@ -117,7 +117,7 @@ function SortableStepItem({
         <button
           type="button"
           onClick={() => remove(index)}
-          className="p-2 text-text-muted hover:text-red-600 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100 dark:hover:bg-red-500/10"
+          className="p-2 text-text-muted hover:text-danger hover:bg-danger-soft rounded-xl transition-all opacity-0 group-hover:opacity-100 dark:hover:bg-danger-soft"
         >
           <Trash2 size={18} />
         </button>
@@ -328,11 +328,11 @@ export default function TestCaseEditor() {
               placeholder="e.g., User can complete checkout with Credit Card"
               className={cn(
                 "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main",
-                errors.title ? "border-red-500" : "border-border/80",
+                errors.title ? "border-danger" : "border-border/80",
               )}
             />
             {errors.title && (
-              <p className="mt-1 text-xs text-red-500">
+              <p className="mt-1 text-xs text-danger">
                 {errors.title.message}
               </p>
             )}
@@ -406,7 +406,7 @@ export default function TestCaseEditor() {
                     <label className="flex items-center text-sm font-semibold text-text-main mb-2">
                       {field.name}{" "}
                       {field.isRequired && (
-                        <span className="text-red-500 ml-1">*</span>
+                        <span className="text-danger ml-1">*</span>
                       )}
                     </label>
                     {field.type === "SELECT" && (
@@ -417,7 +417,7 @@ export default function TestCaseEditor() {
                         className={cn(
                           "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main appearance-none cursor-pointer",
                           errors?.customFields?.[field.id]
-                            ? "border-red-500"
+                            ? "border-danger"
                             : "border-border/80",
                         )}
                       >
@@ -438,7 +438,7 @@ export default function TestCaseEditor() {
                         className={cn(
                           "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main",
                           errors?.customFields?.[field.id]
-                            ? "border-red-500"
+                            ? "border-danger"
                             : "border-border/80",
                         )}
                       />
@@ -452,7 +452,7 @@ export default function TestCaseEditor() {
                         className={cn(
                           "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main resize-y",
                           errors?.customFields?.[field.id]
-                            ? "border-red-500"
+                            ? "border-danger"
                             : "border-border/80",
                         )}
                       />
@@ -469,7 +469,7 @@ export default function TestCaseEditor() {
                       </div>
                     )}
                     {errors?.customFields?.[field.id] && (
-                      <p className="mt-1 text-xs text-red-500">
+                      <p className="mt-1 text-xs text-danger">
                         {errors.customFields[field.id]?.message as string}
                       </p>
                     )}

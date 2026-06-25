@@ -81,11 +81,11 @@ export function BulkEditModal({
     suiteId !== KEEP;
 
   const selectCls =
-    "w-full border border-border bg-surface-hover rounded-lg px-3 py-2 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all appearance-none cursor-pointer";
+    "w-full border border-border bg-surface-hover rounded-lg px-3 py-2 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all appearance-none cursor-pointer";
 
   return (
     <div
-      className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[70] flex items-center justify-center p-4"
+      className="fixed inset-0 bg-[color:var(--overlay)] backdrop-blur-sm z-[70] flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div
@@ -94,9 +94,9 @@ export function BulkEditModal({
       >
         <div className="flex justify-between items-center px-6 py-4 border-b border-border">
           <h3 className="font-bold text-text-main flex items-center gap-2">
-            <Edit3 size={16} className="text-indigo-500" />
+            <Edit3 size={16} className="text-primary" />
             Bulk Edit
-            <span className="text-[11px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">
+            <span className="text-[11px] font-bold text-primary bg-primary-light px-2 py-0.5 rounded-full">
               {count} selected
             </span>
           </h3>

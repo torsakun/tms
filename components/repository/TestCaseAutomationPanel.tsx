@@ -301,7 +301,7 @@ export function TestCaseAutomationPanel({
             <button
               onClick={handleCreatePR}
               disabled={isCreatingPR}
-              className="px-3 py-1.5 text-xs font-semibold rounded-md border border-border bg-slate-800 text-white hover:bg-slate-700 flex items-center transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 text-xs font-semibold rounded-md border border-border bg-surface-hover text-text-main hover:bg-border flex items-center transition-colors disabled:opacity-50"
             >
               {isCreatingPR ? (
                 <Loader2 size={14} className="mr-1.5 animate-spin" />
@@ -315,7 +315,7 @@ export function TestCaseAutomationPanel({
               disabled={
                 isVerifying || process.env.NEXT_PUBLIC_IS_DEMO === "true"
               }
-              className="px-3 py-1.5 text-xs font-semibold rounded-md bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 flex items-center transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 text-xs font-semibold rounded-md bg-warning-soft text-warning-foreground hover:bg-warning-soft/80 flex items-center transition-colors disabled:opacity-50"
               title={
                 process.env.NEXT_PUBLIC_IS_DEMO === "true"
                   ? "Disabled in Demo Version"
@@ -332,7 +332,7 @@ export function TestCaseAutomationPanel({
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="px-3 py-1.5 text-xs font-semibold rounded-md bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 flex items-center transition-colors disabled:opacity-50"
+              className="px-3 py-1.5 text-xs font-semibold rounded-md bg-success-soft text-success-foreground hover:bg-success-soft/80 flex items-center transition-colors disabled:opacity-50"
             >
               {isSaving ? (
                 <Loader2 size={14} className="mr-1.5 animate-spin" />
@@ -346,14 +346,14 @@ export function TestCaseAutomationPanel({
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-500/10 text-red-500 rounded-lg border border-red-500/20 flex items-center text-sm">
+        <div className="mb-4 p-3 bg-danger-soft text-danger-foreground rounded-lg border border-danger/25 flex items-center text-sm">
           <AlertCircle size={16} className="mr-2 shrink-0" />
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-3 bg-emerald-500/10 text-emerald-500 rounded-lg border border-emerald-500/20 flex items-center text-sm">
+        <div className="mb-4 p-3 bg-success-soft text-success-foreground rounded-lg border border-success/25 flex items-center text-sm">
           <CheckCircle2 size={16} className="mr-2 shrink-0" />
           {success}
         </div>
@@ -364,15 +364,15 @@ export function TestCaseAutomationPanel({
         <div className="mb-6 border border-border rounded-lg overflow-hidden bg-[#0d1117]">
           <div
             onClick={() => setIsVerificationExpanded(!isVerificationExpanded)}
-            className="w-full px-4 py-2 flex items-center justify-between bg-slate-900 border-b border-slate-800 transition-colors cursor-pointer"
+            className="w-full px-4 py-2 flex items-center justify-between bg-surface-hover border-b border-border transition-colors cursor-pointer"
           >
-            <div className="flex items-center text-xs font-bold text-slate-300">
+            <div className="flex items-center text-xs font-bold text-text-muted">
               <Terminal size={14} className="mr-2 text-text-muted" />
               Verification Console Output
             </div>
             <div className="flex items-center space-x-3">
               {autoCapturedDom && (
-                <div className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 rounded border border-emerald-500/30 text-[10px] font-bold flex items-center">
+                <div className="px-2 py-0.5 bg-success-soft text-success-foreground rounded border border-success/25 text-[10px] font-bold flex items-center">
                   <CheckCircle2 size={10} className="mr-1" /> DOM Captured
                 </div>
               )}
@@ -385,7 +385,7 @@ export function TestCaseAutomationPanel({
                     handleAutoFix();
                   }}
                   disabled={isFixing}
-                  className="px-2 py-1 bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 rounded border border-amber-500/30 text-[10px] font-bold flex items-center transition-colors disabled:opacity-50"
+                  className="px-2 py-1 bg-warning-soft text-warning-foreground hover:bg-warning-soft/80 rounded border border-warning/25 text-[10px] font-bold flex items-center transition-colors disabled:opacity-50"
                 >
                   {isFixing ? (
                     <Loader2 size={12} className="mr-1 animate-spin" />
@@ -405,7 +405,7 @@ export function TestCaseAutomationPanel({
 
           {isVerificationExpanded && (
             <div className="p-4 max-h-[300px] overflow-y-auto">
-              <pre className="text-xs font-mono text-emerald-400 whitespace-pre-wrap leading-relaxed">
+              <pre className="text-xs font-mono text-success whitespace-pre-wrap leading-relaxed">
                 {verificationLog}
               </pre>
             </div>
@@ -456,7 +456,7 @@ export function TestCaseAutomationPanel({
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={handleGenerate}
-              className="flex items-center justify-center px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-md font-bold shadow-sm transition-all"
+              className="flex items-center justify-center px-4 py-2 bg-surface-hover hover:bg-border text-text-main rounded-md font-bold shadow-sm transition-all"
             >
               <Code size={16} className="mr-2" />
               Generate (Zero-shot)
@@ -531,8 +531,8 @@ export function TestCaseAutomationPanel({
           {isFixing && (
             <div className="absolute inset-0 bg-[#0d1117]/80 backdrop-blur-[2px] flex flex-col items-center justify-center rounded-lg z-10 border border-slate-800">
               <div className="relative w-12 h-12 mb-4">
-                <div className="absolute inset-0 bg-amber-500/20 rounded-full animate-ping"></div>
-                <div className="absolute inset-2 bg-amber-500 flex items-center justify-center rounded-full shadow-[0_0_15px_rgba(245,158,11,0.5)]">
+                <div className="absolute inset-0 bg-warning-soft rounded-full animate-ping"></div>
+                <div className="absolute inset-2 bg-warning flex items-center justify-center rounded-full shadow-[0_0_15px_color-mix(in_oklch,var(--warning)_45%,transparent)]">
                   <Sparkles size={16} className="text-white" />
                 </div>
               </div>

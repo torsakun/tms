@@ -31,7 +31,7 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
   const currentProjects = projects.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <section className="flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-premium">
+    <section className="flex h-full flex-col overflow-hidden rounded-[13px] border border-border/80 bg-surface shadow-[var(--shadow-float)]">
       <div className="flex items-center justify-between border-b border-border/80 px-5 py-4">
         <h2 className="flex items-center text-base font-extrabold text-text-main">
           <Folder
@@ -78,7 +78,7 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
                   <div className="flex items-center">
                     <div className="mr-3 h-2 w-full max-w-[96px] overflow-hidden rounded-full border border-border/20 bg-surface-hover">
                       <div
-                        className="h-full rounded-full bg-emerald-500"
+                        className="h-full rounded-full bg-success-soft"
                         style={{ width: `${p.automated}%` }}
                       ></div>
                     </div>
@@ -93,15 +93,15 @@ export function ProjectQualityMatrix({ projects }: ProjectQualityMatrixProps) {
                       {p.lastRunHealth >= 90 ? (
                         <CheckCircle2
                           size={16}
-                          className="text-emerald-500 mr-1.5"
+                          className="text-success mr-1.5"
                         />
                       ) : p.lastRunHealth >= 70 ? (
                         <AlertCircle
                           size={16}
-                          className="text-amber-500 mr-1.5"
+                          className="text-warning mr-1.5"
                         />
                       ) : (
-                        <XCircle size={16} className="text-red-500 mr-1.5" />
+                        <XCircle size={16} className="text-danger mr-1.5" />
                       )}
                       <span className="font-mono font-bold tabular-nums text-text-main">
                         {p.lastRunHealth.toFixed(0)}%

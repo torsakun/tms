@@ -113,14 +113,14 @@ export function AiImpactModal({
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-surface w-[800px] max-h-[90vh] rounded-xl shadow-2xl overflow-hidden border border-border flex flex-col animate-in zoom-in-95 duration-200">
-        <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-amber-50 shrink-0">
-          <div className="flex items-center space-x-2 text-amber-800">
+        <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-warning-soft shrink-0">
+          <div className="flex items-center space-x-2 text-warning-foreground">
             <AlertTriangle size={20} />
             <h3 className="text-lg font-bold">Smart Impact Analysis</h3>
           </div>
           <button
             onClick={onClose}
-            className="text-amber-600 hover:text-amber-900 transition-colors"
+            className="text-warning-foreground hover:text-warning transition-colors"
           >
             <X size={20} />
           </button>
@@ -128,7 +128,7 @@ export function AiImpactModal({
 
         <div className="flex-1 overflow-y-auto p-6 flex flex-col">
           {error && (
-            <div className="mb-6 p-4 bg-red-500/10 text-red-500 rounded-lg border border-red-500/20 flex items-center shrink-0">
+            <div className="mb-6 p-4 bg-danger-soft text-danger-foreground rounded-lg border border-danger/25 flex items-center shrink-0">
               <AlertTriangle size={18} className="mr-2 shrink-0" />
               <p className="text-sm font-medium">{error}</p>
             </div>
@@ -174,12 +174,12 @@ export function AiImpactModal({
           {step === "LOADING" && (
             <div className="flex flex-col items-center justify-center py-20 flex-1">
               <div className="relative w-20 h-20 mb-6">
-                <div className="absolute inset-0 bg-amber-500/20 rounded-full animate-ping"></div>
+                <div className="absolute inset-0 bg-warning-soft/20 rounded-full animate-ping"></div>
                 <div
-                  className="absolute inset-2 bg-amber-500/40 rounded-full animate-ping"
+                  className="absolute inset-2 bg-warning-soft/40 rounded-full animate-ping"
                   style={{ animationDelay: "0.2s" }}
                 ></div>
-                <div className="absolute inset-4 bg-amber-500 rounded-full flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.6)]">
+                <div className="absolute inset-4 bg-warning-soft rounded-full flex items-center justify-center shadow-[0_0_20px_color-mix(in_oklch,var(--warning)_45%,transparent)]">
                   <Sparkles className="text-white" size={24} />
                 </div>
               </div>
@@ -202,7 +202,7 @@ export function AiImpactModal({
                 <div className="mt-3 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-surface border border-border shadow-sm">
                   Status:{" "}
                   <span
-                    className={`ml-1 ${impactResult.needsUpdate ? "text-amber-600 font-bold" : "text-emerald-600 font-bold"}`}
+                    className={`ml-1 ${impactResult.needsUpdate ? "text-warning-foreground font-bold" : "text-success-foreground font-bold"}`}
                   >
                     {impactResult.needsUpdate
                       ? "Needs Update"
@@ -220,19 +220,19 @@ export function AiImpactModal({
                   {impactResult.suggestedUpdates.title &&
                     impactResult.suggestedUpdates.title !== testCase.title && (
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="p-3 bg-red-50 border border-red-100 rounded-md">
-                          <div className="text-[10px] font-bold text-red-500 mb-1 uppercase">
+                        <div className="p-3 bg-danger-soft border border-danger/25 rounded-md">
+                          <div className="text-[10px] font-bold text-danger-foreground mb-1 uppercase">
                             Old Title
                           </div>
                           <div className="text-sm line-through text-red-900">
                             {testCase.title}
                           </div>
                         </div>
-                        <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-md">
-                          <div className="text-[10px] font-bold text-emerald-600 mb-1 uppercase">
+                        <div className="p-3 bg-success-soft border border-success/25 rounded-md">
+                          <div className="text-[10px] font-bold text-success-foreground mb-1 uppercase">
                             New Title
                           </div>
-                          <div className="text-sm text-emerald-900">
+                          <div className="text-sm text-success-foreground">
                             {impactResult.suggestedUpdates.title}
                           </div>
                         </div>
@@ -249,16 +249,16 @@ export function AiImpactModal({
                           (step: any, idx: number) => (
                             <div
                               key={idx}
-                              className="flex p-3 border-b border-border last:border-0 bg-emerald-50/30"
+                              className="flex p-3 border-b border-border last:border-0 bg-success-soft/50"
                             >
-                              <div className="w-6 text-emerald-600 font-mono text-sm">
+                              <div className="w-6 text-success-foreground font-mono text-sm">
                                 {idx + 1}.
                               </div>
                               <div className="flex-1 text-sm text-text-main">
                                 <div>{step.action}</div>
                                 {step.expectedResult && (
                                   <div className="mt-1 text-text-muted text-xs">
-                                    <span className="font-semibold text-emerald-700">
+                                    <span className="font-semibold text-success-foreground">
                                       Expected:
                                     </span>{" "}
                                     {step.expectedResult}
@@ -298,7 +298,7 @@ export function AiImpactModal({
           {step === "INPUT" && (
             <button
               onClick={handleAnalyze}
-              className="flex items-center px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-md font-bold shadow-[0_0_10px_rgba(245,158,11,0.4)] transition-all"
+              className="flex items-center px-5 py-2 bg-warning hover:bg-warning/90 text-white rounded-md font-bold shadow-[var(--shadow-float)] transition-all"
             >
               <Sparkles size={16} className="mr-2" />
               Analyze Impact
@@ -309,7 +309,7 @@ export function AiImpactModal({
             <button
               onClick={handleAccept}
               disabled={isSaving}
-              className="flex items-center px-5 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-md font-bold shadow-[0_0_10px_rgba(16,185,129,0.4)] transition-all disabled:opacity-50 disabled:shadow-none"
+              className="flex items-center px-5 py-2 bg-success hover:bg-success/90 text-white rounded-md font-bold shadow-[var(--shadow-float)] transition-all disabled:opacity-50 disabled:shadow-none"
             >
               {isSaving ? (
                 <>

@@ -24,15 +24,15 @@ export type ButtonSize = "sm" | "md" | "lg";
 
 const VARIANTS: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm focus-visible:ring-primary/40",
+    "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm focus-visible:ring-primary/35",
   secondary:
-    "bg-surface border border-border text-text-main hover:bg-surface-hover focus-visible:ring-primary/30",
+    "bg-surface border border-border text-text-main hover:bg-surface-hover hover:border-[var(--border-strong)] focus-visible:ring-primary/25",
   ghost:
     "text-text-muted hover:bg-surface-hover hover:text-text-main focus-visible:ring-primary/30",
   danger:
-    "bg-rose-600 text-white hover:bg-rose-700 shadow-sm focus-visible:ring-rose-400/40",
+    "bg-danger text-white hover:bg-danger/90 shadow-sm focus-visible:ring-danger/35",
   success:
-    "bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm focus-visible:ring-emerald-400/40",
+    "bg-success text-white hover:bg-success/90 shadow-sm focus-visible:ring-success/35",
 };
 
 // Heights in explicit px (the app's root font-size is 14px, so rem-based
@@ -73,7 +73,7 @@ function base(props: BaseProps) {
   return cn(
     "inline-flex items-center justify-center font-semibold whitespace-nowrap select-none transition-colors duration-150",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-surface",
-    "disabled:opacity-50 disabled:pointer-events-none",
+    "active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none",
     VARIANTS[variant],
     iconOnly ? ICON_SIZES[size] : SIZES[size],
     fullWidth && "w-full",

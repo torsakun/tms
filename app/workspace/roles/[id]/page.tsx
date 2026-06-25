@@ -362,7 +362,7 @@ export default function EditRolePage() {
   if (isLoading) {
     return (
       <div className="w-full h-full flex items-center justify-center min-h-[500px]">
-        <Loader2 className="animate-spin text-indigo-500" size={32} />
+        <Loader2 className="animate-spin text-primary" size={32} />
       </div>
     );
   }
@@ -378,8 +378,8 @@ export default function EditRolePage() {
           <ArrowLeft size={18} />
         </Link>
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-            <Shield size={15} className="text-indigo-500" />
+          <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center">
+            <Shield size={15} className="text-primary" />
           </div>
           <h1 className="text-xl font-bold text-text-main tracking-tight">
             Edit role
@@ -394,7 +394,7 @@ export default function EditRolePage() {
 
       <div className="space-y-6">
         {/* Role Settings Card */}
-        <div className="bg-surface rounded-2xl border border-border/80 shadow-premium p-6 animate-in zoom-in-95 duration-200">
+        <div className="bg-surface rounded-[13px] border border-border/80 shadow-[var(--shadow-float)] p-6 animate-in zoom-in-95 duration-200">
           <h2 className="text-sm font-bold text-text-main uppercase tracking-wider mb-4">
             Role settings
           </h2>
@@ -430,7 +430,7 @@ export default function EditRolePage() {
                 type="checkbox"
                 checked={isDefault}
                 onChange={(e) => setIsDefault(e.target.checked)}
-                className="w-4 h-4 rounded accent-indigo-600"
+                className="w-4 h-4 rounded accent-primary"
               />
               <span className="text-sm font-semibold text-text-main">
                 Set as default role
@@ -443,7 +443,7 @@ export default function EditRolePage() {
         </div>
 
         {/* Permissions Card */}
-        <div className="bg-surface rounded-2xl border border-border/80 shadow-premium animate-in zoom-in-95 duration-200">
+        <div className="bg-surface rounded-[13px] border border-border/80 shadow-[var(--shadow-float)] animate-in zoom-in-95 duration-200">
           <div className="px-6 py-4 border-b border-border">
             <h2 className="text-sm font-bold text-text-main uppercase tracking-wider">
               Access rights
@@ -468,7 +468,7 @@ export default function EditRolePage() {
                       }}
                       onChange={() => toggleBlock(ruleIds)}
                       disabled={false}
-                      className="w-4 h-4 rounded accent-indigo-600 disabled:opacity-60"
+                      className="w-4 h-4 rounded accent-primary disabled:opacity-60"
                     />
                     <div>
                       <span className="text-sm font-bold text-text-main">
@@ -485,13 +485,13 @@ export default function EditRolePage() {
                     {block.rules.map((rule) => (
                       <label
                         key={rule.id}
-                        className="flex items-start gap-3 px-6 py-2.5 transition-colors cursor-pointer hover:bg-indigo-50/30"
+                        className="flex items-start gap-3 px-6 py-2.5 transition-colors cursor-pointer hover:bg-primary-light/40"
                       >
                         <input
                           type="checkbox"
                           checked={!!selectedPermissions[rule.id]}
                           onChange={() => togglePermission(rule.id)}
-                          className="w-4 h-4 rounded accent-indigo-600 mt-0.5 shrink-0"
+                          className="w-4 h-4 rounded accent-primary mt-0.5 shrink-0"
                         />
                         <div className="flex items-baseline gap-3 flex-1 min-w-0">
                           <span className="text-sm font-semibold text-text-main w-44 shrink-0">
@@ -515,7 +515,7 @@ export default function EditRolePage() {
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-premium hover:-translate-y-0.5 transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-2 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+            className="px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-[var(--shadow-float)] hover:-translate-y-0.5 transition-all hover:opacity-90 disabled:opacity-50 flex items-center gap-2 disabled:hover:translate-y-0 disabled:hover:shadow-none"
             style={{ background: "var(--primary)" }}
           >
             {isSubmitting && <Loader2 size={14} className="animate-spin" />}

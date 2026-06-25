@@ -214,7 +214,7 @@ function CreateCaseContent({
 
       <main className="max-w-5xl mx-auto mt-8 px-4 space-y-6">
         {/* Basic Information Card */}
-        <section className="bg-surface rounded-2xl border border-border/80 shadow-premium p-6 space-y-6">
+        <section className="bg-surface rounded-[13px] border border-border/80 shadow-[var(--shadow-float)] p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-text-main mb-2">
@@ -225,11 +225,11 @@ function CreateCaseContent({
                 placeholder="e.g., User can complete checkout with Credit Card"
                 className={cn(
                   "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main",
-                  errors.title ? "border-red-500" : "border-border/80",
+                  errors.title ? "border-danger" : "border-border/80",
                 )}
               />
               {errors.title && (
-                <p className="mt-1 text-xs text-red-500">
+                <p className="mt-1 text-xs text-danger">
                   {errors.title.message}
                 </p>
               )}
@@ -243,7 +243,7 @@ function CreateCaseContent({
                 {...register("suiteId", { required: "Suite is required" })}
                 className={cn(
                   "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main appearance-none cursor-pointer",
-                  errors.suiteId ? "border-red-500" : "border-border/80",
+                  errors.suiteId ? "border-danger" : "border-border/80",
                 )}
               >
                 <option value="" disabled>
@@ -256,7 +256,7 @@ function CreateCaseContent({
                 ))}
               </select>
               {errors.suiteId && (
-                <p className="mt-1 text-xs text-red-500">
+                <p className="mt-1 text-xs text-danger">
                   {errors.suiteId.message}
                 </p>
               )}
@@ -342,7 +342,7 @@ function CreateCaseContent({
                     <label className="flex items-center text-sm font-semibold text-text-main mb-2">
                       {field.name}{" "}
                       {field.isRequired && (
-                        <span className="text-red-500 ml-1">*</span>
+                        <span className="text-danger ml-1">*</span>
                       )}
                     </label>
                     {field.type === "SELECT" && (
@@ -353,7 +353,7 @@ function CreateCaseContent({
                         className={cn(
                           "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main appearance-none cursor-pointer",
                           errors?.customFields?.[field.id]
-                            ? "border-red-500"
+                            ? "border-danger"
                             : "border-border/80",
                         )}
                       >
@@ -374,7 +374,7 @@ function CreateCaseContent({
                         className={cn(
                           "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main",
                           errors?.customFields?.[field.id]
-                            ? "border-red-500"
+                            ? "border-danger"
                             : "border-border/80",
                         )}
                       />
@@ -388,7 +388,7 @@ function CreateCaseContent({
                         className={cn(
                           "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main resize-y",
                           errors?.customFields?.[field.id]
-                            ? "border-red-500"
+                            ? "border-danger"
                             : "border-border/80",
                         )}
                       />
@@ -405,7 +405,7 @@ function CreateCaseContent({
                       </div>
                     )}
                     {errors?.customFields?.[field.id] && (
-                      <p className="mt-1 text-xs text-red-500">
+                      <p className="mt-1 text-xs text-danger">
                         {errors.customFields[field.id]?.message as string}
                       </p>
                     )}
@@ -453,7 +453,7 @@ function CreateCaseContent({
                           prev.filter((a) => a.id !== file.id),
                         )
                       }
-                      className="p-1.5 text-text-muted hover:text-red-500 rounded-md transition-colors"
+                      className="p-1.5 text-text-muted hover:text-danger rounded-md transition-colors"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -477,7 +477,7 @@ function CreateCaseContent({
             {fields.map((field, index) => (
               <div
                 key={field.id}
-                className="group bg-surface border border-border/80 rounded-2xl shadow-premium overflow-hidden flex transition-all duration-300 hover:shadow-lg"
+                className="group bg-surface border border-border/80 rounded-[13px] shadow-[var(--shadow-float)] overflow-hidden flex transition-all duration-300 hover:shadow-lg"
               >
                 {/* Drag Handle & Number */}
                 <div className="w-12 bg-surface-hover/50 border-r border-border/80 flex flex-col items-center py-4 space-y-2">
@@ -520,13 +520,13 @@ function CreateCaseContent({
 
                 {/* Delete Action */}
                 <div className="w-12 flex items-center justify-center pr-2">
-                  <button
-                    type="button"
-                    onClick={() => remove(index)}
-                    className="p-2 text-text-muted hover:text-red-600 hover:bg-red-50 rounded-xl transition-all opacity-0 group-hover:opacity-100 dark:hover:bg-red-500/10"
-                  >
-                    <Trash2 size={18} />
-                  </button>
+	                  <button
+	                    type="button"
+	                    onClick={() => remove(index)}
+	                    className="p-2 text-text-muted hover:text-danger hover:bg-danger-soft rounded-xl transition-all opacity-0 group-hover:opacity-100"
+	                  >
+	                    <Trash2 size={18} />
+	                  </button>
                 </div>
               </div>
             ))}
@@ -536,7 +536,7 @@ function CreateCaseContent({
             <button
               type="button"
               onClick={() => append({ action: "", expectedResult: "" })}
-              className="flex-1 py-3 border-2 border-dashed border-border rounded-xl text-text-muted hover:border-blue-400 hover:text-primary hover:bg-blue-50/50 transition-all flex items-center justify-center font-medium text-sm"
+              className="flex-1 py-3 border-2 border-dashed border-border rounded-xl text-text-muted hover:border-blue-400 hover:text-primary hover:bg-info-soft/50 transition-all flex items-center justify-center font-medium text-sm"
             >
               <Plus size={18} className="mr-2" />
               Add step
@@ -544,7 +544,7 @@ function CreateCaseContent({
             <button
               type="button"
               onClick={openSharedStepsModal}
-              className="flex-1 py-3 border-2 border-dashed border-border rounded-xl text-text-muted hover:border-blue-400 hover:text-primary hover:bg-blue-50/50 transition-all flex items-center justify-center font-medium text-sm"
+              className="flex-1 py-3 border-2 border-dashed border-border rounded-xl text-text-muted hover:border-blue-400 hover:text-primary hover:bg-info-soft/50 transition-all flex items-center justify-center font-medium text-sm"
             >
               <Plus size={18} className="mr-2" />
               Insert Shared Step
@@ -555,7 +555,7 @@ function CreateCaseContent({
 
       {isSharedStepsModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface w-[600px] rounded-3xl shadow-premium overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200">
+          <div className="bg-surface w-[600px] rounded-[16px] shadow-[var(--shadow-float)] overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-border/80 flex justify-between items-center bg-background/50">
               <h3 className="text-lg font-bold text-text-main">
                 Insert Shared Step

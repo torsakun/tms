@@ -177,7 +177,7 @@ function CreateRunContent() {
         >
           <div className="p-8 space-y-6 overflow-y-auto">
             {error && (
-              <div className="p-4 bg-red-50 text-red-700 flex items-center rounded-xl border border-red-100">
+              <div className="p-4 bg-danger-soft text-danger-foreground flex items-center rounded-xl border border-danger/25">
                 <AlertCircle size={18} className="mr-2 shrink-0" />
                 <p className="text-sm font-medium">{error}</p>
               </div>

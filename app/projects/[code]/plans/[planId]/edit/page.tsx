@@ -135,7 +135,7 @@ export default function EditPlanPage() {
 
   return (
     <div className="flex h-screen bg-surface-hover items-center justify-center">
-      <div className="bg-surface rounded-2xl border border-border/80 shadow-premium w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden transition-colors">
+      <div className="bg-surface rounded-[13px] border border-border/80 shadow-[var(--shadow-float)] w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden transition-colors">
         <header className="flex items-center justify-between px-6 py-4 border-b border-border/80 shrink-0 bg-surface">
           <h1 className="text-xl font-semibold text-text-main">
             Edit test plan
@@ -155,7 +155,7 @@ export default function EditPlanPage() {
         >
           <div className="p-8 space-y-6 overflow-y-auto">
             {error && (
-              <div className="p-4 bg-red-50 text-red-700 flex items-center rounded-xl border border-red-100">
+              <div className="p-4 bg-danger-soft text-danger-foreground flex items-center rounded-xl border border-danger/15">
                 <AlertCircle size={18} className="mr-2 shrink-0" />
                 <p className="text-sm font-medium">{error}</p>
               </div>

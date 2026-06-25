@@ -25,7 +25,7 @@ export function ProjectTabs({ projectCode }: { projectCode: string }) {
 
   const base = `/projects/${projectCode}`;
   const tabs = [
-    { name: "Dashboards", href: `${base}/dashboards`, match: "/dashboards" },
+    { name: "Overview", href: `${base}/dashboards`, match: "/dashboards" },
     { name: "Repository", href: `${base}/repository`, match: "/repository" },
     { name: "Test Plans", href: `${base}/plans`, match: "/plans" },
     { name: "Test Runs", href: `${base}/runs`, match: "/runs" },
@@ -53,7 +53,7 @@ export function ProjectTabs({ projectCode }: { projectCode: string }) {
         {/* Project identity */}
         <div className="flex items-center gap-2 pr-3 mr-1 shrink-0">
           <div
-            className="w-6 h-6 rounded-md flex items-center justify-center text-white text-[10px] font-extrabold"
+            className="w-6 h-6 rounded-[7px] flex items-center justify-center text-white text-[10px] font-bold shadow-sm"
             style={{ background: "var(--primary)" }}
           >
             {projectCode.slice(0, 2).toUpperCase()}
@@ -75,13 +75,13 @@ export function ProjectTabs({ projectCode }: { projectCode: string }) {
                 className={cn(
                   "relative px-3 h-12 inline-flex items-center text-[13px] font-semibold whitespace-nowrap transition-colors",
                   active
-                    ? "text-indigo-600"
+                    ? "text-primary"
                     : "text-text-muted hover:text-text-main",
                 )}
               >
                 {t.name}
                 {active && (
-                  <span className="absolute left-2 right-2 -bottom-px h-0.5 rounded-full bg-indigo-600" />
+                  <span className="absolute left-2 right-2 -bottom-px h-0.5 rounded-full bg-primary" />
                 )}
               </Link>
             );
@@ -96,8 +96,8 @@ export function ProjectTabs({ projectCode }: { projectCode: string }) {
               className={cn(
                 "inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-[13px] font-semibold border transition-colors",
                 configActive || configOpen
-                  ? "bg-indigo-50 text-indigo-600 border-indigo-200"
-                  : "bg-surface text-text-muted border-border hover:text-text-main hover:bg-surface-hover",
+                  ? "bg-primary-light text-primary border-primary/30"
+                  : "bg-surface text-text-muted border-border hover:text-text-main hover:bg-surface-hover hover:border-[var(--border-strong)]",
               )}
             >
               <Settings size={14} />
@@ -106,7 +106,7 @@ export function ProjectTabs({ projectCode }: { projectCode: string }) {
             </button>
 
             {configOpen && (
-              <div className="absolute right-0 mt-1.5 w-48 bg-surface border border-border rounded-xl shadow-lg z-50 py-1 overflow-hidden animate-fade-up">
+              <div className="absolute right-0 mt-1.5 w-48 qm-panel z-50 py-1 overflow-hidden animate-fade-up">
                 {configItems.map((c) => {
                   const active =
                     pathname === c.href || pathname.startsWith(`${c.href}/`);
@@ -118,7 +118,7 @@ export function ProjectTabs({ projectCode }: { projectCode: string }) {
                       className={cn(
                         "block px-4 py-2 text-sm font-medium transition-colors",
                         active
-                          ? "bg-indigo-50 text-indigo-600"
+                          ? "bg-primary-light text-primary"
                           : "text-text-main hover:bg-surface-hover",
                       )}
                     >

@@ -29,12 +29,12 @@ function ConfirmDialog({
       onClick={onCancel}
     >
       <div
-        className="bg-surface rounded-2xl shadow-premium border border-border/80 w-full max-w-sm p-8 animate-in zoom-in-95 duration-200"
+        className="bg-surface rounded-[13px] shadow-[var(--shadow-float)] border border-border/80 w-full max-w-sm p-8 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-4 mb-6">
-          <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
-            <AlertTriangle size={18} className="text-rose-500" />
+          <div className="w-9 h-9 rounded-full bg-danger-soft flex items-center justify-center shrink-0">
+            <AlertTriangle size={18} className="text-danger" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-text-main mb-1">
@@ -270,7 +270,7 @@ export default function WorkspaceGroupsPage() {
   if (isLoading) {
     return (
       <div className="w-full h-[500px] flex items-center justify-center">
-        <Loader2 className="animate-spin text-indigo-600" size={32} />
+        <Loader2 className="animate-spin text-primary" size={32} />
       </div>
     );
   }
@@ -282,13 +282,13 @@ export default function WorkspaceGroupsPage() {
           <h1 className="text-xl font-bold text-text-main tracking-tight">
             User Groups
           </h1>
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary">
             {groups.length}
           </span>
         </div>
         <Button
           onClick={openCreate}
-          className="shadow-premium hover:-translate-y-0.5 duration-300"
+          className="shadow-[var(--shadow-float)] hover:-translate-y-0.5 duration-300"
         >
           <Plus size={15} strokeWidth={2.5} /> Create Group
         </Button>
@@ -299,9 +299,9 @@ export default function WorkspaceGroupsPage() {
       </p>
 
       {groups.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border/80 rounded-2xl bg-surface shadow-premium animate-in zoom-in-95 duration-200">
-          <div className="bg-indigo-50 p-4 rounded-full mb-4">
-            <Users className="text-indigo-400" size={32} />
+        <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border/80 rounded-[13px] bg-surface shadow-[var(--shadow-float)] animate-in zoom-in-95 duration-200">
+          <div className="bg-primary-light p-4 rounded-full mb-4">
+            <Users className="text-primary" size={32} />
           </div>
           <h3 className="text-lg font-bold text-text-main">No groups found</h3>
           <p className="text-text-muted mt-1 mb-4 text-sm max-w-sm text-center">
@@ -311,13 +311,13 @@ export default function WorkspaceGroupsPage() {
           <Button
             variant="ghost"
             onClick={openCreate}
-            className="text-indigo-600 hover:text-indigo-700 hover:bg-transparent"
+            className="text-primary hover:text-primary hover:bg-transparent"
           >
             Create your first group
           </Button>
         </div>
       ) : (
-        <div className="bg-surface border border-border/80 rounded-2xl shadow-premium overflow-visible">
+        <div className="bg-surface border border-border/80 rounded-[13px] shadow-[var(--shadow-float)] overflow-visible">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-border/80 bg-surface-hover/70">
@@ -350,7 +350,7 @@ export default function WorkspaceGroupsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold bg-indigo-50 text-indigo-600 border border-indigo-100/50">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold bg-primary-light text-primary border border-primary/15/50">
                       {group.members} {group.members === 1 ? "user" : "users"}
                     </span>
                   </td>
@@ -385,7 +385,7 @@ export default function WorkspaceGroupsPage() {
                       <MoreHorizontal size={18} />
                     </button>
                     {openMenuId === group.id && (
-                      <div className="absolute right-12 top-10 w-44 bg-surface rounded-xl shadow-premium border border-border/80 z-50 py-1 text-left animate-in zoom-in-95 duration-200">
+                      <div className="absolute right-12 top-10 w-44 bg-surface rounded-xl shadow-[var(--shadow-float)] border border-border/80 z-50 py-1 text-left animate-in zoom-in-95 duration-200">
                         <button
                           className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover transition-colors"
                           onClick={(e) => {
@@ -401,7 +401,7 @@ export default function WorkspaceGroupsPage() {
                             setOpenMenuId(null);
                             setConfirmDeleteId(group.id);
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-border mt-1 pt-1"
+                          className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger-soft transition-colors border-t border-border mt-1 pt-1"
                         >
                           Delete Group
                         </button>
@@ -426,11 +426,11 @@ export default function WorkspaceGroupsPage() {
       {/* Slide-out drawer for create/edit */}
       {drawerOpen && (
         <div
-          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex justify-end"
+          className="fixed inset-0 bg-[color:oklch(0.18_0.015_264)]/40 backdrop-blur-sm z-50 flex justify-end"
           onClick={() => setDrawerOpen(false)}
         >
           <div
-            className="bg-surface w-full max-w-md h-full shadow-premium animate-in slide-in-from-right duration-300 flex flex-col border-l border-border/80"
+            className="bg-surface w-full max-w-md h-full shadow-[var(--shadow-float)] animate-in slide-in-from-right duration-300 flex flex-col border-l border-border/80"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="px-6 py-4 border-b border-border flex justify-between items-center">
@@ -448,14 +448,14 @@ export default function WorkspaceGroupsPage() {
             <div className="flex-1 overflow-y-auto p-6 space-y-5">
               <div>
                 <label className="block text-sm font-semibold text-text-main mb-1.5">
-                  Group Name <span className="text-red-500">*</span>
+                  Group Name <span className="text-danger">*</span>
                 </label>
                 <input
                   type="text"
                   value={form.title}
                   onChange={(e) => setForm({ ...form, title: e.target.value })}
                   placeholder="e.g. QA Automation Team"
-                  className="w-full border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 text-sm transition-all bg-surface-hover"
+                  className="w-full border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 text-sm transition-all bg-surface-hover"
                   autoFocus
                 />
               </div>
@@ -470,7 +470,7 @@ export default function WorkspaceGroupsPage() {
                     setForm({ ...form, description: e.target.value })
                   }
                   placeholder="What is the purpose of this group?"
-                  className="w-full border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 text-sm h-24 resize-none transition-all bg-surface-hover"
+                  className="w-full border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 text-sm h-24 resize-none transition-all bg-surface-hover"
                 />
               </div>
 
@@ -480,7 +480,7 @@ export default function WorkspaceGroupsPage() {
                   <label className="block text-sm font-semibold text-text-main">
                     Members
                   </label>
-                  <span className="text-[11px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">
+                  <span className="text-[11px] font-bold text-primary bg-primary-light px-2 py-0.5 rounded-full">
                     {form.memberIds.size} selected
                   </span>
                 </div>
@@ -494,7 +494,7 @@ export default function WorkspaceGroupsPage() {
                     value={memberSearch}
                     onChange={(e) => setMemberSearch(e.target.value)}
                     placeholder="Search members…"
-                    className="w-full pl-8 pr-3 py-2 text-sm border border-border bg-surface-hover rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-all"
+                    className="w-full pl-8 pr-3 py-2 text-sm border border-border bg-surface-hover rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/25 transition-all"
                   />
                 </div>
                 <div className="border border-border rounded-lg max-h-56 overflow-y-auto divide-y divide-border">
@@ -511,7 +511,7 @@ export default function WorkspaceGroupsPage() {
                           key={u.id}
                           type="button"
                           onClick={() => toggleMember(u.id)}
-                          className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${selected ? "bg-indigo-50/60" : "hover:bg-surface-hover"}`}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${selected ? "bg-primary-light/60" : "hover:bg-surface-hover"}`}
                         >
                           <div
                             className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
@@ -528,7 +528,7 @@ export default function WorkspaceGroupsPage() {
                             </div>
                           </div>
                           <div
-                            className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors ${selected ? "bg-indigo-600 text-white" : "border border-border"}`}
+                            className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors ${selected ? "bg-primary text-white" : "border border-border"}`}
                           >
                             {selected && <Check size={13} strokeWidth={3} />}
                           </div>

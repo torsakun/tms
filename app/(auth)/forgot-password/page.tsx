@@ -44,8 +44,8 @@ export default function ForgotPasswordPage() {
         <div className="bg-surface rounded-2xl shadow-premium border border-border/80 p-8">
           {sent ? (
             <div className="text-center py-2">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-                <MailCheck className="text-emerald-500" size={26} />
+              <div className="w-14 h-14 rounded-2xl bg-success-soft flex items-center justify-center mx-auto mb-4">
+                <MailCheck className="text-success-foreground" size={26} />
               </div>
               <h2 className="text-xl font-bold text-text-main tracking-tight mb-2">
                 Check your inbox

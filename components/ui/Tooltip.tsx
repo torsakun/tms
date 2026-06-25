@@ -55,7 +55,7 @@ export function Tooltip({ label, children, side = "top", delay = 300 }: TooltipP
               transform: `translate(-50%, ${side === "top" ? "-100%" : "0"})`,
               zIndex: 300,
             }}
-            className="pointer-events-none whitespace-nowrap rounded-md bg-slate-800 px-2 py-1 text-[11px] font-medium text-white shadow-lg animate-fade-up"
+            className="pointer-events-none whitespace-nowrap rounded-md bg-[var(--neutral-950)] px-2 py-1 text-[11px] font-medium text-white shadow-lg animate-fade-up"
           >
             {label}
           </span>,

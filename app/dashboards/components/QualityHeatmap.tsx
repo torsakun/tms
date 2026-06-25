@@ -20,10 +20,10 @@ export function QualityHeatmap({ heatmapData }: QualityHeatmapProps) {
     if (passRate === null) {
       return "border-border/60 bg-surface-hover";
     }
-    if (passRate >= 90) return "border-emerald-600/20 bg-emerald-500";
-    if (passRate >= 70) return "border-emerald-500/20 bg-emerald-300";
-    if (passRate >= 50) return "border-amber-500/25 bg-amber-400";
-    return "border-rose-600/25 bg-rose-500";
+    if (passRate >= 90) return "border-success/25 bg-success-soft";
+    if (passRate >= 70) return "border-success/25 bg-success/60";
+    if (passRate >= 50) return "border-warning/25 bg-warning";
+    return "border-danger/25 bg-danger";
   };
 
   const getCellTooltip = (
@@ -42,7 +42,7 @@ export function QualityHeatmap({ heatmapData }: QualityHeatmapProps) {
   };
 
   return (
-    <section className="flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-premium">
+    <section className="flex h-full flex-col overflow-hidden rounded-[13px] border border-border/80 bg-surface shadow-[var(--shadow-float)]">
       <div className="flex items-center justify-between gap-4 border-b border-border/80 px-5 py-4">
         <h2 className="flex items-center text-base font-extrabold text-text-main">
           <CheckCircle
@@ -55,10 +55,10 @@ export function QualityHeatmap({ heatmapData }: QualityHeatmapProps) {
         <div className="flex items-center gap-2 text-xs font-bold text-text-muted">
           <span>Less</span>
           <span className="h-2.5 w-2.5 rounded-[3px] border border-border/60 bg-surface-hover" />
-          <span className="h-2.5 w-2.5 rounded-[3px] border border-rose-600/20 bg-rose-500" />
-          <span className="h-2.5 w-2.5 rounded-[3px] border border-amber-500/20 bg-amber-400" />
-          <span className="h-2.5 w-2.5 rounded-[3px] border border-emerald-500/20 bg-emerald-300" />
-          <span className="h-2.5 w-2.5 rounded-[3px] border border-emerald-600/20 bg-emerald-500" />
+          <span className="h-2.5 w-2.5 rounded-[3px] border border-danger/25 bg-danger" />
+          <span className="h-2.5 w-2.5 rounded-[3px] border border-warning/20 bg-warning" />
+          <span className="h-2.5 w-2.5 rounded-[3px] border border-success/25 bg-success/60" />
+          <span className="h-2.5 w-2.5 rounded-[3px] border border-success/25 bg-success-soft" />
           <span>More</span>
         </div>
       </div>

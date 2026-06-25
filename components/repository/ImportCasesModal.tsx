@@ -61,7 +61,7 @@ export function ImportCasesModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-[100]">
+    <div className="fixed inset-0 bg-[color:var(--overlay)] flex items-center justify-center z-[100]">
       <div className="bg-surface rounded-xl shadow-xl w-[500px] max-w-[90vw] overflow-hidden flex flex-col">
         <header className="px-6 py-4 border-b border-border flex items-center justify-between">
           <h2 className="text-lg font-bold text-text-main">
@@ -76,7 +76,7 @@ export function ImportCasesModal({
         </header>
 
         <div className="p-6 space-y-5">
-          <div className="bg-indigo-50 border border-indigo-100 text-indigo-800 text-sm p-4 rounded-lg">
+          <div className="bg-primary-light border border-primary/20 text-primary text-sm p-4 rounded-lg">
             If you're using MS Excel for managing your test cases, select the
             Qase.io as a source type.
           </div>
@@ -132,10 +132,10 @@ export function ImportCasesModal({
 
           <div>
             <label className="block text-sm font-semibold text-text-main mb-1.5">
-              Upload file <span className="text-red-500">*</span>
+              Upload file <span className="text-danger">*</span>
             </label>
             <div className="flex items-center">
-              <label className="bg-surface-hover hover:bg-slate-200 border border-text-muted text-text-main px-3 py-1.5 rounded text-sm cursor-pointer transition-colors">
+              <label className="bg-surface-hover hover:bg-surface border border-text-muted text-text-main px-3 py-1.5 rounded text-sm cursor-pointer transition-colors">
                 Choose a file
                 <input
                   type="file"

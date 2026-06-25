@@ -28,12 +28,12 @@ function ConfirmDialog({
       onClick={onCancel}
     >
       <div
-        className="bg-surface rounded-2xl shadow-premium border border-border/80 w-full max-w-sm p-8 animate-in zoom-in-95 duration-200"
+        className="bg-surface rounded-[13px] shadow-[var(--shadow-float)] border border-border/80 w-full max-w-sm p-8 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-4 mb-6">
-          <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
-            <AlertTriangle size={18} className="text-rose-500" />
+          <div className="w-9 h-9 rounded-full bg-danger-soft flex items-center justify-center shrink-0">
+            <AlertTriangle size={18} className="text-danger" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-text-main mb-1">
@@ -138,20 +138,20 @@ export default function WorkspaceRolesPage() {
           <h1 className="text-xl font-bold text-text-main tracking-tight">
             Roles
           </h1>
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary">
             {roles.length}
           </span>
         </div>
         <ButtonLink
           href="/workspace/roles/create"
-          className="shadow-premium hover:-translate-y-0.5 duration-300"
+          className="shadow-[var(--shadow-float)] hover:-translate-y-0.5 duration-300"
         >
           <Plus size={15} /> New role
         </ButtonLink>
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl overflow-visible bg-surface border border-border/80 shadow-premium">
+      <div className="rounded-[13px] overflow-visible bg-surface border border-border/80 shadow-[var(--shadow-float)]">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-border/80 bg-surface-hover/70">
@@ -178,8 +178,8 @@ export default function WorkspaceRolesPage() {
               >
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
-                      <Shield size={15} className="text-indigo-500" />
+                    <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center shrink-0">
+                      <Shield size={15} className="text-primary" />
                     </div>
                     <div>
                       <div className="text-[15px] font-bold text-text-main">
@@ -195,7 +195,7 @@ export default function WorkspaceRolesPage() {
                   {role.isSystem && (
                     <Check
                       size={15}
-                      className="text-emerald-500 mx-auto"
+                      className="text-success mx-auto"
                       strokeWidth={3}
                     />
                   )}
@@ -204,7 +204,7 @@ export default function WorkspaceRolesPage() {
                   {role.isDefault && (
                     <Check
                       size={15}
-                      className="text-emerald-500 mx-auto"
+                      className="text-success mx-auto"
                       strokeWidth={3}
                     />
                   )}
@@ -229,7 +229,7 @@ export default function WorkspaceRolesPage() {
                   </button>
 
                   {openMenuId === role.id && (
-                    <div className="absolute right-8 top-10 w-48 bg-surface rounded-xl py-1 z-50 overflow-hidden shadow-premium border border-border/80 animate-in zoom-in-95 duration-200">
+                    <div className="absolute right-8 top-10 w-48 bg-surface rounded-xl py-1 z-50 overflow-hidden shadow-[var(--shadow-float)] border border-border/80 animate-in zoom-in-95 duration-200">
                       <Link
                         href={`/workspace/roles/${role.id}`}
                         className="block px-4 py-2 text-sm font-medium text-text-muted hover:bg-surface-hover transition-colors text-left"
@@ -250,7 +250,7 @@ export default function WorkspaceRolesPage() {
                           setOpenMenuId(null);
                           setConfirmDelete({ id: role.id, title: role.title });
                         }}
-                        className="w-full text-left px-4 py-2 text-sm font-medium text-rose-500 hover:bg-rose-50 transition-colors"
+                        className="w-full text-left px-4 py-2 text-sm font-medium text-danger hover:bg-danger-soft transition-colors"
                       >
                         Delete
                       </button>

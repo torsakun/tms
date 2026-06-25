@@ -241,7 +241,7 @@ export function AiGeneratorModal({
       <div className="bg-surface w-[800px] max-h-[90vh] rounded-xl shadow-2xl overflow-hidden border border-border flex flex-col animate-in zoom-in-95 duration-200">
         <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-background shrink-0">
           <div className="flex items-center space-x-2 text-text-main">
-            <Sparkles className="text-amber-500" size={20} />
+            <Sparkles className="text-warning" size={20} />
             <h3 className="text-lg font-bold">Generate Cases with AI</h3>
           </div>
           <button
@@ -254,7 +254,7 @@ export function AiGeneratorModal({
 
         <div className="flex-1 overflow-y-auto p-6 flex flex-col">
           {error && (
-            <div className="mb-6 p-4 bg-red-500/10 text-red-500 rounded-lg border border-red-500/20 flex items-center shrink-0">
+            <div className="mb-6 p-4 bg-danger-soft text-danger-foreground rounded-lg border border-danger/25 flex items-center shrink-0">
               <AlertCircle size={18} className="mr-2 shrink-0" />
               <p className="text-sm font-medium">{error}</p>
             </div>

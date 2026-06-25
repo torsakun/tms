@@ -57,8 +57,8 @@ export default function PublicReportPage({
   if (error) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-surface p-6">
-        <div className="bg-background border border-border/80 p-8 rounded-2xl shadow-premium max-w-md w-full text-center animate-in zoom-in-95 duration-200">
-          <div className="text-red-500 mb-4">
+        <div className="bg-background border border-border/80 p-8 rounded-[13px] shadow-[var(--shadow-float)] max-w-md w-full text-center animate-in zoom-in-95 duration-200">
+          <div className="text-danger mb-4">
             <svg
               className="w-16 h-16 mx-auto"
               fill="none"
@@ -89,10 +89,10 @@ export default function PublicReportPage({
       <div className="w-full max-w-[1000px] mb-5 flex justify-between items-center">
         <div className="flex items-center space-x-2.5">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-success"></span>
           </span>
-          <span className="text-xs font-black text-text-muted uppercase tracking-widest">
+          <span className="text-xs font-semibold text-text-muted uppercase tracking-widest">
             Live Report
           </span>
         </div>
@@ -101,7 +101,7 @@ export default function PublicReportPage({
             onClick={() => setHidePassed((v) => !v)}
             className={`text-[11px] font-bold px-3 py-1.5 rounded-lg border transition-colors ${
               hidePassed
-                ? "bg-rose-50 text-rose-600 border-rose-200"
+                ? "bg-danger-soft text-danger border-danger/25"
                 : "bg-surface text-text-muted border-border hover:text-text-main"
             }`}
           >
@@ -115,7 +115,7 @@ export default function PublicReportPage({
 
       <div
         onClick={handleImageClick}
-        className="w-full max-w-[1000px] bg-surface shadow-premium rounded-2xl overflow-hidden border border-border/80 animate-in zoom-in-95 duration-300 [&_img[alt='Evidence']]:cursor-zoom-in"
+        className="w-full max-w-[1000px] bg-surface shadow-[var(--shadow-float)] rounded-[13px] overflow-hidden border border-border/80 animate-in zoom-in-95 duration-300 [&_img[alt='Evidence']]:cursor-zoom-in"
       >
         <PdfReportTemplate
           run={run}
@@ -141,7 +141,7 @@ export default function PublicReportPage({
             src={lightboxSrc}
             alt="Evidence (enlarged)"
             onClick={(e) => e.stopPropagation()}
-            className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-2xl object-contain"
+            className="max-h-[90vh] max-w-[90vw] rounded-lg shadow-[var(--shadow-dialog)] object-contain"
           />
         </div>
       )}

@@ -94,7 +94,7 @@ export default function WorkspaceSettingsPage() {
         <Button
           onClick={handleSave}
           loading={saving}
-          className="shadow-premium hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+          className="shadow-[var(--shadow-float)] hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:hover:shadow-none"
         >
           <Save size={16} /> Save Changes
         </Button>
@@ -103,22 +103,22 @@ export default function WorkspaceSettingsPage() {
       <main className="flex-1 overflow-y-auto p-8">
         <div className="mx-auto max-w-6xl columns-1 lg:columns-2 gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid">
           {error && (
-            <div className="p-4 bg-red-50 text-red-700 rounded-lg flex items-center border border-red-100">
+            <div className="p-4 bg-danger-soft text-danger-foreground rounded-lg flex items-center border border-danger/15">
               <AlertCircle size={18} className="mr-2" />
               {error}
             </div>
           )}
 
           {successMessage && (
-            <div className="p-4 bg-emerald-500/10 text-emerald-500 rounded-lg flex items-center border border-emerald-500/20">
+            <div className="p-4 bg-success-soft text-success rounded-lg flex items-center border border-success/25">
               <CheckCircle2 size={18} className="mr-2" />
               {successMessage}
             </div>
           )}
 
-          <section className="bg-surface border border-border/80 rounded-2xl overflow-hidden shadow-premium animate-in zoom-in-95 duration-200">
+          <section className="bg-surface border border-border/80 rounded-[13px] overflow-hidden shadow-[var(--shadow-float)] animate-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-border/80 bg-background/30 flex items-center">
-              <Sparkles className="text-amber-500 mr-2" size={18} />
+              <Sparkles className="text-warning mr-2" size={18} />
               <h2 className="text-lg font-bold text-text-main">
                 AI Integrations
               </h2>
@@ -179,7 +179,7 @@ export default function WorkspaceSettingsPage() {
             </div>
           </section>
 
-          <section className="bg-surface border border-border/80 rounded-2xl overflow-hidden shadow-premium animate-in zoom-in-95 duration-200">
+          <section className="bg-surface border border-border/80 rounded-[13px] overflow-hidden shadow-[var(--shadow-float)] animate-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-border/80 bg-background/30 flex items-center">
               <svg
                 className="w-5 h-5 text-primary mr-2"
@@ -259,10 +259,10 @@ export default function WorkspaceSettingsPage() {
             </div>
           </section>
 
-          <section className="bg-surface border border-border/60 rounded-2xl overflow-hidden shadow-premium">
+          <section className="bg-surface border border-border/60 rounded-[13px] overflow-hidden shadow-[var(--shadow-float)]">
             <div className="px-6 py-4 border-b border-border/50 bg-background/30 flex items-center">
               <svg
-                className="w-5 h-5 text-emerald-500 mr-2"
+                className="w-5 h-5 text-success mr-2"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -324,8 +324,8 @@ export default function WorkspaceSettingsPage() {
                     retained for 30 days.
                   </p>
                 </div>
-                <div className="shrink-0 flex items-center text-xs font-semibold text-emerald-600 bg-emerald-100 px-3 py-1.5 rounded-full">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
+                <div className="shrink-0 flex items-center text-xs font-semibold text-success bg-success-soft px-3 py-1.5 rounded-full">
+                  <span className="w-2 h-2 rounded-full bg-success mr-2 animate-pulse"></span>
                   Active
                 </div>
               </div>

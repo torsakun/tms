@@ -88,17 +88,15 @@ export function SuiteNode({
   const cases = casesBySuiteId.get(suite.id) || [];
 
   const SUITE_ACCENT_COLORS = [
-    "#4f46e5",
-    "#7c3aed",
-    "#0891b2",
-    "#059669",
-    "#d97706",
-    "#e11d48",
-    "#0284c7",
-    "#9333ea",
+    "var(--primary)",
+    "var(--info)",
+    "var(--success)",
+    "var(--warning)",
+    "var(--danger)",
+    "var(--skip)",
   ];
   const accentColor = isUnassigned
-    ? "#94a3b8"
+    ? "var(--skip)"
     : SUITE_ACCENT_COLORS[
         Math.abs(
           suite.id
@@ -267,13 +265,13 @@ export function SuiteNode({
         "flex flex-col",
         depth > 0 && "ml-4 mt-1",
         depth === 0 &&
-          "rounded-2xl border border-border/80 shadow-premium bg-surface overflow-hidden",
+          "qm-card overflow-hidden",
       )}
     >
       <div
         className={cn(
           "group px-4 py-2.5 transition-colors",
-          depth === 0 && "bg-surface-hover/40",
+          depth === 0 && "bg-surface-hover/45",
           isOpen && "border-b border-border",
         )}
       >
@@ -318,7 +316,7 @@ export function SuiteNode({
                     e.stopPropagation();
                     toggleSuiteCases(allCasesInSuite);
                   }}
-                  className="mt-0.5 mr-3 text-slate-300 hover:text-primary transition-colors focus:outline-none"
+                  className="mt-0.5 mr-3 text-text-faint hover:text-primary transition-colors focus:outline-none"
                 >
                   {isAllSelected ? (
                     <div className="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-white">
@@ -343,7 +341,7 @@ export function SuiteNode({
                   style={{
                     background: accentColor,
                     color: "#fff",
-                    boxShadow: `0 3px 10px ${accentColor}55`,
+                    boxShadow: `0 3px 10px color-mix(in oklab, ${accentColor} 28%, transparent)`,
                   }}
                   aria-hidden="true"
                 >
@@ -366,7 +364,7 @@ export function SuiteNode({
                             e.stopPropagation();
                             setShowQuickTest(true);
                           }}
-                          className="p-1 text-primary hover:bg-blue-50 rounded transition-colors"
+                            className="p-1 text-primary hover:bg-primary-light rounded transition-colors"
                           title="Create quick test"
                         >
                           <Plus size={14} strokeWidth={2.5} />
@@ -376,21 +374,21 @@ export function SuiteNode({
                             e.stopPropagation();
                             setIsEditingSuite(true);
                           }}
-                          className="p-1 text-text-muted hover:text-text-muted hover:bg-slate-200/50 rounded transition-colors"
+                          className="p-1 text-text-muted hover:text-text-main hover:bg-surface-hover rounded transition-colors"
                           title="Edit suite"
                         >
                           <Edit2 size={13} />
                         </button>
                         <button
                           onClick={handleCloneSuiteClick}
-                          className="p-1 text-text-muted hover:text-text-muted hover:bg-slate-200/50 rounded transition-colors"
+                          className="p-1 text-text-muted hover:text-text-main hover:bg-surface-hover rounded transition-colors"
                           title="Clone suite"
                         >
                           <Copy size={13} />
                         </button>
                         <button
                           onClick={handleDeleteSuiteClick}
-                          className="p-1 text-text-muted hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                          className="p-1 text-text-muted hover:text-danger hover:bg-danger-soft rounded transition-colors"
                           title="Delete suite"
                         >
                           <Trash2 size={13} />
@@ -446,7 +444,7 @@ export function SuiteNode({
                       if (!quickTestTitle) setShowQuickTest(false);
                     }}
                     placeholder="Type test case title and press Enter..."
-                    className="w-full max-w-lg px-3 py-1.5 text-sm border border-primary/30 rounded focus:outline-none focus:ring-2 focus:ring-primary/20 bg-background text-text-main transition-colors shadow-sm"
+                    className="w-full max-w-lg px-3 py-1.5 text-sm qm-input focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors shadow-sm"
                     disabled={isCreating}
                   />
                 ) : (
@@ -469,8 +467,8 @@ export function SuiteNode({
                   <div
                     key={tc.id}
                     className={cn(
-                      "group flex items-center px-4 py-3 border-b border-border last:border-0 hover:bg-indigo-50/40 transition-colors cursor-pointer",
-                      isSelected && "bg-indigo-50/60 hover:bg-indigo-50/80",
+                      "group flex items-center px-4 py-3 border-b border-border last:border-0 hover:bg-primary-light/45 transition-colors cursor-pointer",
+                      isSelected && "bg-primary-light/70 hover:bg-primary-light",
                     )}
                     onClick={() => {
                       if (onSelectCase) {
@@ -489,7 +487,7 @@ export function SuiteNode({
                           e.stopPropagation();
                           toggleCase(tc.id);
                         }}
-                        className="mr-3 text-slate-300 hover:text-primary transition-colors focus:outline-none shrink-0"
+                        className="mr-3 text-text-faint hover:text-primary transition-colors focus:outline-none shrink-0"
                       >
                         {isSelected ? (
                           <div className="w-3.5 h-3.5 rounded bg-primary flex items-center justify-center text-white">
@@ -516,7 +514,7 @@ export function SuiteNode({
                           (tc.priority || "").toUpperCase(),
                         ) ? (
                           <svg
-                            className="w-3 h-3 text-red-500"
+                            className="w-3 h-3 text-danger"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -529,7 +527,7 @@ export function SuiteNode({
                             (tc.priority || "").toUpperCase(),
                           ) ? (
                           <svg
-                            className="w-3 h-3 text-emerald-500"
+                            className="w-3 h-3 text-success"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -540,7 +538,7 @@ export function SuiteNode({
                           </svg>
                         ) : (
                           <svg
-                            className="w-2.5 h-2.5 text-slate-300"
+                            className="w-2.5 h-2.5 text-text-faint"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -555,7 +553,7 @@ export function SuiteNode({
                       {tc.tags?.some((t: any) => t.name === "AI-Generated") ? (
                         <Tooltip label="AI-generated">
                           <div
-                            className="w-5 h-5 flex items-center justify-center shrink-0 rounded bg-amber-50 text-amber-500"
+                            className="w-5 h-5 flex items-center justify-center shrink-0 rounded bg-warning-soft text-warning-foreground"
                             role="img"
                             aria-label="AI-generated"
                           >
@@ -576,7 +574,7 @@ export function SuiteNode({
                     </div>
 
                     <div className="w-20 shrink-0">
-                      <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100/50 px-2 py-0.5 rounded shadow-sm">
+                      <span className="qm-mono text-[11px] font-bold text-primary bg-primary-light border border-primary/15 px-2 py-0.5 rounded shadow-sm">
                         {`${projectCode}-${tc.sequenceNumber || tc.id.substring(0, 2)}`}
                       </span>
                     </div>
@@ -585,7 +583,7 @@ export function SuiteNode({
                       <span className="truncate" title={tc.title}>{tc.title}</span>
                       {tc.isOutdated && (
                         <span
-                          className="ml-2 flex shrink-0 items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700"
+                          className="ml-2 flex shrink-0 items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-warning-soft text-warning-foreground"
                           title="Requirement Changed"
                         >
                           <svg
@@ -613,7 +611,7 @@ export function SuiteNode({
                             e.stopPropagation();
                             setConfirmDeleteCaseId(tc.id);
                           }}
-                          className="p-1 text-text-muted hover:text-red-500 rounded transition-colors"
+                          className="p-1 text-text-muted hover:text-danger rounded transition-colors"
                           title="Delete test case"
                         >
                           <Trash2 size={14} />

@@ -126,20 +126,20 @@ export function ReportBugModal({
   };
 
   const inputCls =
-    "w-full border border-border bg-surface-hover rounded-lg px-3 py-2 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all";
+    "w-full border border-border bg-surface-hover rounded-lg px-3 py-2 text-sm text-text-main focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 transition-all";
 
   return (
     <div
-      className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[80] flex items-center justify-center p-4"
+      className="fixed inset-0 bg-[color:oklch(0.18_0.015_264)]/40 backdrop-blur-sm z-[80] flex items-center justify-center p-4"
       onClick={onClose}
     >
       <div
-        className="bg-surface rounded-2xl shadow-2xl w-full max-w-lg max-h-[88vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="bg-surface rounded-[13px] shadow-[var(--shadow-dialog)] w-full max-w-lg max-h-[88vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center px-6 py-4 border-b border-border">
           <h3 className="font-bold text-text-main flex items-center gap-2">
-            <Bug size={16} className="text-rose-500" />
+            <Bug size={16} className="text-danger" />
             Report bug to Jira
           </h3>
           <button
@@ -153,7 +153,7 @@ export function ReportBugModal({
         {drafting ? (
           <div className="flex-1 flex flex-col items-center justify-center py-20 gap-3">
             <div className="relative">
-              <Sparkles size={28} className="text-indigo-400 animate-pulse" />
+              <Sparkles size={28} className="text-primary animate-pulse" />
             </div>
             <p className="text-sm font-medium text-text-muted">
               AI กำลังวิเคราะห์ failure และร่าง bug…
@@ -161,7 +161,7 @@ export function ReportBugModal({
           </div>
         ) : (
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-indigo-500 bg-indigo-50 px-2.5 py-1.5 rounded-lg w-fit">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-primary bg-primary-light px-2.5 py-1.5 rounded-lg w-fit">
               <Sparkles size={12} /> AI drafted — แก้ไขได้ก่อน submit
             </div>
 
@@ -196,11 +196,11 @@ export function ReportBugModal({
             </div>
 
             {rootCause && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                <div className="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-1">
+              <div className="bg-warning-soft border border-warning/25 rounded-lg p-3">
+                <div className="text-[10px] font-bold text-warning uppercase tracking-wider mb-1">
                   AI root-cause hypothesis
                 </div>
-                <p className="text-sm text-amber-800">{rootCause}</p>
+                <p className="text-sm text-warning-foreground">{rootCause}</p>
               </div>
             )}
 
@@ -222,7 +222,7 @@ export function ReportBugModal({
                 </label>
                 <button
                   onClick={() => setSteps((s) => [...s, ""])}
-                  className="text-indigo-500 hover:text-indigo-700 text-xs font-semibold flex items-center gap-1"
+                  className="text-primary hover:text-primary text-xs font-semibold flex items-center gap-1"
                 >
                   <Plus size={12} /> Add
                 </button>
@@ -240,7 +240,7 @@ export function ReportBugModal({
                     />
                     <button
                       onClick={() => removeStep(i)}
-                      className="text-slate-300 hover:text-red-500 shrink-0"
+                      className="text-text-faint hover:text-danger shrink-0"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -258,7 +258,7 @@ export function ReportBugModal({
           <button
             onClick={draft}
             disabled={drafting || submitting}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-muted hover:text-indigo-600 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-text-muted hover:text-primary transition-colors disabled:opacity-50"
           >
             <Sparkles size={13} /> Re-draft
           </button>

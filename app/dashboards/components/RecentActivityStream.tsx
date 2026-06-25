@@ -20,31 +20,31 @@ export function RecentActivityStream({ auditLogs }: RecentActivityStreamProps) {
     const act = action.toUpperCase();
     if (act.includes("FAIL") || act.includes("DELETE") || act.includes("ERROR")) {
       return {
-        icon: <XCircle size={11} className="text-red-500" />,
-        bg: "bg-red-50 text-red-700 border-red-200/70 dark:bg-red-500/10 dark:text-red-300 dark:border-red-500/25"
+        icon: <XCircle size={11} className="text-danger" />,
+        bg: "bg-danger-soft text-danger-foreground border-danger/25 text-danger-foreground border-danger/25"
       };
     }
     if (act.includes("CREATE") || act.includes("SYNC") || act.includes("ADD") || act.includes("COMPLETE") || act.includes("SUCCESS")) {
       return {
-        icon: <CheckCircle2 size={11} className="text-emerald-500" />,
-        bg: "bg-emerald-50 text-emerald-700 border-emerald-200/70 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-500/25"
+        icon: <CheckCircle2 size={11} className="text-success" />,
+        bg: "bg-success-soft text-success-foreground border-success/25 text-success-foreground"
       };
     }
     return {
-      icon: <Activity size={11} className="text-indigo-500" />,
-      bg: "bg-indigo-50 text-indigo-700 border-indigo-200/70 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/25"
+      icon: <Activity size={11} className="text-primary" />,
+      bg: "bg-primary-light text-primary border-primary/25 text-primary border-primary/25"
     };
   };
 
   return (
-    <section className="flex max-h-[400px] flex-col overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-premium">
+    <section className="flex max-h-[400px] flex-col overflow-hidden rounded-[13px] border border-border/80 bg-surface shadow-[var(--shadow-float)]">
       <div className="flex items-center justify-between border-b border-border/80 px-5 py-4">
         <h2 className="flex items-center gap-2 text-base font-extrabold text-text-main">
           <Terminal size={17} className="text-primary" />
           Activity Stream
         </h2>
-        <span className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200/60 bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        <span className="inline-flex items-center gap-1.5 rounded-md border border-success/25 bg-success-soft px-2 py-1 text-xs font-bold text-success-foreground border-success/25 text-success-foreground">
+          <span className="h-1.5 w-1.5 rounded-full bg-success-soft" />
           Live
         </span>
       </div>

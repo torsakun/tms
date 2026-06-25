@@ -83,8 +83,8 @@ export default function SignupPage() {
             </div>
           ) : open === false ? (
             <div className="text-center py-4">
-              <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-4">
-                <Lock className="text-indigo-500" size={26} />
+              <div className="w-14 h-14 rounded-2xl bg-primary-light flex items-center justify-center mx-auto mb-4">
+                <Lock className="text-primary" size={26} />
               </div>
               <h2 className="text-xl font-bold text-text-main tracking-tight mb-2">
                 Invite-only workspace
@@ -107,7 +107,7 @@ export default function SignupPage() {
           ) : (
             <>
               <div className="mb-6">
-                <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full mb-3">
+                <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-success-foreground bg-success-soft px-2.5 py-1 rounded-full mb-3">
                   <ShieldCheck size={12} /> First-time setup
                 </div>
                 <h2 className="text-2xl font-extrabold text-text-main tracking-tight">
@@ -120,7 +120,7 @@ export default function SignupPage() {
 
               <form className="space-y-4" onSubmit={handleSubmit}>
                 {error && (
-                  <div className="p-3 bg-rose-500/10 text-rose-500 flex items-center rounded-xl border border-rose-500/20 text-sm font-bold">
+                  <div className="p-3 bg-danger-soft text-danger-foreground flex items-center rounded-xl border border-danger/25 text-sm font-bold">
                     <AlertCircle size={16} className="mr-2 shrink-0" />
                     {error}
                   </div>

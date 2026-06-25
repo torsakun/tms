@@ -340,13 +340,13 @@ export function RepositoryContent({
 
   return (
     <>
-      <div className="flex-1 flex flex-col min-w-0 relative h-full overflow-hidden bg-surface transition-colors">
+      <div className="flex-1 flex flex-col min-w-0 relative h-full overflow-hidden bg-background transition-colors">
         {/* ── Page header row: title + action buttons ── */}
         <div
           className="flex items-center justify-between px-6 py-3 bg-surface border-b shrink-0"
           style={{
             borderColor: "var(--border-color)",
-            boxShadow: "0 4px 15px rgba(0,0,0,0.03)",
+            boxShadow: "var(--shadow-card)",
           }}
         >
           {/* Left: title + counts */}
@@ -355,15 +355,15 @@ export function RepositoryContent({
               <span className="text-[15px] font-bold text-text-main">
                 {projectCode}
               </span>
-              <span className="text-slate-300">/</span>
+              <span className="text-text-faint">/</span>
               <span className="text-[15px] font-bold text-text-main">
                 Repository
               </span>
-              <span className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full ml-1">
+              <span className="flex items-center gap-1.5 text-sm font-semibold text-primary bg-primary-light px-3 py-1 rounded-full ml-1">
                 {selectedCases.size} selected
                 <button
                   onClick={clearSelection}
-                  className="ml-0.5 text-indigo-400 hover:text-indigo-600 rounded-full hover:bg-indigo-100 p-0.5 transition-colors"
+                  className="ml-0.5 text-primary hover:bg-primary/10 rounded-full p-0.5 transition-colors"
                 >
                   <X size={12} />
                 </button>
@@ -374,11 +374,11 @@ export function RepositoryContent({
               <span className="text-[15px] font-bold text-text-main">
                 {projectCode}
               </span>
-              <span className="text-slate-300">/</span>
+              <span className="text-text-faint">/</span>
               <span className="text-[15px] font-bold text-text-main">
                 Repository
               </span>
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary">
                 {totalCases ?? cases.length} cases
               </span>
               <span className="text-[11px] font-medium text-text-muted">
@@ -398,7 +398,7 @@ export function RepositoryContent({
                 >
                   <Edit3 size={15} />
                 </button>
-                <div className="w-px h-4 bg-slate-200" />
+                <div className="w-px h-4 bg-border" />
                 <button
                   onClick={handleBulkClone}
                   className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-md transition-colors"
@@ -406,25 +406,25 @@ export function RepositoryContent({
                 >
                   <Copy size={15} />
                 </button>
-                <div className="w-px h-4 bg-slate-200" />
+                <div className="w-px h-4 bg-border" />
                 <button
                   onClick={handleBulkRun}
-                  className="p-1.5 text-text-muted hover:text-emerald-600 hover:bg-surface rounded-md transition-colors"
+                  className="p-1.5 text-text-muted hover:text-success hover:bg-surface rounded-md transition-colors"
                   title="Run"
                 >
                   <PlayCircle size={15} />
                 </button>
-                <div className="w-px h-4 bg-slate-200" />
+                <div className="w-px h-4 bg-border" />
                 <button
                   onClick={() => setConfirmBulkDelete(true)}
-                  className="p-1.5 text-text-muted hover:text-red-500 hover:bg-surface rounded-md transition-colors"
+                  className="p-1.5 text-text-muted hover:text-danger hover:bg-surface rounded-md transition-colors"
                   title="Delete"
                 >
                   <Trash2 size={15} />
                 </button>
               </div>
               <button className="flex items-center px-3 py-1.5 bg-surface hover:bg-surface-hover border border-border text-text-main text-[13px] font-medium rounded-lg transition-colors shadow-sm">
-                <Cpu size={14} className="mr-1.5 text-indigo-500" /> Automate
+                <Cpu size={14} className="mr-1.5 text-primary" /> Automate
               </button>
             </div>
           ) : (
@@ -435,7 +435,7 @@ export function RepositoryContent({
                     href={lastSyncPr.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center text-xs font-medium text-text-main hover:text-indigo-600 hover:underline transition-colors px-2 py-1"
+                    className="flex items-center text-xs font-medium text-text-main hover:text-primary hover:underline transition-colors px-2 py-1"
                   >
                     <ExternalLink size={13} className="mr-1" /> View PR #
                     {lastSyncPr.number}
@@ -444,7 +444,7 @@ export function RepositoryContent({
                     <button
                       onClick={handleQuickMerge}
                       disabled={isMerging}
-                      className="flex items-center bg-indigo-600 text-white px-3 py-1 rounded-md text-xs font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                      className="flex items-center bg-primary text-primary-foreground px-3 py-1 rounded-md text-xs font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50"
                     >
                       {isMerging ? (
                         <Loader2 size={12} className="mr-1 animate-spin" />
@@ -464,7 +464,7 @@ export function RepositoryContent({
                     loading={isSyncing}
                     onClick={() => setConfirmSync(true)}
                     title="Sync to GitHub"
-                    className="bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20 hover:bg-sky-500/20 font-bold"
+                    className="bg-info-soft text-info-foreground border-info/20 hover:bg-info-soft font-bold"
                   >
                     {!isSyncing && <CloudUpload size={14} />}
                     Sync
@@ -474,7 +474,7 @@ export function RepositoryContent({
                     size="md"
                     onClick={() => setIsBulkJiraModalOpen(true)}
                     title="Story Impact Analysis"
-                    className="bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20 hover:bg-violet-500/20 font-bold"
+                    className="bg-danger-soft text-danger-foreground border-danger/20 hover:bg-danger-soft font-bold"
                   >
                     <Ticket size={14} /> Impact
                   </Button>
@@ -483,7 +483,7 @@ export function RepositoryContent({
                     size="md"
                     onClick={() => setIsAiModalOpen(true)}
                     title="Generate AI Tests"
-                    className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 hover:bg-amber-500/20 font-bold"
+                    className="bg-warning-soft text-warning-foreground border-warning/20 hover:bg-warning-soft font-bold"
                   >
                     <Sparkles size={14} /> AI Gen
                   </Button>
@@ -497,7 +497,7 @@ export function RepositoryContent({
                     <Button variant="secondary" size="md">
                       <Settings size={14} /> Options
                     </Button>
-                    <div className="absolute right-0 top-full mt-1 w-48 bg-surface border border-border rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                    <div className="absolute right-0 top-full mt-1 w-48 qm-panel opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                       <div className="p-1 flex flex-col gap-0.5">
                         <button
                           onClick={handleExportQase}
@@ -544,13 +544,13 @@ export function RepositoryContent({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search cases…"
-              className="w-full pl-9 pr-3 py-2 text-[13px] bg-surface-hover border border-border text-text-main rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all"
+              className="w-full pl-9 pr-3 py-2 text-[13px] qm-input focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all"
             />
           </div>
           <select
             value={searchScope}
             onChange={(e) => setSearchScope(e.target.value as "all" | "title")}
-            className="px-3 py-2 text-[13px] bg-surface-hover border border-border text-text-muted rounded-lg focus:outline-none focus:border-indigo-300 appearance-none cursor-pointer w-36"
+            className="px-3 py-2 text-[13px] qm-input text-text-muted focus:outline-none focus:border-primary appearance-none cursor-pointer w-36"
           >
             <option value="all">By all fields</option>
             <option value="title">By title</option>
@@ -564,20 +564,20 @@ export function RepositoryContent({
               onClick={() => setFilterOpen((o) => !o)}
               className={
                 activeFilterCount > 0 || filterOpen
-                  ? "bg-indigo-50 text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                  ? "bg-primary-light text-primary border-primary/30 hover:bg-primary-light"
                   : ""
               }
             >
               <Filter size={14} />
               Filter
               {activeFilterCount > 0 && (
-                <span className="text-[10px] font-bold bg-indigo-600 text-white rounded-full px-1.5 py-0.5 leading-none">
+                <span className="text-[10px] font-bold bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 leading-none">
                   {activeFilterCount}
                 </span>
               )}
             </Button>
             {filterOpen && (
-              <div className="absolute left-0 mt-1.5 w-60 bg-surface border border-border rounded-xl shadow-lg z-50 p-3 animate-fade-up">
+              <div className="absolute left-0 mt-1.5 w-60 qm-panel z-50 p-3 animate-fade-up">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] font-extrabold uppercase tracking-wider text-text-muted">
                     Priority
@@ -588,7 +588,7 @@ export function RepositoryContent({
                         setPriorityFilter(new Set());
                         setAutomationFilter(new Set());
                       }}
-                      className="text-[11px] font-semibold text-indigo-600 hover:underline"
+                      className="text-[11px] font-semibold text-primary hover:underline"
                     >
                       Clear all
                     </button>
@@ -601,7 +601,7 @@ export function RepositoryContent({
                       onClick={() => toggleSetValue(setPriorityFilter, p)}
                       className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${
                         priorityFilter.has(p)
-                          ? "bg-indigo-600 text-white border-indigo-600"
+                          ? "bg-primary text-primary-foreground border-primary"
                           : "bg-surface-hover text-text-muted border-border hover:text-text-main"
                       }`}
                     >
@@ -623,7 +623,7 @@ export function RepositoryContent({
                       onClick={() => toggleSetValue(setAutomationFilter, v)}
                       className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${
                         automationFilter.has(v)
-                          ? "bg-indigo-600 text-white border-indigo-600"
+                          ? "bg-primary text-primary-foreground border-primary"
                           : "bg-surface-hover text-text-muted border-border hover:text-text-main"
                       }`}
                     >
@@ -637,7 +637,7 @@ export function RepositoryContent({
         </div>
 
         {/* Hierarchical Content */}
-        <div className="flex-1 overflow-y-auto bg-surface relative transition-colors">
+        <div className="flex-1 overflow-y-auto bg-background relative transition-colors">
           <div className="p-6 pb-32">
             <SuiteList
               suites={suites}
@@ -710,7 +710,7 @@ export function RepositoryContent({
 
       {/* Slide-over Detail Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-[55vw] min-w-[600px] bg-surface shadow-[-10px_0_40px_rgba(0,0,0,0.08)] border-l transform transition-transform duration-300 ease-in-out z-[60] flex flex-col ${activeTestCaseId ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 h-full w-[55vw] min-w-[600px] bg-surface shadow-[var(--shadow-dialog)] border-l transform transition-transform duration-300 ease-in-out z-modal flex flex-col ${activeTestCaseId ? "translate-x-0" : "translate-x-full"}`}
         style={{ borderColor: "var(--border-color)" }}
       >
         {activeTestCase && (
@@ -720,7 +720,7 @@ export function RepositoryContent({
               style={{ borderColor: "var(--border-color)" }}
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded shadow-sm">
+                <span className="qm-mono text-[11px] font-bold text-primary bg-primary-light border border-primary/15 px-2 py-0.5 rounded shadow-sm">
                   {`${projectCode}-${activeTestCase.sequenceNumber || activeTestCase.id.substring(0, 4)}`}
                 </span>
                 <div className="flex items-center gap-1">
@@ -737,7 +737,7 @@ export function RepositoryContent({
                   </button>
                   <button
                     onClick={() => setActiveTestCaseId(null)}
-                    className="text-text-muted hover:text-red-500 hover:bg-surface-hover p-1.5 rounded-lg transition-colors"
+                    className="text-text-muted hover:text-danger hover:bg-surface-hover p-1.5 rounded-lg transition-colors"
                   >
                     <X size={18} />
                   </button>
@@ -754,26 +754,26 @@ export function RepositoryContent({
                       `/projects/${projectCode}/cases/${activeTestCase.id}/edit`,
                     )
                   }
-                  className="bg-surface border border-border hover:bg-surface-hover hover:border-indigo-200 hover:text-indigo-600 text-text-muted p-2 rounded-lg transition-colors shadow-sm"
+                  className="bg-surface border border-border hover:bg-surface-hover hover:border-primary/30 hover:text-primary text-text-muted p-2 rounded-lg transition-colors shadow-sm"
                   title="Edit case"
                 >
                   <Edit3 size={15} />
                 </button>
                 <button
                   onClick={handleCloneCase}
-                  className="bg-surface border border-border hover:bg-surface-hover hover:border-indigo-200 hover:text-indigo-600 text-text-muted p-2 rounded-lg transition-colors shadow-sm"
+                  className="bg-surface border border-border hover:bg-surface-hover hover:border-primary/30 hover:text-primary text-text-muted p-2 rounded-lg transition-colors shadow-sm"
                   title="Clone case"
                 >
                   <Copy size={15} />
                 </button>
                 <button
                   onClick={() => setConfirmDeleteCase(true)}
-                  className="bg-surface border border-border hover:bg-surface-hover hover:border-red-200 hover:text-red-500 text-text-muted p-2 rounded-lg transition-colors shadow-sm"
+                  className="bg-surface border border-border hover:bg-surface-hover hover:border-danger/30 hover:text-danger text-text-muted p-2 rounded-lg transition-colors shadow-sm"
                   title="Delete case"
                 >
                   <Trash2 size={15} />
                 </button>
-                <div className="w-px h-6 bg-slate-200 mx-1"></div>
+                <div className="w-px h-6 bg-border mx-1"></div>
                 <button
                   className="text-white shadow-sm px-3 py-1.5 rounded-lg text-[13px] font-semibold flex items-center transition-all hover:-translate-y-0.5"
                   style={{
@@ -787,30 +787,30 @@ export function RepositoryContent({
               <div className="flex gap-6">
                 <button
                   onClick={() => setDetailTab("general")}
-                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors ${detailTab === "general" ? "border-indigo-500 text-indigo-600 font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors ${detailTab === "general" ? "border-primary text-primary font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
                 >
                   General
                 </button>
                 <button
                   onClick={() => setDetailTab("defects")}
-                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors flex items-center gap-1.5 ${detailTab === "defects" ? "border-indigo-500 text-indigo-600 font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors flex items-center gap-1.5 ${detailTab === "defects" ? "border-primary text-primary font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
                 >
                   Defects
                   {activeTestCase.linkedIssues?.length > 0 && (
-                    <span className="text-[10px] font-bold bg-rose-50 text-rose-500 px-1.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold bg-danger-soft text-danger-foreground px-1.5 py-0.5 rounded-full">
                       {activeTestCase.linkedIssues.length}
                     </span>
                   )}
                 </button>
                 <button
                   onClick={() => setDetailTab("comments")}
-                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors ${detailTab === "comments" ? "border-indigo-500 text-indigo-600 font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors ${detailTab === "comments" ? "border-primary text-primary font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
                 >
                   Comments
                 </button>
                 <button
                   onClick={() => setDetailTab("history")}
-                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors ${detailTab === "history" ? "border-indigo-500 text-indigo-600 font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors ${detailTab === "history" ? "border-primary text-primary font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
                 >
                   History
                 </button>
@@ -821,17 +821,17 @@ export function RepositoryContent({
               {detailTab === "general" && (
               <>
               {activeTestCase.isOutdated && (
-                <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl flex flex-col space-y-3 shadow-sm mb-4">
+                <div className="bg-warning-soft border border-warning/25 p-4 rounded-xl flex flex-col space-y-3 shadow-sm mb-4">
                   <div className="flex items-start">
                     <AlertTriangle
                       size={20}
-                      className="text-amber-500 mr-2 shrink-0 mt-0.5"
+                      className="text-warning mr-2 shrink-0 mt-0.5"
                     />
                     <div>
-                      <h4 className="text-sm font-bold text-amber-800">
+                      <h4 className="text-sm font-bold text-warning-foreground">
                         Requirement Changed
                       </h4>
-                      <p className="text-xs text-amber-700 mt-1">
+                      <p className="text-xs text-warning-foreground mt-1">
                         The requirement linked to this test case has been
                         updated. The steps may be outdated.
                       </p>
@@ -839,7 +839,7 @@ export function RepositoryContent({
                   </div>
                   <button
                     onClick={() => setIsImpactModalOpen(true)}
-                    className="self-start flex items-center bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-colors"
+                    className="self-start flex items-center bg-warning-soft hover:bg-warning/90 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-sm transition-colors"
                   >
                     <Sparkles size={14} className="mr-1.5" /> Analyze Impact
                     with AI
@@ -927,7 +927,7 @@ export function RepositoryContent({
                         `/projects/${projectCode}/cases/${activeTestCase.id}/edit`,
                       )
                     }
-                    className="text-indigo-500 hover:text-indigo-700 text-xs font-bold flex items-center transition-colors"
+                    className="text-primary hover:text-primary-hover text-xs font-bold flex items-center transition-colors"
                   >
                     <Edit3 size={12} className="mr-1" /> Edit
                   </button>
@@ -952,7 +952,7 @@ export function RepositoryContent({
                           {step.action}
                           {step.expectedResult && (
                             <div className="mt-2 text-[13px] bg-surface-hover border border-border rounded-lg pl-3 pr-3 py-2 text-text-main">
-                              <span className="font-bold text-emerald-700">
+                              <span className="font-bold text-success-foreground">
                                 Expected:{" "}
                               </span>
                               {step.expectedResult}
@@ -980,7 +980,7 @@ export function RepositoryContent({
                 activeTestCase.linkedIssues.length > 0 ? (
                   <div className="bg-surface p-5 rounded-xl border border-border shadow-sm">
                     <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                      <Ticket size={12} className="text-rose-500" /> Linked
+                      <Ticket size={12} className="text-danger" /> Linked
                       Defects ({activeTestCase.linkedIssues.length})
                     </h3>
                     <div className="space-y-2">
@@ -990,9 +990,9 @@ export function RepositoryContent({
                           href={iss.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-rose-200 hover:bg-rose-50/40 transition-colors group"
+                          className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-danger/25 hover:bg-danger-soft transition-colors group"
                         >
-                          <span className="text-[10px] font-extrabold text-rose-600 bg-rose-50 border border-rose-100 px-2 py-0.5 rounded shrink-0">
+                          <span className="text-[10px] font-extrabold text-danger bg-danger-soft border border-danger/15 px-2 py-0.5 rounded shrink-0">
                             {iss.key}
                           </span>
                           <span className="flex-1 text-sm text-text-main truncate">
@@ -1005,7 +1005,7 @@ export function RepositoryContent({
                           )}
                           <ExternalLink
                             size={13}
-                            className="text-slate-300 group-hover:text-rose-400 shrink-0"
+                            className="text-text-faint group-hover:text-danger shrink-0"
                           />
                         </a>
                       ))}
@@ -1013,7 +1013,7 @@ export function RepositoryContent({
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <Ticket size={28} className="text-slate-300 mb-3" />
+                    <Ticket size={28} className="text-text-faint mb-3" />
                     <p className="text-sm font-semibold text-text-muted">
                       No linked defects
                     </p>
@@ -1038,7 +1038,7 @@ export function RepositoryContent({
                   </div>
                 ) : history.length === 0 && changes.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 text-center">
-                    <PlayCircle size={28} className="text-slate-300 mb-3" />
+                    <PlayCircle size={28} className="text-text-faint mb-3" />
                     <p className="text-sm font-semibold text-text-muted">
                       No history yet
                     </p>
@@ -1081,7 +1081,7 @@ export function RepositoryContent({
                               >
                                 <Edit3
                                   size={14}
-                                  className="text-indigo-500 shrink-0 mt-0.5"
+                                  className="text-primary shrink-0 mt-0.5"
                                 />
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm text-text-main">
@@ -1134,7 +1134,7 @@ export function RepositoryContent({
                         <a
                           key={h.id}
                           href={`/projects/${projectCode}/runs/${h.testRun?.id}`}
-                          className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-indigo-200 hover:bg-indigo-50/30 transition-colors"
+                          className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-primary/25 hover:bg-primary-light/40 transition-colors"
                         >
                           <span
                             className="w-2 h-2 rounded-full shrink-0"
@@ -1187,7 +1187,7 @@ export function RepositoryContent({
       {/* Backdrop for sliding panel */}
       {activeTestCaseId && (
         <div
-          className="fixed inset-0 bg-slate-900/20 z-[50] transition-opacity"
+          className="fixed inset-0 bg-[color:var(--overlay)] z-[50] transition-opacity"
           onClick={() => setActiveTestCaseId(null)}
         />
       )}

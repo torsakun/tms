@@ -304,30 +304,30 @@ export default function TESSAAutomationPage({
   const showPushBtn = pendingCasesCount > 0;
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] bg-surface-hover dark:bg-[#0B0F19] overflow-y-auto">
+    <div className="flex h-[calc(100vh-4rem)] bg-surface-hover  overflow-y-auto">
       <div className="w-full max-w-7xl mx-auto p-8 space-y-8">
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
-            <div className="inline-flex items-center px-3 py-1 mb-3 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-400 text-xs font-semibold tracking-wide uppercase shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-              <Sparkles size={14} className="mr-2 text-indigo-400" />
+            <div className="inline-flex items-center px-3 py-1 mb-3 rounded-full border border-primary/30 bg-primary-light text-primary text-xs font-semibold tracking-wide uppercase shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+              <Sparkles size={14} className="mr-2 text-primary" />
               Powered by Generative AI
             </div>
-            <h1 className="text-3xl font-extrabold text-text-main dark:text-text-main flex items-center tracking-tight">
+            <h1 className="text-3xl font-extrabold text-text-main  flex items-center tracking-tight">
               TESSA{" "}
-              <span className="mx-3 text-slate-300 dark:text-text-main font-light">
+              <span className="mx-3 text-text-faint  font-light">
                 |
               </span>
               <span className="text-primary font-bold">Test Orchestration</span>
             </h1>
-            <p className="mt-2 text-text-muted dark:text-text-muted">
+            <p className="mt-2 text-text-muted">
               Your autonomous AI assistant for writing scripts, healing flaky
               tests, and managing pipelines.
             </p>
           </div>
           <Button
             onClick={() => setIsPipelineModalOpen(true)}
-            className="shadow-premium hover:-translate-y-0.5"
+            className="shadow-[var(--shadow-float)] hover:-translate-y-0.5"
           >
             <Zap size={18} /> Create Scheduled Pipeline
           </Button>
@@ -335,81 +335,81 @@ export default function TESSAAutomationPage({
 
         {/* Stats Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-surface dark:bg-surface rounded-2xl p-6 border border-border dark:border-border shadow-premium backdrop-blur-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-indigo-500/20 transition-all duration-500"></div>
+          <div className="bg-surface  rounded-[13px] p-6 border border-border  shadow-[var(--shadow-float)] backdrop-blur-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary-light rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-primary-light transition-all duration-500"></div>
             <div className="flex justify-between items-start mb-4 relative z-10">
               <div>
-                <p className="text-sm font-medium text-text-muted dark:text-text-muted mb-1">
+                <p className="text-sm font-medium text-text-muted  mb-1">
                   AI Generated Scripts
                 </p>
-                <h3 className="text-3xl font-bold text-text-main dark:text-text-main">
+                <h3 className="text-3xl font-bold text-text-main ">
                   {stats.automated}
                 </h3>
               </div>
-              <div className="w-12 h-12 bg-indigo-100 dark:bg-indigo-500/20 rounded-xl flex items-center justify-center border border-indigo-200 dark:border-indigo-500/30">
+              <div className="w-12 h-12 bg-primary-light rounded-xl flex items-center justify-center border border-primary/25">
                 <Code2
                   size={24}
-                  className="text-indigo-600 dark:text-indigo-400"
+                  className="text-primary"
                 />
               </div>
             </div>
-            <div className="flex items-center text-xs text-emerald-600 dark:text-emerald-400 font-medium relative z-10">
+            <div className="flex items-center text-xs text-success  font-medium relative z-10">
               <Activity size={14} className="mr-1" /> System total automated
               cases
             </div>
           </div>
 
-          <div className="bg-surface dark:bg-surface rounded-2xl p-6 border border-border dark:border-border shadow-premium backdrop-blur-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-emerald-500/20 transition-all duration-500"></div>
+          <div className="bg-surface  rounded-[13px] p-6 border border-border  shadow-[var(--shadow-float)] backdrop-blur-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-success-soft rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-success-soft transition-all duration-500"></div>
             <div className="flex justify-between items-start mb-4 relative z-10">
               <div>
-                <p className="text-sm font-medium text-text-muted dark:text-text-muted mb-1">
+                <p className="text-sm font-medium text-text-muted  mb-1">
                   Executive ROI
                 </p>
-                <h3 className="text-3xl font-bold text-text-main dark:text-text-main">
+                <h3 className="text-3xl font-bold text-text-main ">
                   ${analytics?.roi?.estimatedValueUsd || "0"}
                 </h3>
               </div>
-              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-500/20 rounded-xl flex items-center justify-center border border-emerald-200 dark:border-emerald-500/30">
+              <div className="w-12 h-12 bg-success-soft rounded-xl flex items-center justify-center border border-success/25">
                 <DollarSign
                   size={24}
-                  className="text-emerald-600 dark:text-emerald-400"
+                  className="text-success"
                 />
               </div>
             </div>
             <div className="flex items-center justify-between text-xs font-medium relative z-10">
-              <span className="text-emerald-600 dark:text-emerald-400 flex items-center">
+              <span className="text-success  flex items-center">
                 <Clock size={14} className="mr-1" />{" "}
                 {analytics?.roi?.totalHoursSaved || 0} hrs saved
               </span>
-              <span className="text-text-muted dark:text-text-muted">
+              <span className="text-text-muted">
                 ≈ ฿{analytics?.roi?.estimatedValueThb || "0"}
               </span>
             </div>
           </div>
 
-          <div className="bg-surface dark:bg-surface rounded-2xl p-6 border border-border dark:border-border shadow-premium backdrop-blur-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-purple-500/20 transition-all duration-500"></div>
+          <div className="bg-surface  rounded-[13px] p-6 border border-border  shadow-[var(--shadow-float)] backdrop-blur-sm relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-info-soft rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-info-soft transition-all duration-500"></div>
             <div className="flex justify-between items-start mb-4 relative z-10">
               <div>
-                <p className="text-sm font-medium text-text-muted dark:text-text-muted mb-1">
+                <p className="text-sm font-medium text-text-muted  mb-1">
                   Automation Coverage
                 </p>
-                <h3 className="text-3xl font-bold text-text-main dark:text-text-main">
+                <h3 className="text-3xl font-bold text-text-main ">
                   {stats.total > 0
                     ? Math.round((stats.automated / stats.total) * 100)
                     : 0}
                   %
                 </h3>
               </div>
-              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-500/20 rounded-xl flex items-center justify-center border border-purple-200 dark:border-purple-500/30">
+              <div className="w-12 h-12 bg-info-soft rounded-xl flex items-center justify-center border border-info/25">
                 <Bot
                   size={24}
-                  className="text-purple-600 dark:text-purple-400"
+                  className="text-info"
                 />
               </div>
             </div>
-            <div className="flex items-center text-xs text-amber-600 dark:text-amber-400 font-medium relative z-10">
+            <div className="flex items-center text-xs text-warning  font-medium relative z-10">
               <AlertTriangle size={14} className="mr-1" /> {stats.manual} manual
               cases recommended for automation
             </div>
@@ -417,14 +417,14 @@ export default function TESSAAutomationPage({
         </div>
 
         {error && (
-          <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl flex items-center">
+          <div className="p-4 bg-danger-soft border border-danger/25 text-danger rounded-xl flex items-center">
             <AlertTriangle size={18} className="mr-2 shrink-0" />
             <span className="font-medium">{error}</span>
           </div>
         )}
 
         {status === "DONE" && prUrl && (
-          <div className="p-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-between">
+          <div className="p-6 bg-success-soft border border-success/25 text-success  rounded-xl flex items-center justify-between">
             <div className="flex items-center">
               <CheckCircle2 size={24} className="mr-3 shrink-0" />
               <div>
@@ -441,7 +441,7 @@ export default function TESSAAutomationPage({
               href={prUrl}
               target="_blank"
               rel="noreferrer"
-              className="px-5 py-2.5 bg-emerald-500 text-white font-bold rounded-xl hover:bg-emerald-600 duration-300 transition-all flex items-center shadow-premium hover:-translate-y-0.5"
+              className="px-5 py-2.5 bg-success text-white font-bold rounded-xl hover:bg-success duration-300 transition-all flex items-center shadow-[var(--shadow-float)] hover:-translate-y-0.5"
             >
               <GitPullRequest size={18} className="mr-2" /> View Pull Request
             </a>
@@ -451,20 +451,20 @@ export default function TESSAAutomationPage({
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Batch Generator Panel */}
-          <div className="bg-surface dark:bg-[#111623] rounded-2xl border border-border/80 dark:border-border overflow-hidden flex flex-col shadow-premium h-[500px]">
-            <div className="px-6 py-4 border-b border-border dark:border-border flex justify-between items-center bg-surface-hover/50 dark:bg-surface">
-              <h3 className="font-semibold text-text-main dark:text-text-main flex items-center">
-                <Bot size={18} className="mr-2 text-indigo-500" /> Suggested for
+          <div className="bg-surface  rounded-[13px] border border-border/80  overflow-hidden flex flex-col shadow-[var(--shadow-float)] h-[500px]">
+            <div className="px-6 py-4 border-b border-border  flex justify-between items-center bg-surface-hover/50 ">
+              <h3 className="font-semibold text-text-main  flex items-center">
+                <Bot size={18} className="mr-2 text-primary" /> Suggested for
                 Automation
               </h3>
-              <span className="text-xs font-medium text-text-muted bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded-md">
+              <span className="text-xs font-medium text-text-muted bg-skip-soft  px-2 py-1 rounded-md">
                 {selectedCaseIds.length} Selected
               </span>
             </div>
             <div className="flex-1 flex flex-col overflow-hidden">
               <div className="overflow-y-auto flex-1">
-                <table className="w-full text-left text-sm text-text-muted dark:text-slate-300">
-                  <thead className="bg-surface-hover/50 dark:bg-surface border-b border-border/80 text-[11px] uppercase font-bold text-text-muted dark:text-text-muted sticky top-0 tracking-wider">
+                <table className="w-full text-left text-sm text-text-muted">
+                  <thead className="bg-surface-hover/50 border-b border-border/80 text-[11px] uppercase font-bold text-text-muted sticky top-0 tracking-wider">
                     <tr>
                       <th className="px-6 py-3 w-10">
                         <input
@@ -485,14 +485,14 @@ export default function TESSAAutomationPage({
                                 )
                           }
                           disabled={status !== "IDLE" || manualCasesCount === 0}
-                          className="rounded border-text-muted text-indigo-600 focus:ring-indigo-500 disabled:opacity-50"
+                          className="rounded border-text-muted text-primary focus:ring-primary disabled:opacity-50"
                         />
                       </th>
                       <th className="px-6 py-3">Test Case</th>
                       <th className="px-6 py-3">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border dark:divide-slate-800/50 bg-surface dark:bg-[#111623]">
+                  <tbody className="divide-y divide-border  bg-surface ">
                     {cases.length === 0 ? (
                       <tr>
                         <td
@@ -512,7 +512,7 @@ export default function TESSAAutomationPage({
                         return (
                           <tr
                             key={tc.id}
-                            className="hover:bg-surface-hover dark:hover:bg-slate-900/50 transition-colors"
+                            className="hover:bg-surface-hover  transition-colors"
                           >
                             <td className="px-6 py-4">
                               {isManual ? (
@@ -521,10 +521,10 @@ export default function TESSAAutomationPage({
                                   checked={isSelected}
                                   onChange={() => toggleSelection(tc.id)}
                                   disabled={status !== "IDLE"}
-                                  className="rounded border-text-muted text-indigo-600 focus:ring-indigo-500"
+                                  className="rounded border-text-muted text-primary focus:ring-primary"
                                 />
                               ) : (
-                                <div className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                                <div className="w-4 h-4 bg-success rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(16,185,129,0.3)]">
                                   <CheckCircle2
                                     size={10}
                                     className="text-white"
@@ -532,13 +532,13 @@ export default function TESSAAutomationPage({
                                 </div>
                               )}
                             </td>
-                            <td className="px-6 py-4 font-medium text-text-main dark:text-text-main truncate max-w-[250px]">
+                            <td className="px-6 py-4 font-medium text-text-main  truncate max-w-[250px]">
                               {tc.title}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               {isManual ? (
                                 status === "GENERATING" && isSelected ? (
-                                  <span className="flex items-center text-indigo-500 text-xs">
+                                  <span className="flex items-center text-primary text-xs">
                                     <RefreshCw
                                       size={12}
                                       className="mr-1 animate-spin"
@@ -552,20 +552,20 @@ export default function TESSAAutomationPage({
                                 )
                               ) : isPending ? (
                                 <div className="flex items-center space-x-2">
-                                  <span className="flex items-center text-emerald-500 text-xs">
+                                  <span className="flex items-center text-success text-xs">
                                     <CheckCircle2 size={12} className="mr-1" />{" "}
                                     Pending PR
                                   </span>
                                   <button
                                     onClick={() => handleOpenReview(tc)}
-                                    className="text-text-muted hover:text-indigo-500 transition-colors bg-surface-hover hover:bg-indigo-50 dark:bg-slate-800 dark:hover:bg-indigo-500/20 p-1 rounded"
+                                    className="text-text-muted hover:text-primary transition-colors bg-surface-hover hover:bg-primary-light   p-1 rounded"
                                     title="View/Edit Code"
                                   >
                                     <Eye size={14} />
                                   </button>
                                   <button
                                     onClick={() => handleDiscard(tc.id)}
-                                    className="text-text-muted hover:text-red-500 transition-colors bg-surface-hover hover:bg-red-50 dark:bg-slate-800 dark:hover:bg-red-500/20 p-1 rounded"
+                                    className="text-text-muted hover:text-danger transition-colors bg-surface-hover hover:bg-danger-soft   p-1 rounded"
                                     title="Discard"
                                   >
                                     <Trash2 size={14} />
@@ -581,7 +581,7 @@ export default function TESSAAutomationPage({
                 </table>
               </div>
 
-              <div className="p-6 mt-auto border-t border-border dark:border-border bg-surface-hover dark:bg-surface/30">
+              <div className="p-6 mt-auto border-t border-border  bg-surface-hover /30">
                 {!showPushBtn ? (
                   <Button
                     fullWidth
@@ -589,7 +589,7 @@ export default function TESSAAutomationPage({
                     onClick={handleGenerate}
                     loading={status === "GENERATING"}
                     disabled={status !== "IDLE" || selectedCaseIds.length === 0}
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white shadow-premium hover:-translate-y-0.5 disabled:shadow-none disabled:hover:translate-y-0"
+                    className="bg-primary hover:bg-primary-hover text-white shadow-[var(--shadow-float)] hover:-translate-y-0.5 disabled:shadow-none disabled:hover:translate-y-0"
                   >
                     {status === "GENERATING" ? (
                       <>Batch Generating ({selectedCaseIds.length})...</>
@@ -606,7 +606,7 @@ export default function TESSAAutomationPage({
                     onClick={handlePushToGithub}
                     loading={status === "PUSHING"}
                     disabled={status === "PUSHING" || status === "GENERATING"}
-                    className="bg-[#238636] hover:bg-[#2ea043] text-white shadow-premium hover:-translate-y-0.5 disabled:shadow-none disabled:hover:translate-y-0"
+                    className="bg-[var(--success)] hover:bg-[var(--success)] text-white shadow-[var(--shadow-float)] hover:-translate-y-0.5 disabled:shadow-none disabled:hover:translate-y-0"
                   >
                     {status === "PUSHING" ? (
                       <>Creating Pull Request...</>
@@ -630,13 +630,13 @@ export default function TESSAAutomationPage({
           {/* Healing Logs & Pipeline */}
           <div className="space-y-8 flex flex-col">
             {/* Flakiness Radar */}
-            <div className="bg-surface dark:bg-[#111623] rounded-2xl border border-border/80 dark:border-border shadow-premium flex-1">
-              <div className="px-6 py-4 border-b border-border dark:border-border flex justify-between items-center bg-surface-hover/50 dark:bg-surface rounded-t-2xl">
-                <h3 className="font-semibold text-text-main dark:text-text-main flex items-center">
-                  <Activity size={18} className="mr-2 text-rose-500" />{" "}
+            <div className="bg-surface  rounded-[13px] border border-border/80  shadow-[var(--shadow-float)] flex-1">
+              <div className="px-6 py-4 border-b border-border  flex justify-between items-center bg-surface-hover/50  rounded-t-2xl">
+                <h3 className="font-semibold text-text-main  flex items-center">
+                  <Activity size={18} className="mr-2 text-danger" />{" "}
                   Flakiness Radar
                 </h3>
-                <span className="text-xs bg-surface-hover dark:bg-slate-800 text-text-muted px-2 py-1 rounded-full font-medium">
+                <span className="text-xs bg-surface-hover  text-text-muted px-2 py-1 rounded-full font-medium">
                   Top {analytics?.flakiness?.length || 0}
                 </span>
               </div>
@@ -646,21 +646,21 @@ export default function TESSAAutomationPage({
                     No flaky tests detected yet. Everything is stable!
                   </div>
                 ) : (
-                  <div className="divide-y divide-border dark:divide-slate-800/50">
+                  <div className="divide-y divide-border">
                     {analytics.flakiness.map((item: any) => (
                       <div
                         key={item.caseId}
-                        className="p-4 hover:bg-surface-hover dark:hover:bg-slate-900/50 transition-colors flex items-center justify-between group"
+                        className="p-4 hover:bg-surface-hover  transition-colors flex items-center justify-between group"
                       >
                         <div className="flex-1 min-w-0 mr-4">
-                          <h4 className="text-sm font-semibold text-text-main dark:text-slate-200 truncate">
+                          <h4 className="text-sm font-semibold text-text-main  truncate">
                             {item.title}
                           </h4>
                           <div className="flex items-center mt-1.5 space-x-1">
                             {item.recentStatuses.map((s: string, i: number) => (
                               <div
                                 key={i}
-                                className={`w-2 h-2 rounded-full ${s === "PASSED" ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"}`}
+                                className={`w-2 h-2 rounded-full ${s === "PASSED" ? "bg-success shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-danger shadow-[0_0_8px_rgba(239,68,68,0.5)]"}`}
                                 title={s}
                               ></div>
                             ))}
@@ -677,9 +677,9 @@ export default function TESSAAutomationPage({
             </div>
 
             {/* Pipeline Status */}
-            <div className="bg-surface dark:bg-[#111623] rounded-2xl border border-border/80 dark:border-border shadow-premium">
-              <div className="px-6 py-4 border-b border-border dark:border-border flex justify-between items-center bg-surface-hover/50 dark:bg-surface rounded-t-2xl">
-                <h3 className="font-semibold text-text-main dark:text-text-main flex items-center">
+            <div className="bg-surface  rounded-[13px] border border-border/80  shadow-[var(--shadow-float)]">
+              <div className="px-6 py-4 border-b border-border  flex justify-between items-center bg-surface-hover/50  rounded-t-2xl">
+                <h3 className="font-semibold text-text-main  flex items-center">
                   <PlayCircle size={18} className="mr-2 text-primary" />{" "}
                   Pipeline Orchestration
                 </h3>
@@ -693,7 +693,7 @@ export default function TESSAAutomationPage({
                   pipelines.map((pipeline) => (
                     <div
                       key={pipeline.id}
-                      className="bg-surface-hover dark:bg-surface rounded-xl p-4 border border-border dark:border-border flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+                      className="bg-surface-hover  rounded-xl p-4 border border-border  flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
                     >
                       <div className="flex items-center">
                         <div className="w-10 h-10 rounded-full bg-[#24292F] flex items-center justify-center mr-4 shadow-sm shrink-0">
@@ -712,12 +712,12 @@ export default function TESSAAutomationPage({
                           </svg>
                         </div>
                         <div>
-                          <h4 className="font-semibold text-text-main dark:text-text-main text-sm">
+                          <h4 className="font-semibold text-text-main  text-sm">
                             {pipeline.title}
                           </h4>
-                          <p className="text-xs text-text-muted dark:text-text-muted">
+                          <p className="text-xs text-text-muted">
                             Schedule:{" "}
-                            <code className="bg-slate-200 dark:bg-slate-800 px-1 rounded">
+                            <code className="bg-skip-soft  px-1 rounded">
                               {pipeline.cron}
                             </code>
                           </p>
@@ -727,7 +727,7 @@ export default function TESSAAutomationPage({
                         <Button
                           size="sm"
                           onClick={() => handleTriggerPipeline(pipeline.id)}
-                          className="uppercase tracking-wider bg-blue-500/10 text-primary dark:text-blue-400 hover:bg-blue-500/20 shadow-sm hover:-translate-y-0.5"
+                          className="uppercase tracking-wider bg-info-soft text-primary  hover:bg-info-soft shadow-sm hover:-translate-y-0.5"
                         >
                           <PlayCircle size={14} /> Run Now
                         </Button>
@@ -746,7 +746,7 @@ export default function TESSAAutomationPage({
                               }
                             />
                             <div
-                              className={`block w-10 h-6 rounded-full transition-colors ${pipeline.isActive ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700"}`}
+                              className={`block w-10 h-6 rounded-full transition-colors ${pipeline.isActive ? "bg-success" : "bg-skip-soft"}`}
                             ></div>
                             <div
                               className={`absolute left-[2px] top-[2px] bg-surface w-5 h-5 rounded-full transition-transform transform ${pipeline.isActive ? "translate-x-4" : ""} shadow-sm`}
@@ -754,7 +754,7 @@ export default function TESSAAutomationPage({
                           </div>
                           <div className="ml-2 text-xs font-bold w-12 text-center">
                             {pipeline.isActive ? (
-                              <span className="text-emerald-500">Active</span>
+                              <span className="text-success">Active</span>
                             ) : (
                               <span className="text-text-muted">Standby</span>
                             )}
@@ -762,7 +762,7 @@ export default function TESSAAutomationPage({
                         </label>
                         <button
                           onClick={() => handleDeletePipeline(pipeline.id)}
-                          className="text-xs font-bold px-2 py-1.5 text-text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors flex items-center"
+                          className="text-xs font-bold px-2 py-1.5 text-text-muted hover:text-danger hover:bg-danger-soft  rounded-xl transition-colors flex items-center"
                           title="Delete Schedule"
                         >
                           <Trash2 size={16} />
@@ -780,22 +780,22 @@ export default function TESSAAutomationPage({
       {/* Review Script Modal */}
       {reviewCase && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-surface dark:bg-surface w-full max-w-4xl rounded-2xl shadow-premium border border-border/80 dark:border-border overflow-hidden flex flex-col h-[80vh]">
-            <div className="px-6 py-4 border-b border-border dark:border-border flex justify-between items-center bg-surface-hover dark:bg-surface/80">
-              <h3 className="font-semibold text-text-main dark:text-text-main flex items-center">
-                <Code2 size={18} className="mr-2 text-indigo-500" /> Review
+          <div className="bg-surface  w-full max-w-4xl rounded-[13px] shadow-[var(--shadow-float)] border border-border/80  overflow-hidden flex flex-col h-[80vh]">
+            <div className="px-6 py-4 border-b border-border  flex justify-between items-center bg-surface-hover /80">
+              <h3 className="font-semibold text-text-main  flex items-center">
+                <Code2 size={18} className="mr-2 text-primary" /> Review
                 Generated Script
               </h3>
               <button
                 onClick={() => setReviewCase(null)}
-                className="text-text-muted hover:text-text-muted dark:hover:text-slate-200"
+                className="text-text-muted hover:text-text-main"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="p-4 bg-surface-hover dark:bg-slate-950/50 border-b border-border dark:border-border text-sm">
-              <span className="font-semibold text-text-main dark:text-slate-300">
+            <div className="p-4 bg-surface-hover border-b border-border  text-sm">
+              <span className="font-semibold text-text-main">
                 Test Case:
               </span>{" "}
               {reviewCase.title}
@@ -803,14 +803,14 @@ export default function TESSAAutomationPage({
 
             <div className="flex-1 overflow-hidden relative">
               <textarea
-                className="w-full h-full p-6 bg-[#0d1117] text-emerald-400 font-mono text-sm resize-none focus:outline-none"
+                className="w-full h-full p-6 bg-[#0d1117] text-success font-mono text-sm resize-none focus:outline-none"
                 value={reviewScript}
                 onChange={(e) => setReviewScript(e.target.value)}
                 spellCheck={false}
               />
             </div>
 
-            <div className="px-6 py-4 border-t border-border dark:border-border bg-surface-hover dark:bg-surface/80 flex justify-end space-x-3">
+            <div className="px-6 py-4 border-t border-border  bg-surface-hover /80 flex justify-end space-x-3">
               <Button variant="ghost" onClick={() => setReviewCase(null)}>
                 Cancel
               </Button>
@@ -818,7 +818,7 @@ export default function TESSAAutomationPage({
                 onClick={handleSaveReview}
                 loading={isSavingScript}
                 disabled={isSavingScript}
-                className="shadow-premium hover:-translate-y-0.5 disabled:transform-none disabled:shadow-none"
+                className="shadow-[var(--shadow-float)] hover:-translate-y-0.5 disabled:transform-none disabled:shadow-none"
               >
                 {!isSavingScript && <Save size={16} />}
                 {isSavingScript ? "Saving..." : "Save Changes"}
@@ -831,15 +831,15 @@ export default function TESSAAutomationPage({
       {/* Create Pipeline Modal */}
       {isPipelineModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-surface dark:bg-[#111623] w-full max-w-md rounded-2xl shadow-premium border border-border/80 dark:border-border overflow-hidden flex flex-col">
-            <div className="px-6 py-4 border-b border-border dark:border-border flex justify-between items-center bg-surface-hover dark:bg-surface">
-              <h3 className="font-semibold text-text-main dark:text-text-main flex items-center">
-                <PlayCircle size={18} className="mr-2 text-indigo-500" /> Create
+          <div className="bg-surface  w-full max-w-md rounded-[13px] shadow-[var(--shadow-float)] border border-border/80  overflow-hidden flex flex-col">
+            <div className="px-6 py-4 border-b border-border  flex justify-between items-center bg-surface-hover ">
+              <h3 className="font-semibold text-text-main  flex items-center">
+                <PlayCircle size={18} className="mr-2 text-primary" /> Create
                 Scheduled Pipeline
               </h3>
               <button
                 onClick={() => setIsPipelineModalOpen(false)}
-                className="text-text-muted hover:text-text-muted dark:hover:text-slate-200"
+                className="text-text-muted hover:text-text-main"
               >
                 <X size={20} />
               </button>
@@ -847,7 +847,7 @@ export default function TESSAAutomationPage({
 
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-text-main dark:text-slate-300 mb-1">
+                <label className="block text-sm font-medium text-text-main  mb-1">
                   Pipeline Title
                 </label>
                 <input
@@ -859,7 +859,7 @@ export default function TESSAAutomationPage({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-main dark:text-slate-300 mb-1">
+                <label className="block text-sm font-medium text-text-main  mb-1">
                   Schedule Frequency
                 </label>
                 <select
@@ -876,7 +876,7 @@ export default function TESSAAutomationPage({
                 {scheduleType !== "custom" && (
                   <div className="flex gap-4">
                     <div className="flex-1">
-                      <label className="block text-xs font-medium text-text-muted dark:text-text-muted mb-1">
+                      <label className="block text-xs font-medium text-text-muted  mb-1">
                         Time (UTC)
                       </label>
                       <input
@@ -888,7 +888,7 @@ export default function TESSAAutomationPage({
                     </div>
                     {scheduleType === "weekly" && (
                       <div className="flex-1">
-                        <label className="block text-xs font-medium text-text-muted dark:text-text-muted mb-1">
+                        <label className="block text-xs font-medium text-text-muted  mb-1">
                           Day of Week
                         </label>
                         <select
@@ -908,7 +908,7 @@ export default function TESSAAutomationPage({
                     )}
                     {scheduleType === "monthly" && (
                       <div className="flex-1">
-                        <label className="block text-xs font-medium text-text-muted dark:text-text-muted mb-1">
+                        <label className="block text-xs font-medium text-text-muted  mb-1">
                           Day of Month
                         </label>
                         <input
@@ -940,14 +940,14 @@ export default function TESSAAutomationPage({
                 )}
 
                 {scheduleType !== "custom" && (
-                  <p className="text-xs text-text-muted mt-3 font-mono bg-surface-hover dark:bg-slate-800 p-2 rounded">
+                  <p className="text-xs text-text-muted mt-3 font-mono bg-surface-hover  p-2 rounded">
                     Generated Cron: {generateCron()}
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="px-6 py-4 border-t border-border dark:border-border bg-surface-hover dark:bg-surface flex justify-end space-x-3">
+            <div className="px-6 py-4 border-t border-border  bg-surface-hover  flex justify-end space-x-3">
               <Button
                 variant="ghost"
                 onClick={() => setIsPipelineModalOpen(false)}
@@ -962,7 +962,7 @@ export default function TESSAAutomationPage({
                   !newPipelineTitle ||
                   (scheduleType === "custom" && !customCron)
                 }
-                className="shadow-premium hover:-translate-y-0.5 disabled:transform-none"
+                className="shadow-[var(--shadow-float)] hover:-translate-y-0.5 disabled:transform-none"
               >
                 {!isCreatingPipeline && <Save size={16} />}
                 {isCreatingPipeline ? "Creating..." : "Save Pipeline"}

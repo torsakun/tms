@@ -50,13 +50,13 @@ const SuiteItem = ({
           "flex items-center py-1.5 pr-2 cursor-pointer transition-colors relative",
           level === 0 ? "font-semibold text-[13px]" : "font-medium text-[13px]",
           isActive
-            ? "bg-indigo-50 text-indigo-700"
+            ? "bg-primary-light text-primary"
             : "text-text-main hover:bg-surface-hover",
         )}
         style={{ paddingLeft: `${level * 16 + 8}px` }}
       >
         {isActive && (
-          <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-indigo-500 rounded-r" />
+          <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary rounded-r" />
         )}
         <button
           onClick={(e) => {
@@ -66,7 +66,7 @@ const SuiteItem = ({
           className={cn(
             "p-0.5 rounded mr-1 transition-colors shrink-0",
             isActive
-              ? "text-indigo-500"
+              ? "text-primary"
               : "text-text-muted hover:text-text-muted",
           )}
         >
@@ -92,7 +92,7 @@ const SuiteItem = ({
         <svg
           className={cn(
             "w-3.5 h-3.5 mr-1.5 shrink-0",
-            isActive ? "text-indigo-400" : "text-text-muted",
+            isActive ? "text-primary" : "text-text-muted",
           )}
           viewBox="0 0 24 24"
           fill="currentColor"
@@ -108,7 +108,7 @@ const SuiteItem = ({
               className={[
                 "text-[11px] font-semibold px-1.5 py-0.5 rounded-full group-hover/item:hidden",
                 isActive
-                  ? "bg-indigo-100 text-indigo-900"
+                  ? "bg-primary-light text-primary"
                   : "bg-surface-hover text-text-main",
               ].join(" ")}
             >
@@ -124,7 +124,7 @@ const SuiteItem = ({
                   if (!isOpen) toggleSuite(suite.id);
                   onAddChild(suite.id);
                 }}
-                className="p-0.5 hover:text-indigo-600 transition-colors mx-1"
+                className="p-0.5 hover:text-primary transition-colors mx-1"
                 title="Add child suite"
               >
                 <Plus size={14} />
@@ -281,7 +281,7 @@ export const SuiteTree = ({
       >
         <div className="flex items-center space-x-2 text-text-main">
           <svg
-            className="w-4 h-4 text-indigo-400"
+            className="w-4 h-4 text-primary"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -366,7 +366,7 @@ export const SuiteTree = ({
 
       {/* Create Suite Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-[color:var(--overlay)] backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-surface rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="flex justify-between items-center px-6 py-4 border-b border-border">
               <h3 className="font-bold text-lg text-text-main">Create Suite</h3>
@@ -380,14 +380,14 @@ export const SuiteTree = ({
 
             <div className="p-6">
               <label className="block text-sm font-medium text-text-main mb-2">
-                Suite Name <span className="text-red-500">*</span>
+                Suite Name <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
                 value={newSuiteTitle}
                 onChange={(e) => setNewSuiteTitle(e.target.value)}
                 placeholder="e.g. Authentication, Shopping Cart"
-                className="w-full border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500"
+                className="w-full border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary"
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -409,7 +409,7 @@ export const SuiteTree = ({
               <button
                 onClick={handleCreateSuite}
                 disabled={isCreating}
-                className="flex items-center px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                className="flex items-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-hover transition-colors disabled:opacity-50"
               >
                 {isCreating ? (
                   <>

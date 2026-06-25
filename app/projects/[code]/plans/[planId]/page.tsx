@@ -14,7 +14,7 @@ import {
 const STATUS_STYLE: Record<string, { label: string; cls: string }> = {
   ACTIVE: { label: "Active", cls: "bg-blue-50 text-blue-600" },
   COMPLETED: { label: "Completed", cls: "bg-green-50 text-green-600" },
-  ABORTED: { label: "Aborted", cls: "bg-red-50 text-red-500" },
+  ABORTED: { label: "Aborted", cls: "bg-danger-soft text-danger" },
   DRAFT: { label: "Draft", cls: "bg-surface-hover text-text-muted" },
 };
 
@@ -112,7 +112,7 @@ export default async function TestPlanDetailPage({
           </Link>
           <Link
             href={`/projects/${code}/runs/create?plan=${planId}`}
-            className="flex items-center gap-1.5 px-4 py-2 text-[13px] font-bold text-white rounded-xl shadow-premium hover:-translate-y-0.5 duration-300 transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 text-[13px] font-bold text-white rounded-xl shadow-[var(--shadow-float)] hover:-translate-y-0.5 duration-300 transition-all"
             style={{ background: "var(--primary)" }}
           >
             <PlayCircle size={14} /> Start run
@@ -129,13 +129,13 @@ export default async function TestPlanDetailPage({
 
           {plan.testCases.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 bg-surface rounded-xl border border-border text-center">
-              <FileText size={32} className="text-slate-200 mb-3" />
+              <FileText size={32} className="text-text-faint mb-3" />
               <p className="text-sm font-semibold text-text-muted">
                 No test cases in this plan
               </p>
               <Link
                 href={`/projects/${code}/plans/${planId}/edit`}
-                className="mt-3 text-sm text-indigo-500 hover:underline font-medium"
+                className="mt-3 text-sm text-primary hover:underline font-medium"
               >
                 Add test cases
               </Link>
@@ -161,7 +161,7 @@ export default async function TestPlanDetailPage({
                         key={tc.id}
                         className="flex items-center gap-3 px-4 py-3 hover:bg-surface-hover transition-colors"
                       >
-                        <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded shrink-0">
+                        <span className="text-[11px] font-extrabold text-primary bg-primary-light border border-primary/15 px-2 py-0.5 rounded shrink-0">
                           {code}-{tc.sequenceNumber || tc.id.substring(0, 4)}
                         </span>
                         <span className="text-[14px] text-text-main flex-1 truncate">
@@ -182,9 +182,9 @@ export default async function TestPlanDetailPage({
                         <span
                           className={`text-[11px] font-bold px-2 py-0.5 rounded shrink-0 ${
                             tc.priority === "HIGH"
-                              ? "bg-red-50 text-red-500"
+                              ? "bg-danger-soft text-danger"
                               : tc.priority === "MEDIUM"
-                                ? "bg-amber-50 text-amber-600"
+                                ? "bg-warning-soft text-warning"
                                 : "bg-surface-hover text-text-muted"
                           }`}
                         >
@@ -207,11 +207,11 @@ export default async function TestPlanDetailPage({
 
           {plan.testRuns.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 bg-surface rounded-xl border border-border text-center">
-              <Clock size={28} className="text-slate-200 mb-2" />
+              <Clock size={28} className="text-text-faint mb-2" />
               <p className="text-sm text-text-muted">No runs yet</p>
               <Link
                 href={`/projects/${code}/runs/create?plan=${planId}`}
-                className="mt-2 text-sm text-indigo-500 hover:underline font-medium"
+                className="mt-2 text-sm text-primary hover:underline font-medium"
               >
                 Start first run
               </Link>
@@ -224,7 +224,7 @@ export default async function TestPlanDetailPage({
                   <Link
                     key={run.id}
                     href={`/projects/${code}/runs/${run.id}`}
-                    className="block bg-surface rounded-xl border border-border px-4 py-3 hover:border-indigo-200 hover:shadow-sm transition-all"
+                    className="block bg-surface rounded-xl border border-border px-4 py-3 hover:border-primary/25 hover:shadow-sm transition-all"
                   >
                     <div className="flex items-start justify-between gap-2 mb-1">
                       <span className="text-[13px] font-semibold text-text-main line-clamp-1 flex-1">

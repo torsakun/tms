@@ -49,7 +49,7 @@ export function DeleteSuiteModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[color:var(--overlay)]">
       <div
         className="bg-surface rounded-lg shadow-xl w-full max-w-[500px] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}

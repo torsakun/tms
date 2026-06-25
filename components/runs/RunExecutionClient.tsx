@@ -80,7 +80,7 @@ function renderPriorityIcon(priority?: string) {
   if (["HIGH", "CRITICAL"].includes(p)) {
     return (
       <svg
-        className="w-3 h-3 text-red-500 shrink-0"
+        className="w-3 h-3 text-danger shrink-0"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -95,7 +95,7 @@ function renderPriorityIcon(priority?: string) {
   if (["LOW", "TRIVIAL"].includes(p)) {
     return (
       <svg
-        className="w-3 h-3 text-emerald-500 shrink-0"
+        className="w-3 h-3 text-success shrink-0"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -109,7 +109,7 @@ function renderPriorityIcon(priority?: string) {
   }
   return (
     <svg
-      className="w-2.5 h-2.5 text-slate-300 shrink-0"
+      className="w-2.5 h-2.5 text-text-faint shrink-0"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -160,15 +160,15 @@ function ResultRow({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "PASSED":
-        return "bg-emerald-500 text-white shadow-sm";
+        return "bg-success text-white shadow-sm";
       case "FAILED":
-        return "bg-red-500 text-white shadow-md";
+        return "bg-danger text-white shadow-md";
       case "BLOCKED":
-        return "bg-orange-500 text-white shadow-sm";
+        return "bg-warning text-[var(--neutral-950)] shadow-sm";
       case "SKIPPED":
-        return "bg-slate-500 text-white shadow-sm";
+        return "bg-skip text-white shadow-sm";
       default:
-        return "bg-slate-100 text-slate-500 border border-slate-200";
+        return "bg-skip-soft text-skip-foreground border border-border";
     }
   };
 
@@ -241,8 +241,8 @@ function ResultRow({
       onClick={() => openResult(result)}
       className={`flex items-center group cursor-pointer border-b border-border last:border-0 transition-all duration-200 ${
         isSelected
-          ? "bg-indigo-50/50 dark:bg-indigo-950/20 border-l-4 border-indigo-600 shadow-xs"
-          : "hover:bg-slate-50/40 dark:hover:bg-slate-800/10 bg-surface border-l-4 border-transparent hover:border-l-indigo-500/30"
+          ? "bg-primary-light/70 border-l-4 border-primary shadow-xs"
+          : "hover:bg-primary-light/35 bg-surface border-l-4 border-transparent hover:border-l-primary/30"
       }`}
       style={{ paddingLeft: paddingLeftVal }}
     >
@@ -257,7 +257,7 @@ function ResultRow({
         </div>
         <div className="w-12 text-text-muted text-xs font-mono mr-2 flex items-center">
           <div
-            className={`w-1.5 h-4 rounded-full mr-2 ${result.status === "PASSED" ? "bg-emerald-500" : result.status === "FAILED" ? "bg-red-500" : result.status === "BLOCKED" ? "bg-orange-500" : result.status === "SKIPPED" ? "bg-slate-400" : "bg-background border border-border"}`}
+            className={`w-1.5 h-4 rounded-full mr-2 ${result.status === "PASSED" ? "bg-success" : result.status === "FAILED" ? "bg-danger" : result.status === "BLOCKED" ? "bg-warning" : result.status === "SKIPPED" ? "bg-skip" : "bg-background border border-border"}`}
           />
           {result.testCase.sequenceNumber ||
             result.testCase.id.substring(0, 4).toUpperCase()}
@@ -268,8 +268,8 @@ function ResultRow({
           >
             {result.status === "IN_PROGRESS" && (
               <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-slate-400"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-skip opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-skip"></span>
               </span>
             )}
             {result.status === "IN_PROGRESS"
@@ -326,12 +326,12 @@ function ResultRow({
                   e.stopPropagation();
                   setMenuOpen(!menuOpen);
                 }}
-                className="p-1 text-text-muted hover:text-text-main hover:bg-border rounded transition-all"
+                className="p-1 text-text-muted hover:text-text-main hover:bg-surface-hover rounded transition-all"
               >
                 <MoreHorizontal size={16} />
               </button>
               {menuOpen && (
-                <div className="absolute right-0 top-full mt-1 w-40 bg-surface border border-border rounded-md shadow-lg z-50 py-1 overflow-hidden">
+                <div className="absolute right-0 top-full mt-1 w-40 qm-panel z-50 py-1 overflow-hidden">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -384,7 +384,7 @@ function ResultRow({
                   <div className="h-px bg-border my-1"></div>
                   <button
                     onClick={handleDelete}
-                    className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                    className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger-soft"
                   >
                     Delete
                   </button>
@@ -893,23 +893,23 @@ export default function RunExecutionClient({
     let gradient = "conic-gradient(";
 
     if (passed > 0) {
-      gradient += `#22c55e ${current}% ${current + passed}%, `;
+      gradient += `var(--success) ${current}% ${current + passed}%, `;
       current += passed;
     }
     if (failed > 0) {
-      gradient += `#ef4444 ${current}% ${current + failed}%, `;
+      gradient += `var(--danger) ${current}% ${current + failed}%, `;
       current += failed;
     }
     if (blocked > 0) {
-      gradient += `#f97316 ${current}% ${current + blocked}%, `;
+      gradient += `var(--warning) ${current}% ${current + blocked}%, `;
       current += blocked;
     }
     if (skipped > 0) {
-      gradient += `#94a3b8 ${current}% ${current + skipped}%, `;
+      gradient += `var(--skip) ${current}% ${current + skipped}%, `;
       current += skipped;
     }
     if (untested > 0) {
-      gradient += `#334155 ${current}% ${current + untested}%`;
+      gradient += `var(--border-color) ${current}% ${current + untested}%`;
     }
 
     if (gradient.endsWith(", ")) gradient = gradient.slice(0, -2);
@@ -1048,13 +1048,13 @@ export default function RunExecutionClient({
   const getStatusColor = (status: string) => {
     switch (status) {
       case "PASSED":
-        return "bg-emerald-500 text-white";
+        return "bg-success text-white";
       case "FAILED":
-        return "bg-red-500 text-white";
+        return "bg-danger text-white";
       case "BLOCKED":
-        return "bg-orange-500 text-white";
+        return "bg-warning text-[var(--neutral-950)]";
       case "SKIPPED":
-        return "bg-slate-400 text-white";
+        return "bg-skip text-white";
       default:
         return "bg-surface-hover text-text-muted border border-border";
     }
@@ -1070,16 +1070,16 @@ export default function RunExecutionClient({
     return (
       <div className="flex h-2 w-48 rounded-full bg-surface-hover overflow-hidden ml-4 border border-border">
         {stats.passed > 0 && (
-          <div style={{ width: `${passedPct}%` }} className="bg-emerald-500" />
+          <div style={{ width: `${passedPct}%` }} className="bg-success" />
         )}
         {stats.failed > 0 && (
-          <div style={{ width: `${failedPct}%` }} className="bg-red-500" />
+          <div style={{ width: `${failedPct}%` }} className="bg-danger" />
         )}
         {stats.blocked > 0 && (
-          <div style={{ width: `${blockedPct}%` }} className="bg-orange-500" />
+          <div style={{ width: `${blockedPct}%` }} className="bg-warning" />
         )}
         {stats.skipped > 0 && (
-          <div style={{ width: `${skippedPct}%` }} className="bg-slate-400" />
+          <div style={{ width: `${skippedPct}%` }} className="bg-skip" />
         )}
       </div>
     );
@@ -1162,7 +1162,7 @@ export default function RunExecutionClient({
         style={{ borderTop: `3px solid ${accentColor}` }}
       >
         <div
-          className="flex items-center py-2.5 px-4 border-b border-border bg-gradient-to-r from-surface-hover/90 to-surface/80 hover:bg-indigo-500/[0.02] cursor-pointer group transition-colors select-none"
+          className="flex items-center py-2.5 px-4 border-b border-border bg-gradient-to-r from-surface-hover/90 to-surface/80 hover:bg-primary-light/40 cursor-pointer group transition-colors select-none"
           onClick={() => toggleSuite(suite.id)}
         >
           <div className="w-5 flex items-center justify-center mr-2 text-text-muted transition-transform group-hover:scale-110">
@@ -1174,10 +1174,10 @@ export default function RunExecutionClient({
           </div>
           <input
             type="checkbox"
-            className="w-4 h-4 mr-3 rounded border-border text-indigo-600 focus:ring-indigo-300"
+            className="w-4 h-4 mr-3 rounded border-border text-primary focus:ring-primary/25"
             onClick={(e) => e.stopPropagation()}
           />
-          <span className={`text-text-main group-hover:text-indigo-600 transition-colors ${
+          <span className={`text-text-main group-hover:text-primary transition-colors ${
             depth === 0
               ? "font-extrabold text-[16px] tracking-tight mr-3"
               : "font-semibold text-[14px] mr-3"
@@ -1186,11 +1186,11 @@ export default function RunExecutionClient({
           </span>
 
           <div className="flex items-center text-xs text-text-muted font-medium gap-3 ml-auto shrink-0 select-none">
-            <span className="px-2.5 py-0.5 bg-emerald-500/10 dark:bg-emerald-500/20 text-[10px] font-bold rounded-full text-emerald-600 dark:text-emerald-400 border border-emerald-500/10 whitespace-nowrap">
+            <span className="px-2.5 py-0.5 bg-success/10 text-[10px] font-bold rounded-full text-success text-success-foreground border border-success/15 whitespace-nowrap">
               {stats.passed}/{stats.total} Passed
             </span>
             {renderProgressBar(stats)}
-            <div className="flex items-center text-[10px] text-text-muted bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full border border-border/40 font-semibold">
+            <div className="flex items-center text-[10px] text-text-muted bg-skip-soft px-2 py-0.5 rounded-full border border-border/40 font-semibold">
               <Clock size={11} className="mr-1" />
               {formatRunDuration(computeSuiteTime(suite.id))}
             </div>
@@ -1521,34 +1521,57 @@ export default function RunExecutionClient({
       <div className="flex h-[calc(100vh-4rem)] w-full bg-background overflow-hidden relative transition-colors">
         {/* Main Suite/Case Tree View */}
         <main
-          className={`flex flex-col min-w-0 bg-surface border-r transition-all duration-300 ease-in-out ${activeResultId ? "w-[50%] shrink-0" : "flex-1 w-full"}`}
+          className={`flex-col min-w-0 bg-surface border-r transition-all duration-300 ease-in-out ${
+            activeResultId
+              ? "hidden lg:flex lg:w-[360px] xl:w-[400px] lg:shrink-0"
+              : "flex flex-1 w-full"
+          }`}
           style={{ borderColor: "var(--border-color)" }}
         >
           <header
-            className="px-6 pt-5 pb-4 border-b bg-surface shadow-xs"
+            className="px-5 pt-4 pb-3 border-b bg-surface shadow-xs"
             style={{
               borderColor: "var(--border-color)",
             }}
           >
             <div
-              className="flex items-center text-sm text-text-muted hover:text-text-muted cursor-pointer transition-colors mb-3 gap-1.5"
+              className="flex items-center text-xs text-text-muted hover:text-text-main cursor-pointer transition-colors mb-3 gap-1.5"
               onClick={() => router.push(`/projects/${projectCode}/runs`)}
             >
               <ArrowLeft size={14} />
               Back to runs
             </div>
             <div className="flex flex-col gap-3 mb-2">
-              <div className="flex items-center justify-between">
-                <h1 className="text-xl font-bold text-text-main tracking-tight">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.12em] mb-1">
+                    Test execution
+                  </div>
+                  <h1 className="text-[22px] font-semibold text-text-main tracking-tight leading-tight">
                   {run.title}
-                </h1>
+                  </h1>
+                </div>
+                <div className="hidden xl:flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2">
+                  <div
+                    className="w-8 h-8 rounded-full"
+                    style={{ background: renderConicGradient() }}
+                  />
+                  <div>
+                    <div className="text-[18px] font-semibold text-text-main leading-none">
+                      {completionRate}%
+                    </div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">
+                      complete
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
+              <div className={`flex flex-wrap items-center gap-2 ${activeResultId ? "hidden" : ""}`}>
                 {run.reportUrl && (
                   <Button
                     size="md"
                     onClick={() => setIsReportModalOpen(true)}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-[0_0_10px_rgba(79,70,229,0.4)]"
+                    className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-sm"
                   >
                     <BarChart2 size={14} /> View Report
                   </Button>
@@ -1557,7 +1580,7 @@ export default function RunExecutionClient({
                   size="md"
                   onClick={handleTriggerGitHub}
                   loading={isTriggeringGitHub}
-                  className="bg-[#238636] hover:bg-[#2ea043] text-white shadow-[0_0_10px_rgba(35,134,54,0.4)]"
+                  className="bg-success hover:bg-success/90 text-white shadow-sm"
                 >
                   {!isTriggeringGitHub && <Terminal size={14} />}
                   {isTriggeringGitHub ? `Triggering...` : "Trigger GitHub Action"}
@@ -1567,7 +1590,7 @@ export default function RunExecutionClient({
                   onClick={handleRunAllAutomated}
                   loading={isExecutingAllAutomated}
                   disabled={process.env.NEXT_PUBLIC_IS_DEMO === "true"}
-                  className="bg-amber-500 hover:bg-amber-600 text-white shadow-[0_0_10px_rgba(245,158,11,0.4)]"
+                  className="bg-warning hover:bg-warning/90 text-[var(--neutral-950)] shadow-sm"
                   title={
                     process.env.NEXT_PUBLIC_IS_DEMO === "true"
                       ? "Local Playwright execution is disabled in Vercel Demo mode"
@@ -1587,7 +1610,7 @@ export default function RunExecutionClient({
                     size="md"
                     onClick={handleReopenRun}
                     loading={isReopening}
-                    className="bg-amber-500 hover:bg-amber-600 text-white"
+                    className="bg-warning hover:bg-warning/90 text-[var(--neutral-950)]"
                   >
                     {!isReopening && <RotateCcw size={14} />}
                     Reopen
@@ -1607,7 +1630,7 @@ export default function RunExecutionClient({
                     <MoreHorizontal size={14} />
                   </Button>
                   {mainMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-surface dark:bg-[#1C1C1C] border border-border rounded-md shadow-lg z-50 overflow-hidden">
+                    <div className="absolute right-0 mt-2 w-48 bg-surface border border-border rounded-md shadow-lg z-50 overflow-hidden">
                       <button
                         onClick={() => {
                           setIsShareModalOpen(true);
@@ -1666,14 +1689,14 @@ export default function RunExecutionClient({
             </div>
 
             {/* Metric Cards Row */}
-            <div className={`grid gap-4 mb-4 mt-2 ${activeResultId ? "grid-cols-2" : "grid-cols-1 md:grid-cols-4"}`}>
+            <div className={`gap-2 mb-3 mt-2 ${activeResultId ? "hidden" : "grid grid-cols-1 md:grid-cols-4"}`}>
               {/* Progress Card */}
               <div 
                 onClick={() => setStatusFilter(null)}
-                className={`rounded-xl border border-l-4 p-3 flex items-center justify-between shadow-xs transition-all duration-300 cursor-pointer hover:shadow-md hover:-translate-y-0.5 ${
+                className={`rounded-lg border p-3 flex items-center justify-between shadow-xs transition-all duration-200 cursor-pointer ${
                   statusFilter === null
-                    ? "bg-gradient-to-br from-indigo-500/[0.08] via-background to-background dark:from-indigo-950/15 border-l-indigo-500 border-indigo-500/35 ring-1 ring-indigo-500/20"
-                    : "bg-gradient-to-br from-indigo-500/[0.02] to-background dark:from-indigo-950/5 border-l-indigo-500/40 border-border hover:border-indigo-500/25"
+                    ? "bg-primary-light border-primary/35 ring-1 ring-primary/20"
+                    : "bg-background border-border hover:border-primary/25"
                 }`}
               >
                 <div className="flex flex-col">
@@ -1683,60 +1706,60 @@ export default function RunExecutionClient({
                     <span className="text-[10px] text-text-muted">({runStats.total - runStats.untested}/{runStats.total})</span>
                   </div>
                   {/* Segmented Progress Bar */}
-                  <div className="flex h-1.5 w-32 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden mt-1.5 border border-border/50">
+                  <div className="flex h-1.5 w-32 rounded-full bg-skip-soft overflow-hidden mt-1.5 border border-border/50">
                     {runStats.passed > 0 && (
-                      <div style={{ width: `${(runStats.passed / runStats.total) * 100}%` }} className="bg-emerald-500" />
+                      <div style={{ width: `${(runStats.passed / runStats.total) * 100}%` }} className="bg-success" />
                     )}
                     {runStats.failed > 0 && (
-                      <div style={{ width: `${(runStats.failed / runStats.total) * 100}%` }} className="bg-red-500" />
+                      <div style={{ width: `${(runStats.failed / runStats.total) * 100}%` }} className="bg-danger" />
                     )}
                     {runStats.blocked > 0 && (
-                      <div style={{ width: `${(runStats.blocked / runStats.total) * 100}%` }} className="bg-orange-500" />
+                      <div style={{ width: `${(runStats.blocked / runStats.total) * 100}%` }} className="bg-warning" />
                     )}
                     {runStats.skipped > 0 && (
-                      <div style={{ width: `${(runStats.skipped / runStats.total) * 100}%` }} className="bg-slate-400" />
+                      <div style={{ width: `${(runStats.skipped / runStats.total) * 100}%` }} className="bg-skip" />
                     )}
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/40">
-                  <BarChart2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <div className="w-9 h-9 rounded-lg shrink-0 flex items-center justify-center bg-surface border border-border">
+                  <BarChart2 className="w-4 h-4 text-primary" />
                 </div>
               </div>
 
               {/* Status Card */}
               <div 
-                className={`rounded-xl border border-l-4 p-3 flex items-center justify-between shadow-xs transition-all duration-300 bg-gradient-to-br ${
+                className={`rounded-lg border p-3 flex items-center justify-between shadow-xs transition-all duration-200 ${
                   completionRate === 100 
-                    ? "from-emerald-500/[0.03] to-background dark:from-emerald-950/10 border-l-emerald-500 border-border" 
-                    : "from-indigo-500/[0.03] to-background dark:from-indigo-950/10 border-l-indigo-500 border-border"
+                    ? "bg-success-soft border-success/25"
+                    : "bg-background border-border"
                 }`}
               >
                 <div className="flex flex-col justify-center">
                   <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Status</span>
                   <div className="flex items-center gap-1.5 mt-1.5">
                     {completionRate === 100 ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 border border-emerald-200/50">
-                        <CheckCircle2 size={12} className="text-emerald-500" />
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg bg-success-soft text-success-foreground bg-success-soft text-success-foreground border border-success/25">
+                        <CheckCircle2 size={12} className="text-success" />
                         Completed
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-950/30 dark:text-indigo-400 border border-indigo-200/50">
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg bg-primary-light text-primary bg-primary-light text-primary border border-primary/25">
                         <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-600 dark:bg-indigo-400"></span>
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                         </span>
                         In Progress
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-indigo-50 dark:bg-indigo-950/30">
-                  <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                <div className="w-9 h-9 rounded-lg shrink-0 flex items-center justify-center bg-surface border border-border">
+                  <Clock className="w-4 h-4 text-primary" />
                 </div>
               </div>
 
               {/* Started By Card */}
-              <div className="rounded-xl border border-l-4 border-l-purple-500 p-3 flex items-center justify-between shadow-xs transition-all duration-300 bg-gradient-to-br from-purple-500/[0.03] to-background dark:from-purple-950/10 border-border">
+              <div className="rounded-lg border p-3 flex items-center justify-between shadow-xs transition-all duration-200 bg-background border-border">
                 <div className="flex flex-col justify-center">
                   <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Started by</span>
                   {(() => {
@@ -1756,13 +1779,13 @@ export default function RunExecutionClient({
                     );
                   })()}
                 </div>
-                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-purple-50 dark:bg-purple-950/30">
-                  <Eye className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <div className="w-9 h-9 rounded-lg shrink-0 flex items-center justify-center bg-info-soft border border-info/20">
+                  <Eye className="w-4 h-4 text-info" />
                 </div>
               </div>
 
               {/* Context Card (Env & Milestone) */}
-              <div className="rounded-xl border border-l-4 border-l-blue-500 p-3 flex items-center justify-between shadow-xs transition-all duration-300 bg-gradient-to-br from-blue-500/[0.03] to-background dark:from-blue-950/10 border-border">
+              <div className="rounded-lg border p-3 flex items-center justify-between shadow-xs transition-all duration-200 bg-background border-border">
                 <div className="flex flex-col justify-center min-w-0">
                   <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Context</span>
                   <div className="mt-1 space-y-0.5 min-w-0">
@@ -1778,14 +1801,14 @@ export default function RunExecutionClient({
                     )}
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center bg-blue-50 dark:bg-blue-950/30">
-                  <Settings className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                <div className="w-9 h-9 rounded-lg shrink-0 flex items-center justify-center bg-info-soft border border-info/20">
+                  <Settings className="w-4 h-4 text-info" />
                 </div>
               </div>
             </div>
 
             <div className="flex items-center space-x-6 border-b border-border">
-              <div className="pb-3 border-b-2 border-indigo-500 text-indigo-600 font-semibold text-sm cursor-pointer transition-colors">
+              <div className="pb-3 border-b-2 border-primary text-primary font-semibold text-sm cursor-pointer transition-colors">
                 Test cases
               </div>
             </div>
@@ -1804,7 +1827,7 @@ export default function RunExecutionClient({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search cases…"
-                className="w-full pl-3 pr-3 py-1.5 text-sm border border-border bg-surface-hover text-text-main rounded-lg focus:ring-2 focus:ring-indigo-300 focus:outline-none transition-colors"
+                className="w-full pl-3 pr-3 py-1.5 text-sm border border-border bg-surface-hover text-text-main rounded-lg focus:ring-2 focus:ring-primary/25 focus:outline-none transition-colors"
               />
             </div>
 
@@ -1819,7 +1842,7 @@ export default function RunExecutionClient({
                 }`}
               >
                 <span>All</span>
-                <span className="bg-slate-100 dark:bg-slate-800 text-text-muted px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                <span className="bg-skip-soft text-text-muted px-1.5 py-0.5 rounded text-[10px] font-semibold">
                   {runStats.total}
                 </span>
               </button>
@@ -1827,13 +1850,13 @@ export default function RunExecutionClient({
                 onClick={() => setStatusFilter("PASSED")}
                 className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
                   statusFilter === "PASSED"
-                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-xs font-extrabold border border-emerald-500/20"
-                    : "text-text-muted hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/[0.04]"
+                    ? "bg-success/10 text-success text-success-foreground shadow-xs font-extrabold border border-success/20"
+                    : "text-text-muted hover:text-success hover:bg-success/[0.04]"
                 }`}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                <span className="w-1.5 h-1.5 rounded-full bg-success" />
                 <span>Passed</span>
-                <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                <span className="bg-success/10 text-success text-success-foreground px-1.5 py-0.5 rounded text-[10px] font-semibold">
                   {runStats.passed}
                 </span>
               </button>
@@ -1841,13 +1864,13 @@ export default function RunExecutionClient({
                 onClick={() => setStatusFilter("FAILED")}
                 className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
                   statusFilter === "FAILED"
-                    ? "bg-red-500/10 text-red-600 dark:text-red-400 shadow-xs font-extrabold border border-red-500/20"
-                    : "text-text-muted hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/[0.04]"
+                    ? "bg-danger/10 text-danger text-danger shadow-xs font-extrabold border border-danger/20"
+                    : "text-text-muted hover:text-danger hover:bg-danger/[0.04]"
                 }`}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                <span className="w-1.5 h-1.5 rounded-full bg-danger" />
                 <span>Failed</span>
-                <span className="bg-emerald-500/10 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                <span className="bg-success/10 text-danger text-danger px-1.5 py-0.5 rounded text-[10px] font-semibold">
                   {runStats.failed}
                 </span>
               </button>
@@ -1855,13 +1878,13 @@ export default function RunExecutionClient({
                 onClick={() => setStatusFilter("BLOCKED")}
                 className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
                   statusFilter === "BLOCKED"
-                    ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 shadow-xs font-extrabold border border-orange-500/20"
-                    : "text-text-muted hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-500/[0.04]"
+                    ? "bg-warning/10 text-warning-foreground text-warning-foreground shadow-xs font-extrabold border border-warning/20"
+                    : "text-text-muted hover:text-warning-foreground hover:bg-warning/[0.04]"
                 }`}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                <span className="w-1.5 h-1.5 rounded-full bg-warning" />
                 <span>Blocked</span>
-                <span className="bg-orange-500/10 text-orange-600 dark:text-orange-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                <span className="bg-warning/10 text-warning-foreground text-warning-foreground px-1.5 py-0.5 rounded text-[10px] font-semibold">
                   {runStats.blocked}
                 </span>
               </button>
@@ -1869,13 +1892,13 @@ export default function RunExecutionClient({
                 onClick={() => setStatusFilter("SKIPPED")}
                 className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
                   statusFilter === "SKIPPED"
-                    ? "bg-slate-500/10 text-slate-600 dark:text-slate-400 shadow-xs font-extrabold border border-slate-500/20"
-                    : "text-text-muted hover:text-slate-600 dark:hover:text-slate-400 hover:bg-slate-500/[0.04]"
+                    ? "bg-skip/10 text-skip-foreground text-skip-foreground shadow-xs font-extrabold border border-skip/20"
+                    : "text-text-muted hover:text-skip-foreground hover:bg-skip/[0.04]"
                 }`}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                <span className="w-1.5 h-1.5 rounded-full bg-skip" />
                 <span>Skipped</span>
-                <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                <span className="bg-skip-soft text-skip-foreground text-skip-foreground px-1.5 py-0.5 rounded text-[10px] font-semibold">
                   {runStats.skipped}
                 </span>
               </button>
@@ -1883,13 +1906,13 @@ export default function RunExecutionClient({
                 onClick={() => setStatusFilter("IN_PROGRESS")}
                 className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
                   statusFilter === "IN_PROGRESS"
-                    ? "bg-slate-500/10 text-text-main shadow-xs font-extrabold border border-slate-200"
+                    ? "bg-skip/10 text-text-main shadow-xs font-extrabold border border-border"
                     : "text-text-muted hover:text-text-main hover:bg-surface-hover"
                 }`}
               >
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-300 border border-slate-400/50" />
+                <span className="w-1.5 h-1.5 rounded-full bg-skip-soft border border-skip/40" />
                 <span>Untested</span>
-                <span className="bg-slate-100 dark:bg-slate-800 text-text-muted px-1.5 py-0.5 rounded text-[10px] font-semibold">
+                <span className="bg-skip-soft text-text-muted px-1.5 py-0.5 rounded text-[10px] font-semibold">
                   {runStats.untested}
                 </span>
               </button>
@@ -1899,7 +1922,7 @@ export default function RunExecutionClient({
           <div className="flex-1 overflow-y-auto pb-32 bg-background p-3 space-y-2">
             {unassignedResults.length > 0 && (
               <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden mb-3 hover:shadow transition-shadow duration-300">
-                <div className="flex items-center py-2.5 px-4 border-b border-border bg-gradient-to-r from-surface-hover/90 to-surface/80 hover:bg-indigo-500/[0.02] cursor-pointer group transition-colors">
+                <div className="flex items-center py-2.5 px-4 border-b border-border bg-gradient-to-r from-surface-hover/90 to-surface/80 hover:bg-primary-light/40 cursor-pointer group transition-colors">
                   <span className="font-extrabold text-text-muted text-[11px] uppercase tracking-wider">
                     Unassigned Cases
                   </span>
@@ -1915,164 +1938,156 @@ export default function RunExecutionClient({
 
         {/* Execution Workspace Panel */}
         <div
-          className={`bg-surface flex flex-col border-l transition-all duration-300 ease-in-out ${activeResultId ? "w-[50%] opacity-100" : "w-0 opacity-0 overflow-hidden border-l-transparent"}`}
+          className={`bg-[color:oklch(0.165_0.012_264)] text-[var(--neutral-100)] flex flex-col border-l transition-all duration-300 ease-in-out ${activeResultId ? "w-full lg:flex-1 opacity-100" : "w-0 opacity-0 overflow-hidden border-l-transparent"}`}
           style={{ borderColor: "var(--border-color)" }}
         >
           {activeResult && activeResult.testCase && (
             <>
               <header
-                className="flex items-center justify-between px-4 py-2 border-b bg-surface shrink-0"
-                style={{ borderColor: "var(--border-color)" }}
+                className="flex items-start justify-between px-5 py-4 border-b border-white/10 bg-[color:oklch(0.145_0.012_264)] shrink-0"
               >
-                <div className="flex items-center gap-3 truncate">
+                <div className="flex items-start gap-3 min-w-0">
                   <div
-                    className={`w-5.5 h-5.5 rounded-full flex items-center justify-center shrink-0 ${getStatusColor(activeResult.status)}`}
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${getStatusColor(activeResult.status)}`}
                   >
                     {activeResult.status === "PASSED" && (
-                      <CheckCircle2 size={13} />
+                      <CheckCircle2 size={17} />
                     )}
-                    {activeResult.status === "FAILED" && <XCircle size={13} />}
+                    {activeResult.status === "FAILED" && <XCircle size={17} />}
                     {activeResult.status === "BLOCKED" && (
-                      <MinusCircle size={13} />
+                      <MinusCircle size={17} />
                     )}
                   </div>
-                  <h2 className="text-lg font-bold text-text-main tracking-tight break-words leading-snug">
-                    {activeResult.testCase.title}
-                  </h2>
-                  <span className="text-[11px] font-extrabold text-indigo-600 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200/30 px-2 py-0.5 rounded shadow-sm shrink-0">
-                    {projectCode}-
-                    {activeResult.testCase.sequenceNumber ||
-                      activeResult.testCase.id.substring(0, 4).toUpperCase()}
-                  </span>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[11px] font-semibold text-primary-light border border-primary/30 bg-primary/15 px-2 py-0.5 rounded-md shrink-0">
+                        {projectCode}-
+                        {activeResult.testCase.sequenceNumber ||
+                          activeResult.testCase.id.substring(0, 4).toUpperCase()}
+                      </span>
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--neutral-400)]">
+                        Runner panel
+                      </span>
+                    </div>
+                    <h2 className="text-[20px] font-semibold text-white tracking-tight break-words leading-snug">
+                      {activeResult.testCase.title}
+                    </h2>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 ml-4 shrink-0">
                   {(activeResult.status === "FAILED" ||
                     activeResult.status === "BLOCKED") && (
                     <button
                       onClick={() => setReportingResult(activeResult)}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 rounded-lg shadow-sm hover:-translate-y-0.5 transition-all"
-                      style={{
-                        background: "linear-gradient(135deg, #e11d48, #f43f5e)",
-                      }}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 rounded-lg shadow-sm bg-danger hover:bg-danger/90 transition-all"
                     >
                       <Bug size={13} /> Report bug
                     </button>
                   )}
                   <button
                     onClick={() => setActiveResultId(null)}
-                    className="text-text-muted hover:text-red-500 hover:bg-surface-hover p-2 rounded-lg transition-colors"
+                    className="text-[var(--neutral-400)] hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
                   >
                     <X size={18} />
                   </button>
                 </div>
               </header>
 
-              <div className="flex-1 overflow-y-auto bg-background">
+              <div className="flex-1 overflow-y-auto bg-[color:oklch(0.165_0.012_264)] pb-24">
                 <div
-                  className="border-b bg-surface px-6"
-                  style={{ borderColor: "var(--border-color)" }}
+                  className="border-b border-white/10 bg-[color:oklch(0.18_0.014_264)] px-6"
                 >
                   <div className="flex gap-6">
-                    <button className="pb-3 pt-4 border-b-2 border-indigo-500 text-indigo-600 font-bold text-sm">
+                    <button className="pb-3 pt-4 border-b-2 border-primary text-primary-light font-semibold text-sm">
                       Execution
                     </button>
                   </div>
                 </div>
 
                 {/* Global Status Buttons */}
-                <div className="px-4 py-2 border-b border-border/50 bg-background/30">
-                  <div className="flex flex-wrap gap-2">
+                <div className="fixed bottom-0 left-0 right-0 lg:left-[360px] xl:left-[400px] z-40 px-5 py-4 border-t border-white/10 bg-[color:oklch(0.145_0.012_264)] shadow-[0_-18px_40px_rgba(0,0,0,0.34)]">
+                  <div className="grid grid-cols-4 gap-2">
                     <button
                       onClick={() => updateResult(activeResult.id, "PASSED")}
-                      className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${
+                      className={`h-12 justify-center px-3 text-sm font-semibold rounded-lg border transition-all flex items-center gap-2 ${
                         activeResult.status === "PASSED"
-                          ? "bg-emerald-500 text-white border-emerald-500 shadow-sm"
-                          : "bg-surface text-emerald-600 border-border hover:bg-emerald-50/50"
+                          ? "bg-success text-white border-success shadow-sm"
+                          : "bg-white/[0.04] text-success border-white/10 hover:bg-success-soft/20"
                       }`}
                     >
                       <CheckCircle2 size={16} />
-                      Passed
+                      Pass
                     </button>
                     <button
                       onClick={() => updateResult(activeResult.id, "FAILED")}
-                      className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${
+                      className={`h-12 justify-center px-3 text-sm font-semibold rounded-lg border transition-all flex items-center gap-2 ${
                         activeResult.status === "FAILED"
-                          ? "bg-red-500 text-white border-red-500 shadow-sm"
-                          : "bg-surface text-red-600 border-border hover:bg-red-50/50"
+                          ? "bg-danger text-white border-danger shadow-sm"
+                          : "bg-white/[0.04] text-danger border-white/10 hover:bg-danger-soft/20"
                       }`}
                     >
                       <XCircle size={16} />
-                      Failed
+                      Fail
                     </button>
                     <button
                       onClick={() => updateResult(activeResult.id, "BLOCKED")}
-                      className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${
+                      className={`h-12 justify-center px-3 text-sm font-semibold rounded-lg border transition-all flex items-center gap-2 ${
                         activeResult.status === "BLOCKED"
-                          ? "bg-amber-500 text-white border-amber-500 shadow-sm"
-                          : "bg-surface text-amber-600 border-border hover:bg-amber-50/50"
+                          ? "bg-warning text-[var(--neutral-950)] border-warning shadow-sm"
+                          : "bg-white/[0.04] text-warning border-white/10 hover:bg-warning-soft/20"
                       }`}
                     >
                       <MinusCircle size={16} />
-                      Blocked
+                      Block
                     </button>
                     <button
                       onClick={() => updateResult(activeResult.id, "SKIPPED")}
-                      className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${
+                      className={`h-12 justify-center px-3 text-sm font-semibold rounded-lg border transition-all flex items-center gap-2 ${
                         activeResult.status === "SKIPPED"
-                          ? "bg-slate-500 text-white border-slate-500 shadow-sm"
-                          : "bg-surface text-slate-600 border-border hover:bg-slate-50/50"
+                          ? "bg-skip text-white border-skip shadow-sm"
+                          : "bg-white/[0.04] text-[var(--neutral-300)] border-white/10 hover:bg-white/10"
                       }`}
                     >
                       Skipped
-                    </button>
-                    <button
-                      onClick={() => updateResult(activeResult.id, "INVALID")}
-                      className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${
-                        activeResult.status === "INVALID"
-                          ? "bg-purple-500 text-white border-purple-500 shadow-sm"
-                          : "bg-surface text-purple-600 border-border hover:bg-purple-50/50"
-                      }`}
-                    >
-                      Invalid
                     </button>
                   </div>
                 </div>
 
                 {/* Case Details */}
-                <div className="px-4 py-3 border-b border-border/50 flex gap-4">
-                  <div className="flex-1 pr-4 border-r border-border/50">
-                    <details className="group/det bg-surface border border-border/60 rounded-lg p-2.5" open>
-                      <summary className="cursor-pointer select-none list-none flex items-center justify-between text-xs font-bold text-text-muted hover:text-text-main transition-colors">
+                <div className="px-5 py-4 border-b border-white/10 grid grid-cols-1 xl:grid-cols-[1fr_220px] gap-4">
+                  <div className="min-w-0">
+                    <details className="group/det bg-white/[0.04] border border-white/10 rounded-lg p-3" open>
+                      <summary className="cursor-pointer select-none list-none flex items-center justify-between text-xs font-semibold text-[var(--neutral-300)] hover:text-white transition-colors">
                         <span className="flex items-center gap-2 uppercase tracking-wider">
-                          <Eye size={14} className="text-text-muted" />
+                          <Eye size={14} className="text-[var(--neutral-400)]" />
                           Description &amp; pre-conditions
                         </span>
-                        <ChevronDown size={14} className="transition-transform duration-200 group-open/det:rotate-180 text-text-muted" />
+                        <ChevronDown size={14} className="transition-transform duration-200 group-open/det:rotate-180 text-[var(--neutral-400)]" />
                       </summary>
-                      <div className="mt-2.5 pt-2 border-t border-border/40 space-y-3 pl-1">
+                      <div className="mt-3 pt-3 border-t border-white/10 space-y-3 pl-1">
                         <div>
-                          <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
+                          <h3 className="text-[11px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-2">
                             Description
                           </h3>
-                          <p className="text-sm text-text-main leading-relaxed">
+                          <p className="text-sm text-[var(--neutral-100)] leading-relaxed">
                             {activeResult.testCase.description ||
                               "No description provided."}
                           </p>
                         </div>
                         <div>
-                          <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
+                          <h3 className="text-[11px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-2">
                             Pre-conditions
                           </h3>
-                          <div className="text-sm text-text-main leading-relaxed whitespace-pre-wrap break-words">
+                          <div className="text-sm text-[var(--neutral-100)] leading-relaxed whitespace-pre-wrap break-words">
                             {activeResult.testCase.preconditions || "None"}
                           </div>
                         </div>
                       </div>
                     </details>
                   </div>
-                  <div className="w-52 pl-4 shrink-0 text-xs space-y-2.5">
+                  <div className="text-xs space-y-3 bg-white/[0.04] border border-white/10 rounded-lg p-3">
                     <div>
-                      <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">
+                      <div className="text-[10px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-1">
                         Executed by
                       </div>
                       {(() => {
@@ -2087,7 +2102,7 @@ export default function RunExecutionClient({
                             >
                               {a.initials}
                             </div>
-                            <span className="text-text-muted font-semibold">
+                            <span className="text-[var(--neutral-200)] font-semibold truncate">
                               {a.display}
                             </span>
                           </div>
@@ -2095,34 +2110,34 @@ export default function RunExecutionClient({
                       })()}
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">
+                      <div className="text-[10px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-1">
                         Time spent
                       </div>
-                      <div className="text-text-muted font-medium">
+                      <div className="text-[var(--neutral-200)] font-medium">
                         {formatRunDuration(activeResult.timeSpent || 0)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">
+                      <div className="text-[10px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-1">
                         Started at
                       </div>
-                      <div className="text-text-muted font-medium">
+                      <div className="text-[var(--neutral-200)] font-medium">
                         {formatThaiTime(activeResult.createdAt)}
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">
+                      <div className="text-[10px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-1">
                         Environment
                       </div>
-                      <div className="text-text-muted font-medium">
+                      <div className="text-[var(--neutral-200)] font-medium">
                         {(run as any).environment?.title || "Not specified"}
                       </div>
                     </div>
                     <div>
-                      <div className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">
+                      <div className="text-[10px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-1">
                         Priority
                       </div>
-                      <div className="flex items-center gap-1.5 text-text-muted font-medium mt-0.5">
+                      <div className="flex items-center gap-1.5 text-[var(--neutral-200)] font-medium mt-0.5">
                         {renderPriorityIcon(activeResult.testCase.priority)}
                         <span className="capitalize text-xs font-semibold">
                           {(activeResult.testCase.priority || "MEDIUM").toLowerCase()}
@@ -2133,12 +2148,12 @@ export default function RunExecutionClient({
                 </div>
 
                 {/* Steps List or Automation Terminal */}
-                <div className="px-4 py-3 pb-16">
+                <div className="px-5 py-4">
                   {activeResult.testCase.automationStatus === "AUTOMATED" ? (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-bold text-text-main text-lg flex items-center">
-                          <Terminal className="mr-2 text-primary" size={20} />
+                        <h3 className="font-semibold text-white text-lg flex items-center">
+                          <Terminal className="mr-2 text-primary-light" size={20} />
                           Automated Execution
                         </h3>
                         <button
@@ -2147,7 +2162,7 @@ export default function RunExecutionClient({
                             isExecutingAutomated ||
                             process.env.NEXT_PUBLIC_IS_DEMO === "true"
                           }
-                          className="flex items-center px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground rounded-md font-bold shadow-sm transition-all disabled:opacity-50"
+                          className="flex items-center px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground rounded-md font-semibold shadow-sm transition-all disabled:opacity-50"
                           title={
                             process.env.NEXT_PUBLIC_IS_DEMO === "true"
                               ? "Playwright is disabled in Demo Mode"
@@ -2165,10 +2180,10 @@ export default function RunExecutionClient({
                         </button>
                       </div>
 
-                      <div className="bg-[#0d1117] border border-slate-800 rounded-xl overflow-hidden shadow-inner flex flex-col">
-                        <div className="bg-[#161b22] px-4 py-2 border-b border-slate-800 flex items-center">
+                      <div className="bg-[#0d1117] border border-[color:rgba(255,255,255,0.12)] rounded-xl overflow-hidden shadow-inner flex flex-col">
+                        <div className="bg-[#161b22] px-4 py-2 border-b border-[color:rgba(255,255,255,0.12)] flex items-center">
                           <div className="flex space-x-2">
-                            <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                            <div className="w-3 h-3 rounded-full bg-danger"></div>
                             <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
                             <div className="w-3 h-3 rounded-full bg-green-500"></div>
                           </div>
@@ -2210,7 +2225,7 @@ export default function RunExecutionClient({
                               isTrace: true,
                             })
                           }
-                          className="flex items-center px-4 py-2 bg-slate-900 text-slate-300 border border-slate-700 rounded-md text-sm font-medium hover:bg-slate-800 hover:text-white transition-colors"
+                          className="flex items-center px-4 py-2 bg-[color:oklch(0.18_0.015_264)] text-text-faint border border-[color:rgba(255,255,255,0.18)] rounded-md text-sm font-medium hover:bg-[color:oklch(0.24_0.016_264)] hover:text-white transition-colors"
                         >
                           <FileText size={16} className="mr-2 text-primary" />
                           View Latest Trace
@@ -2235,7 +2250,7 @@ export default function RunExecutionClient({
                                     <summary className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-surface-hover transition-colors">
                                       <div className="flex items-center space-x-3">
                                         <div
-                                          className={`w-2 h-2 rounded-full ${historyItem.status === "PASSED" ? "bg-emerald-500" : "bg-red-500"}`}
+                                          className={`w-2 h-2 rounded-full ${historyItem.status === "PASSED" ? "bg-success" : "bg-danger"}`}
                                         ></div>
                                         <span className="text-sm font-medium text-text-main">
                                           {formatThaiTime(
@@ -2263,7 +2278,7 @@ export default function RunExecutionClient({
                     </div>
                   ) : activeResult.testCase.steps &&
                     activeResult.testCase.steps.length > 0 ? (
-                    <div className="space-y-0">
+                    <div className="space-y-3">
                       {activeResult.testCase.steps.map(
                         (step: any, idx: number) => {
                           const stepData = stepResults[step.id] || {};
@@ -2274,40 +2289,50 @@ export default function RunExecutionClient({
                           return (
                             <div
                               key={step.id}
-                              className="bg-surface rounded-lg border border-border shadow-xs p-3.5 mb-3 last:mb-0 hover:border-indigo-200/80 transition-all flex flex-col gap-2.5"
+                              className="bg-white/[0.04] rounded-lg border border-white/10 shadow-xs p-0 overflow-hidden hover:border-primary/35 transition-all"
                             >
-                              <div className="flex-1 space-y-2.5 max-w-full">
-                                <div className="flex items-start">
+                              <div className="grid grid-cols-[48px_1fr] max-w-full">
+                                <div className="border-r border-white/10 bg-black/10 flex items-start justify-center py-4">
                                   <div
-                                    className="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-[11px] shadow-sm shrink-0 mt-0.5"
-                                    style={{ background: "var(--primary)" }}
+                                    className={`w-7 h-7 rounded-lg flex items-center justify-center font-semibold text-[12px] shadow-sm shrink-0 ${
+                                      stepStatus === "PASSED"
+                                        ? "bg-success text-white"
+                                        : stepStatus === "FAILED"
+                                          ? "bg-danger text-white"
+                                          : stepStatus === "BLOCKED"
+                                            ? "bg-warning text-[var(--neutral-950)]"
+                                            : stepStatus === "SKIPPED"
+                                              ? "bg-skip text-white"
+                                              : "bg-white/10 text-[var(--neutral-300)] border border-white/10"
+                                    }`}
                                   >
                                     {idx + 1}
                                   </div>
-                                  <div className="flex-1 space-y-1.5 ml-2">
-                                    <div className="text-sm text-text-main whitespace-pre-wrap leading-relaxed">
+                                </div>
+                                <div className="p-4 space-y-3">
+                                  <div className="space-y-2">
+                                    <div className="text-sm text-[var(--neutral-100)] whitespace-pre-wrap leading-relaxed">
                                       {step.action}
                                     </div>
                                     {step.expectedResult && (
-                                      <div className="mt-2 text-[13px] bg-surface-hover border border-border rounded-lg px-3 py-2 text-text-main whitespace-pre-wrap leading-relaxed">
-                                        <span className="font-bold text-emerald-700 dark:text-emerald-500 mr-1">Expected: </span>
+                                      <div className="text-[13px] bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-[var(--neutral-200)] whitespace-pre-wrap leading-relaxed">
+                                        <span className="font-semibold text-success mr-1">Expected: </span>
                                         {step.expectedResult}
                                       </div>
                                     )}
                                   </div>
-                                </div>
 
-                                <div className="flex flex-wrap gap-2 pt-0.5">
+                                  <div className="flex flex-wrap gap-2 pt-0.5">
                                   <button
                                     onClick={() =>
                                       updateStepResult(step.id, {
                                         status: "PASSED",
                                       })
                                     }
-                                    className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "PASSED" ? "bg-emerald-500 text-white border-emerald-500 shadow-sm" : "bg-background text-emerald-600 border-border hover:bg-slate-50 dark:hover:bg-slate-900/30"}`}
+                                    className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "PASSED" ? "bg-success text-white border-success shadow-sm" : "bg-white/[0.04] text-success border-white/10 hover:bg-success-soft/20"}`}
                                   >
                                     <CheckCircle2 size={15} />
-                                    Passed
+                                    Pass
                                   </button>
                                   <button
                                     onClick={() =>
@@ -2315,10 +2340,10 @@ export default function RunExecutionClient({
                                         status: "FAILED",
                                       })
                                     }
-                                    className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "FAILED" ? "bg-red-500 text-white border-red-500 shadow-sm" : "bg-background text-red-600 border-border hover:bg-slate-50 dark:hover:bg-slate-900/30"}`}
+                                    className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "FAILED" ? "bg-danger text-white border-danger shadow-sm" : "bg-white/[0.04] text-danger border-white/10 hover:bg-danger-soft/20"}`}
                                   >
                                     <XCircle size={15} />
-                                    Failed
+                                    Fail
                                   </button>
                                   <button
                                     onClick={() =>
@@ -2326,10 +2351,10 @@ export default function RunExecutionClient({
                                         status: "BLOCKED",
                                       })
                                     }
-                                    className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "BLOCKED" ? "bg-amber-500 text-white border-amber-500 shadow-sm" : "bg-background text-amber-600 border-border hover:bg-slate-50 dark:hover:bg-slate-900/30"}`}
+                                    className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "BLOCKED" ? "bg-warning text-[var(--neutral-950)] border-warning shadow-sm" : "bg-white/[0.04] text-warning border-white/10 hover:bg-warning-soft/20"}`}
                                   >
                                     <MinusCircle size={15} />
-                                    Blocked
+                                    Block
                                   </button>
                                   <button
                                     onClick={() =>
@@ -2337,14 +2362,14 @@ export default function RunExecutionClient({
                                         status: "SKIPPED",
                                       })
                                     }
-                                    className={`px-3 py-1 text-sm font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "SKIPPED" ? "bg-slate-500 text-white border-slate-500 shadow-sm" : "bg-background text-slate-600 border-border hover:bg-slate-50 dark:hover:bg-slate-900/30"}`}
+                                    className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "SKIPPED" ? "bg-skip text-white border-skip shadow-sm" : "bg-white/[0.04] text-[var(--neutral-300)] border-white/10 hover:bg-white/10"}`}
                                   >
                                     Skipped
                                   </button>
                                 </div>
 
                                 <div className="pt-1">
-                                  <div className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
+                                  <div className="text-[11px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-2">
                                     Actual result
                                   </div>
                                   <textarea
@@ -2364,7 +2389,7 @@ export default function RunExecutionClient({
                                       })
                                     }
                                     onPaste={(e) => handlePaste(e, step.id)}
-                                    className="w-full text-xs bg-background text-text-main border border-border rounded-md p-2 min-h-[48px] focus:outline-none focus:ring-2 focus:ring-primary/20 transition shadow-[inset_0_2px_10px_rgba(0,0,0,0.02)] placeholder:text-text-muted/50"
+                                    className="w-full text-xs bg-black/20 text-[var(--neutral-100)] border border-white/10 rounded-md p-2 min-h-[54px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition placeholder:text-[var(--neutral-500)]"
                                     placeholder="Type actual result here..."
                                   />
                                 </div>
@@ -2374,7 +2399,7 @@ export default function RunExecutionClient({
                                     {attachments.map((att: any, i: number) => (
                                       <div
                                         key={i}
-                                        className="relative w-48 h-32 border border-border rounded-md overflow-hidden group shadow-[0_2px_10px_rgba(0,0,0,0.02)] bg-background flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
+                                        className="relative w-48 h-32 border border-white/10 rounded-md overflow-hidden group bg-black/20 flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
                                         onClick={() =>
                                           setViewingAttachment({
                                             url: att.url,
@@ -2392,7 +2417,7 @@ export default function RunExecutionClient({
                                         ) : att.url?.match(
                                             /\.(zip|pdf|csv|txt|doc|docx|xls|xlsx)$/i,
                                           ) ? (
-                                          <div className="w-full h-full flex flex-col items-center justify-center bg-surface-hover text-text-muted">
+                                          <div className="w-full h-full flex flex-col items-center justify-center bg-white/[0.04] text-[var(--neutral-400)]">
                                             <FileText
                                               size={32}
                                               className="mb-2"
@@ -2419,7 +2444,7 @@ export default function RunExecutionClient({
                                               attachments: newAtts,
                                             });
                                           }}
-                                          className="absolute top-1.5 right-1.5 bg-surface text-red-500 rounded p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500/10 z-10"
+                                          className="absolute top-1.5 right-1.5 bg-black/50 text-danger rounded p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-danger/20 z-10"
                                         >
                                           <XCircle size={14} />
                                         </button>
@@ -2444,7 +2469,7 @@ export default function RunExecutionClient({
                                   />
                                   <label
                                     htmlFor={`file-upload-${step.id}`}
-                                    className="flex items-center justify-center gap-1.5 py-2 border border-dashed border-border hover:border-primary/50 bg-background hover:bg-slate-50/50 rounded-md text-[11px] font-semibold text-text-muted hover:text-primary cursor-pointer transition-all w-full"
+                                    className="flex items-center justify-center gap-1.5 py-2 border border-dashed border-white/15 hover:border-primary/50 bg-black/15 hover:bg-white/[0.04] rounded-md text-[11px] font-semibold text-[var(--neutral-400)] hover:text-primary-light cursor-pointer transition-all w-full"
                                   >
                                     <span>Drag &amp; drop or click to upload screenshots / logs</span>
                                     {uploadingStepId === step.id && (
@@ -2457,6 +2482,7 @@ export default function RunExecutionClient({
                                 </div>
                               </div>
                             </div>
+                          </div>
                           );
                         },
                       )}

@@ -38,14 +38,14 @@ export function ConfirmDialog({
   const colors =
     variant === "danger"
       ? {
-          bg: "bg-rose-50",
-          icon: "text-rose-500",
-          btn: "bg-rose-500 hover:bg-rose-600",
+          bg: "bg-danger-soft",
+          icon: "text-danger",
+          btn: "bg-danger hover:bg-danger/90",
         }
       : {
-          bg: "bg-amber-50",
-          icon: "text-amber-500",
-          btn: "bg-amber-500 hover:bg-amber-600",
+          bg: "bg-warning-soft",
+          icon: "text-warning",
+          btn: "bg-warning hover:bg-warning/90 text-[var(--neutral-950)]",
         };
 
   return (
@@ -73,14 +73,14 @@ export function ConfirmDialog({
         <div className="flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-semibold text-text-muted bg-surface-hover hover:bg-slate-200 rounded-lg transition-colors"
+            className="px-4 py-2 text-sm font-semibold text-text-muted bg-surface-hover hover:bg-skip-soft rounded-lg transition-colors"
           >
             {cancelLabel}
           </button>
           <button
             ref={confirmRef}
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-slate-400 ${colors.btn}`}
+            className={`px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-primary/30 ${colors.btn}`}
           >
             {confirmLabel}
           </button>

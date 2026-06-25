@@ -42,11 +42,11 @@ function timeAgo(d: string) {
   return `${Math.floor(s / 86400)}d ago`;
 }
 
-// Render @mentions in bold-indigo, leave the rest as plain text.
+// Render @mentions with the primary signal color, leave the rest as plain text.
 function renderBody(body: string) {
   return body.split(/(@[A-Za-z0-9._-]+)/g).map((part, i) =>
     part.startsWith("@") ? (
-      <span key={i} className="font-semibold text-indigo-600">
+      <span key={i} className="font-semibold text-primary">
         {part}
       </span>
     ) : (
@@ -103,7 +103,7 @@ export function CommentThread({ endpoint }: { endpoint: string }) {
         </div>
       ) : comments.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-center">
-          <MessageSquare size={26} className="text-slate-300 mb-2" />
+          <MessageSquare size={26} className="text-text-faint mb-2" />
           <p className="text-sm font-semibold text-text-muted">No comments yet</p>
           <p className="text-xs text-text-muted mt-1">
             Start the discussion — use @ to mention a teammate.
@@ -150,7 +150,7 @@ export function CommentThread({ endpoint }: { endpoint: string }) {
           }}
           rows={2}
           placeholder="Write a comment… (@mention, ⌘+Enter to send)"
-          className="flex-1 resize-none px-3 py-2 text-[13px] bg-surface-hover border border-border text-text-main rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all"
+          className="flex-1 resize-none px-3 py-2 text-[13px] qm-input focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all"
         />
         <button
           onClick={submit}

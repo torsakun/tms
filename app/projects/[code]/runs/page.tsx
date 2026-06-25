@@ -70,7 +70,7 @@ export default async function RunsPage({
             <h1 className="text-xl font-bold text-text-main tracking-tight">
               Test Runs
             </h1>
-            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary">
               {totalRuns}
             </span>
           </div>
@@ -101,7 +101,7 @@ export default async function RunsPage({
           <div
             className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform shadow-premium"
             style={{
-              background: "linear-gradient(135deg, #7c3aed 0%, #a855f7 100%)",
+              background: "var(--info)",
             }}
           >
             <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-surface/10" />
@@ -121,7 +121,7 @@ export default async function RunsPage({
           <div
             className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform shadow-premium"
             style={{
-              background: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
+              background: "var(--success)",
             }}
           >
             <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-surface/10" />
@@ -147,7 +147,7 @@ export default async function RunsPage({
           <div
             className="rounded-2xl p-5 text-white relative overflow-hidden hover:-translate-y-0.5 transition-transform shadow-premium"
             style={{
-              background: "linear-gradient(135deg, #db2777 0%, #f43f5e 100%)",
+              background: "var(--danger)",
             }}
           >
             <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-surface/10" />

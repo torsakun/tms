@@ -36,23 +36,22 @@ export function DashboardToolbar({ projects }: DashboardToolbarProps) {
   };
 
   return (
-    <section className="rounded-lg border border-border bg-surface px-4 py-3 shadow-sm">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-2 text-sm font-bold text-text-main">
-          <span className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-primary/15 bg-primary-light text-primary">
-            <Filter size={15} />
-          </span>
-          Dashboard filters
-        </div>
+    <section className="flex flex-wrap items-center gap-2">
+      <div className="flex h-[34px] items-center gap-[7px] rounded-[9px] border border-border bg-surface px-3 text-[13px] font-semibold shadow-sm">
+        <span className="inline-flex h-[22px] w-[22px] items-center justify-center rounded-[7px] bg-primary-light text-primary">
+          <Filter size={14} />
+        </span>
+        Dashboard filters
+      </div>
 
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-          <label className="flex min-w-0 items-center gap-2 rounded-md border border-border bg-background px-3 py-2 transition-[border-color,box-shadow] duration-200 hover:border-primary/35 focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15 sm:min-w-[260px]">
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="flex h-[34px] min-w-0 items-center gap-[7px] rounded-[9px] border border-border bg-surface px-3 text-[13px] font-medium shadow-sm transition-[border-color,box-shadow] duration-150 hover:border-primary/35 focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15 sm:min-w-[260px]">
             <Folder size={15} className="shrink-0 text-primary" />
             <span className="sr-only">Project</span>
             <select
               value={projectCode}
               onChange={handleProjectChange}
-              className="min-w-0 flex-1 cursor-pointer bg-transparent text-sm font-semibold text-text-main outline-none"
+              className="min-w-0 flex-1 cursor-pointer bg-transparent text-[13px] font-semibold text-text-main outline-none"
             >
               <option value="">All Projects</option>
               {projects.map((p) => (
@@ -63,13 +62,13 @@ export function DashboardToolbar({ projects }: DashboardToolbarProps) {
             </select>
           </label>
 
-          <label className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 transition-[border-color,box-shadow] duration-200 hover:border-primary/35 focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15">
+          <label className="flex h-[34px] items-center gap-[7px] rounded-[9px] border border-border bg-surface px-3 text-[13px] font-medium shadow-sm transition-[border-color,box-shadow] duration-150 hover:border-primary/35 focus-within:border-primary/60 focus-within:ring-2 focus-within:ring-primary/15">
             <Calendar size={15} className="shrink-0 text-primary" />
             <span className="sr-only">Timeframe</span>
             <select
               value={timeframe}
               onChange={handleTimeframeChange}
-              className="cursor-pointer bg-transparent text-sm font-semibold text-text-main outline-none"
+              className="cursor-pointer bg-transparent text-[13px] font-semibold text-text-main outline-none"
             >
               <option value="7">Last 7 Days</option>
               <option value="14">Last 14 Days</option>
@@ -82,13 +81,12 @@ export function DashboardToolbar({ projects }: DashboardToolbarProps) {
               variant="secondary"
               size="sm"
               onClick={handleClearFilters}
-              className="text-text-muted hover:border-primary/35 hover:text-text-main"
+              className="h-[34px] rounded-[9px] text-text-muted hover:border-primary/35 hover:text-text-main"
             >
               <RotateCcw size={15} />
               Reset
             </Button>
           )}
-        </div>
       </div>
     </section>
   );

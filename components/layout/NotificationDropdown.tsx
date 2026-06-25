@@ -110,18 +110,18 @@ export default function NotificationDropdown() {
       {/* Bell Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-text-muted hover:text-primary hover:bg-primary/10 rounded-xl transition-all duration-300"
+        className="relative p-2 text-text-muted hover:text-primary hover:bg-primary-light rounded-[9px] transition-colors"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-surface shadow-sm animate-pulse" />
+          <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-danger rounded-full border-2 border-surface shadow-sm" />
         )}
       </button>
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-surface rounded-2xl shadow-premium border border-border/80 overflow-hidden z-50 transform origin-top-right transition-all animate-in fade-in zoom-in-95">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 bg-surface-hover/30">
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 qm-panel overflow-hidden z-50 origin-top-right animate-fade-up">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface-hover/50">
             <h3 className="font-semibold text-text-main">Notifications</h3>
             {unreadCount > 0 && (
               <button
@@ -136,7 +136,7 @@ export default function NotificationDropdown() {
           <div className="max-h-[400px] overflow-y-auto custom-scrollbar bg-surface">
             {notifications.length === 0 ? (
               <div className="px-4 py-8 text-center text-text-muted flex flex-col items-center justify-center">
-                <Bell className="w-8 h-8 opacity-20 mb-2" />
+            <Bell className="w-8 h-8 opacity-25 mb-2" />
                 <p className="text-sm">You have no notifications</p>
               </div>
             ) : (
@@ -146,7 +146,7 @@ export default function NotificationDropdown() {
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification)}
                     className={`p-4 hover:bg-surface-hover cursor-pointer transition-colors group flex gap-3 ${
-                      !notification.isRead ? "bg-primary/5" : ""
+                      !notification.isRead ? "bg-primary-light/70" : ""
                     }`}
                   >
                     <div className="flex-shrink-0 mt-1">
@@ -165,7 +165,7 @@ export default function NotificationDropdown() {
                         {notification.title}
                       </p>
                       {notification.message && (
-                        <p className="text-xs text-text-muted/70 mt-1 line-clamp-2 leading-relaxed">
+                        <p className="text-xs text-text-muted mt-1 line-clamp-2 leading-relaxed">
                           {notification.message}
                         </p>
                       )}
@@ -176,7 +176,7 @@ export default function NotificationDropdown() {
                         {notification.actor?.name && (
                           <>
                             <span className="text-border">•</span>
-                            <span className="text-[11px] text-text-muted/70">{notification.actor.name}</span>
+                            <span className="text-[11px] text-text-muted">{notification.actor.name}</span>
                           </>
                         )}
                       </div>

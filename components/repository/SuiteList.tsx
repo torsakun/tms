@@ -122,7 +122,7 @@ export function SuiteList({
   if (isFiltering && visibleRoots.length === 0 && unassignedCases.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-12 bg-surface rounded-2xl border border-border/80 border-dashed">
-        <div className="w-14 h-14 bg-indigo-50 text-indigo-400 rounded-full flex items-center justify-center mb-3 shadow-sm">
+        <div className="w-14 h-14 bg-primary-light text-primary rounded-full flex items-center justify-center mb-3 shadow-sm">
           <Folder size={28} />
         </div>
         <h3 className="text-base font-bold text-text-main mb-1">

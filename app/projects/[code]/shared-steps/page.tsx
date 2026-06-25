@@ -169,7 +169,7 @@ export default function SharedStepsPage() {
                         size="sm"
                         iconOnly
                         onClick={() => setConfirmDeleteId(step.id)}
-                        className="text-text-muted hover:text-red-500"
+                        className="text-text-muted hover:text-danger"
                         title="Delete"
                       >
                         <Trash2 size={16} />
@@ -201,7 +201,7 @@ export default function SharedStepsPage() {
               <div className="p-6 space-y-4">
                 <div>
                   <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
-                    Title <span className="text-red-500">*</span>
+                    Title <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
@@ -215,7 +215,7 @@ export default function SharedStepsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
-                      Action <span className="text-red-500">*</span>
+                      Action <span className="text-danger">*</span>
                     </label>
                     <textarea
                       required

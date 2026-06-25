@@ -14,11 +14,11 @@ export function Breadcrumb({ items }: { items: Crumb[] }) {
         const isLast = i === items.length - 1;
         return (
           <span key={i} className="flex items-center gap-1 min-w-0">
-            {i > 0 && <ChevronRight size={13} className="text-slate-300 shrink-0" />}
+            {i > 0 && <ChevronRight size={13} className="text-text-faint shrink-0" />}
             {item.href && !isLast ? (
               <Link
                 href={item.href}
-                className="text-text-muted hover:text-indigo-600 transition-colors shrink-0"
+                className="text-text-muted hover:text-primary transition-colors shrink-0"
               >
                 {item.label}
               </Link>

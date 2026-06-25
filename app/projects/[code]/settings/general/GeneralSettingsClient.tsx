@@ -74,7 +74,7 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
       <section className="space-y-5">
         <div>
           <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
-            Project Name <span className="text-red-500">*</span>
+            Project Name <span className="text-danger">*</span>
           </label>
           <input
             type="text"
@@ -135,7 +135,7 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
       {/* Danger zone */}
       <section>
         <h2 className="text-[13px] font-bold text-red-600 mb-3 uppercase tracking-wider">Danger zone</h2>
-        <div className="border border-red-200/80 rounded-2xl p-5 flex items-center justify-between bg-red-50/30 shadow-sm">
+        <div className="border border-danger/25 rounded-2xl p-5 flex items-center justify-between bg-danger-soft shadow-sm">
           <div>
             <div className="text-sm font-semibold text-text-main">
               {project.isArchived ? "Restore project" : "Archive project"}
@@ -152,7 +152,7 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
             className={`flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold rounded-xl border transition-all duration-300 shadow-sm hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:shadow-none ${
               project.isArchived
                 ? "border-green-300 text-green-700 bg-green-50 hover:bg-green-100"
-                : "border-red-300 text-red-700 bg-surface hover:bg-red-50"
+                : "border-danger/35 text-danger-foreground bg-surface hover:bg-danger-soft"
             }`}
           >
             {archiving ? (

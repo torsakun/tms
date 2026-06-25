@@ -219,7 +219,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
         key={run.id}
         className={`group flex items-center gap-3 px-4 rounded-2xl border transition-all animate-list-in ${
           hero
-            ? "py-4 bg-surface border-indigo-200/50 hover:border-indigo-400/80 shadow-premium"
+            ? "py-4 bg-surface border-primary/25 hover:border-primary/40 shadow-premium"
             : "py-3 bg-surface border-border/60 hover:border-border/80 shadow-sm"
         }`}
         style={{ animationDelay: `${Math.min(idx, 10) * 45}ms` }}
@@ -248,7 +248,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
         )}
 
         <Link href={`/projects/${code}/runs/${run.id}`} className="flex-1 min-w-0">
-          <span className={`block font-bold text-text-main tracking-tight group-hover:text-indigo-600 transition-colors truncate ${hero ? "text-[15px]" : "text-[14px]"}`}>
+          <span className={`block font-bold text-text-main tracking-tight group-hover:text-primary transition-colors truncate ${hero ? "text-[15px]" : "text-[14px]"}`}>
             {run.title}
           </span>
           <span className="block text-[11px] text-text-muted truncate mt-0.5">
@@ -304,7 +304,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
                   setActiveDropdown(null);
                   setConfirmDeleteId(run.id);
                 }}
-                className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 flex items-center transition-colors"
+                className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger-soft flex items-center transition-colors"
               >
                 <Trash2 size={13} className="mr-2" /> Delete run
               </button>
@@ -348,7 +348,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
             className={[
               "flex items-center py-2.5 text-[13px] font-bold px-4 rounded-xl border transition-all duration-300",
               showFilters || statusFilter !== "ALL"
-                ? "bg-indigo-50 text-indigo-900 border-indigo-200 shadow-sm"
+                ? "bg-primary-light text-primary border-primary/25 shadow-sm"
                 : "bg-surface text-text-muted border-border/80 hover:text-text-main hover:bg-surface-hover shadow-sm",
             ].join(" ")}
           >
@@ -368,7 +368,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
                   className={[
                     "w-full text-left px-4 py-2 text-sm font-medium transition-colors",
                     statusFilter === s
-                      ? "bg-indigo-50 text-indigo-900"
+                      ? "bg-primary-light text-primary"
                       : "text-text-main hover:bg-surface-hover",
                   ].join(" ")}
                 >
@@ -384,7 +384,7 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
 
       {filteredRuns.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 bg-surface rounded-2xl border border-border/80 shadow-premium transition-all duration-300 animate-in zoom-in-95">
-          <div className="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mb-4 shadow-sm">
+          <div className="w-16 h-16 bg-primary-light text-primary rounded-full flex items-center justify-center mb-4 shadow-sm">
             <FileText size={32} />
           </div>
           <h3 className="text-lg font-bold text-text-main mb-2">

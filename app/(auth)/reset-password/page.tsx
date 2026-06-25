@@ -118,8 +118,8 @@ function ResetPasswordContent() {
   if (status === "invalid") {
     return card(
       <div className="text-center py-2">
-        <div className="w-14 h-14 rounded-2xl bg-rose-500/10 flex items-center justify-center mx-auto mb-4">
-          <AlertCircle className="text-rose-500" size={26} />
+        <div className="w-14 h-14 rounded-2xl bg-danger-soft flex items-center justify-center mx-auto mb-4">
+          <AlertCircle className="text-danger-foreground" size={26} />
         </div>
         <h2 className="text-xl font-bold text-text-main tracking-tight mb-2">
           Link not valid
@@ -141,8 +141,8 @@ function ResetPasswordContent() {
   if (done) {
     return card(
       <div className="text-center py-2">
-        <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 className="text-emerald-500" size={26} />
+        <div className="w-14 h-14 rounded-2xl bg-success-soft flex items-center justify-center mx-auto mb-4">
+          <CheckCircle2 className="text-success-foreground" size={26} />
         </div>
         <h2 className="text-xl font-bold text-text-main tracking-tight mb-2">
           Password updated
@@ -167,7 +167,7 @@ function ResetPasswordContent() {
       </div>
       <form className="space-y-4" onSubmit={handleSubmit}>
         {error && (
-          <div className="p-3 bg-rose-500/10 text-rose-500 flex items-center rounded-xl border border-rose-500/20 text-sm font-bold">
+          <div className="p-3 bg-danger-soft text-danger-foreground flex items-center rounded-xl border border-danger/25 text-sm font-bold">
             <AlertCircle size={16} className="mr-2 shrink-0" />
             {error}
           </div>

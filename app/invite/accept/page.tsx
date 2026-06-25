@@ -115,7 +115,7 @@ function AcceptInviteContent() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface-hover px-4">
         <div className="max-w-md w-full bg-surface py-8 px-4 shadow-premium sm:rounded-3xl border border-border/80 sm:px-10 text-center animate-in zoom-in-95 duration-200">
-          <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-danger-soft text-danger-foreground rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
               width="24"
               height="24"
@@ -150,7 +150,7 @@ function AcceptInviteContent() {
     <div className="min-h-screen flex items-center justify-center bg-surface-hover px-4">
       <div className="max-w-md w-full bg-surface py-8 px-4 shadow-premium sm:rounded-3xl border border-border/80 sm:px-10 animate-in zoom-in-95 duration-200">
         <div className="flex justify-center mb-6">
-          <div className="w-10 h-10 bg-slate-900 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 bg-sidebar-bg rounded-full flex items-center justify-center">
             <span className="text-white font-bold text-xl">Q</span>
           </div>
         </div>

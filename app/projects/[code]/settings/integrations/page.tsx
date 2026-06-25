@@ -90,7 +90,7 @@ export default function ProjectIntegrationsPage({
     <div className="p-8 max-w-4xl mx-auto space-y-8 overflow-y-auto h-full pb-20">
       <header>
         <h1 className="text-2xl font-bold text-text-main flex items-center">
-          <GitBranch className="mr-3 text-text-main dark:text-slate-200" />
+          <GitBranch className="mr-3 text-text-main dark:text-text-main" />
           Integrations
         </h1>
         <p className="text-sm text-text-muted mt-2">
@@ -99,13 +99,13 @@ export default function ProjectIntegrationsPage({
       </header>
 
       {error && (
-        <div className="p-4 bg-red-50 text-red-600 rounded-xl border border-red-100 flex items-center shadow-inner">
+        <div className="p-4 bg-danger-soft text-danger-foreground rounded-xl border border-danger/25 flex items-center shadow-inner">
           <AlertCircle size={18} className="mr-2" /> {error}
         </div>
       )}
 
       {success && (
-        <div className="p-4 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100 flex items-center shadow-inner">
+        <div className="p-4 bg-success-soft text-success-foreground rounded-xl border border-success/25 flex items-center shadow-inner">
           <CheckCircle2 size={18} className="mr-2" /> {success}
         </div>
       )}
@@ -299,7 +299,7 @@ export default TessaReporter;`}
                     target.innerHTML = originalText;
                   }, 2000);
                 }}
-                className="absolute top-4 right-4 px-3 py-1.5 bg-slate-800 text-slate-300 rounded-md text-xs font-bold hover:bg-slate-700 hover:text-white transition-colors shadow-sm"
+                className="absolute top-4 right-4 px-3 py-1.5 bg-surface-hover text-text-muted rounded-md text-xs font-bold hover:bg-border hover:text-text-main transition-colors shadow-sm"
               >
                 Copy
               </button>
@@ -377,7 +377,7 @@ jobs:
                     target.innerHTML = originalText;
                   }, 2000);
                 }}
-                className="absolute top-4 right-4 px-3 py-1.5 bg-slate-800 text-slate-300 rounded-md text-xs font-bold hover:bg-slate-700 hover:text-white transition-colors shadow-sm"
+                className="absolute top-4 right-4 px-3 py-1.5 bg-surface-hover text-text-muted rounded-md text-xs font-bold hover:bg-border hover:text-text-main transition-colors shadow-sm"
               >
                 Copy
               </button>
@@ -397,7 +397,7 @@ jobs:
             <div className="mt-3 p-5 bg-surface-hover/50 border border-border/80 rounded-xl text-[13px]">
               <div>
                 <strong className="text-text-main">Name:</strong>{" "}
-                <code className="bg-slate-200 px-1 py-0.5 rounded text-text-main">
+                <code className="bg-surface-hover px-1 py-0.5 rounded text-text-main">
                   TESSA_API_URL
                 </code>
               </div>

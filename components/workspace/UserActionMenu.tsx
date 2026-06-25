@@ -33,8 +33,8 @@ function ConfirmDialog({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-3 mb-5">
-          <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center shrink-0">
-            <AlertTriangle size={18} className="text-amber-500" />
+          <div className="w-9 h-9 rounded-full bg-warning-soft flex items-center justify-center shrink-0">
+            <AlertTriangle size={18} className="text-warning" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-text-main mb-1">
@@ -202,7 +202,7 @@ export default function UserActionMenu({
           disabled={isLoading}
           className={`p-1.5 rounded-md transition-colors ${
             isOpen
-              ? "bg-slate-200 text-text-main"
+              ? "bg-skip-soft text-text-main"
               : "text-text-muted hover:text-text-muted hover:bg-surface-hover"
           }`}
         >
@@ -225,26 +225,26 @@ export default function UserActionMenu({
               onClick={handleSendResetLink}
               className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center space-x-2"
             >
-              <Key size={16} className="text-amber-500" />
+              <Key size={16} className="text-warning" />
               <span>Send password reset</span>
             </button>
 
-            <div className="h-px bg-slate-200 my-1 mx-2" />
+            <div className="h-px bg-skip-soft my-1 mx-2" />
 
             {isActive ? (
               <button
                 onClick={() => handleActionRequest("deactivate")}
-                className="w-full text-left px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 flex items-center space-x-2 font-medium"
+                className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger-soft flex items-center space-x-2 font-medium"
               >
-                <UserX size={16} className="text-rose-500" />
+                <UserX size={16} className="text-danger" />
                 <span>Deactivate User</span>
               </button>
             ) : (
               <button
                 onClick={() => handleActionRequest("activate")}
-                className="w-full text-left px-4 py-2 text-sm text-emerald-600 hover:bg-emerald-50 flex items-center space-x-2 font-medium"
+                className="w-full text-left px-4 py-2 text-sm text-success hover:bg-success-soft flex items-center space-x-2 font-medium"
               >
-                <UserCheck size={16} className="text-emerald-500" />
+                <UserCheck size={16} className="text-success" />
                 <span>Activate User</span>
               </button>
             )}
@@ -272,7 +272,7 @@ export default function UserActionMenu({
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-lg font-bold text-text-main mb-2 flex items-center gap-2">
-              <Key size={18} className="text-amber-500" /> Password reset link
+              <Key size={18} className="text-warning" /> Password reset link
             </h3>
             <p className="text-sm text-text-muted mb-4">
               Email isn&apos;t configured, so share this link with the user

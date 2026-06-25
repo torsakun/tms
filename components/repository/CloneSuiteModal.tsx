@@ -52,7 +52,7 @@ export function CloneSuiteModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[color:var(--overlay)]">
       <div
         className="bg-surface rounded-lg shadow-xl w-full max-w-[500px] flex flex-col"
         onClick={(e) => e.stopPropagation()}
@@ -91,7 +91,7 @@ export function CloneSuiteModal({
             {/* Target Project (Read-only for now) */}
             <div>
               <div className="flex items-center px-3 py-2 border border-text-muted rounded bg-surface-hover cursor-not-allowed">
-                <div className="w-5 h-5 rounded bg-amber-700 text-white flex items-center justify-center text-[10px] font-bold mr-2">
+                <div className="w-5 h-5 rounded bg-warning text-white flex items-center justify-center text-[10px] font-bold mr-2">
                   {projectCode.substring(0, 2)}
                 </div>
                 <span className="text-sm text-text-main font-medium">

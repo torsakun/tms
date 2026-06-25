@@ -75,7 +75,7 @@ export default async function WorkspaceUsersPage() {
           <h1 className="text-xl font-bold text-text-main tracking-tight">
             Users
           </h1>
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary">
             {users.length}
           </span>
         </div>

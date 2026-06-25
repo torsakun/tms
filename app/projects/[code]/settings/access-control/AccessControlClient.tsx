@@ -232,7 +232,7 @@ export function AccessControlClient({
           Project owner
         </p>
         <div className="flex items-center gap-4">
-          <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-inner">
+          <div className="w-9 h-9 rounded-xl bg-sidebar-bg flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-inner">
             {owner?.name?.[0]?.toUpperCase() ||
               owner?.email?.[0]?.toUpperCase() ||
               "?"}
@@ -242,7 +242,7 @@ export function AccessControlClient({
           </span>
           <button
             onClick={() => setEditOwnerOpen(true)}
-            className="px-5 py-2.5 text-[13px] font-bold text-text-main border border-border/80 bg-surface rounded-xl hover:bg-surface-hover hover:border-indigo-400 hover:text-indigo-600 transition-all shadow-sm hover:-translate-y-0.5 duration-300"
+            className="px-5 py-2.5 text-[13px] font-bold text-text-main border border-border/80 bg-surface rounded-xl hover:bg-surface-hover hover:border-primary/40 hover:text-primary transition-all shadow-sm hover:-translate-y-0.5 duration-300"
           >
             Edit owner
           </button>
@@ -262,8 +262,8 @@ export function AccessControlClient({
               onClick={() => saveAccessType("PUBLIC")}
               className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                 accessType === "PUBLIC"
-                  ? "border-indigo-600 bg-indigo-600 shadow-sm"
-                  : "border-border group-hover:border-indigo-400"
+                  ? "border-primary bg-primary shadow-sm"
+                  : "border-border group-hover:border-primary/40"
               }`}
             >
               {accessType === "PUBLIC" && (
@@ -277,7 +277,7 @@ export function AccessControlClient({
               <Globe
                 size={18}
                 className={
-                  accessType === "PUBLIC" ? "text-indigo-500" : "text-text-muted"
+                  accessType === "PUBLIC" ? "text-primary" : "text-text-muted"
                 }
               />
               <span className="text-[15px] font-semibold text-text-main">
@@ -295,8 +295,8 @@ export function AccessControlClient({
               onClick={() => saveAccessType("PRIVATE")}
               className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                 accessType === "PRIVATE"
-                  ? "border-indigo-600 bg-indigo-600 shadow-sm"
-                  : "border-border group-hover:border-indigo-400"
+                  ? "border-primary bg-primary shadow-sm"
+                  : "border-border group-hover:border-primary/40"
               }`}
             >
               {accessType === "PRIVATE" && (
@@ -311,7 +311,7 @@ export function AccessControlClient({
                 size={18}
                 className={
                   accessType === "PRIVATE"
-                    ? "text-indigo-500"
+                    ? "text-primary"
                     : "text-text-muted"
                 }
               />
@@ -326,7 +326,7 @@ export function AccessControlClient({
         </div>
 
         {saving && (
-          <div className="flex items-center gap-2 mt-4 text-sm text-indigo-600">
+          <div className="flex items-center gap-2 mt-4 text-sm text-primary">
             <Loader2 size={14} className="animate-spin" /> Saving…
           </div>
         )}
@@ -366,7 +366,7 @@ export function AccessControlClient({
                   onClick={() => setActiveTab(tab)}
                   className={`px-5 py-3 text-[15px] font-semibold border-b-2 transition-colors capitalize ${
                     activeTab === tab
-                      ? "border-indigo-600 text-indigo-600"
+                      ? "border-primary text-primary"
                       : "border-transparent text-text-muted hover:text-text-main"
                   }`}
                 >
@@ -397,7 +397,7 @@ export function AccessControlClient({
 
               {groupsLoading ? (
                 <div className="flex justify-center py-12">
-                  <Loader2 size={24} className="animate-spin text-indigo-500" />
+                  <Loader2 size={24} className="animate-spin text-primary" />
                 </div>
               ) : filteredGroups.length === 0 ? (
                 <div className="py-12 text-center text-[15px] text-text-muted">
@@ -413,8 +413,8 @@ export function AccessControlClient({
                       className="flex items-center justify-between px-5 py-4 hover:bg-surface-hover/70 transition"
                     >
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center shrink-0">
-                          <Users size={18} className="text-indigo-600" />
+                        <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center shrink-0">
+                          <Users size={18} className="text-primary" />
                         </div>
                         <div>
                           <div className="text-[15px] font-semibold text-text-main">
@@ -432,8 +432,8 @@ export function AccessControlClient({
                         disabled={togglingGroupId === g.id}
                         className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold transition-all shadow-sm hover:-translate-y-0.5 duration-300 ${
                           g.isAssigned
-                            ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                            : "bg-surface border border-border/80 text-text-muted hover:border-indigo-400 hover:text-indigo-600"
+                            ? "bg-primary text-primary-foreground hover:bg-primary-hover"
+                            : "bg-surface border border-border/80 text-text-muted hover:border-primary/40 hover:text-primary"
                         }`}
                       >
                         {togglingGroupId === g.id ? (
@@ -484,7 +484,7 @@ export function AccessControlClient({
                         className="flex items-center justify-between px-5 py-4 hover:bg-surface-hover/70 transition"
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-text-muted text-sm font-bold shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-surface-hover flex items-center justify-center text-text-muted text-sm font-bold shrink-0">
                             {(u.name || u.email)[0].toUpperCase()}
                           </div>
                           <div>
@@ -499,7 +499,7 @@ export function AccessControlClient({
                         {isAdded ? (
                           <button
                             onClick={() => removeMember(u.id)}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold bg-indigo-600 text-white hover:bg-red-500 transition-all shadow-sm group hover:-translate-y-0.5 duration-300"
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold bg-primary text-primary-foreground hover:bg-danger transition-all shadow-sm group hover:-translate-y-0.5 duration-300"
                           >
                             <span className="group-hover:hidden flex items-center gap-1.5">
                               <Check size={14} strokeWidth={3} /> Added
@@ -512,7 +512,7 @@ export function AccessControlClient({
                           <button
                             onClick={() => addMember(u)}
                             disabled={addingMemberId === u.id}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold bg-surface border border-border/80 text-text-muted hover:border-indigo-400 hover:text-indigo-600 transition-all shadow-sm hover:-translate-y-0.5 duration-300"
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold bg-surface border border-border/80 text-text-muted hover:border-primary/40 hover:text-primary transition-all shadow-sm hover:-translate-y-0.5 duration-300"
                           >
                             {addingMemberId === u.id ? (
                               <Loader2 size={14} className="animate-spin" />
@@ -537,10 +537,10 @@ export function AccessControlClient({
                     {assignedMembers.map((m) => (
                       <div
                         key={m.id}
-                        className="flex items-center justify-between px-4 py-3 bg-indigo-50/50 border border-indigo-100 rounded-xl"
+                        className="flex items-center justify-between px-4 py-3 bg-primary-light border border-primary/20 rounded-xl"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-indigo-200 flex items-center justify-center text-indigo-700 text-xs font-bold shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0">
                             {(m.name || m.email)[0].toUpperCase()}
                           </div>
                           <span className="text-[15px] text-text-main font-medium">
@@ -549,7 +549,7 @@ export function AccessControlClient({
                         </div>
                         <button
                           onClick={() => removeMember(m.id)}
-                          className="text-text-muted hover:text-red-500 transition-colors p-1"
+                          className="text-text-muted hover:text-danger transition-colors p-1"
                         >
                           <X size={16} />
                         </button>
@@ -612,9 +612,9 @@ export function AccessControlClient({
                       <button
                         key={u.id}
                         onClick={() => changeOwner(u)}
-                        className={`w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors ${isCurrent ? "bg-indigo-50" : "hover:bg-surface-hover"}`}
+                        className={`w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors ${isCurrent ? "bg-primary-light" : "hover:bg-surface-hover"}`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0">
                           {(u.name || u.email)[0].toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -628,7 +628,7 @@ export function AccessControlClient({
                         {isCurrent && (
                           <Check
                             size={16}
-                            className="text-indigo-600 shrink-0"
+                            className="text-primary shrink-0"
                             strokeWidth={3}
                           />
                         )}

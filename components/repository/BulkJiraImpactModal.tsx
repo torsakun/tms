@@ -226,14 +226,14 @@ export function BulkJiraImpactModal({
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-surface w-[1000px] max-h-[95vh] rounded-xl shadow-2xl overflow-hidden border border-border flex flex-col animate-in zoom-in-95 duration-200">
-        <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-indigo-50 shrink-0">
-          <div className="flex items-center space-x-2 text-indigo-800">
+        <div className="px-6 py-4 border-b border-border flex justify-between items-center bg-primary-light shrink-0">
+          <div className="flex items-center space-x-2 text-primary">
             <Sparkles size={20} />
             <h3 className="text-lg font-bold">Story-Level Impact Analysis</h3>
           </div>
           <button
             onClick={onClose}
-            className="text-indigo-600 hover:text-indigo-900 transition-colors"
+            className="text-primary hover:text-primary-hover transition-colors"
           >
             <X size={20} />
           </button>
@@ -241,7 +241,7 @@ export function BulkJiraImpactModal({
 
         <div className="flex-1 overflow-y-auto p-6 flex flex-col">
           {error && (
-            <div className="mb-6 p-4 bg-red-500/10 text-red-500 rounded-lg border border-red-500/20 flex items-center shrink-0">
+            <div className="mb-6 p-4 bg-danger-soft text-danger-foreground rounded-lg border border-danger/25 flex items-center shrink-0">
               <AlertTriangle size={18} className="mr-2 shrink-0" />
               <p className="text-sm font-medium">{error}</p>
             </div>
@@ -290,7 +290,7 @@ export function BulkJiraImpactModal({
 
               <div className="bg-surface p-6 rounded-xl border border-border">
                 <h4 className="text-sm font-bold text-text-main mb-4 flex items-center">
-                  <Database size={16} className="mr-2 text-indigo-500" />
+                  <Database size={16} className="mr-2 text-primary" />
                   2. Select Target Test Cases
                 </h4>
                 <div className="flex space-x-4 mb-4">
@@ -300,7 +300,7 @@ export function BulkJiraImpactModal({
                       name="targetMode"
                       checked={targetMode === "SUITE"}
                       onChange={() => setTargetMode("SUITE")}
-                      className="text-indigo-600 focus:ring-indigo-500"
+                      className="text-primary focus:ring-primary"
                     />
                     <span className="text-sm font-medium text-text-main">
                       By Test Suite
@@ -312,7 +312,7 @@ export function BulkJiraImpactModal({
                       name="targetMode"
                       checked={targetMode === "JIRA_LINKED"}
                       onChange={() => setTargetMode("JIRA_LINKED")}
-                      className="text-indigo-600 focus:ring-indigo-500"
+                      className="text-primary focus:ring-primary"
                     />
                     <span className="text-sm font-medium text-text-main">
                       By Linked Jira ID ({jiraTicketId || "Ticket"})
@@ -349,7 +349,7 @@ export function BulkJiraImpactModal({
 
               <div className="bg-surface p-6 rounded-xl border border-border">
                 <h4 className="text-sm font-bold text-text-main mb-4 flex items-center">
-                  <Sparkles size={16} className="mr-2 text-amber-500" />
+                  <Sparkles size={16} className="mr-2 text-warning" />
                   3. AI Settings
                 </h4>
                 <select
@@ -374,12 +374,12 @@ export function BulkJiraImpactModal({
           {step === "LOADING" && (
             <div className="flex flex-col items-center justify-center py-32 flex-1">
               <div className="relative w-24 h-24 mb-8">
-                <div className="absolute inset-0 bg-indigo-500/20 rounded-full animate-ping"></div>
+                <div className="absolute inset-0 bg-primary-light/20 rounded-full animate-ping"></div>
                 <div
-                  className="absolute inset-2 bg-indigo-500/40 rounded-full animate-ping"
+                  className="absolute inset-2 bg-primary-light/40 rounded-full animate-ping"
                   style={{ animationDelay: "0.2s" }}
                 ></div>
-                <div className="absolute inset-4 bg-indigo-500 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.6)]">
+                <div className="absolute inset-4 bg-primary-light rounded-full flex items-center justify-center shadow-[0_0_30px_color-mix(in_oklch,var(--primary)_45%,transparent)]">
                   <Sparkles className="text-white" size={32} />
                 </div>
               </div>
@@ -405,14 +405,14 @@ export function BulkJiraImpactModal({
                   </p>
                 </div>
                 <div className="flex space-x-4 text-sm font-medium">
-                  <span className="text-amber-600 bg-amber-50 px-3 py-1 rounded-full">
+                  <span className="text-warning-foreground bg-warning-soft px-3 py-1 rounded-full">
                     {casesNeedingUpdate.length} Updates
                   </span>
-                  <span className="text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+                  <span className="text-success-foreground bg-success-soft px-3 py-1 rounded-full">
                     {casesUnchanged.length} Unchanged
                   </span>
                   {casesFailed.length > 0 && (
-                    <span className="text-red-600 bg-red-50 px-3 py-1 rounded-full">
+                    <span className="text-danger-foreground bg-danger-soft px-3 py-1 rounded-full">
                       {casesFailed.length} Errors
                     </span>
                   )}
@@ -433,29 +433,29 @@ export function BulkJiraImpactModal({
                     return (
                       <div
                         key={res.caseId}
-                        className={`border rounded-xl transition-all overflow-hidden ${isSelected ? "border-indigo-400 shadow-sm" : "border-border bg-surface-hover opacity-80"}`}
+                        className={`border rounded-xl transition-all overflow-hidden ${isSelected ? "border-primary/45 shadow-sm" : "border-border bg-surface-hover opacity-80"}`}
                       >
                         <div
-                          className={`p-4 flex items-start cursor-pointer select-none ${isSelected ? "bg-indigo-50/30" : ""}`}
+                          className={`p-4 flex items-start cursor-pointer select-none ${isSelected ? "bg-primary-light/30" : ""}`}
                           onClick={() => toggleSelection(res.caseId)}
                         >
                           <div
-                            className={`w-5 h-5 rounded border mt-0.5 flex items-center justify-center mr-3 shrink-0 transition-colors ${isSelected ? "bg-indigo-600 border-indigo-600 text-white" : "border-text-muted bg-surface"}`}
+                            className={`w-5 h-5 rounded border mt-0.5 flex items-center justify-center mr-3 shrink-0 transition-colors ${isSelected ? "bg-primary border-primary text-white" : "border-text-muted bg-surface"}`}
                           >
                             {isSelected && <CheckCircle2 size={14} />}
                           </div>
                           <div className="flex-1">
                             <h4
-                              className={`font-bold leading-tight ${isSelected ? "text-indigo-900" : "text-text-main"}`}
+                              className={`font-bold leading-tight ${isSelected ? "text-primary" : "text-text-main"}`}
                             >
                               {originalCase?.code}: {originalCase?.title}
                             </h4>
-                            <p className="text-xs text-indigo-700/80 mt-1 italic">
+                            <p className="text-xs text-primary mt-1 italic">
                               "{res.result.analysis}"
                             </p>
 
                             {isSelected && (
-                              <div className="mt-4 space-y-4 bg-surface p-4 rounded-lg border border-indigo-100">
+                              <div className="mt-4 space-y-4 bg-surface p-4 rounded-lg border border-primary/20">
                                 {res.result.suggestedUpdates?.title &&
                                   res.result.suggestedUpdates.title !==
                                     originalCase?.title && (
@@ -463,10 +463,10 @@ export function BulkJiraImpactModal({
                                       <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-1">
                                         Title Update
                                       </span>
-                                      <div className="text-sm line-through text-red-500/70 mb-1">
+                                      <div className="text-sm line-through text-danger/70 mb-1">
                                         {originalCase?.title}
                                       </div>
-                                      <div className="text-sm text-emerald-700">
+                                      <div className="text-sm text-success-foreground">
                                         {res.result.suggestedUpdates.title}
                                       </div>
                                     </div>
@@ -539,7 +539,7 @@ export function BulkJiraImpactModal({
                   <h5 className="font-bold text-red-600 text-sm mb-3">
                     Failed Analysis ({casesFailed.length} cases)
                   </h5>
-                  <div className="bg-red-50 rounded-lg p-4 border border-red-200">
+                  <div className="bg-danger-soft rounded-lg p-4 border border-danger/25">
                     <ul className="list-disc pl-5 space-y-1">
                       {casesFailed.map((res) => (
                         <li key={res.caseId} className="text-sm text-red-700">
@@ -568,7 +568,7 @@ export function BulkJiraImpactModal({
           {step === "INPUT" && (
             <Button
               onClick={handleAnalyze}
-              className="bg-indigo-600 hover:bg-indigo-700 shadow-[0_0_15px_rgba(79,70,229,0.4)]"
+              className="bg-primary hover:bg-primary-hover shadow-[var(--shadow-float)]"
             >
               <Sparkles size={16} />
               Analyze Batch

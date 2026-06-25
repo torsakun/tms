@@ -175,11 +175,11 @@ export function CommandPalette() {
 
   return (
     <div
-      className="fixed inset-0 z-[300] flex items-start justify-center px-4 pt-[12vh] bg-slate-900/40 backdrop-blur-[2px]"
+      className="fixed inset-0 z-modal flex items-start justify-center px-4 pt-[12vh] bg-black/40 backdrop-blur-[2px]"
       onClick={close}
     >
       <div
-        className="w-full max-w-xl bg-surface rounded-2xl shadow-2xl overflow-hidden border border-border animate-fade-up"
+        className="w-full max-w-xl qm-panel overflow-hidden animate-fade-up"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-label="Command palette"
@@ -192,7 +192,7 @@ export function CommandPalette() {
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onListKey}
             placeholder="Search cases, runs, projects…"
-            className="flex-1 py-3.5 text-[15px] text-text-main placeholder-slate-400 bg-transparent outline-none"
+            className="flex-1 py-3.5 text-[15px] text-text-main placeholder:text-text-faint bg-transparent outline-none"
           />
           <kbd className="text-[10px] font-semibold text-text-muted bg-surface-hover px-1.5 py-0.5 rounded">
             ESC
@@ -213,12 +213,12 @@ export function CommandPalette() {
                   onClick={c.run}
                   onMouseEnter={() => setActive(i)}
                   className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-                    i === active ? "bg-indigo-50" : "hover:bg-surface-hover"
+                    i === active ? "bg-primary-light" : "hover:bg-surface-hover"
                   }`}
                 >
                   <span
                     className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                      i === active ? "bg-indigo-100 text-indigo-600" : "bg-surface-hover text-text-muted"
+                      i === active ? "bg-primary text-primary-foreground" : "bg-surface-hover text-text-muted"
                     }`}
                   >
                     <Icon size={15} />
@@ -227,7 +227,7 @@ export function CommandPalette() {
                     <span className="block text-sm font-medium text-text-main truncate">{c.label}</span>
                     {c.hint && <span className="block text-xs text-text-muted truncate">{c.hint}</span>}
                   </span>
-                  {i === active && <CornerDownLeft size={14} className="text-indigo-400 shrink-0" />}
+                  {i === active && <CornerDownLeft size={14} className="text-primary shrink-0" />}
                 </button>
               );
             })

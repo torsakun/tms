@@ -98,17 +98,17 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
   };
 
   const inputCls =
-    "w-full px-3 py-2.5 text-sm border border-border rounded-lg bg-surface text-text-main placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-indigo-300 transition-all";
+    "w-full px-3 py-2.5 text-sm border border-border rounded-lg bg-surface text-text-main placeholder:text-text-faint focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 transition-all";
   const labelCls = "block text-sm font-semibold text-text-main mb-1.5";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-[1px]">
-      <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-lg flex flex-col max-h-[90vh] overflow-hidden border border-border">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[color:oklch(0.18_0.015_264)]/40 backdrop-blur-[1px]">
+      <div className="bg-surface rounded-[13px] shadow-[var(--shadow-dialog)] w-full max-w-lg flex flex-col max-h-[90vh] overflow-hidden border border-border">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-4 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-              <UserPlus size={15} className="text-indigo-500" />
+            <div className="w-8 h-8 rounded-lg bg-primary-light flex items-center justify-center">
+              <UserPlus size={15} className="text-primary" />
             </div>
             <h2 className="text-base font-bold text-text-main">
               Invite new member
@@ -130,7 +130,7 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
               onClick={() => setActiveTab(tab)}
               className={`pb-3 text-sm font-semibold capitalize border-b-2 transition-colors ${
                 activeTab === tab
-                  ? "border-indigo-500 text-indigo-600"
+                  ? "border-primary text-primary"
                   : "border-transparent text-text-muted hover:text-text-muted"
               }`}
             >
@@ -148,12 +148,12 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
               className="space-y-4"
             >
               {error && (
-                <div className="p-3 text-sm text-rose-600 bg-rose-50 rounded-lg border border-rose-100">
+                <div className="p-3 text-sm text-danger bg-danger-soft rounded-lg border border-danger/15">
                   {error}
                 </div>
               )}
               {success && (
-                <div className="p-3 text-sm text-emerald-600 bg-emerald-50 rounded-lg border border-emerald-100 flex items-center gap-2">
+                <div className="p-3 text-sm text-success bg-success-soft rounded-lg border border-success/15 flex items-center gap-2">
                   <CheckCircle2 size={15} /> Invitation sent successfully!
                 </div>
               )}
@@ -161,7 +161,7 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelCls}>
-                    First name <span className="text-rose-400">*</span>
+                    First name <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
@@ -174,7 +174,7 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
                 </div>
                 <div>
                   <label className={labelCls}>
-                    Last name <span className="text-rose-400">*</span>
+                    Last name <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
@@ -189,7 +189,7 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
 
               <div>
                 <label className={labelCls}>
-                  Email <span className="text-rose-400">*</span>
+                  Email <span className="text-danger">*</span>
                 </label>
                 <input
                   type="email"
@@ -203,7 +203,7 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
 
               <div>
                 <label className={labelCls}>
-                  Role <span className="text-rose-400">*</span>
+                  Role <span className="text-danger">*</span>
                 </label>
                 {isLoadingRoles ? (
                   <div className="flex items-center gap-2 text-sm text-text-muted py-2.5">
@@ -239,16 +239,16 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
           ) : (
             <div className="space-y-4">
               {error && (
-                <div className="p-3 text-sm text-rose-600 bg-rose-50 rounded-lg border border-rose-100">
+                <div className="p-3 text-sm text-danger bg-danger-soft rounded-lg border border-danger/15">
                   {error}
                 </div>
               )}
               {bulkResult && (
-                <div className="p-3 text-sm rounded-lg border bg-emerald-50 border-emerald-100 text-emerald-700">
+                <div className="p-3 text-sm rounded-lg border bg-success-soft border-success/15 text-success-foreground">
                   Sent {bulkResult.sent} invitation
                   {bulkResult.sent !== 1 ? "s" : ""}
                   {bulkResult.failed > 0 && (
-                    <span className="text-rose-600">
+                    <span className="text-danger">
                       {" "}
                       · {bulkResult.failed} failed (already a member / invalid)
                     </span>
@@ -257,7 +257,7 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
               )}
               <div>
                 <label className={labelCls}>
-                  Email addresses <span className="text-rose-400">*</span>
+                  Email addresses <span className="text-danger">*</span>
                 </label>
                 <textarea
                   value={bulkText}
@@ -273,7 +273,7 @@ export function InviteUserModal({ onClose }: InviteUserModalProps) {
               </div>
               <div>
                 <label className={labelCls}>
-                  Role <span className="text-rose-400">*</span>
+                  Role <span className="text-danger">*</span>
                 </label>
                 {isLoadingRoles ? (
                   <div className="flex items-center gap-2 text-sm text-text-muted py-2.5">

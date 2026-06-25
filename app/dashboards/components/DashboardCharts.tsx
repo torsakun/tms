@@ -14,7 +14,7 @@ import {
   Cell,
 } from "recharts";
 
-const COLORS = ["#10b981", "#f59e0b", "#94a3b8"];
+const COLORS = ["var(--success)", "var(--warning)", "var(--skip)"];
 
 interface DashboardChartsProps {
   trendData: Array<{
@@ -85,19 +85,19 @@ export function ExecutionTrendChart({
   }
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height="100%" minWidth={280} minHeight={220}>
       <AreaChart
         data={data}
         margin={{ top: 8, right: 12, left: -18, bottom: 0 }}
       >
         <defs>
           <linearGradient id="colorPassed" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+            <stop offset="5%" stopColor="var(--success)" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="var(--success)" stopOpacity={0} />
           </linearGradient>
           <linearGradient id="colorFailed" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
-            <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+            <stop offset="5%" stopColor="var(--danger)" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="var(--danger)" stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid
@@ -129,21 +129,21 @@ export function ExecutionTrendChart({
           type="monotone"
           dataKey="passed"
           name="Passed"
-          stroke="#10b981"
+          stroke="var(--success)"
           strokeWidth={3}
           fillOpacity={1}
           fill="url(#colorPassed)"
-          activeDot={{ r: 6, strokeWidth: 0, fill: "#10b981" }}
+          activeDot={{ r: 6, strokeWidth: 0, fill: "var(--success)" }}
         />
         <Area
           type="monotone"
           dataKey="failed"
           name="Failed"
-          stroke="#ef4444"
+          stroke="var(--danger)"
           strokeWidth={3}
           fillOpacity={1}
           fill="url(#colorFailed)"
-          activeDot={{ r: 6, strokeWidth: 0, fill: "#ef4444" }}
+          activeDot={{ r: 6, strokeWidth: 0, fill: "var(--danger)" }}
         />
       </AreaChart>
     </ResponsiveContainer>
@@ -179,7 +179,7 @@ export function AutomationDonutChart({
 
   return (
     <div className="h-full w-full relative">
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" minWidth={180} minHeight={180}>
         <PieChart>
           <Pie
             data={pieData}

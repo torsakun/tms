@@ -67,13 +67,13 @@ export default function DeploymentList({
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "SUCCESS":
-        return <CheckCircle2 className="text-emerald-500" size={18} />;
+        return <CheckCircle2 className="text-success" size={18} />;
       case "FAILED":
-        return <XCircle className="text-rose-500" size={18} />;
+        return <XCircle className="text-danger" size={18} />;
       case "BUILDING":
         return <Loader2 className="text-primary animate-spin" size={18} />;
       case "PENDING":
-        return <Clock className="text-amber-500" size={18} />;
+        return <Clock className="text-warning" size={18} />;
       default:
         return null;
     }
@@ -82,13 +82,13 @@ export default function DeploymentList({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "SUCCESS":
-        return "bg-emerald-100 text-emerald-700 border-emerald-200";
+        return "bg-success-soft text-success-foreground border-success/25";
       case "FAILED":
-        return "bg-rose-100 text-rose-700 border-rose-200";
+        return "bg-danger-soft text-danger-foreground border-danger/25";
       case "BUILDING":
         return "bg-blue-100 text-blue-700 border-blue-200";
       case "PENDING":
-        return "bg-amber-100 text-amber-700 border-amber-200";
+        return "bg-warning-soft text-warning-foreground border-warning/25";
       default:
         return "bg-surface-hover text-text-main border-border";
     }
@@ -99,7 +99,7 @@ export default function DeploymentList({
   );
 
   return (
-    <div className="bg-surface border border-border/80 rounded-2xl shadow-premium animate-in zoom-in-95 duration-200">
+    <div className="bg-surface border border-border/80 rounded-[13px] shadow-[var(--shadow-float)] animate-in zoom-in-95 duration-200">
       <div className="px-6 py-4 border-b border-border/80 flex justify-between items-center">
         <h2 className="font-semibold text-text-main">Recent Deployments</h2>
         <div className="flex gap-2">
@@ -114,7 +114,7 @@ export default function DeploymentList({
             onClick={triggerDeployment}
             loading={isTriggering}
             disabled={activeDeployment}
-            className="shadow-premium hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+            className="shadow-[var(--shadow-float)] hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:hover:shadow-none"
           >
             <Play size={16} />
             Deploy Now

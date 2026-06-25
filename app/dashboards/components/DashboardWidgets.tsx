@@ -21,12 +21,12 @@ export function WidgetCard({
 }) {
   return (
     <section
-      className={`flex flex-col rounded-2xl transition-all duration-300 ${
+      className={`flex flex-col rounded-[13px] transition-all duration-300 ${
         borderless
           ? tinted
             ? "bg-surface-hover/50 shadow-sm"
             : "bg-surface shadow-sm"
-          : "border border-border/80 bg-surface shadow-premium hover:-translate-y-1 hover:border-border"
+          : "border border-border/80 bg-surface shadow-[var(--shadow-float)] hover:-translate-y-1 hover:border-border"
       } p-6 relative overflow-hidden group ${className}`}
     >
       <div className="flex items-center justify-between mb-5 relative z-10">
@@ -175,13 +175,13 @@ export function KpiRibbon({
   const isWarning = passRate >= 70 && passRate < 90;
   
   const heroClasses = isHealthy 
-    ? "bg-emerald-50 text-emerald-900 border-emerald-200 shadow-emerald-500/10 dark:bg-emerald-500/10 dark:border-emerald-500/20 dark:text-emerald-50"
+    ? "bg-success-soft text-success-foreground border-success/25 shadow-none border-success/25 text-success-foreground"
     : isWarning 
-      ? "bg-amber-50 text-amber-900 border-amber-200 shadow-amber-500/10 dark:bg-amber-500/10 dark:border-amber-500/20 dark:text-amber-50"
-      : "bg-rose-50 text-rose-900 border-rose-200 shadow-rose-500/10 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-50";
+      ? "bg-warning-soft text-warning-foreground border-warning/25 shadow-none border-warning/25 text-warning-foreground"
+      : "bg-danger-soft text-danger-foreground border-danger/25 shadow-none border-danger/25 text-danger-foreground";
 
-  const passColor = isHealthy ? "var(--emerald-600)" : isWarning ? "var(--amber-600)" : "var(--rose-600)";
-  const passDarkColor = isHealthy ? "var(--emerald-400)" : isWarning ? "var(--amber-400)" : "var(--rose-400)";
+  const passColor = isHealthy ? "var(--success)" : isWarning ? "var(--warning)" : "var(--danger)";
+  const passDarkColor = isHealthy ? "var(--success)" : isWarning ? "var(--warning)" : "var(--danger)";
 
   const Cell = ({
     label,
@@ -211,7 +211,7 @@ export function KpiRibbon({
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-2">
       {/* Massive Hero Block for Pass Rate */}
-      <div className={`md:col-span-5 flex flex-col justify-between rounded-3xl border shadow-premium p-8 md:p-10 ${heroClasses}`}>
+      <div className={`md:col-span-5 flex flex-col justify-between rounded-[16px] border shadow-[var(--shadow-float)] p-8 md:p-10 ${heroClasses}`}>
         <div>
           <div className="text-[14px] font-bold tracking-wide uppercase opacity-80 mb-2">
             Global Pass Rate
@@ -226,7 +226,7 @@ export function KpiRibbon({
             <span className="text-[14px] font-bold opacity-90">Health trend</span>
             <span className="text-[13px] font-medium opacity-75">{runs.toLocaleString()} runs</span>
           </div>
-          <div className="h-2.5 w-full rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+          <div className="h-2.5 w-full rounded-full bg-black/10 overflow-hidden">
             <div 
               className="h-full rounded-full transition-all duration-1000 ease-out" 
               style={{ 
@@ -239,7 +239,7 @@ export function KpiRibbon({
       </div>
 
       {/* Supporting Metrics Bento */}
-      <div className="md:col-span-7 grid grid-cols-2 rounded-3xl bg-surface border border-border/80 shadow-premium divide-x divide-y divide-border/80 overflow-hidden">
+      <div className="md:col-span-7 grid grid-cols-2 rounded-[16px] bg-surface border border-border/80 shadow-[var(--shadow-float)] divide-x divide-y divide-border/80 overflow-hidden">
         <Cell label="Test runs" value={runs.toLocaleString()} sub={`${activeRuns} active in queue`} />
         <Cell label="Automation" value={`${automation.toFixed(0)}%`} sub={`${automatedCount.toLocaleString()} automated`} />
         <Cell label="Test cases" value={cases.toLocaleString()} sub={`${projects} projects tracked`} />
@@ -247,7 +247,7 @@ export function KpiRibbon({
           label="At risk"
           value={atRisk.toLocaleString()}
           sub="failed or blocked"
-          color={atRisk > 0 ? "var(--rose-500)" : "var(--emerald-500)"}
+          color={atRisk > 0 ? "var(--danger)" : "var(--success)"}
         />
       </div>
     </div>

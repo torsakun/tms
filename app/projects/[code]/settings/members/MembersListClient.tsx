@@ -209,7 +209,7 @@ export function MembersListClient({
     const isAdmin =
       member.user.role === "ADMIN" ||
       member.user.workspaceRole?.title?.toLowerCase().includes("admin");
-    if (isAdmin) return "bg-amber-100 text-amber-800";
+    if (isAdmin) return "bg-warning-soft text-warning-foreground";
     return "bg-surface-hover text-text-muted";
   };
 
@@ -259,7 +259,7 @@ export function MembersListClient({
               <tr key={m.userId} className="hover:bg-surface-hover transition">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0">
                       {(m.user.name || m.user.email)[0].toUpperCase()}
                     </div>
                     <span className="font-semibold text-text-main">
@@ -284,7 +284,7 @@ export function MembersListClient({
                 <td className="px-6 py-4 text-right">
                   <button
                     onClick={() => removeMember(m.userId)}
-                    className="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
+                    className="text-danger hover:text-danger-foreground text-sm font-medium transition-colors"
                   >
                     Remove
                   </button>
@@ -308,11 +308,11 @@ export function MembersListClient({
       {/* Groups section */}
       <div className="mb-2 flex items-center gap-3">
         <h2 className="text-base font-bold text-text-main flex items-center gap-2">
-          <Users size={16} className="text-indigo-500" />
+          <Users size={16} className="text-primary" />
           Assigned Groups
         </h2>
         {groups.filter((g) => g.isAssigned).length > 0 && (
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600">
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary">
             {groups.filter((g) => g.isAssigned).length}
           </span>
         )}
@@ -340,7 +340,7 @@ export function MembersListClient({
         </div>
         {groupsLoading ? (
           <div className="flex items-center justify-center py-10">
-            <Loader2 size={24} className="animate-spin text-indigo-500" />
+            <Loader2 size={24} className="animate-spin text-primary" />
           </div>
         ) : filteredGroups.length === 0 ? (
           <div className="px-6 py-8 text-center text-text-muted text-sm">
@@ -356,8 +356,8 @@ export function MembersListClient({
                 className="flex items-center justify-between px-6 py-3 hover:bg-surface-hover transition"
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center">
-                    <Users size={14} className="text-indigo-600" />
+                  <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center">
+                    <Users size={14} className="text-primary" />
                   </div>
                   <div>
                     <div className="text-sm font-semibold text-text-main">
@@ -375,8 +375,8 @@ export function MembersListClient({
                   disabled={togglingId === group.id}
                   className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold transition-all duration-300 shadow-sm hover:-translate-y-0.5 ${
                     group.isAssigned
-                      ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                      : "bg-surface border border-border text-text-muted hover:border-indigo-300 hover:text-indigo-600"
+                      ? "bg-primary text-primary-foreground hover:bg-primary-hover"
+                      : "bg-surface border border-border text-text-muted hover:border-primary/40 hover:text-primary"
                   }`}
                 >
                   {togglingId === group.id ? (
@@ -447,9 +447,9 @@ export function MembersListClient({
                         type="button"
                         onMouseDown={() => addMember(u)}
                         disabled={addingId === u.id}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-indigo-50 transition-colors text-left"
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-primary-light transition-colors text-left"
                       >
-                        <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0">
                           {(u.name || u.email)[0].toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -467,10 +467,10 @@ export function MembersListClient({
                         {addingId === u.id ? (
                           <Loader2
                             size={14}
-                            className="animate-spin text-indigo-500 shrink-0"
+                            className="animate-spin text-primary shrink-0"
                           />
                         ) : (
-                          <span className="text-xs text-indigo-500 font-semibold shrink-0 ml-2">
+                          <span className="text-xs text-primary font-semibold shrink-0 ml-2">
                             + Add
                           </span>
                         )}
@@ -496,19 +496,19 @@ export function MembersListClient({
                         className="flex items-center justify-between px-4 py-2.5 bg-surface-hover border border-border/80 rounded-xl"
                       >
                         <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-[10px] font-bold shrink-0">
+                          <div className="w-6 h-6 rounded-full bg-primary-light flex items-center justify-center text-primary text-[10px] font-bold shrink-0">
                             {(m.user.name || m.user.email)[0].toUpperCase()}
                           </div>
                           <span className="text-sm text-text-main">
                             {m.user.name || m.user.email}
                           </span>
-                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-200 text-text-muted">
+                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-surface-hover text-text-muted">
                             {getRoleLabel(m)}
                           </span>
                         </div>
                         <button
                           onClick={() => removeMember(m.userId)}
-                          className="text-slate-300 hover:text-red-500 transition-colors"
+                          className="text-text-faint hover:text-danger transition-colors"
                         >
                           <X size={13} />
                         </button>

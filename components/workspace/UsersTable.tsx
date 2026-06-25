@@ -66,7 +66,7 @@ export default function UsersTable({
       [
         "h-9 flex items-center gap-1.5 px-4 py-2.5 rounded-xl border transition-all duration-300 text-[13px] font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5",
         active
-          ? "border-indigo-200 bg-indigo-50 text-indigo-900"
+          ? "border-primary/25 bg-primary-light text-primary"
           : "border-border/80 bg-surface text-text-main hover:border-text-muted/40 hover:bg-surface-hover",
       ].join(" ");
 
@@ -98,7 +98,7 @@ export default function UsersTable({
           </button>
           {openMenu === "status" && (
             <div
-              className="absolute left-0 mt-2 w-40 bg-surface rounded-2xl py-2 z-30 overflow-hidden animate-in zoom-in-95 duration-200 shadow-premium border border-border/80"
+              className="absolute left-0 mt-2 w-40 bg-surface rounded-[13px] py-2 z-30 overflow-hidden animate-in zoom-in-95 duration-200 shadow-[var(--shadow-float)] border border-border/80"
             >
               {(["ALL", "ACTIVE", "INACTIVE"] as StatusFilter[]).map((s) => (
                 <button
@@ -110,7 +110,7 @@ export default function UsersTable({
                   className={[
                     "w-full text-left px-4 py-2 text-[13px] font-bold transition-colors flex items-center justify-between",
                     status === s
-                      ? "bg-indigo-50 text-indigo-900"
+                      ? "bg-primary-light text-primary"
                       : "text-text-main hover:bg-surface-hover",
                   ].join(" ")}
                 >
@@ -130,7 +130,7 @@ export default function UsersTable({
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl overflow-visible bg-surface border border-border/80 shadow-premium animate-in zoom-in-95 duration-200">
+      <div className="rounded-[13px] overflow-visible bg-surface border border-border/80 shadow-[var(--shadow-float)] animate-in zoom-in-95 duration-200">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-border/80 bg-surface-hover/70">
@@ -177,13 +177,13 @@ export default function UsersTable({
                 </td>
                 <td className="px-5 py-3.5 align-middle">
                   {user.isActive ? (
-                    <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-emerald-600">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />{" "}
+                    <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-success">
+                      <span className="w-1.5 h-1.5 rounded-full bg-success" />{" "}
                       Active
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-text-muted">
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-300" />{" "}
+                      <span className="w-1.5 h-1.5 rounded-full bg-skip-soft" />{" "}
                       Inactive
                     </span>
                   )}
@@ -195,7 +195,7 @@ export default function UsersTable({
                     </span>
                     {user.isSysAdmin && (
                       <Tooltip label="System administrator — full workspace access">
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 text-indigo-500 border border-indigo-100 cursor-help">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary-light text-primary border border-primary/15 cursor-help">
                           SYS
                         </span>
                       </Tooltip>
@@ -209,7 +209,7 @@ export default function UsersTable({
                 </td>
                 <td className="pr-4 py-3.5 align-middle text-right">
                   {isAdmin && (
-                    <div className="flex justify-end text-slate-300 group-hover:text-text-muted transition-colors">
+                    <div className="flex justify-end text-text-faint group-hover:text-text-muted transition-colors">
                       <UserActionMenu
                         userId={user.id}
                         isActive={user.isActive}
@@ -226,7 +226,7 @@ export default function UsersTable({
                 <td colSpan={5} className="px-5 py-16 text-center">
                   <UsersIcon
                     size={28}
-                    className="mx-auto mb-2 text-slate-200"
+                    className="mx-auto mb-2 text-text-main"
                   />
                   <p className="text-sm text-text-muted">
                     No members match your filters.

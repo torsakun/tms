@@ -120,7 +120,7 @@ function AcceptInviteContent() {
         <div className="bg-surface py-8 px-4 shadow-premium sm:rounded-3xl border border-border/80 sm:px-10 animate-in zoom-in-95 duration-200">
           <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="p-4 rounded-xl bg-red-50 text-red-600 text-[13px] font-bold shadow-inner border border-red-100">
+              <div className="p-4 rounded-xl bg-danger-soft text-danger-foreground text-[13px] font-bold shadow-inner border border-danger/25">
                 {error}
               </div>
             )}

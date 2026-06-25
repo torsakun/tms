@@ -46,7 +46,7 @@ export default async function TestPlansPage({
         <div className="flex items-center space-x-3">
           <ButtonLink
             href={`/projects/${code}/plans/create`}
-            className="shadow-premium hover:-translate-y-0.5"
+            className="shadow-[var(--shadow-float)] hover:-translate-y-0.5"
           >
             <Plus size={16} />
             Create test plan

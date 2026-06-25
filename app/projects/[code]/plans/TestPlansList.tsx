@@ -125,7 +125,7 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
             </Button>
 
             {showFilters && (
-              <div className="absolute top-full mt-2 left-0 w-48 bg-surface border border-border/80 rounded-2xl shadow-premium z-20 py-2 overflow-hidden animate-in zoom-in-95 duration-200">
+              <div className="absolute top-full mt-2 left-0 w-48 bg-surface border border-border/80 rounded-[13px] shadow-[var(--shadow-float)] z-20 py-2 overflow-hidden animate-in zoom-in-95 duration-200">
                 <button
                   onClick={() => {
                     setSortBy("newest");
@@ -151,7 +151,7 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
       </div>
 
       {plans.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-surface rounded-2xl shadow-premium border border-border/80 transition-all duration-300 animate-in zoom-in-95">
+        <div className="flex flex-col items-center justify-center py-20 bg-surface rounded-[13px] shadow-[var(--shadow-float)] border border-border/80 transition-all duration-300 animate-in zoom-in-95">
           <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4">
             <FileText size={32} />
           </div>
@@ -164,13 +164,13 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
           </p>
           <ButtonLink
             href={`/projects/${code}/plans/create`}
-            className="shadow-premium hover:-translate-y-0.5"
+            className="shadow-[var(--shadow-float)] hover:-translate-y-0.5"
           >
             Create new plan
           </ButtonLink>
         </div>
       ) : filteredPlans.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 bg-surface rounded-2xl shadow-premium border border-border/80 transition-all duration-300 animate-in zoom-in-95">
+        <div className="flex flex-col items-center justify-center py-16 bg-surface rounded-[13px] shadow-[var(--shadow-float)] border border-border/80 transition-all duration-300 animate-in zoom-in-95">
           <p className="text-text-muted mb-2">
             No test plans match your search.
           </p>
@@ -184,7 +184,7 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
           </Button>
         </div>
       ) : (
-        <div className="bg-surface rounded-2xl shadow-premium border border-border/80 overflow-visible transition-all duration-300 animate-in zoom-in-95">
+        <div className="bg-surface rounded-[13px] shadow-[var(--shadow-float)] border border-border/80 overflow-visible transition-all duration-300 animate-in zoom-in-95">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-border/80 bg-surface-hover/70">
@@ -266,7 +266,7 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
                         </button>
 
                         {activeDropdown === plan.id && (
-                          <div className="absolute right-0 mt-1 w-40 bg-surface border border-border/80 rounded-xl shadow-premium py-1 z-30 overflow-hidden animate-in zoom-in-95 duration-200">
+                          <div className="absolute right-0 mt-1 w-40 bg-surface border border-border/80 rounded-xl shadow-[var(--shadow-float)] py-1 z-30 overflow-hidden animate-in zoom-in-95 duration-200">
                             <Link
                               href={`/projects/${code}/plans/${plan.id}/edit`}
                               className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center"
@@ -282,7 +282,7 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
                                 setActiveDropdown(null);
                                 setConfirmDeleteId(plan.id);
                               }}
-                              className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10 flex items-center transition-colors"
+                              className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger-soft flex items-center transition-colors"
                             >
                               <Trash2 size={14} className="mr-2" /> Delete
                             </button>

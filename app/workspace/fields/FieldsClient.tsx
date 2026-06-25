@@ -32,12 +32,12 @@ function ConfirmDialog({
       onClick={onCancel}
     >
       <div
-        className="bg-surface rounded-2xl shadow-premium border border-border/80 w-full max-w-sm p-8 animate-in zoom-in-95 duration-200"
+        className="bg-surface rounded-[13px] shadow-[var(--shadow-float)] border border-border/80 w-full max-w-sm p-8 animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-4 mb-6">
-          <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center shrink-0">
-            <AlertTriangle size={18} className="text-rose-500" />
+          <div className="w-9 h-9 rounded-full bg-danger-soft flex items-center justify-center shrink-0">
+            <AlertTriangle size={18} className="text-danger" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-text-main mb-1">
@@ -314,7 +314,7 @@ export default function FieldsClient() {
           <h1 className="text-xl font-bold text-text-main tracking-tight">
             Fields
           </h1>
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-500">
+          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary">
             {fields.length}
           </span>
         </div>
@@ -323,7 +323,7 @@ export default function FieldsClient() {
       <div className="flex items-center gap-3 mb-5">
         <Button
           onClick={openCreateModal}
-          className="shadow-premium hover:-translate-y-0.5"
+          className="shadow-[var(--shadow-float)] hover:-translate-y-0.5"
         >
           <Plus size={15} /> Create custom field
         </Button>
@@ -342,7 +342,7 @@ export default function FieldsClient() {
         </div>
       </div>
 
-      <div className="bg-surface rounded-2xl border border-border/80 shadow-premium overflow-visible animate-in zoom-in-95 duration-200">
+      <div className="bg-surface rounded-[13px] border border-border/80 shadow-[var(--shadow-float)] overflow-visible animate-in zoom-in-95 duration-200">
         {isLoading ? (
           <div className="flex justify-center items-center p-12">
             <Loader2 className="animate-spin text-text-muted" size={32} />
@@ -450,11 +450,11 @@ export default function FieldsClient() {
                   </td>
                   <td className="px-6 py-3">
                     {field.isRequired ? (
-                      <div className="flex items-center text-emerald-500 text-sm font-medium">
+                      <div className="flex items-center text-success text-sm font-medium">
                         <Check size={16} className="mr-1" /> Yes
                       </div>
                     ) : (
-                      <div className="flex items-center text-red-500 text-sm font-medium">
+                      <div className="flex items-center text-danger text-sm font-medium">
                         <X size={16} className="mr-1" /> No
                       </div>
                     )}
@@ -466,7 +466,7 @@ export default function FieldsClient() {
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => handleToggleActive(field)}
-                        className={`p-1.5 transition-colors rounded ${field.isActive ? "text-text-muted hover:text-indigo-600 hover:bg-indigo-50" : "text-amber-500 hover:text-amber-600 hover:bg-amber-50"}`}
+                        className={`p-1.5 transition-colors rounded ${field.isActive ? "text-text-muted hover:text-primary hover:bg-primary-light" : "text-warning hover:text-warning hover:bg-warning-soft"}`}
                         title={
                           field.isActive
                             ? "Disable this field"
@@ -492,7 +492,7 @@ export default function FieldsClient() {
                         field.projectIds.length === 0 ? (
                           <button
                             onClick={() => setConfirmDeleteId(field.id)}
-                            className="text-text-muted hover:text-red-500 p-1.5 transition-colors"
+                            className="text-text-muted hover:text-danger p-1.5 transition-colors"
                             title="Delete custom field"
                           >
                             <Trash2 size={16} />
@@ -526,7 +526,7 @@ export default function FieldsClient() {
       {/* Create/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <div className="bg-surface w-full max-w-lg rounded-2xl shadow-premium overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200">
+          <div className="bg-surface w-full max-w-lg rounded-[13px] shadow-[var(--shadow-float)] overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200">
             <div className="px-6 py-4 border-b border-border flex justify-between items-center">
               <h2 className="text-xl font-bold text-text-main">
                 {editingField ? "Edit custom field" : "Create custom field"}
@@ -575,7 +575,7 @@ export default function FieldsClient() {
                     <div className="grid grid-cols-3 gap-4">
                       <div className="col-span-2">
                         <label className="block text-sm font-semibold text-text-main mb-2">
-                          Title <span className="text-red-500">*</span>
+                          Title <span className="text-danger">*</span>
                         </label>
                         <input
                           type="text"
@@ -615,7 +615,7 @@ export default function FieldsClient() {
                         </div>
                         <div>
                           <label className="block text-sm font-semibold text-text-main mb-2">
-                            Type <span className="text-red-500">*</span>
+                            Type <span className="text-danger">*</span>
                           </label>
                           <select
                             value={type}
@@ -692,7 +692,7 @@ export default function FieldsClient() {
                               </svg>
                             </div>
                             {isDropdownOpen && (
-                              <div className="absolute z-10 w-full mt-1 bg-surface border border-border/80 rounded-xl shadow-premium max-h-60 overflow-y-auto py-2">
+                              <div className="absolute z-10 w-full mt-1 bg-surface border border-border/80 rounded-xl shadow-[var(--shadow-float)] max-h-60 overflow-y-auto py-2">
                                 {allProjects.length === 0 ? (
                                   <div className="px-3 py-2 text-sm text-text-muted text-center">
                                     No projects available
@@ -777,7 +777,7 @@ export default function FieldsClient() {
                           <button
                             type="button"
                             onClick={() => handleRemoveOption(opt.id)}
-                            className="text-text-muted p-2 hover:bg-red-500/10 hover:text-red-500 rounded-md transition-colors"
+                            className="text-text-muted p-2 hover:bg-danger-soft hover:text-danger rounded-md transition-colors"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -808,7 +808,7 @@ export default function FieldsClient() {
                 <Button
                   type="submit"
                   loading={isSubmitting}
-                  className="shadow-premium hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                  className="shadow-[var(--shadow-float)] hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:hover:shadow-none"
                 >
                   Save
                 </Button>

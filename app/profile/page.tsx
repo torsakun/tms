@@ -83,11 +83,11 @@ export default function ProfilePage() {
     <div className="w-full max-w-[1000px] mx-auto px-6 py-12 md:px-10">
       {/* ── Impeccable Hero Header ── */}
       <div className="flex items-center gap-5 mb-10">
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-indigo-500 to-purple-600 shadow-premium shrink-0">
+        <div className="w-16 h-16 rounded-[13px] flex items-center justify-center text-white bg-primary shadow-[var(--shadow-float)] shrink-0">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
         <div>
-          <h1 className="text-[32px] md:text-[40px] font-black tracking-tight bg-gradient-to-br from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400 bg-clip-text text-transparent leading-none">
+          <h1 className="text-[32px] md:text-[40px] font-semibold tracking-tight text-text-main leading-none">
             Profile Settings
           </h1>
           <p className="text-[14px] font-medium text-text-muted mt-2">
@@ -98,10 +98,10 @@ export default function ProfilePage() {
 
       {message.text && (
         <div
-          className={`p-4 mb-8 rounded-2xl flex items-start gap-3 text-[14px] font-bold border shadow-sm transition-all animate-in fade-in slide-in-from-top-2 ${
+          className={`p-4 mb-8 rounded-[13px] flex items-start gap-3 text-[14px] font-bold border shadow-sm transition-all animate-in fade-in slide-in-from-top-2 ${
             message.type === "error"
-              ? "bg-rose-50 text-rose-700 border-rose-200/60 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20"
-              : "bg-emerald-50 text-emerald-700 border-emerald-200/60 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
+              ? "bg-danger-soft text-danger-foreground border-danger/25"
+              : "bg-success-soft text-success-foreground border-success/25"
           }`}
         >
           {message.type === "error" ? (
@@ -115,9 +115,9 @@ export default function ProfilePage() {
 
       <form onSubmit={handleUpdateProfile} className="space-y-8">
         {/* ── Section: Personal Information ── */}
-        <section className="bg-surface border border-border/80 rounded-3xl p-8 shadow-premium transition-shadow duration-300">
+        <section className="bg-surface border border-border/80 rounded-[16px] p-8 shadow-[var(--shadow-float)] transition-shadow duration-300">
           <div className="flex items-center gap-4 mb-8 border-b border-border/50 pb-5">
-            <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+            <div className="p-3 rounded-xl bg-primary-light text-primary">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
             <div>
@@ -167,9 +167,9 @@ export default function ProfilePage() {
         </section>
 
         {/* ── Section: Security ── */}
-        <section className="bg-surface border border-border/80 rounded-3xl p-8 shadow-premium transition-shadow duration-300">
+        <section className="bg-surface border border-border/80 rounded-[16px] p-8 shadow-[var(--shadow-float)] transition-shadow duration-300">
           <div className="flex items-center gap-4 mb-8 border-b border-border/50 pb-5">
-            <div className="p-3 rounded-xl bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400">
+            <div className="p-3 rounded-xl bg-info-soft text-info">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
             <div>
@@ -242,8 +242,8 @@ export default function ProfilePage() {
             type="submit"
             size="lg"
             loading={loading}
-            className="text-white hover:-translate-y-0.5 hover:shadow-xl hover:shadow-indigo-500/30"
-            style={{ background: "linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%)" }}
+            className="text-white hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/25"
+            style={{ background: "var(--primary)" }}
           >
             {!loading && (
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>

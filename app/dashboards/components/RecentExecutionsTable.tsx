@@ -82,7 +82,7 @@ export function RecentExecutionsTable({
   const currentRuns = enhancedRuns.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <section className="flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-premium">
+    <section className="flex h-full flex-col overflow-hidden rounded-[13px] border border-border/80 bg-surface shadow-[var(--shadow-float)]">
       <div className="flex items-center justify-between border-b border-border/80 px-5 py-4">
         <h2 className="flex items-center text-base font-extrabold text-text-main">
           <Activity
@@ -156,24 +156,24 @@ export function RecentExecutionsTable({
                   </td>
                   <td className="px-5 py-4">
                     {run.liveStatus === "COMPLETED" && (
-                      <span className="inline-flex items-center rounded-md border border-emerald-200/60 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+                      <span className="inline-flex items-center rounded-md border border-success/25 bg-success-soft px-2.5 py-1 text-xs font-bold text-success-foreground border-success/25 text-success-foreground">
                         <CheckCircle2 size={12} className="mr-1.5" /> Completed
                       </span>
                     )}
                     {run.liveStatus === "MANUAL_ACTIVE" && (
-                      <span className="inline-flex items-center rounded-md border border-sky-200/60 bg-sky-50 px-2.5 py-1 text-xs font-bold text-sky-700 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300">
-                        <PlayCircle size={12} className="mr-1.5 text-sky-500" />{" "}
+                      <span className="inline-flex items-center rounded-md border border-info/25 bg-info-soft px-2.5 py-1 text-xs font-bold text-info-foreground border-info/25 text-info-foreground">
+                        <PlayCircle size={12} className="mr-1.5 text-info" />{" "}
                         Manual
                       </span>
                     )}
                     {run.liveStatus === "RUNNING" && (
-                      <span className="inline-flex items-center rounded-md border border-blue-200/60 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-300">
+                      <span className="inline-flex items-center rounded-md border border-blue-200/60 bg-blue-50 px-2.5 py-1 text-xs font-bold text-blue-700">
                         <Loader2 size={12} className="mr-1.5 animate-spin" />{" "}
                         Running
                       </span>
                     )}
                     {run.liveStatus === "QUEUED" && (
-                      <span className="inline-flex items-center rounded-md border border-amber-200/60 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+                      <span className="inline-flex items-center rounded-md border border-warning/25 bg-warning-soft px-2.5 py-1 text-xs font-bold text-warning-foreground border-warning/25 text-warning-foreground">
                         <Clock size={12} className="mr-1.5" /> Queued
                       </span>
                     )}
@@ -184,38 +184,38 @@ export function RecentExecutionsTable({
                     >
                       <div
                         style={{ width: `${passPercent}%` }}
-                        className="bg-emerald-500"
+                        className="bg-success-soft"
                         title={`Passed: ${run.metrics.passed}`}
                       />
                       <div
                         style={{ width: `${failPercent}%` }}
-                        className="bg-red-500"
+                        className="bg-danger"
                         title={`Failed: ${run.metrics.failed}`}
                       />
                       <div
                         style={{ width: `${blockPercent}%` }}
-                        className="bg-amber-500"
+                        className="bg-warning-soft"
                         title={`Blocked: ${run.metrics.blocked}`}
                       />
                       <div
                         style={{ width: `${skipPercent}%` }}
-                        className="bg-slate-400"
+                        className="bg-skip"
                         title={`Skipped: ${run.metrics.skipped}`}
                       />
                       <div
                         style={{ width: `${untestedPercent}%` }}
-                        className="bg-slate-200/60"
+                        className="bg-skip-soft"
                         title={`Untested: ${run.metrics.untested}`}
                       />
                     </div>
                     <div className="mt-1.5 flex gap-2 text-xs font-bold">
                       {run.metrics.passed > 0 && (
-                        <span className="rounded bg-emerald-50 px-1.5 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-300">
+                        <span className="rounded bg-success-soft px-1.5 text-success-foreground text-success-foreground">
                           {run.metrics.passed}P
                         </span>
                       )}
                       {run.metrics.failed > 0 && (
-                        <span className="rounded bg-red-50 px-1.5 text-red-700 dark:bg-red-500/10 dark:text-red-300">
+                        <span className="rounded bg-danger-soft px-1.5 text-danger-foreground text-danger-foreground">
                           {run.metrics.failed}F
                         </span>
                       )}

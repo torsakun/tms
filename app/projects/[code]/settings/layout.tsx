@@ -44,7 +44,7 @@ export default function SettingsLayout({
                   href={href}
                   className={`px-5 py-3.5 text-[15px] font-semibold border-b-2 transition-colors whitespace-nowrap ${
                     active
-                      ? "border-indigo-600 text-indigo-600"
+                      ? "border-primary text-primary"
                       : "border-transparent text-text-muted hover:text-text-main hover:border-border"
                   }`}
                 >

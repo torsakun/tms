@@ -18,7 +18,7 @@ export function UpcomingSchedules({ schedules }: UpcomingSchedulesProps) {
   if (!schedules || schedules.length === 0) return null;
 
   return (
-    <section className="flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-surface shadow-premium">
+    <section className="flex flex-col overflow-hidden rounded-[13px] border border-border/80 bg-surface shadow-[var(--shadow-float)]">
       <div className="flex items-center justify-between border-b border-border/80 px-5 py-4">
         <h2 className="flex items-center text-base font-extrabold text-text-main">
           <CalendarClock
@@ -69,8 +69,8 @@ export function UpcomingSchedules({ schedules }: UpcomingSchedulesProps) {
               <span className="mb-1.5 text-xs font-semibold text-text-muted">
                 Status
               </span>
-              <span className="inline-flex items-center rounded-md border border-emerald-200/50 bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
-                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="inline-flex items-center rounded-md border border-success/25 bg-success-soft px-2 py-1 text-xs font-bold text-success-foreground border-success/25 text-success-foreground">
+                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-success-soft" />
                 Active
               </span>
             </div>

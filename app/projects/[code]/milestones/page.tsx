@@ -150,7 +150,7 @@ export default function MilestonesPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`px-2 py-1 rounded text-xs font-bold ${ms.status === "OPEN" ? "bg-primary/10 text-primary" : "bg-emerald-500/10 text-emerald-500"}`}
+                        className={`px-2 py-1 rounded text-xs font-bold ${ms.status === "OPEN" ? "bg-primary/10 text-primary" : "bg-success-soft text-success-foreground"}`}
                       >
                         {ms.status}
                       </span>
@@ -176,7 +176,7 @@ export default function MilestonesPage() {
                         size="sm"
                         iconOnly
                         onClick={() => setConfirmDeleteId(ms.id)}
-                        className="text-text-muted hover:text-red-500"
+                        className="text-text-muted hover:text-danger"
                         title="Delete"
                       >
                         <Trash2 size={16} />
@@ -208,7 +208,7 @@ export default function MilestonesPage() {
               <div className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-text-main mb-1">
-                    Title <span className="text-red-500">*</span>
+                    Title <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"

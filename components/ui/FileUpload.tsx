@@ -69,7 +69,7 @@ export function FileUpload({ projectId, onUploadComplete }: FileUploadProps) {
           disabled={isUploading}
         />
       </label>
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );
 }

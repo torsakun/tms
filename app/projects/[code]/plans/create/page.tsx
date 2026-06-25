@@ -140,7 +140,7 @@ export default function CreatePlanPage() {
 
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-background items-center justify-center p-8">
-      <div className="bg-surface rounded-2xl shadow-premium border border-border/80 w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden transition-colors">
+      <div className="bg-surface rounded-[13px] shadow-[var(--shadow-float)] border border-border/80 w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden transition-colors">
         <header className="flex items-center justify-between px-6 py-4 border-b border-border/80 shrink-0 bg-surface">
           <h1 className="text-xl font-semibold text-text-main">
             Create test plan
@@ -160,7 +160,7 @@ export default function CreatePlanPage() {
         >
           <div className="p-8 space-y-6 overflow-y-auto">
             {error && (
-              <div className="p-4 bg-red-50 text-red-700 flex items-center rounded-xl border border-red-100">
+              <div className="p-4 bg-danger-soft text-danger-foreground flex items-center rounded-xl border border-danger/15">
                 <AlertCircle size={18} className="mr-2 shrink-0" />
                 <p className="text-sm font-medium">{error}</p>
               </div>
@@ -202,7 +202,7 @@ export default function CreatePlanPage() {
                 <button
                   type="button"
                   onClick={() => setIsAiModalOpen(true)}
-                  className="text-amber-500 hover:text-amber-600 font-medium text-xs flex items-center bg-amber-500/10 px-2 py-1 rounded transition-colors"
+                  className="text-warning hover:text-warning font-medium text-xs flex items-center bg-warning-soft px-2 py-1 rounded transition-colors"
                 >
                   <Sparkles size={12} className="mr-1" /> Smart Select with AI
                 </button>
@@ -256,10 +256,10 @@ export default function CreatePlanPage() {
       {/* AI Smart Select Modal */}
       {isAiModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface w-[600px] rounded-2xl shadow-premium overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200 transition-colors">
+          <div className="bg-surface w-[600px] rounded-[13px] shadow-[var(--shadow-float)] overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200 transition-colors">
             <div className="px-6 py-4 border-b border-border/80 flex justify-between items-center bg-background">
               <h3 className="text-lg font-bold text-text-main flex items-center">
-                <Sparkles size={20} className="mr-2 text-amber-500" /> AI Smart
+                <Sparkles size={20} className="mr-2 text-warning" /> AI Smart
                 Selection
               </h3>
               <button
@@ -294,7 +294,7 @@ export default function CreatePlanPage() {
               <Button
                 type="button"
                 variant="primary"
-                className="bg-amber-500 hover:bg-amber-600 text-white focus-visible:ring-amber-400/40"
+                className="bg-warning hover:bg-warning text-white focus-visible:ring-warning/30"
                 onClick={handleAISmartSelect}
                 loading={isAiLoading}
                 disabled={isAiLoading || !releaseNotes.trim()}

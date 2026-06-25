@@ -76,7 +76,7 @@ export function CreateProjectModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[color:oklch(0.18_0.015_264)]/50 backdrop-blur-sm">
       <div className="bg-surface rounded-xl shadow-xl w-full max-w-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Header */}
         <header className="flex items-center justify-between px-6 py-4 shrink-0">
@@ -100,7 +100,7 @@ export function CreateProjectModal() {
             className="space-y-6"
           >
             {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center text-red-700 text-sm">
+              <div className="p-4 bg-danger-soft border border-danger/25 rounded-lg flex items-center text-danger-foreground text-sm">
                 <AlertCircle size={16} className="mr-2 shrink-0" />
                 {error}
               </div>
@@ -108,7 +108,7 @@ export function CreateProjectModal() {
 
             <div>
               <label className="block text-sm font-semibold text-text-main mb-1">
-                Project name <span className="text-red-500">*</span>
+                Project name <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
@@ -123,7 +123,7 @@ export function CreateProjectModal() {
             <div>
               <div className="flex items-center mb-1">
                 <label className="block text-sm font-semibold text-text-main">
-                  Project code <span className="text-red-500">*</span>
+                  Project code <span className="text-danger">*</span>
                 </label>
                 <HelpCircle size={14} className="ml-1.5 text-text-muted" />
               </div>

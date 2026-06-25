@@ -103,7 +103,7 @@ export default async function ProjectsPage({
     <main className="flex-1 w-full bg-background overflow-y-auto transition-colors">
       <div className="max-w-[1400px] mx-auto px-6 py-6">
         {dbError && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
+          <div className="mb-6 p-4 bg-danger-soft border border-danger/25 rounded-lg text-danger">
             <h3 className="font-bold flex items-center">
               <AlertTriangle className="mr-2 h-5 w-5" />
               Database Error
