@@ -4,18 +4,19 @@ import React, { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
-import { Button, ButtonLink } from "@/components/ui/Button";
 import {
   Search,
-  Filter,
-  PlayCircle,
+  ArrowDownUp,
+  Plus,
+  Play,
+  Pencil,
   MoreHorizontal,
-  FileText,
-  Calendar,
-  Edit2,
-  Trash2,
+  GripVertical,
+  BadgeCheck,
+  BookOpen,
 } from "lucide-react";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ButtonLink, Button } from "@/components/ui/Button";
 
 interface TestPlan {
   id: string;
@@ -44,7 +45,6 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -58,7 +58,6 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Filter and sort plans
   const filteredPlans = plans
     .filter(
       (plan) =>
@@ -94,209 +93,221 @@ export function TestPlansList({ initialPlans, code }: TestPlansListProps) {
     }
   };
 
+  const formatDate = (d: string | Date) => {
+    const date = new Date(d);
+    return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  };
+
   return (
-    <div className="max-w-6xl mx-auto">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-4">
-          <div className="relative w-72">
-            <Search
-              className="absolute left-3 top-2.5 text-text-muted"
-              size={16}
-            />
-            <input
-              type="text"
-              placeholder="Search test plans..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 text-[13px] font-semibold border border-border/80 bg-surface text-text-main rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/20 shadow-inner transition-all hover:border-text-muted/40"
-            />
+    <div className="max-w-[1120px] mx-auto p-[20px_22px]">
+      <div className="flex items-center gap-[12px] mb-[16px]">
+        <div>
+          <div className="text-[19px] font-semibold tracking-[-0.015em] text-text-main">
+            Test plans
           </div>
-
-          <div className="relative">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className={showFilters ? "text-text-main" : "text-text-muted hover:text-text-main"}
-            >
-              <Filter size={14} />
-              Sort: {sortBy === "newest" ? "Newest first" : "Oldest first"}
-            </Button>
-
-            {showFilters && (
-              <div className="absolute top-full mt-2 left-0 w-48 bg-surface border border-border/80 rounded-[13px] shadow-[var(--shadow-float)] z-20 py-2 overflow-hidden animate-in zoom-in-95 duration-200">
-                <button
-                  onClick={() => {
-                    setSortBy("newest");
-                    setShowFilters(false);
-                  }}
-                  className={`w-full text-left px-4 py-2 text-sm ${sortBy === "newest" ? "bg-primary/10 text-primary font-medium" : "text-text-muted hover:bg-surface-hover"}`}
-                >
-                  Newest first
-                </button>
-                <button
-                  onClick={() => {
-                    setSortBy("oldest");
-                    setShowFilters(false);
-                  }}
-                  className={`w-full text-left px-4 py-2 text-sm ${sortBy === "oldest" ? "bg-primary/10 text-primary font-medium" : "text-text-muted hover:bg-surface-hover"}`}
-                >
-                  Oldest first
-                </button>
-              </div>
-            )}
+          <div className="text-[13px] text-text-muted mt-[2px]">
+            Curated sets of cases you run together each cycle
           </div>
         </div>
+        <div className="flex-1" />
+
+        <div className="flex items-center gap-[8px] h-[36px] px-[11px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] rounded-[9px] text-[12.5px] min-w-[170px] focus-within:shadow-[inset_0_0_0_1px_var(--primary)] transition-shadow">
+          <Search size={17} className="text-text-faint shrink-0" />
+          <input
+            type="text"
+            placeholder="Search plans"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-transparent outline-none text-text-main placeholder:text-text-faint"
+          />
+        </div>
+
+        <div className="relative">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-[6px] h-[36px] px-[12px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] rounded-[9px] text-[12.5px] font-medium text-text-main hover:bg-surface-hover transition-colors"
+          >
+            <ArrowDownUp size={16} className="text-text-faint" />
+            {sortBy === "newest" ? "Recent" : "Oldest"}
+          </button>
+
+          {showFilters && (
+            <div className="absolute top-full mt-2 right-0 w-40 bg-surface border border-border rounded-[9px] shadow-md z-20 py-1">
+              <button
+                onClick={() => {
+                  setSortBy("newest");
+                  setShowFilters(false);
+                }}
+                className={`w-full text-left px-3 py-1.5 text-[12.5px] ${sortBy === "newest" ? "bg-primary-light text-primary font-medium" : "text-text-muted hover:bg-surface-hover hover:text-text-main"}`}
+              >
+                Recent
+              </button>
+              <button
+                onClick={() => {
+                  setSortBy("oldest");
+                  setShowFilters(false);
+                }}
+                className={`w-full text-left px-3 py-1.5 text-[12.5px] ${sortBy === "oldest" ? "bg-primary-light text-primary font-medium" : "text-text-muted hover:bg-surface-hover hover:text-text-main"}`}
+              >
+                Oldest
+              </button>
+            </div>
+          )}
+        </div>
+
+        <ButtonLink
+          href={`/projects/${code}/plans/create`}
+          variant="primary"
+          size="md"
+        >
+          <Plus size={18} />
+          Create test plan
+        </ButtonLink>
       </div>
 
-      {plans.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-surface rounded-[13px] shadow-[var(--shadow-float)] border border-border/80 transition-all duration-300 animate-in zoom-in-95">
-          <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mb-4">
-            <FileText size={32} />
-          </div>
-          <h3 className="text-lg font-bold text-text-main mb-2">
-            No Test Plans found
-          </h3>
-          <p className="text-text-muted text-center max-w-sm mb-6 text-sm">
-            Create a test plan to group test cases together. You can use test
-            plans to create runs faster.
-          </p>
-          <ButtonLink
-            href={`/projects/${code}/plans/create`}
-            className="shadow-[var(--shadow-float)] hover:-translate-y-0.5"
+      <div className="flex flex-col gap-[11px] mb-[28px]">
+        {filteredPlans.map((p) => (
+          <div
+            key={p.id}
+            className="flex items-center gap-[16px] bg-surface border border-border rounded-[13px] p-[15px_18px] shadow-sm hover:shadow-md transition-shadow group cursor-pointer"
+            onClick={() => router.push(`/projects/${code}/plans/${p.id}`)}
           >
-            Create new plan
-          </ButtonLink>
-        </div>
-      ) : filteredPlans.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 bg-surface rounded-[13px] shadow-[var(--shadow-float)] border border-border/80 transition-all duration-300 animate-in zoom-in-95">
-          <p className="text-text-muted mb-2">
-            No test plans match your search.
-          </p>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setSearchQuery("")}
-            className="text-primary hover:text-primary hover:underline"
-          >
-            Clear search
-          </Button>
-        </div>
-      ) : (
-        <div className="bg-surface rounded-[13px] shadow-[var(--shadow-float)] border border-border/80 overflow-visible transition-all duration-300 animate-in zoom-in-95">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-border/80 bg-surface-hover/70">
-                <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider w-1/3">
-                  Title
-                </th>
-                <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider text-center">
-                  Cases
-                </th>
-                <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider text-center">
-                  Runs
-                </th>
-                <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">
-                  Created
-                </th>
-                <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider text-right">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/80">
-              {filteredPlans.map((plan) => (
-                <tr
-                  key={plan.id}
-                  className="hover:bg-surface-hover transition-colors group"
+            <div className="w-[38px] h-[38px] rounded-[10px] bg-primary-light text-primary flex items-center justify-center shrink-0">
+              <BadgeCheck size={21} />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <div className="text-[14px] font-semibold text-text-main">
+                {p.title}
+              </div>
+              <div className="text-[12.5px] text-text-muted mt-[2px] whitespace-nowrap overflow-hidden text-ellipsis">
+                {p.description || "No description provided."}
+              </div>
+            </div>
+
+            <div className="flex gap-[24px] shrink-0">
+              <div className="text-right">
+                <div className="text-[14px] font-bold tabular-nums text-text-main">
+                  {p._count?.testCases || 0}
+                </div>
+                <div className="text-[10.5px] text-text-faint">cases</div>
+              </div>
+              <div className="text-right">
+                <div className="text-[14px] font-bold tabular-nums text-text-main">
+                  {p._count?.testRuns || 0}
+                </div>
+                <div className="text-[10.5px] text-text-faint">runs</div>
+              </div>
+              <div className="text-right w-[84px]">
+                <div className="text-[12.5px] font-medium text-text-muted">
+                  {formatDate(p.createdAt)}
+                </div>
+                <div className="text-[10.5px] text-text-faint">created</div>
+              </div>
+            </div>
+
+            <div className="flex gap-[4px] shrink-0">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/projects/${code}/runs/create?plan=${p.id}`);
+                }}
+                className="w-[32px] h-[32px] rounded-[8px] shadow-[inset_0_0_0_1px_var(--border-color)] flex items-center justify-center text-primary hover:bg-primary-light transition-colors"
+                title="Start run"
+              >
+                <Play size={18} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/projects/${code}/plans/${p.id}/edit`);
+                }}
+                className="w-[32px] h-[32px] rounded-[8px] shadow-[inset_0_0_0_1px_var(--border-color)] flex items-center justify-center text-text-muted hover:text-text-main hover:bg-surface-hover transition-colors"
+                title="Edit"
+              >
+                <Pencil size={17} />
+              </button>
+              <div
+                className="relative"
+                ref={activeDropdown === p.id ? dropdownRef : null}
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveDropdown(activeDropdown === p.id ? null : p.id);
+                  }}
+                  className="w-[32px] h-[32px] rounded-[8px] flex items-center justify-center text-text-faint hover:text-text-main hover:bg-surface-hover transition-colors"
                 >
-                  <td className="px-6 py-4">
-                    <Link
-                      href={`/projects/${code}/plans/${plan.id}`}
-                      className="font-semibold text-[15px] text-text-main hover:text-primary block transition-colors"
+                  <MoreHorizontal size={18} />
+                </button>
+                {activeDropdown === p.id && (
+                  <div className="absolute right-0 mt-1 w-32 bg-surface border border-border shadow-md rounded-[9px] py-1 z-30">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveDropdown(null);
+                        setConfirmDeleteId(p.id);
+                      }}
+                      className="w-full text-left px-3 py-1.5 text-[12.5px] text-danger hover:bg-danger-soft transition-colors"
                     >
-                      {plan.title}
-                    </Link>
-                    {plan.description && (
-                      <div className="text-sm text-text-muted mt-1 line-clamp-1">
-                        {plan.description}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-background/50 border border-border/80 text-text-main">
-                      {plan._count?.testCases || 0}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="text-sm font-medium text-text-main">
-                      {plan._count?.testRuns || 0}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-text-muted">
-                    <div className="flex items-center">
-                      <Calendar size={14} className="mr-1.5 opacity-70" />
-                      {new Date(plan.createdAt).toLocaleDateString()}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end space-x-2">
-                      <ButtonLink
-                        href={`/projects/${code}/runs/create?plan=${plan.id}`}
-                        size="sm"
-                        className="bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground opacity-0 group-hover:opacity-100 hover:shadow-sm hover:-translate-y-0.5"
-                      >
-                        <PlayCircle size={14} /> Start run
-                      </ButtonLink>
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
-                      <div
-                        className="relative"
-                        ref={activeDropdown === plan.id ? dropdownRef : null}
-                      >
-                        <button
-                          onClick={() =>
-                            setActiveDropdown(
-                              activeDropdown === plan.id ? null : plan.id,
-                            )
-                          }
-                          className={`p-1.5 rounded-xl transition-all ${activeDropdown === plan.id ? "bg-surface-hover text-text-main" : "text-text-muted hover:text-text-main hover:bg-surface-hover"}`}
-                        >
-                          <MoreHorizontal size={18} />
-                        </button>
-
-                        {activeDropdown === plan.id && (
-                          <div className="absolute right-0 mt-1 w-40 bg-surface border border-border/80 rounded-xl shadow-[var(--shadow-float)] py-1 z-30 overflow-hidden animate-in zoom-in-95 duration-200">
-                            <Link
-                              href={`/projects/${code}/plans/${plan.id}/edit`}
-                              className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center"
-                            >
-                              <Edit2
-                                size={14}
-                                className="mr-2 text-text-muted"
-                              />{" "}
-                              Edit
-                            </Link>
-                            <button
-                              onClick={() => {
-                                setActiveDropdown(null);
-                                setConfirmDeleteId(plan.id);
-                              }}
-                              className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger-soft flex items-center transition-colors"
-                            >
-                              <Trash2 size={14} className="mr-2" /> Delete
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                </tr>
+      {plans.length === 0 && (
+        <>
+          <div className="text-[11px] font-semibold tracking-[0.06em] uppercase text-text-faint mb-[8px]">
+            Empty state
+          </div>
+          <div className="bg-surface border border-border rounded-[13px] shadow-sm p-[36px] flex items-center gap-[30px]">
+            <div className="flex-1">
+              <div className="text-[16px] font-semibold text-text-main">
+                Plan a test cycle once, run it every release
+              </div>
+              <div className="text-[13px] text-text-muted m-[8px_0_16px] leading-[1.6] max-w-[420px]">
+                A test plan bundles the cases that matter for a milestone —
+                regression, smoke, release-candidate — so any tester can spin up
+                a consistent run in one click.
+              </div>
+              <div className="flex gap-[9px]">
+                <ButtonLink
+                  href={`/projects/${code}/plans/create`}
+                  variant="primary"
+                  size="lg"
+                >
+                  <Plus size={20} />
+                  Create test plan
+                </ButtonLink>
+                <Button variant="ghost" size="lg">
+                  <BookOpen size={20} />
+                  Learn more
+                </Button>
+              </div>
+            </div>
+            <div className="w-[200px] shrink-0 flex flex-col gap-[8px]">
+              {["80%", "100%", "60%"].map((w, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-[9px] p-[9px_11px] border border-dashed border-[var(--border-strong)] rounded-[9px]"
+                >
+                  <GripVertical size={16} className="text-text-faint" />
+                  <div
+                    className="h-[7px] rounded-[4px] bg-surface-hover"
+                    style={{ width: w }}
+                  />
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          </div>
+        </>
       )}
+
       {confirmDeleteId && (
         <ConfirmDialog
           title="Delete test plan"

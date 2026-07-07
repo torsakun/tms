@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -12,7 +11,9 @@ import {
   Edit3,
   Copy,
   Trash2,
-  Cpu,
+  ChevronsUp,
+  ChevronDown,
+  Minus,
   FileText,
   Sparkles,
   CloudUpload,
@@ -39,6 +40,7 @@ import { useSuiteSelection } from "@/components/providers/SuiteSelectionProvider
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { CommentThread } from "@/components/ui/CommentThread";
 import { Button, ButtonLink } from "@/components/ui/Button";
+import { ChevronRight } from "lucide-react";
 
 interface RepositoryContentProps {
   projectCode: string;
@@ -317,6 +319,13 @@ export function RepositoryContent({
     }
   };
 
+  const handleBulkRunSingle = () => {
+    if (!activeTestCase) return;
+    router.push(
+      `/projects/${projectCode}/runs/create?cases=${activeTestCase.id}`,
+    );
+  };
+
   const handleDeleteActiveCase = async () => {
     if (!activeTestCase) return;
     try {
@@ -338,246 +347,56 @@ export function RepositoryContent({
     }
   };
 
+  const activeSuite = activeSuiteId ? suites.find((s) => s.id === activeSuiteId) : null;
+  const activeSuiteTitle = activeSuite?.title || "All Suites";
+  const parentSuiteTitle = activeSuite?.parentId ? suites.find((s) => s.id === activeSuite?.parentId)?.title : null;
+
   return (
     <>
       <div className="flex-1 flex flex-col min-w-0 relative h-full overflow-hidden bg-background transition-colors">
-        {/* ── Page header row: title + action buttons ── */}
-        <div
-          className="flex items-center justify-between px-6 py-3 bg-surface border-b shrink-0"
-          style={{
-            borderColor: "var(--border-color)",
-            boxShadow: "var(--shadow-card)",
-          }}
-        >
-          {/* Left: title + counts */}
-          {hasSelection ? (
-            <div className="flex items-center gap-2">
-              <span className="text-[15px] font-bold text-text-main">
-                {projectCode}
-              </span>
-              <span className="text-text-faint">/</span>
-              <span className="text-[15px] font-bold text-text-main">
-                Repository
-              </span>
-              <span className="flex items-center gap-1.5 text-sm font-semibold text-primary bg-primary-light px-3 py-1 rounded-full ml-1">
-                {selectedCases.size} selected
-                <button
-                  onClick={clearSelection}
-                  className="ml-0.5 text-primary hover:bg-primary/10 rounded-full p-0.5 transition-colors"
-                >
-                  <X size={12} />
-                </button>
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2.5">
-              <span className="text-[15px] font-bold text-text-main">
-                {projectCode}
-              </span>
-              <span className="text-text-faint">/</span>
-              <span className="text-[15px] font-bold text-text-main">
-                Repository
-              </span>
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary">
-                {totalCases ?? cases.length} cases
-              </span>
-              <span className="text-[11px] font-medium text-text-muted">
-                {totalSuites ?? suites.length} suites
-              </span>
-            </div>
-          )}
-
-          {/* Right: action buttons */}
-          {hasSelection ? (
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-0.5 bg-surface-hover border border-border rounded-lg px-1 py-1">
-                <button
-                  onClick={handleBulkEdit}
-                  className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-md transition-colors"
-                  title="Edit"
-                >
-                  <Edit3 size={15} />
-                </button>
-                <div className="w-px h-4 bg-border" />
-                <button
-                  onClick={handleBulkClone}
-                  className="p-1.5 text-text-muted hover:text-text-main hover:bg-surface rounded-md transition-colors"
-                  title="Clone"
-                >
-                  <Copy size={15} />
-                </button>
-                <div className="w-px h-4 bg-border" />
-                <button
-                  onClick={handleBulkRun}
-                  className="p-1.5 text-text-muted hover:text-success hover:bg-surface rounded-md transition-colors"
-                  title="Run"
-                >
-                  <PlayCircle size={15} />
-                </button>
-                <div className="w-px h-4 bg-border" />
-                <button
-                  onClick={() => setConfirmBulkDelete(true)}
-                  className="p-1.5 text-text-muted hover:text-danger hover:bg-surface rounded-md transition-colors"
-                  title="Delete"
-                >
-                  <Trash2 size={15} />
-                </button>
-              </div>
-              <button className="flex items-center px-3 py-1.5 bg-surface hover:bg-surface-hover border border-border text-text-main text-[13px] font-medium rounded-lg transition-colors shadow-sm">
-                <Cpu size={14} className="mr-1.5 text-primary" /> Automate
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              {lastSyncPr && (
-                <div className="flex items-center gap-2 bg-surface-hover border border-border px-2 py-1 rounded-lg">
-                  <a
-                    href={lastSyncPr.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center text-xs font-medium text-text-main hover:text-primary hover:underline transition-colors px-2 py-1"
-                  >
-                    <ExternalLink size={13} className="mr-1" /> View PR #
-                    {lastSyncPr.number}
-                  </a>
-                  {role !== "VIEWER" && (
-                    <button
-                      onClick={handleQuickMerge}
-                      disabled={isMerging}
-                      className="flex items-center bg-primary text-primary-foreground px-3 py-1 rounded-md text-xs font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50"
-                    >
-                      {isMerging ? (
-                        <Loader2 size={12} className="mr-1 animate-spin" />
-                      ) : (
-                        <GitMerge size={12} className="mr-1" />
-                      )}{" "}
-                      Quick Merge
-                    </button>
-                  )}
-                </div>
-              )}
-              {role !== "VIEWER" && (
-                <>
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    loading={isSyncing}
-                    onClick={() => setConfirmSync(true)}
-                    title="Sync to GitHub"
-                    className="bg-info-soft text-info-foreground border-info/20 hover:bg-info-soft font-bold"
-                  >
-                    {!isSyncing && <CloudUpload size={14} />}
-                    Sync
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    onClick={() => setIsBulkJiraModalOpen(true)}
-                    title="Story Impact Analysis"
-                    className="bg-danger-soft text-danger-foreground border-danger/20 hover:bg-danger-soft font-bold"
-                  >
-                    <Ticket size={14} /> Impact
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    onClick={() => setIsAiModalOpen(true)}
-                    title="Generate AI Tests"
-                    className="bg-warning-soft text-warning-foreground border-warning/20 hover:bg-warning-soft font-bold"
-                  >
-                    <Sparkles size={14} /> AI Gen
-                  </Button>
-                  <ButtonLink
-                    href={`/projects/${projectCode}/cases/create`}
-                    size="md"
-                  >
-                    <Plus size={14} /> Test Case
-                  </ButtonLink>
-                  <div className="relative group">
-                    <Button variant="secondary" size="md">
-                      <Settings size={14} /> Options
-                    </Button>
-                    <div className="absolute right-0 top-full mt-1 w-48 qm-panel opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                      <div className="p-1 flex flex-col gap-0.5">
-                        <button
-                          onClick={handleExportQase}
-                          className="flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-lg text-left"
-                        >
-                          <Download size={14} className="mr-2 text-text-muted" />{" "}
-                          Export Qase
-                        </button>
-                        <button
-                          onClick={handleExportCsv}
-                          className="flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-lg text-left"
-                        >
-                          <Download size={14} className="mr-2 text-text-muted" />{" "}
-                          Export CSV (Excel)
-                        </button>
-                        <button
-                          onClick={() => setIsImportModalOpen(true)}
-                          className="flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-lg text-left"
-                        >
-                          <Upload size={14} className="mr-2 text-text-muted" />{" "}
-                          Import Qase
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* ── Search row ── */}
-        <div
-          className="flex items-center gap-2 px-6 py-2.5 bg-surface border-b shrink-0"
-          style={{ borderColor: "var(--border-color)" }}
-        >
-          <div className="relative flex-1 max-w-sm">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-              size={14}
-            />
+        {/* toolbar */}
+        <div className="flex flex-wrap items-center gap-x-[10px] gap-y-[8px] px-[18px] py-[12px] border-b border-border bg-surface shrink-0">
+          <div className="flex items-center gap-[7px] text-[13px] text-text-muted min-w-0">
+            <span className="text-text-faint">{projectCode}</span>
+            <ChevronRight size={16} className="text-text-faint" />
+            {parentSuiteTitle && (
+              <>
+                <span className="text-text-faint">{parentSuiteTitle}</span>
+                <ChevronRight size={16} className="text-text-faint" />
+              </>
+            )}
+            <span className="font-semibold text-text-main">{activeSuiteTitle}</span>
+          </div>
+          
+          <div className="flex-1"></div>
+          
+          <div className="flex items-center gap-[8px] h-[34px] px-[11px] bg-surface rounded-[9px] text-text-faint text-[12.5px] min-w-[170px]" style={{ boxShadow: 'inset 0 0 0 1px var(--border)' }}>
+            <Search size={17} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search cases…"
-              className="w-full pl-9 pr-3 py-2 text-[13px] qm-input focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all"
+              placeholder="Filter cases"
+              className="bg-transparent border-none outline-none w-full text-text-main placeholder-text-faint"
             />
           </div>
-          <select
-            value={searchScope}
-            onChange={(e) => setSearchScope(e.target.value as "all" | "title")}
-            className="px-3 py-2 text-[13px] qm-input text-text-muted focus:outline-none focus:border-primary appearance-none cursor-pointer w-36"
-          >
-            <option value="all">By all fields</option>
-            <option value="title">By title</option>
-          </select>
-
-          {/* ── Advanced filter ── */}
+          
           <div className="relative" ref={filterRef}>
-            <Button
-              variant="secondary"
-              size="md"
+            <button
               onClick={() => setFilterOpen((o) => !o)}
-              className={
-                activeFilterCount > 0 || filterOpen
-                  ? "bg-primary-light text-primary border-primary/30 hover:bg-primary-light"
-                  : ""
-              }
+              className="flex items-center gap-[6px] h-[34px] px-[11px] bg-surface rounded-[9px] text-[12.5px] font-medium text-text-main"
+              style={{ boxShadow: 'inset 0 0 0 1px var(--border)' }}
             >
-              <Filter size={14} />
-              Filter
+              <Filter size={16} className="text-text-faint" />
+              Filters
               {activeFilterCount > 0 && (
-                <span className="text-[10px] font-bold bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 leading-none">
+                <span className="text-[10px] font-bold bg-primary-soft text-primary-text px-[6px] py-[1px] rounded-full">
                   {activeFilterCount}
                 </span>
               )}
-            </Button>
+            </button>
             {filterOpen && (
-              <div className="absolute left-0 mt-1.5 w-60 qm-panel z-50 p-3 animate-fade-up">
+              <div className="absolute right-0 mt-1.5 w-60 qm-panel z-50 p-3 animate-fade-up border border-border shadow-md rounded-[11px] bg-surface">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] font-extrabold uppercase tracking-wider text-text-muted">
                     Priority
@@ -601,7 +420,7 @@ export function RepositoryContent({
                       onClick={() => toggleSetValue(setPriorityFilter, p)}
                       className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${
                         priorityFilter.has(p)
-                          ? "bg-primary text-primary-foreground border-primary"
+                          ? "bg-primary text-white border-primary"
                           : "bg-surface-hover text-text-muted border-border hover:text-text-main"
                       }`}
                     >
@@ -623,7 +442,7 @@ export function RepositoryContent({
                       onClick={() => toggleSetValue(setAutomationFilter, v)}
                       className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-colors ${
                         automationFilter.has(v)
-                          ? "bg-primary text-primary-foreground border-primary"
+                          ? "bg-primary text-white border-primary"
                           : "bg-surface-hover text-text-muted border-border hover:text-text-main"
                       }`}
                     >
@@ -634,26 +453,82 @@ export function RepositoryContent({
               </div>
             )}
           </div>
+          
+          <ButtonLink
+            href={`/projects/${projectCode}/cases/create${activeSuiteId ? `?suite=${activeSuiteId}` : ""}`}
+            variant="primary"
+            size="sm"
+            className="min-w-[120px]"
+            style={{ height: 36, borderRadius: 9, fontSize: 13 }}
+          >
+            <Plus size={16} /> New case
+          </ButtonLink>
+          
+          {/* Options Dropdown */}
+          <div className="relative group shrink-0">
+            <button className="flex items-center justify-center h-[34px] w-[34px] bg-surface rounded-[9px] text-text-faint hover:text-text-main" style={{ boxShadow: 'inset 0 0 0 1px var(--border)' }}>
+              <Settings size={16} />
+            </button>
+            <div className="absolute right-0 top-full mt-1 w-48 qm-panel opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 bg-surface border border-border shadow-md rounded-[11px]">
+              <div className="p-1 flex flex-col gap-0.5">
+                <button
+                  onClick={() => setIsBulkJiraModalOpen(true)}
+                  className="flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-lg text-left"
+                >
+                  <Ticket size={14} className="mr-2 text-text-muted" /> Impact
+                </button>
+                <button
+                  onClick={() => setIsAiModalOpen(true)}
+                  className="flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-lg text-left"
+                >
+                  <Sparkles size={14} className="mr-2 text-text-muted" /> AI Gen
+                </button>
+                <button
+                  onClick={handleExportQase}
+                  className="flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-lg text-left border-t border-border mt-1 pt-2"
+                >
+                  <Download size={14} className="mr-2 text-text-muted" /> Export Qase
+                </button>
+                <button
+                  onClick={handleExportCsv}
+                  className="flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-lg text-left"
+                >
+                  <Download size={14} className="mr-2 text-text-muted" /> Export CSV
+                </button>
+                <button
+                  onClick={() => setIsImportModalOpen(true)}
+                  className="flex items-center w-full px-3 py-2 text-[13px] text-text-main hover:bg-surface-hover rounded-lg text-left border-t border-border mt-1 pt-2"
+                >
+                  <Upload size={14} className="mr-2 text-text-muted" /> Import Qase
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Hierarchical Content */}
-        <div className="flex-1 overflow-y-auto bg-background relative transition-colors">
-          <div className="p-6 pb-32">
-            <SuiteList
-              suites={suites}
-              cases={cases}
-              activeSuiteId={activeSuiteId}
-              projectCode={projectCode}
-              onSelectCase={(tc: any) => {
-                setDetailTab("general");
-                setActiveTestCaseId(tc.id);
-              }}
-              searchQuery={searchQuery}
-              searchScope={searchScope}
-              priorityFilter={priorityFilter}
-              automationFilter={automationFilter}
-            />
-          </div>
+        <div className="flex-1 overflow-y-auto bg-background relative transition-colors flex flex-col min-w-0">
+          <SuiteList
+            suites={suites}
+            cases={cases}
+            activeSuiteId={activeSuiteId}
+            projectCode={projectCode}
+            activeCaseId={activeTestCaseId}
+            onSelectCase={(tc: any) => {
+              setDetailTab("general");
+              setActiveTestCaseId(tc.id);
+            }}
+            searchQuery={searchQuery}
+            searchScope={searchScope}
+            priorityFilter={priorityFilter}
+            automationFilter={automationFilter}
+            onBulkEdit={role !== "VIEWER" ? handleBulkEdit : undefined}
+            onBulkClone={role !== "VIEWER" ? handleBulkClone : undefined}
+            onBulkRun={handleBulkRun}
+            onBulkDelete={
+              role !== "VIEWER" ? () => setConfirmBulkDelete(true) : undefined
+            }
+          />
         </div>
       </div>
 
@@ -710,116 +585,180 @@ export function RepositoryContent({
 
       {/* Slide-over Detail Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-[55vw] min-w-[600px] bg-surface shadow-[var(--shadow-dialog)] border-l transform transition-transform duration-300 ease-in-out z-modal flex flex-col ${activeTestCaseId ? "translate-x-0" : "translate-x-full"}`}
-        style={{ borderColor: "var(--border-color)" }}
+        className={`fixed top-0 right-0 h-full w-[392px] max-w-[92vw] bg-surface shadow-[var(--shadow-lg)] border-l transform transition-transform duration-200 ease-out z-[70] flex flex-col ${activeTestCaseId ? "translate-x-0" : "translate-x-full"}`}
+        style={{ borderColor: "var(--border)" }}
       >
         {activeTestCase && (
           <>
             <header
-              className="flex flex-col px-6 pt-5 pb-0 border-b bg-surface shrink-0"
-              style={{ borderColor: "var(--border-color)" }}
+              className="flex flex-col bg-surface shrink-0 border-b"
+              style={{ borderColor: "var(--border)" }}
             >
-              <div className="flex items-center justify-between mb-3">
-                <span className="qm-mono text-[11px] font-bold text-primary bg-primary-light border border-primary/15 px-2 py-0.5 rounded shadow-sm">
-                  {`${projectCode}-${activeTestCase.sequenceNumber || activeTestCase.id.substring(0, 4)}`}
-                </span>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => {
-                      const code = `${projectCode}-${activeTestCase.sequenceNumber || activeTestCase.id.substring(0, 4)}`;
-                      navigator.clipboard?.writeText(code);
-                      toast.success(`Copied ${code}`);
-                    }}
-                    title="Copy case ID"
-                    className="text-text-muted hover:text-text-main hover:bg-surface-hover p-1.5 rounded-lg transition-colors"
-                  >
-                    <Copy size={15} />
-                  </button>
-                  <button
-                    onClick={() => setActiveTestCaseId(null)}
-                    className="text-text-muted hover:text-danger hover:bg-surface-hover p-1.5 rounded-lg transition-colors"
-                  >
-                    <X size={18} />
-                  </button>
+              <div className="flex items-start gap-[10px] px-[18px] pt-4 pb-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="qm-mono text-[11px] text-text-faint">
+                      {`${projectCode}-${activeTestCase.sequenceNumber || activeTestCase.id.substring(0, 4)}`}
+                    </span>
+                    {(() => {
+                      const p = (activeTestCase.priority || "").toUpperCase();
+                      if (p === "HIGH")
+                        return <ChevronsUp size={16} className="text-danger" />;
+                      if (p === "MEDIUM")
+                        return <Minus size={16} className="text-warning" />;
+                      if (p === "LOW")
+                        return (
+                          <ChevronDown size={16} className="text-text-faint" />
+                        );
+                      return null;
+                    })()}
+                    <button
+                      onClick={() => {
+                        const code = `${projectCode}-${activeTestCase.sequenceNumber || activeTestCase.id.substring(0, 4)}`;
+                        navigator.clipboard?.writeText(code);
+                        toast.success(`Copied ${code}`);
+                      }}
+                      title="Copy case ID"
+                      className="text-text-faint hover:text-text-main transition-colors"
+                    >
+                      <Copy size={13} />
+                    </button>
+                  </div>
+                  <div className="text-[16px] font-semibold tracking-[-0.01em] text-text-main mt-1 break-words leading-snug">
+                    {activeTestCase.title}
+                  </div>
                 </div>
-              </div>
-              <h2 className="text-lg font-bold text-text-main tracking-tight break-words mb-4 leading-snug">
-                {activeTestCase.title}
-              </h2>
-
-              <div className="flex items-center gap-2 mb-4">
                 <button
-                  onClick={() =>
-                    router.push(
-                      `/projects/${projectCode}/cases/${activeTestCase.id}/edit`,
-                    )
-                  }
-                  className="bg-surface border border-border hover:bg-surface-hover hover:border-primary/30 hover:text-primary text-text-muted p-2 rounded-lg transition-colors shadow-sm"
-                  title="Edit case"
+                  onClick={() => setActiveTestCaseId(null)}
+                  className="text-text-faint hover:text-danger transition-colors shrink-0"
                 >
-                  <Edit3 size={15} />
-                </button>
-                <button
-                  onClick={handleCloneCase}
-                  className="bg-surface border border-border hover:bg-surface-hover hover:border-primary/30 hover:text-primary text-text-muted p-2 rounded-lg transition-colors shadow-sm"
-                  title="Clone case"
-                >
-                  <Copy size={15} />
-                </button>
-                <button
-                  onClick={() => setConfirmDeleteCase(true)}
-                  className="bg-surface border border-border hover:bg-surface-hover hover:border-danger/30 hover:text-danger text-text-muted p-2 rounded-lg transition-colors shadow-sm"
-                  title="Delete case"
-                >
-                  <Trash2 size={15} />
-                </button>
-                <div className="w-px h-6 bg-border mx-1"></div>
-                <button
-                  className="text-white shadow-sm px-3 py-1.5 rounded-lg text-[13px] font-semibold flex items-center transition-all hover:-translate-y-0.5"
-                  style={{
-                    background: "var(--primary)",
-                  }}
-                >
-                  <Cpu size={13} className="mr-1.5" /> Automate
+                  <X size={20} />
                 </button>
               </div>
 
-              <div className="flex gap-6">
+              <div className="flex gap-[2px] px-[14px]">
                 <button
                   onClick={() => setDetailTab("general")}
-                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors ${detailTab === "general" ? "border-primary text-primary font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                  className={`px-[10px] pt-[10px] pb-2 text-[12.5px] border-b-2 -mb-px transition-colors ${detailTab === "general" ? "border-primary text-primary font-semibold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
                 >
                   General
                 </button>
                 <button
                   onClick={() => setDetailTab("defects")}
-                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors flex items-center gap-1.5 ${detailTab === "defects" ? "border-primary text-primary font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                  className={`px-[10px] pt-[10px] pb-2 text-[12.5px] border-b-2 -mb-px transition-colors flex items-center gap-1.5 ${detailTab === "defects" ? "border-primary text-primary font-semibold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
                 >
                   Defects
                   {activeTestCase.linkedIssues?.length > 0 && (
-                    <span className="text-[10px] font-bold bg-danger-soft text-danger-foreground px-1.5 py-0.5 rounded-full">
+                    <span className="text-[9.5px] font-bold bg-danger-soft text-danger px-[5px] rounded-full">
                       {activeTestCase.linkedIssues.length}
                     </span>
                   )}
                 </button>
                 <button
                   onClick={() => setDetailTab("comments")}
-                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors ${detailTab === "comments" ? "border-primary text-primary font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                  className={`px-[10px] pt-[10px] pb-2 text-[12.5px] border-b-2 -mb-px transition-colors ${detailTab === "comments" ? "border-primary text-primary font-semibold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
                 >
                   Comments
                 </button>
                 <button
                   onClick={() => setDetailTab("history")}
-                  className={`pb-3 pt-1 border-b-2 text-sm transition-colors ${detailTab === "history" ? "border-primary text-primary font-bold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                  className={`px-[10px] pt-[10px] pb-2 text-[12.5px] border-b-2 -mb-px transition-colors ${detailTab === "history" ? "border-primary text-primary font-semibold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
                 >
                   History
                 </button>
               </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto bg-surface p-5 space-y-4">
+            <div className="flex-1 overflow-y-auto bg-surface px-[18px] py-4 space-y-4">
               {detailTab === "general" && (
               <>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <div className="text-[11px] text-text-faint mb-1">
+                    Priority
+                  </div>
+                  <span className="inline-flex items-center gap-[5px] text-[12px] font-semibold text-text-main">
+                    {(() => {
+                      const p = (activeTestCase.priority || "").toUpperCase();
+                      if (p === "HIGH")
+                        return (
+                          <>
+                            <ChevronsUp size={16} className="text-danger" />
+                            High
+                          </>
+                        );
+                      if (p === "MEDIUM")
+                        return (
+                          <>
+                            <Minus size={16} className="text-warning" />
+                            Medium
+                          </>
+                        );
+                      if (p === "LOW")
+                        return (
+                          <>
+                            <ChevronDown size={16} className="text-text-faint" />
+                            Low
+                          </>
+                        );
+                      return <span className="text-text-muted">Not set</span>;
+                    })()}
+                  </span>
+                </div>
+                <div>
+                  <div className="text-[11px] text-text-faint mb-1">Type</div>
+                  <span className="text-[12.5px] font-medium text-text-main">
+                    {activeTestCase.type
+                      ? activeTestCase.type.charAt(0) +
+                        activeTestCase.type.slice(1).toLowerCase()
+                      : "Functional"}
+                  </span>
+                </div>
+                <div>
+                  <div className="text-[11px] text-text-faint mb-1">
+                    Automation
+                  </div>
+                  <span className="text-[12.5px] font-medium text-text-main">
+                    {activeTestCase.automationStatus === "AUTOMATED"
+                      ? "Automated"
+                      : activeTestCase.automationStatus === "TO_BE_AUTOMATED"
+                        ? "To automate"
+                        : "Manual"}
+                  </span>
+                </div>
+                <div>
+                  <div className="text-[11px] text-text-faint mb-1">Owner</div>
+                  <div className="flex items-center gap-[6px]">
+                    <div className="w-5 h-5 rounded-full bg-primary-light text-primary flex items-center justify-center text-[9px] font-bold">
+                      {(activeTestCase.author?.name ||
+                        activeTestCase.author?.email ||
+                        "U")
+                        .substring(0, 2)
+                        .toUpperCase()}
+                    </div>
+                    <span className="text-[12.5px] text-text-main">
+                      {activeTestCase.author?.name ||
+                        activeTestCase.author?.email?.split("@")[0] ||
+                        "Unassigned"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              {activeTestCase.tags?.length > 0 && (
+                <div>
+                  <div className="text-[11px] text-text-faint mb-[6px]">Tags</div>
+                  <div className="flex gap-[6px] flex-wrap">
+                    {activeTestCase.tags.map((t: any) => (
+                      <span
+                        key={t.id || t.name}
+                        className="text-[11px] font-semibold px-[9px] py-[3px] rounded-[7px] bg-surface-hover text-text-muted"
+                      >
+                        {t.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
               {activeTestCase.isOutdated && (
                 <div className="bg-warning-soft border border-warning/25 p-4 rounded-xl flex flex-col space-y-3 shadow-sm mb-4">
                   <div className="flex items-start">
@@ -1170,6 +1109,34 @@ export function RepositoryContent({
                   </div>
                 ))}
             </div>
+
+            <div
+              className="mt-auto flex gap-[9px] px-[18px] py-[14px] border-t bg-surface shrink-0"
+              style={{ borderColor: "var(--border)" }}
+            >
+              <Button
+                variant="primary"
+                size="sm"
+                fullWidth
+                onClick={() =>
+                  router.push(
+                    `/projects/${projectCode}/cases/${activeTestCase.id}/edit`,
+                  )
+                }
+                style={{ height: 36, borderRadius: 9, fontSize: 13 }}
+              >
+                <Edit3 size={15} /> Edit case
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                fullWidth
+                onClick={handleBulkRunSingle}
+                style={{ height: 36, borderRadius: 9, fontSize: 13 }}
+              >
+                <PlayCircle size={15} /> Run
+              </Button>
+            </div>
           </>
         )}
       </div>
@@ -1187,7 +1154,7 @@ export function RepositoryContent({
       {/* Backdrop for sliding panel */}
       {activeTestCaseId && (
         <div
-          className="fixed inset-0 bg-[color:var(--overlay)] z-[50] transition-opacity"
+          className="fixed inset-0 bg-[color:var(--overlay)] z-[60] transition-opacity"
           onClick={() => setActiveTestCaseId(null)}
         />
       )}

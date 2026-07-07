@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Environments" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased; position:relative;">
+  <div style="display:flex; align-items:center; gap:18px; padding:0 18px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:7px; padding:11px 0;"><span style="font-weight:600; font-size:13.5px;">Checkout Web</span><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">unfold_more</span></div>
+    <div style="width:1px; height:18px; background:var(--border);"></div>
+    <div style="display:flex; gap:2px;"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><div style="padding:11px 12px 9px; font-weight:{{ t.weight }}; font-size:13px; color:{{ t.color }}; border-bottom:2px solid {{ t.border }}; margin-bottom:-1px;">{{ t.label }}</div></sc-for></div>
+    <div style="flex:1;"></div>
+    <div style="padding:11px 12px 9px; font-weight:500; font-size:13px; color:var(--text-faint); display:flex; align-items:center; gap:5px;"><span class="material-symbols-rounded" style="font-size:17px;">settings</span>Configuration</div>
+  </div>
+
+  <div style="padding:20px 22px; max-width:840px; margin:0 auto;">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+      <div><div style="font-size:19px; font-weight:600; letter-spacing:-0.015em;">Environments</div><div style="font-size:13px; color:var(--text-muted); margin-top:2px;">Targets that test runs execute against</div></div>
+      <div style="flex:1;"></div>
+      <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="150px,36px" variant="primary" size="sm" leading-icon="add" style="{{ btn }}">Add environment</x-import>
+    </div>
+
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow-sm); overflow:hidden;">
+      <sc-for list="{{ envs }}" as="e" hint-placeholder-count="4">
+        <div style="display:flex; align-items:center; gap:13px; padding:14px 18px; border-bottom:1px solid var(--border);">
+          <div style="width:34px; height:34px; border-radius:9px; background:{{ e.iconBg }}; color:{{ e.iconColor }}; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-symbols-rounded" style="font-size:18px;">{{ e.icon }}</span></div>
+          <div style="flex:1; min-width:0;"><div style="font-size:13.5px; font-weight:600;">{{ e.name }}</div><div style="font-size:12px; color:var(--text-muted); margin-top:1px;">{{ e.desc }}</div></div>
+          <div style="display:flex; gap:4px;">
+            <div style="width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:17px;">edit</span></div>
+            <div style="width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--text-faint);"><span class="material-symbols-rounded" style="font-size:18px;">delete</span></div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- add modal -->
+  <div style="position:absolute; inset:0; background:var(--bg-overlay); display:flex; align-items:flex-start; justify-content:center; padding-top:70px;">
+    <div style="width:400px; background:var(--surface); border:1px solid var(--border); border-radius:15px; box-shadow:var(--shadow-lg); overflow:hidden;">
+      <div style="display:flex; align-items:center; gap:10px; padding:18px 20px 0;"><div style="width:34px; height:34px; border-radius:9px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size:19px;">dns</span></div><div style="font-size:15.5px; font-weight:600;">Add environment</div></div>
+      <div style="padding:16px 20px; display:flex; flex-direction:column; gap:14px;">
+        <div><label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px;">Name</label><div style="display:flex; align-items:center; height:40px; padding:0 13px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 2px var(--ring); font-size:13.5px;">Pre-production</div></div>
+        <div><label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px;">Description</label><div style="min-height:50px; padding:10px 13px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13px; color:var(--text-faint); line-height:1.5;">Mirror of production for final validation.</div></div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:9px; padding:14px 20px; border-top:1px solid var(--border);">
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="80px,36px" variant="ghost" size="sm" style="{{ btn }}">Cancel</x-import>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="100px,36px" variant="primary" size="sm" leading-icon="check" style="{{ btn }}">Add</x-import>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const btn={ height:36, borderRadius:9, fontSize:13 };
+    const tab=(label,sel)=>({ label, weight: sel?'600':'500', color: sel?'var(--primary-text)':'var(--text-muted)', border: sel?'var(--primary)':'transparent' });
+    const tabs=[ tab('Dashboards'), tab('Repository'), tab('Test Plans'), tab('Test Runs'), tab('Automation') ];
+    const ic={ prod:['cloud','var(--fail-soft)','var(--fail)'], staging:['cloud_queue','var(--warn-soft)','var(--warn)'], ci:['terminal','var(--surface-2)','var(--text-muted)'], dev:['code','var(--info-soft-fill)','var(--info)'] };
+    const mk=(name,desc,kind)=>({ name, desc, icon:ic[kind][0], iconBg:ic[kind][1], iconColor:ic[kind][2] });
+    const envs=[
+      mk('Production','Live customer-facing environment','prod'),
+      mk('Staging','Release-candidate validation','staging'),
+      mk('CI','Automated pipeline runner','ci'),
+      mk('Dev','Engineer local & feature branches','dev'),
+    ];
+    return { tabs, envs, btn };
+  }
+}
+</script>
+</body>
+</html>

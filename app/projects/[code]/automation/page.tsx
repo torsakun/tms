@@ -3,94 +3,95 @@
 import React, { useState, useEffect, use } from "react";
 import { toast } from "sonner";
 import {
-  Bot,
+  Plus,
   Sparkles,
-  Code2,
-  PlayCircle,
-  Activity,
-  Wrench,
-  CheckCircle2,
-  AlertTriangle,
-  Zap,
-  Terminal,
   RefreshCw,
   GitPullRequest,
-  Eye,
-  Save,
-  X,
+  CheckCircle2,
+  Zap,
+  Play,
   Trash2,
-  DollarSign,
+  CalendarClock,
+  ChevronDown,
+  Check,
   Clock,
+  PlayCircle,
+  XCircle,
+  AlertCircle,
+  type LucideIcon,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 
-export default function TESSAAutomationPage({
-  params,
-}: {
-  params: Promise<{ code: string }>;
-}) {
+type AutomationCase = {
+  id: string;
+  automationStatus: string;
+  automationScript?: string | null;
+};
+
+type TestPlanOption = {
+  id: string;
+  title: string;
+};
+
+type Pipeline = {
+  id: string;
+  title: string;
+  cron: string;
+  isActive: boolean;
+  plan?: TestPlanOption | null;
+  lastRun?: {
+    status: string;
+    createdAt: string | Date;
+    updatedAt: string | Date;
+    passRate: number | null;
+  } | null;
+};
+
+type ApiResponse = {
+  error?: string;
+  prUrl?: string;
+  isActive?: boolean;
+};
+
+function errorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
+export default function AutomationPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = use(params);
 
-  const [cases, setCases] = useState<any[]>([]);
+  const [cases, setCases] = useState<AutomationCase[]>([]);
   const [selectedCaseIds, setSelectedCaseIds] = useState<string[]>([]);
-  const [status, setStatus] = useState<
-    "IDLE" | "GENERATING" | "READY_TO_PUSH" | "PUSHING" | "DONE"
-  >("IDLE");
+  const [status, setStatus] = useState<"IDLE" | "GENERATING" | "READY_TO_PUSH" | "PUSHING" | "DONE">("IDLE");
   const [prUrl, setPrUrl] = useState<string | null>(null);
-  const [error, setError] = useState("");
 
-  // Review Modal State
-  const [reviewCase, setReviewCase] = useState<any | null>(null);
-  const [reviewScript, setReviewScript] = useState<string>("");
-  const [isSavingScript, setIsSavingScript] = useState(false);
-
-  // Pipeline Orchestration State
-  const [pipelines, setPipelines] = useState<any[]>([]);
+  const [pipelines, setPipelines] = useState<Pipeline[]>([]);
+  const [testPlans, setTestPlans] = useState<TestPlanOption[]>([]);
   const [isPipelineModalOpen, setIsPipelineModalOpen] = useState(false);
-  const [newPipelineTitle, setNewPipelineTitle] = useState("");
-  const [scheduleType, setScheduleType] = useState("daily");
-  const [scheduleTime, setScheduleTime] = useState("00:00");
-  const [scheduleDay, setScheduleDay] = useState("1");
-  const [customCron, setCustomCron] = useState("0 0 * * *");
-  const [isCreatingPipeline, setIsCreatingPipeline] = useState(false);
-
-  // Analytics State
-  const [analytics, setAnalytics] = useState<any>(null);
-
-  const [stats, setStats] = useState({ total: 0, automated: 0, manual: 0 });
+  const [newPipelineTitle, setNewPipelineTitle] = useState("Nightly regression");
+  const [selectedPlanId, setSelectedPlanId] = useState("");
+  const [cron, setCron] = useState("0 2 * * *");
+  const [activateImmediately, setActivateImmediately] = useState(true);
+  const [creatingPipeline, setCreatingPipeline] = useState(false);
+  const [pipelineAction, setPipelineAction] = useState<{
+    id: string;
+    type: "toggle" | "run" | "delete";
+  } | null>(null);
 
   useEffect(() => {
     fetchData();
   }, [code]);
 
-  const fetchData = () => {
+  const fetchData = async () => {
     fetch(`/api/projects/${code}/cases`)
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          const manualCases = data.filter(
-            (c) => c.automationStatus === "MANUAL",
-          );
-          const toBeAutomatedCases = data.filter(
-            (c) => c.automationStatus === "TO_BE_AUTOMATED",
-          );
-          const automatedCases = data.filter(
-            (c) =>
-              c.automationStatus === "AUTOMATED" ||
-              (c.automationStatus !== "MANUAL" &&
-                c.automationStatus !== "TO_BE_AUTOMATED" &&
-                c.automationScript),
-          );
-
-          setStats({
-            total: data.length,
-            automated: automatedCases.length,
-            manual: manualCases.length,
-          });
+          const cases = data as AutomationCase[];
+          const manualCases = cases.filter((c) => c.automationStatus === "MANUAL");
+          const toBeAutomatedCases = cases.filter((c) => c.automationStatus === "TO_BE_AUTOMATED");
 
           const combined = [...toBeAutomatedCases, ...manualCases];
           setCases(combined);
-          // Only auto-select manual ones
           setSelectedCaseIds(manualCases.map((c) => c.id));
         }
       });
@@ -99,878 +100,440 @@ export default function TESSAAutomationPage({
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setPipelines(data);
+          setPipelines(data as Pipeline[]);
         }
       });
 
-    fetch(`/api/projects/${code}/ai/analytics`)
+    fetch(`/api/projects/${code}/plans`)
       .then((res) => res.json())
       .then((data) => {
-        if (!data.error) setAnalytics(data);
+        if (Array.isArray(data)) {
+          const plans = data as TestPlanOption[];
+          setTestPlans(plans);
+          setSelectedPlanId((current) => current || data[0]?.id || "");
+        }
       });
-  };
-
-  const toggleSelection = (id: string) => {
-    setSelectedCaseIds((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
-    );
   };
 
   const handleGenerate = async () => {
     if (selectedCaseIds.length === 0) return;
     setStatus("GENERATING");
-    setError("");
-
     try {
       const res = await fetch(`/api/projects/${code}/ai/batch-generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ caseIds: selectedCaseIds }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-
+      if (!res.ok) throw new Error("Generation failed");
       setStatus("IDLE");
-      fetchData(); // Refresh to show as TO_BE_AUTOMATED
-    } catch (err: any) {
-      setError(err.message);
+      fetchData();
+      toast.success("Scripts generated successfully");
+    } catch (err: unknown) {
+      toast.error(errorMessage(err, "Generation failed"));
       setStatus("IDLE");
     }
   };
 
   const handlePushToGithub = async () => {
-    const pendingCases = cases
-      .filter((c) => c.automationStatus === "TO_BE_AUTOMATED")
-      .map((c) => c.id);
+    const pendingCases = cases.filter((c) => c.automationStatus === "TO_BE_AUTOMATED").map((c) => c.id);
     if (pendingCases.length === 0) return;
 
     setStatus("PUSHING");
-    setError("");
-
     try {
       const res = await fetch(`/api/projects/${code}/ai/batch-github-pr`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ caseIds: pendingCases }),
       });
-      const data = await res.json();
+      const data = (await res.json()) as ApiResponse;
       if (!res.ok) throw new Error(data.error);
 
-      setPrUrl(data.prUrl);
+      setPrUrl(data.prUrl || null);
       setStatus("DONE");
-
-      fetchData(); // Refresh to remove AUTOMATED ones
-    } catch (err: any) {
-      setError(err.message);
+      fetchData();
+      toast.success("Successfully pushed to GitHub!");
+    } catch (err: unknown) {
+      toast.error(errorMessage(err, "Failed to push to GitHub"));
       setStatus("IDLE");
     }
   };
 
-  const handleOpenReview = async (tc: any) => {
-    setReviewCase(tc);
-    setReviewScript("Loading script...");
-    try {
-      const res = await fetch(`/api/projects/${code}/cases/${tc.id}`);
-      const data = await res.json();
-      if (data && data.automationScript) {
-        setReviewScript(data.automationScript);
-      } else {
-        setReviewScript("// No script found.");
-      }
-    } catch (err) {
-      setReviewScript("// Error loading script.");
-    }
-  };
-
-  const handleSaveReview = async () => {
-    if (!reviewCase) return;
-    setIsSavingScript(true);
-    try {
-      await fetch(`/api/projects/${code}/cases/${reviewCase.id}/script`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ script: reviewScript }),
-      });
-      setReviewCase(null);
-    } catch (err) {
-      toast.error("Failed to save script");
-    } finally {
-      setIsSavingScript(false);
-    }
-  };
-
-  const handleDiscard = async (id: string) => {
-    try {
-      await fetch(`/api/projects/${code}/cases/${id}/discard`, {
-        method: "POST",
-      });
-      fetchData();
-    } catch (err) {
-      toast.error("Failed to discard");
-    }
-  };
-
-  const generateCron = () => {
-    if (scheduleType === "custom") return customCron;
-    const [hours, minutes] = scheduleTime.split(":");
-    const h = parseInt(hours || "0", 10);
-    const m = parseInt(minutes || "0", 10);
-
-    if (scheduleType === "daily") {
-      return `${m} ${h} * * *`;
-    } else if (scheduleType === "weekly") {
-      return `${m} ${h} * * ${scheduleDay}`;
-    } else if (scheduleType === "monthly") {
-      return `${m} ${h} ${scheduleDay} * *`;
-    }
-    return "0 0 * * *";
-  };
-
   const handleCreatePipeline = async () => {
-    if (!newPipelineTitle) return;
-    setIsCreatingPipeline(true);
+    if (!newPipelineTitle.trim() || !selectedPlanId) return;
+    setCreatingPipeline(true);
     try {
-      const computedCron = generateCron();
       const res = await fetch(`/api/projects/${code}/pipelines`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: newPipelineTitle, cron: computedCron }),
+        body: JSON.stringify({
+          title: newPipelineTitle,
+          cron,
+          planId: selectedPlanId,
+          activateImmediately,
+        }),
       });
-      if (res.ok) {
-        setIsPipelineModalOpen(false);
-        setNewPipelineTitle("");
-        fetchData();
-      }
-    } catch (err) {
-      console.error(err);
+      const data = (await res.json()) as ApiResponse;
+      if (!res.ok) throw new Error(data.error || "Failed to create pipeline");
+
+      setIsPipelineModalOpen(false);
+      setNewPipelineTitle("Nightly regression");
+      setSelectedPlanId(testPlans[0]?.id || "");
+      setCron("0 2 * * *");
+      setActivateImmediately(true);
+      fetchData();
+      toast.success("Pipeline created");
+    } catch (err: unknown) {
+      toast.error(errorMessage(err, "Failed to create pipeline"));
     } finally {
-      setIsCreatingPipeline(false);
+      setCreatingPipeline(false);
     }
   };
 
-  const handleTogglePipeline = async (id: string, isActive: boolean) => {
-    // Optimistic UI update
-    setPipelines((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, isActive } : p)),
-    );
+  const handleTogglePipeline = async (pipeline: Pipeline) => {
+    setPipelineAction({ id: pipeline.id, type: "toggle" });
     try {
-      await fetch(`/api/projects/${code}/pipelines/${id}`, {
+      const res = await fetch(`/api/projects/${code}/pipelines/${pipeline.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive }),
+        body: JSON.stringify({ isActive: !pipeline.isActive }),
       });
-    } catch (err) {
-      console.error(err);
-      fetchData(); // revert on failure
+      const data = (await res.json()) as ApiResponse;
+      if (!res.ok) throw new Error(data.error || "Failed to update pipeline");
+
+      const nextIsActive = data.isActive ?? !pipeline.isActive;
+      setPipelines((current) =>
+        current.map((item) =>
+          item.id === pipeline.id ? { ...item, isActive: nextIsActive } : item,
+        ),
+      );
+      toast.success(nextIsActive ? "Pipeline activated" : "Pipeline paused");
+    } catch (err: unknown) {
+      toast.error(errorMessage(err, "Failed to update pipeline"));
+    } finally {
+      setPipelineAction(null);
     }
   };
 
-  const handleTriggerPipeline = async (id: string) => {
+  const handleRunPipeline = async (pipeline: Pipeline) => {
+    setPipelineAction({ id: pipeline.id, type: "run" });
     try {
-      const res = await fetch(`/api/projects/${code}/pipelines/${id}/trigger`, {
-        method: "POST",
-      });
-      if (res.ok) {
-        toast.success("Pipeline triggered! A new Test Run has been created.");
-      } else {
-        const err = await res.json();
-        toast.error("Trigger failed: " + err.error);
-      }
-    } catch (err) {
-      console.error(err);
+      const res = await fetch(
+        `/api/projects/${code}/pipelines/${pipeline.id}/trigger`,
+        { method: "POST" },
+      );
+      const data = (await res.json()) as ApiResponse;
+      if (!res.ok) throw new Error(data.error || "Failed to run pipeline");
+
+      fetchData();
+      toast.success("Pipeline run started");
+    } catch (err: unknown) {
+      toast.error(errorMessage(err, "Failed to run pipeline"));
+    } finally {
+      setPipelineAction(null);
     }
   };
 
-  const handleDeletePipeline = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this pipeline schedule?"))
-      return;
+  const handleDeletePipeline = async (pipeline: Pipeline) => {
+    setPipelineAction({ id: pipeline.id, type: "delete" });
     try {
-      setPipelines((prev) => prev.filter((p) => p.id !== id));
-      await fetch(`/api/projects/${code}/pipelines/${id}`, {
+      const res = await fetch(`/api/projects/${code}/pipelines/${pipeline.id}`, {
         method: "DELETE",
       });
-    } catch (err) {
-      console.error(err);
-      fetchData();
+      const data = (await res.json()) as ApiResponse;
+      if (!res.ok) throw new Error(data.error || "Failed to delete pipeline");
+
+      setPipelines((current) => current.filter((item) => item.id !== pipeline.id));
+      toast.success("Pipeline deleted");
+    } catch (err: unknown) {
+      toast.error(errorMessage(err, "Failed to delete pipeline"));
+    } finally {
+      setPipelineAction(null);
     }
   };
 
-  const manualCasesCount = cases.filter(
-    (c) => c.automationStatus === "MANUAL",
-  ).length;
-  const pendingCasesCount = cases.filter(
-    (c) => c.automationStatus === "TO_BE_AUTOMATED",
-  ).length;
-  const showPushBtn = pendingCasesCount > 0;
+  const formatRelativeTime = (value?: string | Date | null) => {
+    if (!value) return "No runs yet";
+    const date = new Date(value);
+    const diffMs = Date.now() - date.getTime();
+    const minute = 60 * 1000;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+
+    if (diffMs < minute) return "just now";
+    if (diffMs < hour) return `${Math.max(1, Math.round(diffMs / minute))} min ago`;
+    if (diffMs < day) return `${Math.round(diffMs / hour)} h ago`;
+    return `${Math.round(diffMs / day)} d ago`;
+  };
+
+  const lastRunIcon = (pipeline: Pipeline): { Icon: LucideIcon; className: string; text: string } => {
+    if (!pipeline.lastRun) {
+      return {
+        Icon: Clock,
+        className: "text-text-faint",
+        text: "No runs yet",
+      };
+    }
+    if (pipeline.lastRun.status === "ACTIVE") {
+      return {
+        Icon: PlayCircle,
+        className: "text-primary",
+        text: formatRelativeTime(pipeline.lastRun.createdAt),
+      };
+    }
+    if (pipeline.lastRun.status === "ABORTED") {
+      return {
+        Icon: XCircle,
+        className: "text-danger",
+        text: formatRelativeTime(pipeline.lastRun.updatedAt),
+      };
+    }
+    return {
+      Icon:
+        pipeline.lastRun.passRate !== null && pipeline.lastRun.passRate < 80
+          ? AlertCircle
+          : CheckCircle2,
+      className:
+        pipeline.lastRun.passRate !== null && pipeline.lastRun.passRate < 80
+          ? "text-warning"
+          : "text-pass",
+      text: `${formatRelativeTime(pipeline.lastRun.updatedAt)}${
+        pipeline.lastRun.passRate !== null
+          ? ` · ${pipeline.lastRun.passRate}%`
+          : ""
+      }`,
+    };
+  };
+
+  const pendingCasesCount = cases.filter(c => c.automationStatus === "TO_BE_AUTOMATED").length;
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] bg-surface-hover  overflow-y-auto">
-      <div className="w-full max-w-7xl mx-auto p-8 space-y-8">
-        {/* Header Section */}
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="inline-flex items-center px-3 py-1 mb-3 rounded-full border border-primary/30 bg-primary-light text-primary text-xs font-semibold tracking-wide uppercase shadow-[0_0_15px_rgba(99,102,241,0.2)]">
-              <Sparkles size={14} className="mr-2 text-primary" />
-              Powered by Generative AI
-            </div>
-            <h1 className="text-3xl font-extrabold text-text-main  flex items-center tracking-tight">
-              TESSA{" "}
-              <span className="mx-3 text-text-faint  font-light">
-                |
-              </span>
-              <span className="text-primary font-bold">Test Orchestration</span>
-            </h1>
-            <p className="mt-2 text-text-muted">
-              Your autonomous AI assistant for writing scripts, healing flaky
-              tests, and managing pipelines.
-            </p>
-          </div>
-          <Button
-            onClick={() => setIsPipelineModalOpen(true)}
-            className="shadow-[var(--shadow-float)] hover:-translate-y-0.5"
-          >
-            <Zap size={18} /> Create Scheduled Pipeline
-          </Button>
+    <div className="w-full max-w-[1120px] mx-auto p-[20px_22px] antialiased font-sans pb-20">
+      
+      <div className="flex items-center gap-[12px] mb-[16px]">
+        <div>
+          <div className="text-[19px] font-semibold tracking-[-0.015em] text-text-main">Automation</div>
+          <div className="text-[13px] text-text-muted mt-[2px]">Scheduled pipelines and CI integration</div>
         </div>
+        <div className="flex-1" />
+        <button 
+          onClick={() => setIsPipelineModalOpen(true)}
+          className="flex items-center gap-[6px] h-[36px] px-[16px] bg-primary text-white text-[13px] font-semibold rounded-[9px] hover:bg-primary-hover transition-colors shadow-sm"
+        >
+          <Plus size={16} />
+          Create scheduled pipeline
+        </button>
+      </div>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-surface  rounded-[13px] p-6 border border-border  shadow-[var(--shadow-float)] backdrop-blur-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-primary-light rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-primary-light transition-all duration-500"></div>
-            <div className="flex justify-between items-start mb-4 relative z-10">
-              <div>
-                <p className="text-sm font-medium text-text-muted  mb-1">
-                  AI Generated Scripts
-                </p>
-                <h3 className="text-3xl font-bold text-text-main ">
-                  {stats.automated}
-                </h3>
-              </div>
-              <div className="w-12 h-12 bg-primary-light rounded-xl flex items-center justify-center border border-primary/25">
-                <Code2
-                  size={24}
-                  className="text-primary"
-                />
-              </div>
-            </div>
-            <div className="flex items-center text-xs text-success  font-medium relative z-10">
-              <Activity size={14} className="mr-1" /> System total automated
-              cases
-            </div>
+      {/* two action panels */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px] mb-[22px]">
+        <div className="bg-surface border border-border rounded-[13px] p-[18px] shadow-sm flex gap-[14px] items-start">
+          <div className="w-[40px] h-[40px] rounded-[11px] bg-primary-soft text-primary-text flex items-center justify-center shrink-0">
+            <Sparkles size={22} />
           </div>
-
-          <div className="bg-surface  rounded-[13px] p-6 border border-border  shadow-[var(--shadow-float)] backdrop-blur-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-success-soft rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-success-soft transition-all duration-500"></div>
-            <div className="flex justify-between items-start mb-4 relative z-10">
-              <div>
-                <p className="text-sm font-medium text-text-muted  mb-1">
-                  Executive ROI
-                </p>
-                <h3 className="text-3xl font-bold text-text-main ">
-                  ${analytics?.roi?.estimatedValueUsd || "0"}
-                </h3>
-              </div>
-              <div className="w-12 h-12 bg-success-soft rounded-xl flex items-center justify-center border border-success/25">
-                <DollarSign
-                  size={24}
-                  className="text-success"
-                />
-              </div>
-            </div>
-            <div className="flex items-center justify-between text-xs font-medium relative z-10">
-              <span className="text-success  flex items-center">
-                <Clock size={14} className="mr-1" />{" "}
-                {analytics?.roi?.totalHoursSaved || 0} hrs saved
-              </span>
-              <span className="text-text-muted">
-                ≈ ฿{analytics?.roi?.estimatedValueThb || "0"}
-              </span>
-            </div>
-          </div>
-
-          <div className="bg-surface  rounded-[13px] p-6 border border-border  shadow-[var(--shadow-float)] backdrop-blur-sm relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-info-soft rounded-full blur-3xl -mr-10 -mt-10 group-hover:bg-info-soft transition-all duration-500"></div>
-            <div className="flex justify-between items-start mb-4 relative z-10">
-              <div>
-                <p className="text-sm font-medium text-text-muted  mb-1">
-                  Automation Coverage
-                </p>
-                <h3 className="text-3xl font-bold text-text-main ">
-                  {stats.total > 0
-                    ? Math.round((stats.automated / stats.total) * 100)
-                    : 0}
-                  %
-                </h3>
-              </div>
-              <div className="w-12 h-12 bg-info-soft rounded-xl flex items-center justify-center border border-info/25">
-                <Bot
-                  size={24}
-                  className="text-info"
-                />
-              </div>
-            </div>
-            <div className="flex items-center text-xs text-warning  font-medium relative z-10">
-              <AlertTriangle size={14} className="mr-1" /> {stats.manual} manual
-              cases recommended for automation
-            </div>
-          </div>
-        </div>
-
-        {error && (
-          <div className="p-4 bg-danger-soft border border-danger/25 text-danger rounded-xl flex items-center">
-            <AlertTriangle size={18} className="mr-2 shrink-0" />
-            <span className="font-medium">{error}</span>
-          </div>
-        )}
-
-        {status === "DONE" && prUrl && (
-          <div className="p-6 bg-success-soft border border-success/25 text-success  rounded-xl flex items-center justify-between">
-            <div className="flex items-center">
-              <CheckCircle2 size={24} className="mr-3 shrink-0" />
-              <div>
-                <h3 className="font-bold text-lg">
-                  Successfully pushed to GitHub!
-                </h3>
-                <p className="text-sm mt-1 opacity-90">
-                  TESSA generated the scripts and opened a Pull Request for your
-                  review.
-                </p>
-              </div>
-            </div>
-            <a
-              href={prUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="px-5 py-2.5 bg-success text-white font-bold rounded-xl hover:bg-success duration-300 transition-all flex items-center shadow-[var(--shadow-float)] hover:-translate-y-0.5"
+          <div className="flex-1">
+            <div className="text-[14.5px] font-semibold text-text-main">Generate automation</div>
+            <div className="text-[12.5px] text-text-muted m-[4px_0_13px] leading-[1.5]">Turn manual cases in this suite into runnable test scaffolds.</div>
+            <button 
+              onClick={handleGenerate}
+              disabled={status !== "IDLE" || selectedCaseIds.length === 0}
+              className="h-[36px] px-[14px] bg-primary text-white text-[13px] font-semibold rounded-[9px] hover:bg-primary-hover transition-colors shadow-sm flex items-center gap-[6px] disabled:opacity-50"
             >
-              <GitPullRequest size={18} className="mr-2" /> View Pull Request
-            </a>
+              {status === "GENERATING" ? <RefreshCw size={16} className="animate-spin" /> : <Sparkles size={16} />}
+              {status === 'GENERATING' ? 'Generating...' : 'Generate scripts'}
+            </button>
           </div>
-        )}
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Batch Generator Panel */}
-          <div className="bg-surface  rounded-[13px] border border-border/80  overflow-hidden flex flex-col shadow-[var(--shadow-float)] h-[500px]">
-            <div className="px-6 py-4 border-b border-border  flex justify-between items-center bg-surface-hover/50 ">
-              <h3 className="font-semibold text-text-main  flex items-center">
-                <Bot size={18} className="mr-2 text-primary" /> Suggested for
-                Automation
-              </h3>
-              <span className="text-xs font-medium text-text-muted bg-skip-soft  px-2 py-1 rounded-md">
-                {selectedCaseIds.length} Selected
-              </span>
-            </div>
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="overflow-y-auto flex-1">
-                <table className="w-full text-left text-sm text-text-muted">
-                  <thead className="bg-surface-hover/50 border-b border-border/80 text-[11px] uppercase font-bold text-text-muted sticky top-0 tracking-wider">
-                    <tr>
-                      <th className="px-6 py-3 w-10">
-                        <input
-                          type="checkbox"
-                          checked={
-                            selectedCaseIds.length === manualCasesCount &&
-                            manualCasesCount > 0
-                          }
-                          onChange={() =>
-                            selectedCaseIds.length === manualCasesCount
-                              ? setSelectedCaseIds([])
-                              : setSelectedCaseIds(
-                                  cases
-                                    .filter(
-                                      (c) => c.automationStatus === "MANUAL",
-                                    )
-                                    .map((c) => c.id),
-                                )
-                          }
-                          disabled={status !== "IDLE" || manualCasesCount === 0}
-                          className="rounded border-text-muted text-primary focus:ring-primary disabled:opacity-50"
-                        />
-                      </th>
-                      <th className="px-6 py-3">Test Case</th>
-                      <th className="px-6 py-3">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border  bg-surface ">
-                    {cases.length === 0 ? (
-                      <tr>
-                        <td
-                          colSpan={3}
-                          className="px-6 py-8 text-center text-text-muted"
-                        >
-                          No manual test cases found. Create some cases in the
-                          Repository first!
-                        </td>
-                      </tr>
-                    ) : (
-                      cases.map((tc) => {
-                        const isSelected = selectedCaseIds.includes(tc.id);
-                        const isManual = tc.automationStatus === "MANUAL";
-                        const isPending =
-                          tc.automationStatus === "TO_BE_AUTOMATED";
-                        return (
-                          <tr
-                            key={tc.id}
-                            className="hover:bg-surface-hover  transition-colors"
-                          >
-                            <td className="px-6 py-4">
-                              {isManual ? (
-                                <input
-                                  type="checkbox"
-                                  checked={isSelected}
-                                  onChange={() => toggleSelection(tc.id)}
-                                  disabled={status !== "IDLE"}
-                                  className="rounded border-text-muted text-primary focus:ring-primary"
-                                />
-                              ) : (
-                                <div className="w-4 h-4 bg-success rounded-full flex items-center justify-center shadow-[0_0_10px_rgba(16,185,129,0.3)]">
-                                  <CheckCircle2
-                                    size={10}
-                                    className="text-white"
-                                  />
-                                </div>
-                              )}
-                            </td>
-                            <td className="px-6 py-4 font-medium text-text-main  truncate max-w-[250px]">
-                              {tc.title}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              {isManual ? (
-                                status === "GENERATING" && isSelected ? (
-                                  <span className="flex items-center text-primary text-xs">
-                                    <RefreshCw
-                                      size={12}
-                                      className="mr-1 animate-spin"
-                                    />{" "}
-                                    Generating...
-                                  </span>
-                                ) : (
-                                  <span className="text-text-muted text-xs">
-                                    Ready
-                                  </span>
-                                )
-                              ) : isPending ? (
-                                <div className="flex items-center space-x-2">
-                                  <span className="flex items-center text-success text-xs">
-                                    <CheckCircle2 size={12} className="mr-1" />{" "}
-                                    Pending PR
-                                  </span>
-                                  <button
-                                    onClick={() => handleOpenReview(tc)}
-                                    className="text-text-muted hover:text-primary transition-colors bg-surface-hover hover:bg-primary-light   p-1 rounded"
-                                    title="View/Edit Code"
-                                  >
-                                    <Eye size={14} />
-                                  </button>
-                                  <button
-                                    onClick={() => handleDiscard(tc.id)}
-                                    className="text-text-muted hover:text-danger transition-colors bg-surface-hover hover:bg-danger-soft   p-1 rounded"
-                                    title="Discard"
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
-                                </div>
-                              ) : null}
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="p-6 mt-auto border-t border-border  bg-surface-hover /30">
-                {!showPushBtn ? (
-                  <Button
-                    fullWidth
-                    size="lg"
-                    onClick={handleGenerate}
-                    loading={status === "GENERATING"}
-                    disabled={status !== "IDLE" || selectedCaseIds.length === 0}
-                    className="bg-primary hover:bg-primary-hover text-white shadow-[var(--shadow-float)] hover:-translate-y-0.5 disabled:shadow-none disabled:hover:translate-y-0"
-                  >
-                    {status === "GENERATING" ? (
-                      <>Batch Generating ({selectedCaseIds.length})...</>
-                    ) : (
-                      <>
-                        <Sparkles size={18} /> Ask TESSA to Generate Scripts
-                      </>
-                    )}
-                  </Button>
-                ) : (
-                  <Button
-                    fullWidth
-                    size="lg"
-                    onClick={handlePushToGithub}
-                    loading={status === "PUSHING"}
-                    disabled={status === "PUSHING" || status === "GENERATING"}
-                    className="bg-[var(--success)] hover:bg-[var(--success)] text-white shadow-[var(--shadow-float)] hover:-translate-y-0.5 disabled:shadow-none disabled:hover:translate-y-0"
-                  >
-                    {status === "PUSHING" ? (
-                      <>Creating Pull Request...</>
-                    ) : (
-                      <>
-                        <GitPullRequest size={18} /> Push {pendingCasesCount}{" "}
-                        Scripts to GitHub PR
-                      </>
-                    )}
-                  </Button>
-                )}
-                <p className="text-center text-xs text-text-muted mt-3 flex items-center justify-center">
-                  <Activity size={12} className="mr-1" /> TESSA estimates this
-                  will save {(selectedCaseIds.length || pendingCasesCount) * 45}{" "}
-                  minutes of manual work
-                </p>
-              </div>
-            </div>
+        </div>
+        <div className="bg-surface border border-border rounded-[13px] p-[18px] shadow-sm flex gap-[14px] items-start">
+          <div className="w-[40px] h-[40px] rounded-[11px] bg-surface-2 text-text-main flex items-center justify-center shrink-0">
+            <GitPullRequest size={22} />
           </div>
-
-          {/* Healing Logs & Pipeline */}
-          <div className="space-y-8 flex flex-col">
-            {/* Flakiness Radar */}
-            <div className="bg-surface  rounded-[13px] border border-border/80  shadow-[var(--shadow-float)] flex-1">
-              <div className="px-6 py-4 border-b border-border  flex justify-between items-center bg-surface-hover/50  rounded-t-2xl">
-                <h3 className="font-semibold text-text-main  flex items-center">
-                  <Activity size={18} className="mr-2 text-danger" />{" "}
-                  Flakiness Radar
-                </h3>
-                <span className="text-xs bg-surface-hover  text-text-muted px-2 py-1 rounded-full font-medium">
-                  Top {analytics?.flakiness?.length || 0}
-                </span>
+          <div className="flex-1">
+            <div className="text-[14.5px] font-semibold text-text-main">Push to GitHub</div>
+            <div className="text-[12.5px] text-text-muted m-[4px_0_13px] leading-[1.5]">Open a pull request with the generated suite in your repo.</div>
+            
+            {status === "PUSHING" ? (
+              <div className="inline-flex items-center gap-[8px] h-[36px] px-[16px] rounded-[9px] bg-surface shadow-[inset_0_0_0_1px_var(--border-strong)] text-[13px] font-semibold text-text-muted">
+                <span className="w-[14px] h-[14px] rounded-full border-2 border-border-strong border-t-primary animate-[spin_0.7s_linear_infinite]" />
+                Opening PR...
               </div>
-              <div className="p-0">
-                {!analytics?.flakiness || analytics.flakiness.length === 0 ? (
-                  <div className="p-6 text-center text-text-muted text-sm">
-                    No flaky tests detected yet. Everything is stable!
-                  </div>
-                ) : (
-                  <div className="divide-y divide-border">
-                    {analytics.flakiness.map((item: any) => (
-                      <div
-                        key={item.caseId}
-                        className="p-4 hover:bg-surface-hover  transition-colors flex items-center justify-between group"
-                      >
-                        <div className="flex-1 min-w-0 mr-4">
-                          <h4 className="text-sm font-semibold text-text-main  truncate">
-                            {item.title}
-                          </h4>
-                          <div className="flex items-center mt-1.5 space-x-1">
-                            {item.recentStatuses.map((s: string, i: number) => (
-                              <div
-                                key={i}
-                                className={`w-2 h-2 rounded-full ${s === "PASSED" ? "bg-success shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "bg-danger shadow-[0_0_8px_rgba(239,68,68,0.5)]"}`}
-                                title={s}
-                              ></div>
-                            ))}
-                            <span className="text-[10px] text-text-muted ml-2 font-medium">
-                              Score: {item.flakinessScore}%
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Pipeline Status */}
-            <div className="bg-surface  rounded-[13px] border border-border/80  shadow-[var(--shadow-float)]">
-              <div className="px-6 py-4 border-b border-border  flex justify-between items-center bg-surface-hover/50  rounded-t-2xl">
-                <h3 className="font-semibold text-text-main  flex items-center">
-                  <PlayCircle size={18} className="mr-2 text-primary" />{" "}
-                  Pipeline Orchestration
-                </h3>
-              </div>
-              <div className="p-6 space-y-4">
-                {pipelines.length === 0 ? (
-                  <div className="text-center py-6 text-text-muted text-sm">
-                    No scheduled pipelines yet. Create one above!
-                  </div>
-                ) : (
-                  pipelines.map((pipeline) => (
-                    <div
-                      key={pipeline.id}
-                      className="bg-surface-hover  rounded-xl p-4 border border-border  flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
-                    >
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 rounded-full bg-[#24292F] flex items-center justify-center mr-4 shadow-sm shrink-0">
-                          <svg
-                            viewBox="0 0 24 24"
-                            width="20"
-                            height="20"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            fill="none"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="text-white"
-                          >
-                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                          </svg>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-text-main  text-sm">
-                            {pipeline.title}
-                          </h4>
-                          <p className="text-xs text-text-muted">
-                            Schedule:{" "}
-                            <code className="bg-skip-soft  px-1 rounded">
-                              {pipeline.cron}
-                            </code>
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center space-x-3 w-full md:w-auto justify-end">
-                        <Button
-                          size="sm"
-                          onClick={() => handleTriggerPipeline(pipeline.id)}
-                          className="uppercase tracking-wider bg-info-soft text-primary  hover:bg-info-soft shadow-sm hover:-translate-y-0.5"
-                        >
-                          <PlayCircle size={14} /> Run Now
-                        </Button>
-
-                        <label className="flex items-center cursor-pointer group">
-                          <div className="relative">
-                            <input
-                              type="checkbox"
-                              className="sr-only"
-                              checked={pipeline.isActive}
-                              onChange={(e) =>
-                                handleTogglePipeline(
-                                  pipeline.id,
-                                  e.target.checked,
-                                )
-                              }
-                            />
-                            <div
-                              className={`block w-10 h-6 rounded-full transition-colors ${pipeline.isActive ? "bg-success" : "bg-skip-soft"}`}
-                            ></div>
-                            <div
-                              className={`absolute left-[2px] top-[2px] bg-surface w-5 h-5 rounded-full transition-transform transform ${pipeline.isActive ? "translate-x-4" : ""} shadow-sm`}
-                            ></div>
-                          </div>
-                          <div className="ml-2 text-xs font-bold w-12 text-center">
-                            {pipeline.isActive ? (
-                              <span className="text-success">Active</span>
-                            ) : (
-                              <span className="text-text-muted">Standby</span>
-                            )}
-                          </div>
-                        </label>
-                        <button
-                          onClick={() => handleDeletePipeline(pipeline.id)}
-                          className="text-xs font-bold px-2 py-1.5 text-text-muted hover:text-danger hover:bg-danger-soft  rounded-xl transition-colors flex items-center"
-                          title="Delete Schedule"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+            ) : status === "DONE" && prUrl ? (
+              <a href={prUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-[6px] h-[36px] px-[14px] bg-pass text-white text-[13px] font-semibold rounded-[9px] hover:bg-pass/90 transition-colors shadow-sm">
+                <CheckCircle2 size={18} />
+                View PR
+              </a>
+            ) : (
+              <button 
+                onClick={handlePushToGithub}
+                disabled={pendingCasesCount === 0 || status !== "IDLE"}
+                className="h-[36px] px-[14px] bg-surface text-text-main text-[13px] font-semibold rounded-[9px] shadow-[inset_0_0_0_1px_var(--border-strong)] hover:bg-surface-hover transition-colors flex items-center gap-[6px] disabled:opacity-50"
+              >
+                <GitPullRequest size={18} />
+                Push to GitHub
+              </button>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Review Script Modal */}
-      {reviewCase && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-surface  w-full max-w-4xl rounded-[13px] shadow-[var(--shadow-float)] border border-border/80  overflow-hidden flex flex-col h-[80vh]">
-            <div className="px-6 py-4 border-b border-border  flex justify-between items-center bg-surface-hover /80">
-              <h3 className="font-semibold text-text-main  flex items-center">
-                <Code2 size={18} className="mr-2 text-primary" /> Review
-                Generated Script
-              </h3>
+      {/* pipelines table */}
+      <div className="bg-surface border border-border rounded-[13px] shadow-sm overflow-hidden">
+        <div className="grid grid-cols-[1.6fr_1fr_90px_130px_70px] gap-[14px] p-[10px_18px] text-[10.5px] font-semibold tracking-[0.06em] uppercase text-text-faint border-b border-border bg-surface-hover/30">
+          <div>Pipeline</div>
+          <div>Schedule</div>
+          <div>State</div>
+          <div>Last run</div>
+          <div></div>
+        </div>
+        
+        {pipelines.map(p => {
+          const runState = lastRunIcon(p);
+          const isToggling = pipelineAction?.id === p.id && pipelineAction?.type === "toggle";
+          const isRunning = pipelineAction?.id === p.id && pipelineAction?.type === "run";
+          const isDeleting = pipelineAction?.id === p.id && pipelineAction?.type === "delete";
+
+          return (
+          <div key={p.id} className="grid grid-cols-[1.6fr_1fr_90px_130px_70px] gap-[14px] p-[13px_18px] items-center border-b border-border last:border-0 hover:bg-surface-hover transition-colors">
+            <div className="flex items-center gap-[11px] min-w-0">
+              <div className="w-[32px] h-[32px] rounded-[9px] bg-surface-2 flex items-center justify-center shrink-0">
+                <Zap size={18} className="text-text-muted" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-[13px] font-semibold text-text-main truncate">{p.title}</div>
+                <div className="text-[11px] text-text-faint truncate">
+                  {p.plan?.title || "All automated cases"}
+                </div>
+              </div>
+            </div>
+            <div className="font-mono text-[11.5px] text-text-muted">{p.cron}</div>
+            <div>
               <button
-                onClick={() => setReviewCase(null)}
-                className="text-text-muted hover:text-text-main"
+                type="button"
+                disabled={isToggling || isDeleting}
+                onClick={() => handleTogglePipeline(p)}
+                aria-label={p.isActive ? "Pause pipeline" : "Activate pipeline"}
+                className={`w-[34px] h-[20px] rounded-full relative cursor-pointer transition-colors disabled:opacity-60 ${p.isActive ? 'bg-primary' : 'bg-surface-2'}`}
               >
-                <X size={20} />
+                <div className={`absolute top-[2px] w-[16px] h-[16px] rounded-full bg-white transition-all ${p.isActive ? 'right-[2px]' : 'left-[2px]'}`} />
               </button>
             </div>
-
-            <div className="p-4 bg-surface-hover border-b border-border  text-sm">
-              <span className="font-semibold text-text-main">
-                Test Case:
-              </span>{" "}
-              {reviewCase.title}
+            <div className="flex items-center gap-[6px] text-[12px]">
+              <runState.Icon size={14} className={runState.className} />
+              <span className="text-text-muted truncate">{runState.text}</span>
             </div>
-
-            <div className="flex-1 overflow-hidden relative">
-              <textarea
-                className="w-full h-full p-6 bg-[#0d1117] text-success font-mono text-sm resize-none focus:outline-none"
-                value={reviewScript}
-                onChange={(e) => setReviewScript(e.target.value)}
-                spellCheck={false}
-              />
-            </div>
-
-            <div className="px-6 py-4 border-t border-border  bg-surface-hover /80 flex justify-end space-x-3">
-              <Button variant="ghost" onClick={() => setReviewCase(null)}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSaveReview}
-                loading={isSavingScript}
-                disabled={isSavingScript}
-                className="shadow-[var(--shadow-float)] hover:-translate-y-0.5 disabled:transform-none disabled:shadow-none"
+            <div className="flex gap-[3px] justify-end">
+              <button
+                onClick={() => handleRunPipeline(p)}
+                disabled={!p.isActive || isRunning || isDeleting}
+                className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center text-primary hover:bg-primary-soft transition-colors disabled:opacity-40 disabled:hover:bg-transparent"
+                title={p.isActive ? "Run now" : "Activate pipeline before running"}
               >
-                {!isSavingScript && <Save size={16} />}
-                {isSavingScript ? "Saving..." : "Save Changes"}
-              </Button>
+                {isRunning ? <RefreshCw size={17} className="animate-spin" /> : <Play size={17} />}
+              </button>
+              <button
+                onClick={() => handleDeletePipeline(p)}
+                disabled={isDeleting || isRunning || isToggling}
+                className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center text-text-faint hover:bg-danger-soft hover:text-danger transition-colors disabled:opacity-40"
+                title="Delete pipeline"
+              >
+                {isDeleting ? <RefreshCw size={17} className="animate-spin" /> : <Trash2 size={17} />}
+              </button>
             </div>
           </div>
-        </div>
-      )}
+          );
+        })}
 
-      {/* Create Pipeline Modal */}
+        {pipelines.length === 0 && (
+          <div className="p-8 text-center text-[13px] text-text-muted">No scheduled pipelines found.</div>
+        )}
+      </div>
+
+      {/* create pipeline modal */}
       {isPipelineModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-surface  w-full max-w-md rounded-[13px] shadow-[var(--shadow-float)] border border-border/80  overflow-hidden flex flex-col">
-            <div className="px-6 py-4 border-b border-border  flex justify-between items-center bg-surface-hover ">
-              <h3 className="font-semibold text-text-main  flex items-center">
-                <PlayCircle size={18} className="mr-2 text-primary" /> Create
-                Scheduled Pipeline
-              </h3>
-              <button
-                onClick={() => setIsPipelineModalOpen(false)}
-                className="text-text-muted hover:text-text-main"
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[64px]" style={{ background: "color(display-p3 0 0 0 / 0.4)" }} onClick={() => setIsPipelineModalOpen(false)}>
+          <div 
+            className="w-[440px] bg-surface border border-border rounded-[15px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-[10px] p-[18px_20px_0]">
+              <div className="w-[34px] h-[34px] rounded-[9px] bg-primary-soft text-primary-text flex items-center justify-center">
+                <CalendarClock size={19} />
+              </div>
+              <div className="text-[15.5px] font-semibold text-text-main">New scheduled pipeline</div>
+            </div>
+            
+            <div className="p-[16px_20px] flex flex-col gap-[14px]">
+              <div>
+                <label className="block text-[12px] text-text-muted mb-[6px]">Name</label>
+                <div className="flex items-center h-[40px] px-[13px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] text-[13.5px] focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+                  <input type="text" value={newPipelineTitle} onChange={(e) => setNewPipelineTitle(e.target.value)} className="w-full bg-transparent outline-none text-text-main" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-[12px]">
+                <div>
+                  <label className="block text-[12px] text-text-muted mb-[6px]">Test plan</label>
+                  <div className="relative flex items-center h-[40px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] text-[13px] focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+                    <select
+                      value={selectedPlanId}
+                      onChange={(e) => setSelectedPlanId(e.target.value)}
+                      disabled={testPlans.length === 0}
+                      className="w-full appearance-none bg-transparent outline-none text-text-main disabled:text-text-faint"
+                    >
+                      {testPlans.length === 0 ? (
+                        <option value="">No test plans</option>
+                      ) : (
+                        testPlans.map((plan) => (
+                          <option key={plan.id} value={plan.id}>
+                            {plan.title}
+                          </option>
+                        ))
+                      )}
+                    </select>
+                    <ChevronDown size={17} className="pointer-events-none absolute right-[12px] text-text-faint" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[12px] text-text-muted mb-[6px]">Cron</label>
+                  <div className="flex items-center h-[40px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_2px_var(--ring)] text-[12.5px] font-mono focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+                    <input type="text" value={cron} onChange={(e) => setCron(e.target.value)} className="w-full bg-transparent outline-none text-text-main" />
+                  </div>
+                </div>
+              </div>
+              <div 
+                className="flex items-center gap-[9px] p-[11px_12px] bg-surface-2 rounded-[10px] cursor-pointer"
+                onClick={() => setActivateImmediately(!activateImmediately)}
               >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-text-main  mb-1">
-                  Pipeline Title
-                </label>
-                <input
-                  type="text"
-                  value={newPipelineTitle}
-                  onChange={(e) => setNewPipelineTitle(e.target.value)}
-                  placeholder="e.g. Nightly Regression"
-                  className="w-full bg-surface border border-border/80 rounded-xl px-4 py-3 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 outline-none shadow-inner"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-text-main  mb-1">
-                  Schedule Frequency
-                </label>
-                <select
-                  value={scheduleType}
-                  onChange={(e) => setScheduleType(e.target.value)}
-                  className="w-full bg-surface border border-border/80 rounded-xl px-4 py-3 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 outline-none mb-3 shadow-inner"
-                >
-                  <option value="daily">Daily</option>
-                  <option value="weekly">Weekly</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="custom">Custom (Cron)</option>
-                </select>
-
-                {scheduleType !== "custom" && (
-                  <div className="flex gap-4">
-                    <div className="flex-1">
-                      <label className="block text-xs font-medium text-text-muted  mb-1">
-                        Time (UTC)
-                      </label>
-                      <input
-                        type="time"
-                        value={scheduleTime}
-                        onChange={(e) => setScheduleTime(e.target.value)}
-                        className="w-full bg-surface border border-border/80 rounded-xl px-4 py-3 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 outline-none shadow-inner"
-                      />
-                    </div>
-                    {scheduleType === "weekly" && (
-                      <div className="flex-1">
-                        <label className="block text-xs font-medium text-text-muted  mb-1">
-                          Day of Week
-                        </label>
-                        <select
-                          value={scheduleDay}
-                          onChange={(e) => setScheduleDay(e.target.value)}
-                          className="w-full bg-surface border border-border/80 rounded-xl px-4 py-3 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 outline-none shadow-inner"
-                        >
-                          <option value="1">Monday</option>
-                          <option value="2">Tuesday</option>
-                          <option value="3">Wednesday</option>
-                          <option value="4">Thursday</option>
-                          <option value="5">Friday</option>
-                          <option value="6">Saturday</option>
-                          <option value="0">Sunday</option>
-                        </select>
-                      </div>
-                    )}
-                    {scheduleType === "monthly" && (
-                      <div className="flex-1">
-                        <label className="block text-xs font-medium text-text-muted  mb-1">
-                          Day of Month
-                        </label>
-                        <input
-                          type="number"
-                          min="1"
-                          max="31"
-                          value={scheduleDay}
-                          onChange={(e) => setScheduleDay(e.target.value)}
-                          className="w-full bg-surface border border-border/80 rounded-xl px-4 py-3 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 outline-none shadow-inner"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {scheduleType === "custom" && (
-                  <div>
-                    <input
-                      type="text"
-                      value={customCron}
-                      onChange={(e) => setCustomCron(e.target.value)}
-                      placeholder="0 0 * * *"
-                      className="w-full bg-surface border border-border/80 rounded-xl px-4 py-3 text-[13px] font-semibold text-text-main font-mono focus:ring-4 focus:ring-primary/20 outline-none shadow-inner"
-                    />
-                    <p className="text-xs text-text-muted mt-2">
-                      Example: <code>0 0 * * *</code> (Runs every midnight UTC).
-                    </p>
-                  </div>
-                )}
-
-                {scheduleType !== "custom" && (
-                  <p className="text-xs text-text-muted mt-3 font-mono bg-surface-hover  p-2 rounded">
-                    Generated Cron: {generateCron()}
-                  </p>
-                )}
+                <div className={`w-[34px] h-[20px] rounded-full relative transition-colors ${activateImmediately ? 'bg-primary' : 'bg-surface-hover border border-border'}`}>
+                  <div className={`absolute top-[2px] w-[16px] h-[16px] rounded-full bg-white transition-all ${activateImmediately ? 'right-[2px]' : 'left-[2px]'}`} />
+                </div>
+                <span className="text-[12.5px] font-medium text-text-main">Activate immediately</span>
               </div>
             </div>
-
-            <div className="px-6 py-4 border-t border-border  bg-surface-hover  flex justify-end space-x-3">
-              <Button
-                variant="ghost"
+            
+            <div className="flex justify-end gap-[9px] p-[14px_20px] border-t border-border bg-surface">
+              <button 
                 onClick={() => setIsPipelineModalOpen(false)}
+                className="h-[36px] px-[14px] rounded-[9px] font-semibold text-[13px] bg-transparent hover:bg-surface-hover text-text-main transition-colors"
               >
                 Cancel
-              </Button>
-              <Button
+              </button>
+              <button 
                 onClick={handleCreatePipeline}
-                loading={isCreatingPipeline}
                 disabled={
-                  isCreatingPipeline ||
-                  !newPipelineTitle ||
-                  (scheduleType === "custom" && !customCron)
+                  creatingPipeline ||
+                  !newPipelineTitle.trim() ||
+                  !cron.trim() ||
+                  !selectedPlanId
                 }
-                className="shadow-[var(--shadow-float)] hover:-translate-y-0.5 disabled:transform-none"
+                className="h-[36px] px-[16px] rounded-[9px] font-semibold text-[13px] bg-primary text-white flex items-center justify-center gap-[6px] hover:bg-primary-hover transition-colors shadow-sm disabled:opacity-50"
               >
-                {!isCreatingPipeline && <Save size={16} />}
-                {isCreatingPipeline ? "Creating..." : "Save Pipeline"}
-              </Button>
+                {creatingPipeline ? <RefreshCw size={17} className="animate-spin" /> : <Check size={17} />}
+                {creatingPipeline ? "Creating..." : "Create pipeline"}
+              </button>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }

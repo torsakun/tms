@@ -1,26 +1,21 @@
 "use client";
 
 import React, { useState, useEffect, use } from "react";
-import {
-  GitBranch,
-  Save,
-  CheckCircle2,
-  AlertCircle,
-  Loader2,
-} from "lucide-react";
+import { toast } from "sonner";
+import { Bug, GitMerge, MessageSquare, CheckCircle2, Copy, Check, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
-export default function ProjectIntegrationsPage({
-  params,
-}: {
-  params: Promise<{ code: string }>;
-}) {
+const INTEGRATION_ICONS: Record<string, LucideIcon> = {
+  jira: Bug,
+  github: GitMerge,
+  teams: MessageSquare,
+};
+
+export default function ProjectIntegrationsPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = use(params);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
 
   const [settings, setSettings] = useState({
     githubOwner: "",
@@ -28,7 +23,14 @@ export default function ProjectIntegrationsPage({
     githubToken: "",
     githubWorkflowId: "",
     msTeamsWebhookUrl: "",
+    webhookUrl: "https://hooks.checkout.dev/qmaster/runs"
   });
+
+  const [integrations, setIntegrations] = useState([
+    { id: 'jira', name: 'Jira', desc: 'Create & sync defects with Jira issues', icon: 'bug_report', iconBg: 'var(--primary-soft)', iconColor: 'var(--primary-text)', connected: true, action: 'Configure' },
+    { id: 'github', name: 'GitHub', desc: 'Link runs to commits, PRs and checks', icon: 'merge', iconBg: 'var(--surface-2)', iconColor: 'var(--text-main)', connected: true, action: 'Configure' },
+    { id: 'teams', name: 'Microsoft Teams', desc: 'Post run summaries to a channel', icon: 'forum', iconBg: 'var(--info-soft)', iconColor: 'var(--info)', connected: false, action: 'Connect' },
+  ]);
 
   useEffect(() => {
     async function load() {
@@ -37,13 +39,20 @@ export default function ProjectIntegrationsPage({
         if (res.ok) {
           const data = await res.json();
           const integ = data.integrations || {};
-          setSettings({
+          setSettings(prev => ({
+            ...prev,
             githubOwner: integ.githubOwner || "",
             githubRepo: integ.githubRepo || "",
             githubToken: integ.githubToken || "",
             githubWorkflowId: integ.githubWorkflowId || "",
             msTeamsWebhookUrl: integ.msTeamsWebhookUrl || "",
-          });
+          }));
+          
+          setIntegrations(prev => prev.map(i => {
+            if (i.id === 'github' && integ.githubOwner) return { ...i, connected: true };
+            if (i.id === 'teams' && integ.msTeamsWebhookUrl) return { ...i, connected: true };
+            return i;
+          }));
         }
       } catch (err) {
         console.error("Failed to load settings", err);
@@ -56,9 +65,6 @@ export default function ProjectIntegrationsPage({
 
   const handleSave = async () => {
     setIsSaving(true);
-    setError("");
-    setSuccess("");
-
     try {
       const res = await fetch(`/api/projects/${code}/integrations`, {
         method: "PUT",
@@ -69,347 +75,144 @@ export default function ProjectIntegrationsPage({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to save settings");
 
-      setSuccess("Integrations saved successfully!");
-      setTimeout(() => setSuccess(""), 3000);
+      toast.success("Integrations saved successfully!");
     } catch (err: any) {
-      setError(err.message);
+      toast.error(err.message);
     } finally {
       setIsSaving(false);
     }
   };
 
+  const toggleIntegration = (id: string) => {
+    setIntegrations(prev => prev.map(i => i.id === id ? { ...i, connected: !i.connected } : i));
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Loader2 className="animate-spin text-primary" />
+        <div className="animate-spin w-8 h-8 rounded-full border-4 border-primary border-t-transparent"></div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-8 overflow-y-auto h-full pb-20">
-      <header>
-        <h1 className="text-2xl font-bold text-text-main flex items-center">
-          <GitBranch className="mr-3 text-text-main dark:text-text-main" />
-          Integrations
-        </h1>
-        <p className="text-sm text-text-muted mt-2">
-          Configure external services and tools for your project.
-        </p>
-      </header>
+    <div className="animate-in fade-in duration-300">
+      <div className="mb-[6px] text-[17px] font-semibold tracking-[-0.01em] text-text-main">Integrations</div>
+      <div className="text-[13.5px] text-text-muted mb-[22px]">Connect QMaster to the tools your team already uses. Defects sync both ways.</div>
 
-      {error && (
-        <div className="p-4 bg-danger-soft text-danger-foreground rounded-xl border border-danger/25 flex items-center shadow-inner">
-          <AlertCircle size={18} className="mr-2" /> {error}
-        </div>
-      )}
-
-      {success && (
-        <div className="p-4 bg-success-soft text-success-foreground rounded-xl border border-success/25 flex items-center shadow-inner">
-          <CheckCircle2 size={18} className="mr-2" /> {success}
-        </div>
-      )}
-
-      <div className="bg-surface rounded-2xl shadow-premium border border-border/80 p-6 space-y-6 animate-in zoom-in-95 duration-200">
-        <h2 className="text-lg font-bold text-text-main mb-4 border-b border-border/80 pb-3">
-          GitHub Setup
-        </h2>
-        <div className="grid grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="text-[13px] font-bold text-text-main uppercase tracking-wider">
-              GitHub Owner
-            </label>
-            <input
-              type="text"
-              value={settings.githubOwner}
-              onChange={(e) =>
-                setSettings({ ...settings, githubOwner: e.target.value })
-              }
-              placeholder="e.g., torsakun"
-              className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
-            />
-            <p className="text-xs text-text-muted">
-              The organization or user account name.
-            </p>
+      <div className="flex flex-col gap-[14px]">
+        {integrations.map((i) => {
+          const Icon = INTEGRATION_ICONS[i.id];
+          return (
+          <div key={i.id} className="flex items-center gap-[15px] p-[16px_18px] bg-surface border border-border rounded-[13px] shadow-sm">
+            <div className="w-[42px] h-[42px] rounded-[11px] flex items-center justify-center shrink-0" style={{ background: i.iconBg }}>
+              {Icon && <Icon size={23} style={{ color: i.iconColor }} />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-[9px]">
+                <span className="text-[14.5px] font-semibold text-text-main">{i.name}</span>
+                {i.connected && (
+                  <span className="inline-flex items-center gap-[4px] text-[10.5px] font-bold p-[2px_8px] rounded-full bg-success-soft text-success">
+                    <CheckCircle2 size={12} />Connected
+                  </span>
+                )}
+              </div>
+              <div className="text-[12.5px] text-text-muted mt-[2px]">{i.desc}</div>
+            </div>
+            <div className="flex items-center gap-[14px]">
+              <span className={`text-[12px] font-semibold ${i.connected ? 'text-text-muted' : 'text-primary-text'}`}>{i.action}</span>
+              <div 
+                className={`w-[44px] h-[24px] rounded-full relative cursor-pointer transition-colors ${i.connected ? 'bg-primary' : 'bg-surface-2'}`}
+                onClick={() => toggleIntegration(i.id)}
+              >
+                <div className={`absolute top-[2px] w-[20px] h-[20px] rounded-full bg-white transition-all ${i.connected ? 'right-[2px]' : 'left-[2px]'}`} />
+              </div>
+            </div>
           </div>
-
-          <div className="space-y-2">
-            <label className="text-[13px] font-bold text-text-main uppercase tracking-wider">
-              GitHub Repository Name
-            </label>
-            <input
-              type="text"
-              value={settings.githubRepo}
-              onChange={(e) =>
-                setSettings({ ...settings, githubRepo: e.target.value })
-              }
-              placeholder="e.g., ai_testing"
-              className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
-            />
-            <p className="text-xs text-text-muted">
-              The name of the target repository.
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-[13px] font-bold text-text-main uppercase tracking-wider">
-            GitHub Personal Access Token
-          </label>
-          <input
-            type="password"
-            value={settings.githubToken}
-            onChange={(e) =>
-              setSettings({ ...settings, githubToken: e.target.value })
-            }
-            placeholder="ghp_..."
-            className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
-          />
-          <p className="text-xs text-text-muted">
-            A token with 'repo' scope access. Leave blank to use the global
-            token from .env.
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <label className="text-[13px] font-bold text-text-main uppercase tracking-wider">
-            Actions Workflow Filename
-          </label>
-          <input
-            type="text"
-            value={settings.githubWorkflowId}
-            onChange={(e) =>
-              setSettings({ ...settings, githubWorkflowId: e.target.value })
-            }
-            placeholder="e.g., playwright.yml"
-            className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
-          />
-          <p className="text-xs text-text-muted">
-            Optional. Specify a custom workflow YAML file name. Defaults to
-            playwright.yml
-          </p>
-        </div>
-
-        <h2 className="text-lg font-bold text-text-main mt-8 mb-4 border-b border-border/80 pb-3">
-          Microsoft Teams Notifications
-        </h2>
-        <div className="space-y-2">
-          <label className="text-[13px] font-bold text-text-main uppercase tracking-wider">
-            MS Teams Incoming Webhook URL
-          </label>
-          <input
-            type="text"
-            value={settings.msTeamsWebhookUrl}
-            onChange={(e) =>
-              setSettings({ ...settings, msTeamsWebhookUrl: e.target.value })
-            }
-            placeholder="https://your-company.webhook.office.com/..."
-            className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
-          />
-          <p className="text-xs text-text-muted">
-            When a Test Run completes, a summary card will be posted to this
-            channel.
-          </p>
-        </div>
-
-        <div className="pt-8 border-t border-border/80 flex justify-end">
-          <Button
-            variant="primary"
-            onClick={handleSave}
-            loading={isSaving}
-            className="shadow-premium hover:-translate-y-0.5"
-          >
-            {!isSaving && <Save size={16} />}
-            Save Settings
-          </Button>
-        </div>
+          );
+        })}
       </div>
 
-      {/* Setup Instructions Section */}
-      <div className="bg-surface rounded-2xl shadow-premium border border-border/80 p-6 mt-8 space-y-6 animate-in zoom-in-95 duration-200">
-        <header>
-          <h2 className="text-xl font-bold text-text-main">
-            Setup Instructions for GitHub Repository
-          </h2>
-          <p className="text-sm text-text-muted mt-2">
-            To allow your GitHub repository to automatically report Playwright
-            test results back to TESSA, add the following files to your
-            repository.
-          </p>
-        </header>
+      <div className="mt-[30px] mb-[6px] text-[15px] font-semibold text-text-main">Webhook</div>
+      <div className="text-[13px] text-text-muted mb-[12px]">POST run results to your endpoint on completion.</div>
+      <div className="flex gap-[10px] items-center">
+        <div className="flex-1 flex items-center h-[42px] px-[14px] rounded-[11px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] font-mono text-[12.5px] text-text-muted focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+           <input type="text" value={settings.webhookUrl} onChange={(e) => setSettings({...settings, webhookUrl: e.target.value})} className="w-full bg-transparent outline-none" />
+        </div>
+        <Button
+          variant="secondary"
+          className="h-[42px] rounded-[11px]"
+          onClick={() => {
+            navigator.clipboard.writeText(settings.webhookUrl);
+            toast.success("Copied to clipboard");
+          }}
+        >
+          <Copy size={18} />Copy
+        </Button>
+      </div>
 
-        <div className="space-y-6">
-          {/* Step 1 */}
-          <div>
-            <h3 className="text-[14px] font-bold text-text-main mb-2">
-              1. Add Custom Reporter (<code>tessa-reporter.ts</code>)
-            </h3>
-            <p className="text-xs text-text-muted mb-3">
-              Save this file in the root of your Playwright project. It sends
-              pass/fail logs back to our webhook.
-            </p>
-            <div className="relative group">
-              <textarea
-                readOnly
-                className="w-full h-64 p-4 bg-[#0d1117] border border-slate-800/80 rounded-xl text-xs font-mono leading-relaxed text-[#c9d1d9] resize-none focus:outline-none shadow-inner"
-                value={`import { Reporter, TestCase, TestResult } from '@playwright/test/reporter';
-
-class TessaReporter implements Reporter {
-  private apiUrl = process.env.TESSA_API_URL || '';
-  private runId = process.env.TESSA_RUN_ID;
-
-  async onTestEnd(test: TestCase, result: TestResult) {
-    if (!this.runId || !this.apiUrl) return;
-
-    // Extract Case ID from test title or file name
-    const filename = test.location.file.split(/[\\/]/).pop() || '';
-    const match = test.title.match(/([A-Z0-9]+-[A-Za-z0-9]{4})/i) || 
-                  filename.match(/([A-Z0-9]+-[A-Za-z0-9]{4})/i);
-    const caseId = match ? match[1] : null;
-
-    if (caseId) {
-      const status = result.status === 'passed' ? 'PASSED' : 
-                     result.status === 'skipped' ? 'SKIPPED' : 'FAILED';
-      
-      const logs = result.errors.map(e => e.message).join('\\n') || 'Test completed successfully.';
-
-      try {
-        await fetch(\`\${this.apiUrl}/api/webhooks/playwright/reporter\`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ runId: this.runId, caseId, status, logs })
-        });
-      } catch (err) {
-        console.error('Failed to report to TESSA:', err);
-      }
-    }
-  }
-}
-export default TessaReporter;`}
-              />
-              <button
-                onClick={(e) => {
-                  const target = e.currentTarget;
-                  navigator.clipboard.writeText(
-                    target.previousElementSibling!.textContent || "",
-                  );
-                  const originalText = target.innerHTML;
-                  target.innerHTML = "Copied!";
-                  setTimeout(() => {
-                    target.innerHTML = originalText;
-                  }, 2000);
-                }}
-                className="absolute top-4 right-4 px-3 py-1.5 bg-surface-hover text-text-muted rounded-md text-xs font-bold hover:bg-border hover:text-text-main transition-colors shadow-sm"
-              >
-                Copy
-              </button>
-            </div>
-          </div>
-
-          {/* Step 2 */}
-          <div>
-            <h3 className="text-[14px] font-bold text-text-main mb-2">
-              2. GitHub Actions Workflow (
-              <code>.github/workflows/playwright.yml</code>)
-            </h3>
-            <p className="text-xs text-text-muted mb-3">
-              Create or update this workflow file to listen for API triggers
-              from TESSA.
-            </p>
-            <div className="relative group">
-              <textarea
-                readOnly
-                className="w-full h-[400px] p-4 bg-[#0d1117] border border-slate-800/80 rounded-xl text-xs font-mono leading-relaxed text-[#c9d1d9] resize-none focus:outline-none shadow-inner"
-                value={`name: Playwright Tests
-on:
-  workflow_dispatch:
-    inputs:
-      run_id:
-        description: 'TESSA Run ID'
-        required: true
-      case_ids:
-        description: 'TESSA Case IDs (space separated)'
-        required: true
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-      
-      - name: Install dependencies
-        run: npm install
-
-      - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
-
-      - name: Run Playwright tests
-        run: |
-          PATTERN=$(echo "\${{ github.event.inputs.case_ids }}" | tr ' ' '|')
-          npx playwright test -g "$PATTERN" --reporter="./tessa-reporter.ts,html"
-        env:
-          TESSA_RUN_ID: \${{ github.event.inputs.run_id }}
-          TESSA_API_URL: \${{ secrets.TESSA_API_URL }}
-
-      - name: Upload HTML Report to TESSA
-        if: always()
-        run: |
-          if [ -d "playwright-report" ]; then
-            cd playwright-report
-            zip -r report.zip .
-            curl -X POST -F "file=@report.zip" \${{ secrets.TESSA_API_URL }}/api/webhooks/playwright/\${{ github.event.inputs.run_id }}/report
-          else
-            echo "No playwright-report directory found."
-          fi`}
-              />
-              <button
-                onClick={(e) => {
-                  const target = e.currentTarget;
-                  navigator.clipboard.writeText(
-                    target.previousElementSibling!.textContent || "",
-                  );
-                  const originalText = target.innerHTML;
-                  target.innerHTML = "Copied!";
-                  setTimeout(() => {
-                    target.innerHTML = originalText;
-                  }, 2000);
-                }}
-                className="absolute top-4 right-4 px-3 py-1.5 bg-surface-hover text-text-muted rounded-md text-xs font-bold hover:bg-border hover:text-text-main transition-colors shadow-sm"
-              >
-                Copy
-              </button>
-            </div>
-          </div>
-
-          {/* Step 3 */}
-          <div>
-            <h3 className="text-[14px] font-bold text-text-main mb-2">
-              3. Configure GitHub Secrets
-            </h3>
-            <p className="text-xs text-text-muted">
-              In your GitHub repository, go to{" "}
-              <strong>Settings &gt; Secrets and variables &gt; Actions</strong>{" "}
-              and add a new repository secret:
-            </p>
-            <div className="mt-3 p-5 bg-surface-hover/50 border border-border/80 rounded-xl text-[13px]">
-              <div>
-                <strong className="text-text-main">Name:</strong>{" "}
-                <code className="bg-surface-hover px-1 py-0.5 rounded text-text-main">
-                  TESSA_API_URL
-                </code>
+      {integrations.find(i => i.id === 'github')?.connected && (
+        <div className="mt-[30px]">
+          <div className="mb-[6px] text-[15px] font-semibold text-text-main">GitHub Setup</div>
+          <div className="text-[13px] text-text-muted mb-[12px]">Configure your repository to link runs and issues.</div>
+          
+          <div className="grid grid-cols-2 gap-[12px] mb-[12px]">
+            <div>
+              <label className="block text-[12px] text-text-muted mb-[6px]">Owner</label>
+              <div className="flex items-center h-[40px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] text-[13px] focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+                <input type="text" value={settings.githubOwner} onChange={(e) => setSettings({...settings, githubOwner: e.target.value})} placeholder="e.g. torsakun" className="w-full bg-transparent outline-none text-text-main" />
               </div>
-              <div className="mt-1">
-                <strong className="text-text-main">Value:</strong> (The URL
-                where your TESSA instance is hosted, e.g.,{" "}
-                <code>https://tms.yourdomain.com</code>)
+            </div>
+            <div>
+              <label className="block text-[12px] text-text-muted mb-[6px]">Repository</label>
+              <div className="flex items-center h-[40px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] text-[13px] focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+                <input type="text" value={settings.githubRepo} onChange={(e) => setSettings({...settings, githubRepo: e.target.value})} placeholder="e.g. ai_testing" className="w-full bg-transparent outline-none text-text-main" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-[12px]">
+            <div>
+              <label className="block text-[12px] text-text-muted mb-[6px]">Access Token</label>
+              <div className="flex items-center h-[40px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] text-[13px] focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+                <input type="password" value={settings.githubToken} onChange={(e) => setSettings({...settings, githubToken: e.target.value})} placeholder="ghp_..." className="w-full bg-transparent outline-none text-text-main" />
+              </div>
+            </div>
+            <div>
+              <label className="block text-[12px] text-text-muted mb-[6px]">Workflow File</label>
+              <div className="flex items-center h-[40px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] text-[13px] focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+                <input type="text" value={settings.githubWorkflowId} onChange={(e) => setSettings({...settings, githubWorkflowId: e.target.value})} placeholder="playwright.yml" className="w-full bg-transparent outline-none text-text-main" />
               </div>
             </div>
           </div>
         </div>
+      )}
+
+      {integrations.find(i => i.id === 'teams')?.connected && (
+        <div className="mt-[30px]">
+          <div className="mb-[6px] text-[15px] font-semibold text-text-main">Microsoft Teams Notifications</div>
+          <div className="text-[13px] text-text-muted mb-[12px]">Incoming webhook URL for run summaries.</div>
+          <div className="flex items-center h-[40px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] text-[13px] focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+            <input type="text" value={settings.msTeamsWebhookUrl} onChange={(e) => setSettings({...settings, msTeamsWebhookUrl: e.target.value})} placeholder="https://your-company.webhook.office.com/..." className="w-full bg-transparent outline-none text-text-main" />
+          </div>
+        </div>
+      )}
+
+      <div className="mt-[28px] flex justify-end gap-[9px]">
+        <Button variant="ghost">
+          Discard
+        </Button>
+        <Button
+          variant="primary"
+          onClick={handleSave}
+          disabled={isSaving}
+          loading={isSaving}
+        >
+          {!isSaving && <Check size={18} />}
+          Save changes
+        </Button>
       </div>
+
     </div>
   );
 }

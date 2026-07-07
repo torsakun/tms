@@ -1,0 +1,197 @@
+/* ============================================================
+   QMaster — "Instrument" tokens, bridged onto the S9 Headless UI
+   design system. My OKLCH ramps OVERRIDE S9's RGB ramps; S9's own
+   semantic aliases + components inherit them automatically.
+   Self-contained .theme-light / .theme-dark so light & dark frames
+   can sit side-by-side on one page. Root font-size = 14px.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ---- Theme-independent: OKLCH ramps + radius + font ----
+   (S9 keeps ramps fixed across themes; only aliases flip.) */
+.theme-light, .theme-dark {
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --white-100: oklch(1 0 0);
+  --black-alpha-5: rgba(8,12,22,.05);  --black-alpha-10: rgba(8,12,22,.10);
+  --black-alpha-20: rgba(8,12,22,.20); --black-alpha-40: rgba(8,12,22,.42);
+  --black-alpha-60: rgba(8,12,22,.6);  --black-alpha-80: rgba(8,12,22,.8);
+  --white-alpha-10: rgba(255,255,255,.1); --white-alpha-20: rgba(255,255,255,.2);
+
+  /* graphite neutrals — cool, faint blue cast */
+  --neutral-50:  oklch(0.975 0.004 256);
+  --neutral-100: oklch(0.945 0.006 256);
+  --neutral-200: oklch(0.905 0.008 256);
+  --neutral-300: oklch(0.852 0.011 257);
+  --neutral-400: oklch(0.705 0.014 259);
+  --neutral-500: oklch(0.585 0.016 260);
+  --neutral-600: oklch(0.485 0.017 261);
+  --neutral-700: oklch(0.372 0.016 262);
+  --neutral-800: oklch(0.262 0.014 263);
+  --neutral-900: oklch(0.205 0.013 263);
+  --neutral-950: oklch(0.165 0.012 264);
+
+  /* cobalt */
+  --blue-50:  oklch(0.965 0.018 256); --blue-100: oklch(0.928 0.040 256);
+  --blue-200: oklch(0.860 0.072 256); --blue-300: oklch(0.760 0.110 256);
+  --blue-400: oklch(0.645 0.150 256); --blue-500: oklch(0.550 0.172 256);
+  --blue-600: oklch(0.478 0.162 257); --blue-700: oklch(0.400 0.138 258);
+  --blue-800: oklch(0.320 0.108 260); --blue-900: oklch(0.262 0.082 262);
+  --blue-950: oklch(0.205 0.060 264);
+
+  /* green (pass/success) */
+  --green-50:  oklch(0.960 0.030 152); --green-100: oklch(0.918 0.058 152);
+  --green-200: oklch(0.852 0.098 152); --green-300: oklch(0.760 0.128 152);
+  --green-400: oklch(0.660 0.140 152); --green-500: oklch(0.580 0.140 152);
+  --green-600: oklch(0.500 0.126 153); --green-700: oklch(0.420 0.108 154);
+  --green-800: oklch(0.330 0.086 155); --green-900: oklch(0.270 0.068 156);
+  --green-950: oklch(0.205 0.050 157);
+
+  /* red (fail/danger) */
+  --red-50:  oklch(0.962 0.020 25); --red-100: oklch(0.918 0.046 25);
+  --red-200: oklch(0.846 0.090 25); --red-300: oklch(0.742 0.150 26);
+  --red-400: oklch(0.640 0.192 27); --red-500: oklch(0.572 0.212 27);
+  --red-600: oklch(0.500 0.200 27); --red-700: oklch(0.420 0.168 27);
+  --red-800: oklch(0.340 0.132 27); --red-900: oklch(0.282 0.102 26);
+  --red-950: oklch(0.212 0.072 26);
+
+  /* amber (blocked/warning) */
+  --amber-50:  oklch(0.972 0.034 88); --amber-100: oklch(0.940 0.064 84);
+  --amber-200: oklch(0.892 0.104 82); --amber-300: oklch(0.842 0.130 80);
+  --amber-400: oklch(0.800 0.142 74); --amber-500: oklch(0.760 0.150 70);
+  --amber-600: oklch(0.648 0.132 62); --amber-700: oklch(0.530 0.110 58);
+  --amber-800: oklch(0.422 0.090 58); --amber-900: oklch(0.342 0.072 60);
+  --amber-950: oklch(0.252 0.052 62);
+
+  /* cyan (info/flaky) */
+  --cyan-50:  oklch(0.962 0.030 228); --cyan-100: oklch(0.918 0.052 230);
+  --cyan-200: oklch(0.852 0.082 231); --cyan-300: oklch(0.770 0.102 232);
+  --cyan-400: oklch(0.682 0.110 233); --cyan-500: oklch(0.600 0.110 234);
+  --cyan-600: oklch(0.520 0.100 235); --cyan-700: oklch(0.432 0.082 236);
+  --cyan-800: oklch(0.344 0.068 237); --cyan-900: oklch(0.272 0.052 238);
+  --cyan-950: oklch(0.205 0.040 240);
+
+  /* orange (invalid) + violet kept only for chart series 5 */
+  --orange-100: oklch(0.918 0.060 56); --orange-500: oklch(0.685 0.165 50);
+  --orange-700: oklch(0.505 0.130 50); --orange-900: oklch(0.310 0.082 50);
+  --purple-100: oklch(0.918 0.055 286); --purple-400: oklch(0.640 0.150 285);
+  --purple-500: oklch(0.560 0.165 285);
+
+  --radius-xs: 4px; --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px;
+  --radius-xl: 24px; --radius-pill: 999px; --radius-full: 9999px;
+  --radius-control: 9px; --radius-card: 13px;
+}
+
+/* ============== LIGHT — bright cool lab bench ============== */
+.theme-light {
+  color-scheme: light;
+  /* S9 semantic aliases (light) */
+  --bg-canvas: var(--white-100); --bg-sunken: var(--neutral-50);
+  --bg-surface: var(--white-100); --bg-raised: var(--white-100);
+  --bg-inverse: var(--neutral-950); --bg-overlay: var(--black-alpha-40);
+  --border-default: var(--neutral-200); --border-subtle: var(--neutral-100);
+  --border-strong: var(--neutral-300); --border-focus: var(--blue-500);
+  --content-primary: var(--neutral-950); --content-secondary: var(--neutral-600);
+  --content-tertiary: var(--neutral-500); --content-disabled: var(--neutral-400);
+  --content-link: var(--blue-600); --content-inverse: var(--white-100); --content-on-accent: var(--white-100);
+  --primary-solid: var(--blue-500); --primary-solid-hover: var(--blue-600); --primary-solid-active: var(--blue-700);
+  --primary-soft: var(--blue-100); --primary-soft-hover: var(--blue-200); --primary-on-soft: var(--blue-700);
+  --primary-on-solid: var(--white-100); --primary-border: var(--blue-200);
+  --secondary-soft: var(--neutral-50); --secondary-soft-hover: var(--neutral-100);
+  --secondary-solid: var(--neutral-100); --secondary-solid-hover: var(--neutral-200);
+  --secondary-solid-active: var(--neutral-300); --secondary-on-solid: var(--neutral-900);
+  --secondary-on-soft: var(--neutral-700); --secondary-border: var(--neutral-200);
+  --success-solid: var(--green-500); --success-solid-hover: var(--green-600); --success-soft: var(--green-100);
+  --success-on-soft: var(--green-700); --success-on-solid: var(--white-100); --success-border: var(--green-300);
+  --danger-solid: var(--red-500); --danger-solid-hover: var(--red-600); --danger-solid-active: var(--red-700);
+  --danger-soft: var(--red-100); --danger-on-soft: var(--red-700); --danger-on-solid: var(--white-100); --danger-border: var(--red-300);
+  --warning-solid: var(--amber-500); --warning-solid-hover: var(--amber-600); --warning-soft: var(--amber-100);
+  --warning-on-soft: var(--amber-700); --warning-on-solid: var(--neutral-950); --warning-border: var(--amber-300);
+  --info-solid: var(--cyan-500); --info-soft: var(--cyan-100); --info-on-soft: var(--cyan-700);
+  --info-on-solid: var(--white-100); --info-border: var(--cyan-300);
+  --series-1: var(--blue-500); --series-2: var(--green-500); --series-3: var(--amber-500);
+  --series-4: var(--neutral-500); --series-5: var(--purple-500); --series-6: var(--cyan-500);
+  --axis: var(--neutral-500); --grid: var(--neutral-100); --track: var(--neutral-100);
+  --up: var(--green-600); --down: var(--red-500);
+
+  /* QMaster helper semantics */
+  --bg: var(--neutral-50); --surface: var(--white-100);
+  --surface-2: var(--neutral-100); --surface-hover: var(--neutral-100); --sidebar: var(--white-100);
+  --border: var(--neutral-200); --text: var(--neutral-950);
+  --text-muted: var(--neutral-600); --text-faint: var(--neutral-500);
+  --primary: var(--blue-500); --primary-hover: var(--blue-600); --primary-active: var(--blue-700);
+  --primary-fg: var(--white-100); --primary-text: var(--blue-700); --ring: var(--blue-500);
+  --pass: var(--green-600); --pass-soft: var(--green-100);
+  --fail: var(--red-500);   --fail-soft: var(--red-100);
+  --warn: var(--amber-700); --warn-soft: var(--amber-100);
+  --skip: var(--neutral-500); --skip-soft: var(--neutral-100);
+  --info: var(--cyan-600);  --info-soft-fill: var(--cyan-100);
+  --invalid: var(--orange-700); --invalid-soft: var(--orange-100);
+  --heat-0: oklch(0.62 0.20 27); --heat-1: oklch(0.74 0.15 52);
+  --heat-2: oklch(0.85 0.12 92); --heat-3: oklch(0.74 0.13 150); --heat-4: oklch(0.58 0.14 152);
+  --shadow-sm: 0 1px 2px rgba(18,24,44,.06);
+  --shadow-md: 0 1px 2px rgba(18,24,44,.05), 0 8px 24px rgba(18,24,44,.07);
+  --shadow-lg: 0 16px 40px rgba(18,24,44,.16);
+}
+
+/* ============== DARK — control room at night ============== */
+.theme-dark {
+  color-scheme: dark;
+  --bg-canvas: var(--neutral-950); --bg-sunken: var(--neutral-950);
+  --bg-surface: var(--neutral-900); --bg-raised: var(--neutral-800);
+  --bg-inverse: var(--white-100); --bg-overlay: var(--black-alpha-60);
+  --border-default: var(--neutral-800); --border-subtle: var(--neutral-800);
+  --border-strong: var(--neutral-700); --border-focus: var(--blue-400);
+  --content-primary: var(--neutral-50); --content-secondary: var(--neutral-300);
+  --content-tertiary: var(--neutral-400); --content-disabled: var(--neutral-600);
+  --content-link: var(--blue-300); --content-inverse: var(--neutral-950); --content-on-accent: var(--white-100);
+  --primary-solid: var(--blue-500); --primary-solid-hover: var(--blue-400); --primary-solid-active: var(--blue-300);
+  --primary-soft: var(--blue-900); --primary-soft-hover: var(--blue-800); --primary-on-soft: var(--blue-200);
+  --primary-on-solid: var(--white-100); --primary-border: var(--blue-800);
+  --secondary-soft: var(--neutral-900); --secondary-soft-hover: var(--neutral-800);
+  --secondary-solid: var(--neutral-800); --secondary-solid-hover: var(--neutral-700);
+  --secondary-solid-active: var(--neutral-600); --secondary-on-solid: var(--neutral-100);
+  --secondary-on-soft: var(--neutral-300); --secondary-border: var(--neutral-700);
+  --success-solid: var(--green-400); --success-solid-hover: var(--green-300); --success-soft: var(--green-950);
+  --success-on-soft: var(--green-200); --success-on-solid: var(--white-100); --success-border: var(--green-800);
+  --danger-solid: var(--red-400); --danger-solid-hover: var(--red-300); --danger-solid-active: var(--red-300);
+  --danger-soft: var(--red-950); --danger-on-soft: var(--red-200); --danger-on-solid: var(--white-100); --danger-border: var(--red-800);
+  --warning-solid: var(--amber-400); --warning-solid-hover: var(--amber-300); --warning-soft: var(--amber-950);
+  --warning-on-soft: var(--amber-200); --warning-on-solid: var(--neutral-950); --warning-border: var(--amber-800);
+  --info-solid: var(--cyan-400); --info-soft: var(--cyan-950); --info-on-soft: var(--cyan-200);
+  --info-on-solid: var(--white-100); --info-border: var(--cyan-800);
+  --series-1: var(--blue-400); --series-2: var(--green-400); --series-3: var(--amber-400);
+  --series-4: var(--neutral-400); --series-5: var(--purple-400); --series-6: var(--cyan-400);
+  --axis: var(--neutral-400); --grid: var(--neutral-800); --track: var(--neutral-800);
+  --up: var(--green-400); --down: var(--red-400);
+
+  --bg: var(--neutral-950); --surface: var(--neutral-900);
+  --surface-2: var(--neutral-800); --surface-hover: var(--neutral-800); --sidebar: var(--neutral-900);
+  --border: var(--neutral-800); --text: var(--neutral-50);
+  --text-muted: var(--neutral-300); --text-faint: var(--neutral-400);
+  --primary: var(--blue-500); --primary-hover: var(--blue-400); --primary-active: var(--blue-300);
+  --primary-fg: var(--white-100); --primary-text: var(--blue-300); --ring: var(--blue-400);
+  --pass: var(--green-400); --pass-soft: var(--green-950);
+  --fail: var(--red-400);   --fail-soft: var(--red-950);
+  --warn: var(--amber-400); --warn-soft: var(--amber-950);
+  --skip: var(--neutral-400); --skip-soft: var(--neutral-800);
+  --info: var(--cyan-400);  --info-soft-fill: var(--cyan-950);
+  --invalid: var(--orange-500); --invalid-soft: var(--orange-900);
+  --heat-0: oklch(0.60 0.20 27); --heat-1: oklch(0.66 0.16 52);
+  --heat-2: oklch(0.74 0.14 92); --heat-3: oklch(0.64 0.15 150); --heat-4: oklch(0.55 0.15 152);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.4);
+  --shadow-md: 0 2px 4px rgba(0,0,0,.4), 0 10px 28px rgba(0,0,0,.5);
+  --shadow-lg: 0 20px 50px rgba(0,0,0,.6);
+}
+
+@keyframes qm-shimmer { 0%{background-position:-180px 0} 100%{background-position:180px 0} }
+@keyframes qm-spin { to { transform: rotate(360deg); } }
+@keyframes qm-toast-in { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)} }
+@keyframes qm-pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+@keyframes qm-drawer-in { from{transform:translateX(24px); opacity:0} to{transform:translateX(0); opacity:1} }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}

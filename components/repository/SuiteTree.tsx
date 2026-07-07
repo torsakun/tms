@@ -9,6 +9,8 @@ import {
   Plus,
   Loader2,
   X,
+  FolderPlus,
+  FileText
 } from "lucide-react";
 import { toast } from "sonner";
 import { Suite } from "@/types/repository";
@@ -47,71 +49,50 @@ const SuiteItem = ({
           router.push(`/projects/${projectCode}/repository?suite=${suite.id}`)
         }
         className={cn(
-          "flex items-center py-1.5 pr-2 cursor-pointer transition-colors relative",
-          level === 0 ? "font-semibold text-[13px]" : "font-medium text-[13px]",
-          isActive
-            ? "bg-primary-light text-primary"
-            : "text-text-main hover:bg-surface-hover",
+          "flex items-center gap-[7px] py-[7px] pr-[14px] cursor-pointer transition-colors relative rounded-none",
+          isActive ? "bg-primary-soft text-primary-text" : "hover:bg-surface-hover text-text-main"
         )}
-        style={{ paddingLeft: `${level * 16 + 8}px` }}
+        style={{ paddingLeft: `${level * 18 + 14}px`, boxShadow: isActive ? 'inset 3px 0 0 var(--primary)' : 'none' }}
       >
-        {isActive && (
-          <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-primary rounded-r" />
-        )}
         <button
           onClick={(e) => {
             e.stopPropagation();
             toggleSuite(suite.id);
           }}
           className={cn(
-            "p-0.5 rounded mr-1 transition-colors shrink-0",
-            isActive
-              ? "text-primary"
-              : "text-text-muted hover:text-text-muted",
+            "p-0.5 rounded transition-colors shrink-0 flex items-center justify-center",
+            isActive ? "text-primary-text" : "text-text-faint hover:text-text-muted",
+            hasChildren ? "visible" : "invisible"
           )}
         >
           {isOpen ? (
-            <svg
-              className="w-3.5 h-3.5"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M7 10l5 5 5-5z" />
-            </svg>
+            <ChevronDown size={17} strokeWidth={2.5} />
           ) : (
-            <svg
-              className="w-3.5 h-3.5"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M10 7l5 5-5 5z" />
-            </svg>
+            <ChevronRight size={17} strokeWidth={2.5} />
           )}
         </button>
 
-        <svg
-          className={cn(
-            "w-3.5 h-3.5 mr-1.5 shrink-0",
-            isActive ? "text-primary" : "text-text-muted",
+        <span className={cn(
+          "shrink-0 flex items-center justify-center",
+          isActive ? "text-primary-text" : "text-text-faint"
+        )}>
+          {isOpen ? (
+             <FolderOpen size={17} className="fill-current text-opacity-20" strokeWidth={2} />
+          ) : (
+             <Folder size={17} strokeWidth={2} />
           )}
-          viewBox="0 0 24 24"
-          fill="currentColor"
-        >
-          <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
-        </svg>
+        </span>
 
-        <span className="truncate">{suite.title}</span>
+        <span className={cn(
+          "flex-1 text-[13px] whitespace-nowrap overflow-hidden text-ellipsis",
+          isActive ? "font-semibold" : "font-medium"
+        )}>
+          {suite.title}
+        </span>
 
-        <div className="ml-auto flex items-center pl-2">
+        <div className="ml-auto flex items-center gap-2">
           {suite.caseCount !== undefined && (
-            <span
-              className={[
-                "text-[11px] font-semibold px-1.5 py-0.5 rounded-full group-hover/item:hidden",
-                isActive
-                  ? "bg-primary-light text-primary"
-                  : "bg-surface-hover text-text-main",
-              ].join(" ")}
-            >
+            <span className="text-[11px] text-text-faint tabular-nums group-hover/item:hidden">
               {suite.caseCount}
             </span>
           )}
@@ -138,7 +119,7 @@ const SuiteItem = ({
         className="grid transition-all duration-300 ease-in-out"
         style={{ gridTemplateRows: isOpen && hasChildren ? "1fr" : "0fr" }}
       >
-        <div className="overflow-hidden mt-0.5">
+        <div className="overflow-hidden">
           {hasChildren &&
             suite.children!.map((child: any) => (
               <SuiteItem
@@ -273,70 +254,24 @@ export const SuiteTree = ({
   return (
     <div
       className="flex flex-col h-full bg-surface transition-colors border-r"
-      style={{ borderColor: "var(--border-color)" }}
+      style={{ borderColor: "var(--border)" }}
     >
       <div
-        className="px-4 py-3 border-b bg-surface flex justify-between items-center shrink-0 transition-colors"
-        style={{ borderColor: "var(--border-color)" }}
+        className="px-[14px] pt-[13px] pb-[10px] flex justify-between items-center shrink-0"
       >
-        <div className="flex items-center space-x-2 text-text-main">
-          <svg
-            className="w-4 h-4 text-primary"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
-          <h2 className="font-bold text-[13px] text-text-muted uppercase tracking-wider">
-            Suites
-          </h2>
-          {role !== "VIEWER" && (
-            <button
-              onClick={() => handleOpenCreateModal(null)}
-              className="text-text-muted hover:text-text-main ml-1"
-            >
-              <Plus size={16} />
-            </button>
-          )}
-        </div>
-        <div className="flex items-center space-x-1 text-text-muted">
+        <span className="font-semibold text-[13px]">
+          Suites
+        </span>
+        {role !== "VIEWER" && (
           <button
-            onClick={() => expandAll(suites.map((s) => s.id))}
-            className="hover:text-text-main p-1"
-            title="Expand all"
+            onClick={() => handleOpenCreateModal(null)}
+            className="text-text-faint hover:text-text-main"
           >
-            <svg
-              className="w-3.5 h-3.5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <polyline points="18 15 12 9 6 15"></polyline>
-            </svg>
+            <FolderPlus size={19} strokeWidth={2} />
           </button>
-          <button
-            onClick={() => collapseAll(suites.map((s) => s.id))}
-            className="hover:text-text-main p-1"
-            title="Collapse all"
-          >
-            <svg
-              className="w-3.5 h-3.5"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
-          </button>
-        </div>
+        )}
       </div>
-      <div className="flex-1 overflow-y-auto py-2 space-y-0.5">
+      <div className="flex-1 overflow-y-auto">
         {suiteTree.map((suite) => (
           <SuiteItem
             key={suite.id}
@@ -362,6 +297,19 @@ export const SuiteTree = ({
             onAddChild={() => {}}
           />
         )}
+      </div>
+      
+      <div className="mt-auto px-[14px] py-[12px] border-t border-border flex items-center gap-[7px] text-[12px] text-text-faint">
+        <svg
+          className="w-4 h-4"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+        </svg>
+        {cases.length} cases · {suites.length} suites
       </div>
 
       {/* Create Suite Modal */}

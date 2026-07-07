@@ -2,18 +2,25 @@
 
 import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
+import {
+  Settings,
+  SlidersHorizontal,
+  Users,
+  Shield,
+  Puzzle,
+  Server,
+  History,
+  Trash2,
+  type LucideIcon,
+} from "lucide-react";
 
-const TABS = [
-  { label: "General", href: (c: string) => `/projects/${c}/settings/general` },
-  {
-    label: "Access control",
-    href: (c: string) => `/projects/${c}/settings/access-control`,
-  },
-  { label: "Members", href: (c: string) => `/projects/${c}/settings/members` },
-  {
-    label: "Integrations",
-    href: (c: string) => `/projects/${c}/settings/integrations`,
-  },
+const TABS: { label: string; icon: LucideIcon; href: (c: string) => string }[] = [
+  { label: "General", icon: SlidersHorizontal, href: (c: string) => `/projects/${c}/settings/general` },
+  { label: "Members", icon: Users, href: (c: string) => `/projects/${c}/settings/members` },
+  { label: "Access control", icon: Shield, href: (c: string) => `/projects/${c}/settings/access-control` },
+  { label: "Integrations", icon: Puzzle, href: (c: string) => `/projects/${c}/settings/integrations` },
+  { label: "Environments", icon: Server, href: (c: string) => `/projects/${c}/settings/environments` },
+  { label: "Activity log", icon: History, href: (c: string) => `/projects/${c}/activity` },
 ];
 
 export default function SettingsLayout({
@@ -26,36 +33,52 @@ export default function SettingsLayout({
   const code = params.code as string;
 
   return (
-    <div className="min-h-screen bg-surface">
-      <div className="max-w-4xl mx-auto px-8 pt-10 pb-16">
-        <h1 className="text-3xl font-bold text-text-main mb-8 tracking-tight">
-          Project settings
-        </h1>
+    <div className="w-full max-w-[980px] mx-auto antialiased font-sans pb-20">
+      
+      <div className="flex items-center gap-[10px] p-[16px_22px]">
+        <Settings size={21} className="text-text-faint" />
+        <span className="text-[18px] font-semibold tracking-[-0.01em] text-text-main">Project settings</span>
+        <span className="text-[13px] text-text-faint">· {code}</span>
+      </div>
 
-        {/* Tab bar — matches Qase style */}
-        <div className="border-b border-border mb-10">
-          <nav className="flex -mb-px gap-1">
-            {TABS.map((tab) => {
-              const href = tab.href(code);
-              const active = pathname === href || pathname.startsWith(href);
-              return (
-                <Link
-                  key={tab.label}
-                  href={href}
-                  className={`px-5 py-3.5 text-[15px] font-semibold border-b-2 transition-colors whitespace-nowrap ${
-                    active
-                      ? "border-primary text-primary"
-                      : "border-transparent text-text-muted hover:text-text-main hover:border-border"
-                  }`}
-                >
-                  {tab.label}
-                </Link>
-              );
-            })}
-          </nav>
+      <div className="grid grid-cols-[220px_1fr] gap-0 min-h-[600px] border-t border-border">
+        
+        {/* settings nav */}
+        <div className="border-r border-border p-[16px_12px] flex flex-col gap-[2px]">
+          {TABS.map((tab) => {
+            const href = tab.href(code);
+            // Handle activity log differently since it's not strictly under /settings/
+            const isActivity = tab.label === "Activity log";
+            const active = isActivity ? pathname === href : (pathname === href || pathname.startsWith(href));
+            const Icon = tab.icon;
+
+            return (
+              <Link
+                key={tab.label}
+                href={href}
+                className={`flex items-center gap-[10px] p-[8px_11px] rounded-[9px] text-[13px] transition-colors ${
+                  active
+                    ? "bg-primary-soft text-primary-text font-semibold"
+                    : "bg-transparent text-text-muted font-medium hover:bg-surface-hover hover:text-text-main"
+                }`}
+              >
+                <Icon size={18} />
+                {tab.label}
+              </Link>
+            );
+          })}
+
+          <div className="mt-[14px] pt-[14px] border-t border-border flex items-center gap-[10px] p-[8px_11px] rounded-[9px] text-[var(--fail)] font-medium text-[13px] cursor-pointer hover:bg-danger-soft transition-colors">
+            <Trash2 size={18} />
+            Delete project
+          </div>
         </div>
 
-        {children}
+        {/* content */}
+        <div className="p-[24px_28px]">
+          {children}
+        </div>
+        
       </div>
     </div>
   );

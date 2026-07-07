@@ -1,63 +1,28 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Button } from "@/components/ui/Button";
 import {
   Plus,
-  Search,
   Check,
+  RefreshCw,
+  GripVertical,
   X,
-  Edit2,
-  Loader2,
-  Trash2,
-  AlertTriangle,
-  Eye,
-  EyeOff,
+  MoreHorizontal,
+  Type,
+  AlignLeft,
+  ChevronDownCircle,
+  ListChecks,
+  CheckSquare,
+  Hash,
+  CircleDot,
+  Calendar,
+  User,
+  Link as LinkIcon,
+  LucideIcon,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/Button";
-import { toast } from "sonner";
-
-function ConfirmDialog({
-  message,
-  onConfirm,
-  onCancel,
-}: {
-  message: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  return (
-    <div
-      className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4"
-      onClick={onCancel}
-    >
-      <div
-        className="bg-surface rounded-[13px] shadow-[var(--shadow-float)] border border-border/80 w-full max-w-sm p-8 animate-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start gap-4 mb-6">
-          <div className="w-9 h-9 rounded-full bg-danger-soft flex items-center justify-center shrink-0">
-            <AlertTriangle size={18} className="text-danger" />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-text-main mb-1">
-              Delete field
-            </h3>
-            <p className="text-sm text-text-muted">{message}</p>
-          </div>
-        </div>
-        <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={onConfirm}>
-            Delete
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 interface FieldOption {
   id: string;
@@ -80,87 +45,67 @@ interface CustomField {
   isActive: boolean;
 }
 
+const TYPE_CONFIG: Record<string, { label: string, icon: LucideIcon, bg: string, color: string, ring?: string }> = {
+  STRING: { label: "String", icon: Type, bg: "var(--surface-2)", color: "var(--text-muted)" },
+  TEXT: { label: "Text", icon: AlignLeft, bg: "var(--surface-2)", color: "var(--text-muted)" },
+  SELECT: { label: "Select", icon: ChevronDownCircle, bg: "var(--primary-soft)", color: "var(--primary-text)" },
+  MULTI_SELECT: { label: "Multi", icon: ListChecks, bg: "var(--primary-soft)", color: "var(--primary-text)" },
+  CHECKBOX: { label: "Checkbox", icon: CheckSquare, bg: "var(--pass-soft)", color: "var(--pass)" },
+  NUMBER: { label: "Number", icon: Hash, bg: "var(--info-soft-fill)", color: "var(--info)" },
+  RADIO: { label: "Radio", icon: CircleDot, bg: "var(--primary-soft)", color: "var(--primary-text)" },
+  DATE_PICKER: { label: "Date", icon: Calendar, bg: "var(--info-soft-fill)", color: "var(--info)" },
+  USER_PICKER: { label: "User picker", icon: User, bg: "var(--warn-soft)", color: "var(--warn)" },
+  URL: { label: "URL", icon: LinkIcon, bg: "var(--surface-2)", color: "var(--text-muted)" },
+};
+
+const AVAILABLE_TYPES = ["STRING", "TEXT", "SELECT", "MULTI_SELECT", "CHECKBOX", "NUMBER", "RADIO", "DATE_PICKER"];
+
 export default function FieldsClient() {
   const [fields, setFields] = useState<CustomField[]>([]);
-  const [allProjects, setAllProjects] = useState<
-    { id: string; name: string; code: string }[]
-  >([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingField, setEditingField] = useState<CustomField | null>(null);
-
-  // Form State
+  
+  // Editor state
+  const [editingId, setEditingId] = useState<string | null>("new");
   const [name, setName] = useState("");
   const [type, setType] = useState("SELECT");
-  const [isRequired, setIsRequired] = useState(false);
-  const [options, setOptions] = useState<FieldOption[]>([]);
+  const [options, setOptions] = useState<FieldOption[]>([{ id: Date.now().toString(), value: "" }]);
   const [isGlobal, setIsGlobal] = useState(true);
-  const [projectIds, setProjectIds] = useState<string[]>([]);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"GENERAL" | "VALUES">("GENERAL");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [search, setSearch] = useState("");
+  
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [order, setOrder] = useState<number>(0);
+
+  const fetchFields = useCallback(() => {
+    fetch("/api/workspace/fields")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setFields(data);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsLoading(false);
+      });
+  }, []);
 
   useEffect(() => {
     fetchFields();
-    fetchProjects();
-  }, []);
+  }, [fetchFields]);
 
-  const fetchProjects = async () => {
-    try {
-      const res = await fetch("/api/projects");
-      if (res.ok) {
-        const data = await res.json();
-        setAllProjects(data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch projects:", err);
-    }
-  };
-
-  const fetchFields = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/workspace/fields");
-      if (res.ok) {
-        const data = await res.json();
-        setFields(data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch fields:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const openCreateModal = () => {
-    setEditingField(null);
-    setName("");
-    setType("SELECT");
-    setIsRequired(false);
-    setOptions([{ id: Date.now().toString(), value: "" }]);
-    setIsGlobal(true);
-    setProjectIds([]);
-    setOrder(fields.length + 1);
-    setIsDropdownOpen(false);
-    setActiveTab("GENERAL");
-    setIsModalOpen(true);
-  };
-
-  const openEditModal = (field: CustomField) => {
-    setEditingField(field);
+  const handleEdit = (field: CustomField) => {
+    if (field.isSystem) return; // Cannot edit system fields directly in this simplified UI
+    setEditingId(field.id);
     setName(field.name);
     setType(field.type);
-    setIsRequired(field.isRequired);
-    setOptions(field.options || []);
+    setOptions(field.options || [{ id: Date.now().toString(), value: "" }]);
     setIsGlobal(field.isGlobal !== false);
-    setProjectIds(field.projectIds || []);
-    setOrder(field.order);
-    setIsDropdownOpen(false);
-    setActiveTab("GENERAL");
-    setIsModalOpen(true);
+  };
+
+  const handleCreateNew = () => {
+    setEditingId("new");
+    setName("");
+    setType("SELECT");
+    setOptions([{ id: Date.now().toString(), value: "" }]);
+    setIsGlobal(true);
   };
 
   const handleAddOption = () => {
@@ -175,27 +120,58 @@ export default function FieldsClient() {
     setOptions(options.filter((opt) => opt.id !== id));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const handleToggleActive = async (field: CustomField, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFields((prev) => prev.map((f) => f.id === field.id ? { ...f, isActive: !f.isActive } : f));
     try {
+      const res = await fetch(`/api/workspace/fields/${field.id}/toggle`, { method: "POST" });
+      if (!res.ok) throw new Error();
+      toast.success(field.isActive ? "Field disabled" : "Field enabled");
+    } catch {
+      setFields((prev) => prev.map((f) => f.id === field.id ? { ...f, isActive: field.isActive } : f));
+      toast.error("Failed to toggle field");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    setConfirmDeleteId(null);
+    try {
+      const res = await fetch(`/api/workspace/fields/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        toast.success("Field deleted");
+        if (editingId === id) handleCreateNew();
+        fetchFields();
+      } else {
+        toast.error("Failed to delete field");
+      }
+    } catch {
+      toast.error("Something went wrong");
+    }
+  };
+
+  const handleSave = async () => {
+    if (!name.trim()) {
+      toast.error("Label is required");
+      return;
+    }
+    setIsSubmitting(true);
+    
+    const isListType = type === "SELECT" || type === "MULTI_SELECT" || type === "RADIO";
+    const validOptions = isListType ? options.filter(o => o.value.trim() !== "") : null;
+    
+    try {
+      const url = editingId === "new" ? "/api/workspace/fields" : `/api/workspace/fields/${editingId}`;
+      const method = editingId === "new" ? "POST" : "PUT";
+      
       const payload = {
         name,
         type,
-        isRequired,
+        isRequired: false,
         isGlobal,
-        projectIds,
-        order,
-        options:
-          type === "SELECT" || type === "MULTI_SELECT" || type === "RADIO"
-            ? options.filter((o) => o.value.trim() !== "")
-            : null,
+        projectIds: [],
+        order: editingId === "new" ? fields.length + 1 : fields.find(f => f.id === editingId)?.order || 0,
+        options: validOptions
       };
-
-      const url = editingField
-        ? `/api/workspace/fields/${editingField.id}`
-        : "/api/workspace/fields";
-      const method = editingField ? "PUT" : "POST";
 
       const res = await fetch(url, {
         method,
@@ -204,316 +180,231 @@ export default function FieldsClient() {
       });
 
       if (res.ok) {
-        await fetchFields();
-        setIsModalOpen(false);
-        toast.success(editingField ? "Field updated" : "Field created");
+        toast.success(editingId === "new" ? "Field created" : "Field updated");
+        if (editingId === "new") handleCreateNew();
+        fetchFields();
       } else {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data.error || "Failed to save field");
+        toast.error("Failed to save field");
       }
     } catch (err) {
-      console.error("Failed to save field:", err);
       toast.error("Something went wrong");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
-    setConfirmDeleteId(null);
-    try {
-      const res = await fetch(`/api/workspace/fields/${id}`, {
-        method: "DELETE",
-      });
-      if (res.ok) {
-        await fetchFields();
-        toast.success("Field deleted");
-      } else {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data.error || "Failed to delete field");
-      }
-    } catch {
-      toast.error("Something went wrong");
-    }
-  };
-
-  const handleToggleActive = async (field: CustomField) => {
-    // Optimistic update
-    setFields((prev) =>
-      prev.map((f) =>
-        f.id === field.id ? { ...f, isActive: !f.isActive } : f,
-      ),
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-[1120px] mx-auto p-[20px_22px] flex justify-center min-h-[400px] items-center">
+        <div className="animate-spin w-8 h-8 rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
     );
-    try {
-      const res = await fetch(`/api/workspace/fields/${field.id}/toggle`, {
-        method: "POST",
-      });
-      if (!res.ok) {
-        setFields((prev) =>
-          prev.map((f) =>
-            f.id === field.id ? { ...f, isActive: field.isActive } : f,
-          ),
-        );
-        toast.error("Failed to update field");
-      } else {
-        toast.success(
-          field.isActive
-            ? `"${field.name}" disabled`
-            : `"${field.name}" enabled`,
-        );
-      }
-    } catch {
-      setFields((prev) =>
-        prev.map((f) =>
-          f.id === field.id ? { ...f, isActive: field.isActive } : f,
-        ),
-      );
-      toast.error("Something went wrong");
-    }
-  };
+  }
 
-  const getTypeLabel = (typeStr: string) => {
-    switch (typeStr) {
-      case "SELECT":
-        return "Select list (single)";
-      case "MULTI_SELECT":
-        return "Select list (multi)";
-      case "TEXT":
-        return "Paragraph";
-      case "STRING":
-        return "Short text";
-      case "CHECKBOX":
-        return "Checkbox";
-      case "NUMBER":
-        return "Number";
-      case "RADIO":
-        return "Radio";
-      case "USER_PICKER":
-        return "User picker";
-      case "URL":
-        return "URL";
-      case "DATE_PICKER":
-        return "Date picker";
-      default:
-        return typeStr;
-    }
-  };
-
-  const isListType =
-    type === "SELECT" || type === "MULTI_SELECT" || type === "RADIO";
-
-  const filteredFields = fields.filter(
-    (f) =>
-      !search.trim() || f.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const isListType = type === "SELECT" || type === "MULTI_SELECT" || type === "RADIO";
 
   return (
-    <div className="p-8 max-w-[1200px] mx-auto">
-      <div className="mb-5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-text-main tracking-tight">
-            Fields
-          </h1>
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary">
-            {fields.length}
-          </span>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-3 mb-5">
-        <Button
-          onClick={openCreateModal}
-          className="shadow-[var(--shadow-float)] hover:-translate-y-0.5"
-        >
-          <Plus size={15} /> Create custom field
-        </Button>
-        <div className="relative w-72">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-            size={15}
-          />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search fields…"
-            className="w-full pl-9 pr-4 py-2.5 text-[13px] font-semibold border border-border/80 rounded-xl bg-surface-hover/50 text-text-main placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40"
-          />
-        </div>
-      </div>
-
-      <div className="bg-surface rounded-[13px] border border-border/80 shadow-[var(--shadow-float)] overflow-visible animate-in zoom-in-95 duration-200">
-        {isLoading ? (
-          <div className="flex justify-center items-center p-12">
-            <Loader2 className="animate-spin text-text-muted" size={32} />
+    <div className="w-full max-w-[1120px] mx-auto p-[20px_22px] grid grid-cols-1 md:grid-cols-[1.5fr_1fr] gap-[18px] items-start antialiased font-sans">
+      
+      {/* field list */}
+      <div>
+        <div className="flex items-center gap-[12px] mb-[14px]">
+          <div className="text-[16px] font-semibold text-text-main">
+            Custom fields <span className="text-text-faint font-normal">· {fields.length}</span>
           </div>
-        ) : (
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-border/80 bg-surface-hover/70">
-                <th className="px-6 py-3.5 text-xs font-semibold text-text-main uppercase tracking-wider">
-                  Name
-                </th>
-                <th className="px-6 py-3 text-xs font-semibold text-text-main uppercase tracking-wider">
-                  Group
-                </th>
-                <th className="px-6 py-3 text-xs font-semibold text-text-main uppercase tracking-wider">
-                  Entity
-                </th>
-                <th className="px-6 py-3 text-xs font-semibold text-text-main uppercase tracking-wider">
-                  Type
-                </th>
-                <th className="px-6 py-3 text-xs font-semibold text-text-main uppercase tracking-wider">
-                  Projects
-                </th>
-                <th className="px-6 py-3 text-xs font-semibold text-text-main uppercase tracking-wider">
-                  Required
-                </th>
-                <th className="px-6 py-3 text-xs font-semibold text-text-main uppercase tracking-wider">
-                  Order
-                </th>
-                <th className="px-6 py-3 text-xs font-semibold text-text-main uppercase tracking-wider w-16"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/80">
-              {filteredFields.map((field) => (
-                <tr
-                  key={field.id}
-                  className={`border-b border-border/80 last:border-0 hover:bg-surface-hover/70 transition-colors ${!field.isActive ? "opacity-40" : "group"}`}
-                >
-                  <td className="px-6 py-3 text-sm text-text-main font-medium">
-                    {field.name}
-                  </td>
-                  <td className="px-6 py-3">
-                    <span className="bg-border/50 text-text-main px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider">
-                      {field.group}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3">
-                    <div className="text-sm text-text-main flex items-center">
-                      <svg
-                        className="w-4 h-4 mr-2 text-text-muted"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                        />
-                      </svg>
-                      {field.entity}
-                    </div>
-                  </td>
-                  <td className="px-6 py-3">
-                    <div className="text-sm text-text-muted flex items-center">
-                      {field.type === "SELECT" && (
-                        <svg
-                          className="w-4 h-4 mr-2 text-text-muted"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
+          <div className="flex-1" />
+          <Button onClick={handleCreateNew} variant="primary" size="sm">
+            <Plus size={16} />
+            New field
+          </Button>
+        </div>
+        
+        <div className="bg-surface border border-border rounded-[13px] shadow-sm overflow-hidden">
+          <div className="grid grid-cols-[1.4fr_110px_86px_52px_36px] gap-[12px] p-[10px_16px] text-[10px] font-semibold tracking-[0.05em] uppercase text-text-faint border-b border-border bg-surface-hover/30">
+            <div>Label</div>
+            <div>Type</div>
+            <div>Scope</div>
+            <div>On</div>
+            <div></div>
+          </div>
+          
+          {fields.map((f) => {
+            const config = TYPE_CONFIG[f.type] || TYPE_CONFIG["STRING"];
+            const Icon = config.icon;
+            const isSystem = f.isSystem;
+            const scopeText = f.isGlobal !== false ? "Global" : "Per-project";
+
+            return (
+              <div 
+                key={f.id} 
+                onClick={() => !isSystem && handleEdit(f)}
+                className={`grid grid-cols-[1.4fr_110px_86px_52px_36px] gap-[12px] p-[11px_16px] items-center border-b border-border last:border-0 hover:bg-surface-hover transition-colors group ${isSystem ? "" : "cursor-pointer"}`}
+              >
+                <div className="flex items-center gap-[9px] min-w-0">
+                  <Icon size={16} className="text-text-faint shrink-0" />
+                  <div className="min-w-0 truncate flex items-center">
+                    <span className="text-[13px] font-medium text-text-main truncate">{f.name}</span>
+                    {isSystem && <span className="text-[9.5px] font-bold p-[1px_6px] rounded-[5px] bg-surface-2 text-text-faint ml-[6px] shrink-0 uppercase tracking-wider">System</span>}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-[11px] font-semibold p-[2px_8px] rounded-[6px]" style={{ background: config.bg, color: config.color }}>
+                    {config.label}
+                  </span>
+                </div>
+                <div className="text-[11.5px] text-text-muted truncate">{scopeText}</div>
+                <div onClick={(e) => handleToggleActive(f, e)}>
+                  <div className="w-[32px] h-[19px] rounded-full relative cursor-pointer transition-colors" style={{ background: f.isActive ? "var(--primary)" : "var(--surface-2)" }}>
+                    <div className="absolute top-[2px] w-[15px] h-[15px] rounded-full bg-white transition-all shadow-sm" style={{ left: f.isActive ? "15px" : "2px" }} />
+                  </div>
+                </div>
+                <div className="flex justify-center text-text-faint relative group/menu" onClick={e => e.stopPropagation()}>
+                  {!isSystem && (
+                    <>
+                      <button className="hover:text-text-main flex items-center"><MoreHorizontal size={18} /></button>
+                      <div className="absolute right-0 top-full mt-1 w-32 bg-surface border border-border rounded-[9px] shadow-sm opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all z-10 py-1">
+                        <button 
+                          onClick={() => setConfirmDeleteId(f.id)}
+                          className="w-full text-left px-3 py-1.5 text-[12.5px] text-danger hover:bg-danger-soft transition-colors"
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                          />
-                        </svg>
-                      )}
-                      {field.type === "TEXT" && (
-                        <svg
-                          className="w-4 h-4 mr-2 text-text-muted"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 6h16M4 12h16M4 18h7"
-                          />
-                        </svg>
-                      )}
-                      {getTypeLabel(field.type)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-3 text-sm text-text-muted">
-                    {field.projects}
-                  </td>
-                  <td className="px-6 py-3">
-                    {field.isRequired ? (
-                      <div className="flex items-center text-success text-sm font-medium">
-                        <Check size={16} className="mr-1" /> Yes
+                          Delete
+                        </button>
                       </div>
-                    ) : (
-                      <div className="flex items-center text-danger text-sm font-medium">
-                        <X size={16} className="mr-1" /> No
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-3 text-sm text-text-muted">
-                    {field.order}
-                  </td>
-                  <td className="px-6 py-3 text-right">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleToggleActive(field)}
-                        className={`p-1.5 transition-colors rounded ${field.isActive ? "text-text-muted hover:text-primary hover:bg-primary-light" : "text-warning hover:text-warning hover:bg-warning-soft"}`}
-                        title={
-                          field.isActive
-                            ? "Disable this field"
-                            : "Enable this field"
-                        }
-                      >
-                        {field.isActive ? (
-                          <Eye size={16} />
-                        ) : (
-                          <EyeOff size={16} />
-                        )}
-                      </button>
-                      <button
-                        onClick={() => openEditModal(field)}
-                        className="text-text-muted hover:text-text-main p-1.5 transition-colors"
-                        title="Edit field"
-                      >
-                        <Edit2 size={16} />
-                      </button>
-                      {!field.isSystem &&
-                        (!field.isGlobal &&
-                        field.projectIds &&
-                        field.projectIds.length === 0 ? (
-                          <button
-                            onClick={() => setConfirmDeleteId(field.id)}
-                            className="text-text-muted hover:text-danger p-1.5 transition-colors"
-                            title="Delete custom field"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        ) : (
-                          <button
-                            disabled
-                            className="text-text-muted opacity-30 p-1.5 cursor-not-allowed"
-                            title="Remove from all projects before deleting"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        ))}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+                    </>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+          
+          {fields.length === 0 && (
+            <div className="p-8 text-center text-text-muted text-[13px]">No custom fields found.</div>
+          )}
+        </div>
       </div>
+
+      {/* create field form */}
+      {(editingId || editingId === "new") && (
+        <div className="bg-surface border border-border rounded-[13px] shadow-sm overflow-hidden sticky top-6">
+          <div className="p-[14px_16px] border-b border-border font-semibold text-[14px] text-text-main flex items-center justify-between">
+            {editingId === "new" ? "New custom field" : "Edit custom field"}
+          </div>
+          
+          <div className="p-[16px] flex flex-col gap-[15px]">
+            <div>
+              <label className="block text-[12px] text-text-muted mb-[6px]">Label</label>
+              <div className="flex items-center h-[40px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] text-[13.5px] focus-within:shadow-[inset_0_0_0_2px_var(--ring)] transition-shadow">
+                <input 
+                  type="text" 
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="e.g. Severity"
+                  className="w-full bg-transparent outline-none text-text-main font-semibold"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <label className="block text-[12px] text-text-muted mb-[7px]">Type</label>
+              <div className="flex flex-wrap gap-[6px]">
+                {AVAILABLE_TYPES.map(t => {
+                  const sel = type === t;
+                  const bg = sel ? "var(--primary-soft)" : "var(--surface-2)";
+                  const color = sel ? "var(--primary-text)" : "var(--text-muted)";
+                  const ring = sel ? "inset 0 0 0 1px var(--primary-border)" : "none";
+                  const c = TYPE_CONFIG[t];
+                  return (
+                    <button 
+                      key={t}
+                      onClick={() => setType(t)}
+                      className="text-[11.5px] font-semibold p-[5px_11px] rounded-[8px] transition-all"
+                      style={{ background: bg, color, boxShadow: ring }}
+                    >
+                      {c.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            
+            {isListType && (
+              <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                <label className="block text-[12px] text-text-muted mb-[7px]">
+                  Options <span className="text-text-faint">· for select / radio</span>
+                </label>
+                <div className="flex flex-col gap-[7px]">
+                  {options.map((o, idx) => (
+                    <div key={o.id} className="flex items-center gap-[9px] h-[36px] px-[11px] rounded-[9px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] text-[13px] focus-within:shadow-[inset_0_0_0_2px_var(--ring)] transition-shadow">
+                      <GripVertical size={16} className="text-text-faint cursor-grab shrink-0" />
+                      <input
+                        type="text" 
+                        value={o.value}
+                        onChange={e => handleOptionChange(o.id, e.target.value)}
+                        placeholder={`Option ${idx + 1}`}
+                        className="flex-1 bg-transparent outline-none text-text-main"
+                      />
+                      <button onClick={() => handleRemoveOption(o.id)} className="text-text-faint hover:text-danger ml-auto flex items-center"><X size={16} /></button>
+                    </div>
+                  ))}
+                  <button onClick={handleAddOption} className="flex items-center gap-[7px] p-[4px_2px] text-primary-text text-[12.5px] font-semibold hover:opacity-80 transition-opacity w-fit mt-1">
+                    <Plus size={16} />Add option
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            <div>
+              <label className="block text-[12px] text-text-muted mb-[7px]">Scope</label>
+              <div className="flex gap-[6px]">
+                <button 
+                  onClick={() => setIsGlobal(true)}
+                  className="flex-1 flex items-center justify-center gap-[5px] h-[34px] rounded-[8px] text-[12px] font-semibold transition-all"
+                  style={{ 
+                    background: isGlobal ? "var(--primary-soft)" : "transparent", 
+                    color: isGlobal ? "var(--primary-text)" : "var(--text-muted)", 
+                    boxShadow: isGlobal ? "inset 0 0 0 1px var(--primary-border)" : "inset 0 0 0 1px var(--border)"
+                  }}
+                >
+                  Global
+                </button>
+                <button 
+                  onClick={() => setIsGlobal(false)}
+                  className="flex-1 flex items-center justify-center gap-[5px] h-[34px] rounded-[8px] text-[12px] font-semibold transition-all"
+                  style={{ 
+                    background: !isGlobal ? "var(--primary-soft)" : "transparent", 
+                    color: !isGlobal ? "var(--primary-text)" : "var(--text-muted)", 
+                    boxShadow: !isGlobal ? "inset 0 0 0 1px var(--primary-border)" : "inset 0 0 0 1px var(--border)"
+                  }}
+                >
+                  Per-project
+                </button>
+              </div>
+            </div>
+            
+          </div>
+          
+          <div className="flex justify-end gap-[9px] p-[13px_16px] border-t border-border bg-surface">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                if (editingId === "new") {
+                  setEditingId(null);
+                } else {
+                  const f = fields.find(x => x.id === editingId);
+                  if (f) handleEdit(f);
+                }
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={isSubmitting} variant="primary" size="sm">
+              {isSubmitting ? <RefreshCw size={15} className="animate-spin" /> : <Check size={15} />}
+              {editingId === "new" ? "Create" : "Save"}
+            </Button>
+          </div>
+        </div>
+      )}
 
       {confirmDeleteId && (
         <ConfirmDialog
@@ -521,301 +412,6 @@ export default function FieldsClient() {
           onConfirm={() => handleDelete(confirmDeleteId)}
           onCancel={() => setConfirmDeleteId(null)}
         />
-      )}
-
-      {/* Create/Edit Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
-          <div className="bg-surface w-full max-w-lg rounded-[13px] shadow-[var(--shadow-float)] overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-4 border-b border-border flex justify-between items-center">
-              <h2 className="text-xl font-bold text-text-main">
-                {editingField ? "Edit custom field" : "Create custom field"}
-              </h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-text-muted hover:text-text-main"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit}>
-              <div className="px-6 border-b border-border flex space-x-6">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("GENERAL")}
-                  className={cn(
-                    "pb-3 pt-4 text-sm font-bold border-b-2 transition-colors",
-                    activeTab === "GENERAL"
-                      ? "border-primary text-primary"
-                      : "border-transparent text-text-muted hover:text-text-main",
-                  )}
-                >
-                  General
-                </button>
-                {isListType && (
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("VALUES")}
-                    className={cn(
-                      "pb-3 pt-4 text-sm font-bold border-b-2 transition-colors",
-                      activeTab === "VALUES"
-                        ? "border-primary text-primary"
-                        : "border-transparent text-text-muted hover:text-text-main",
-                    )}
-                  >
-                    Values
-                  </button>
-                )}
-              </div>
-
-              <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto">
-                {activeTab === "GENERAL" && (
-                  <>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="col-span-2">
-                        <label className="block text-sm font-semibold text-text-main mb-2">
-                          Title <span className="text-danger">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
-                          placeholder="E.g. description"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-semibold text-text-main mb-2">
-                          Order
-                        </label>
-                        <input
-                          type="number"
-                          min={1}
-                          value={order}
-                          onChange={(e) => setOrder(Number(e.target.value))}
-                          className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
-                        />
-                      </div>
-                    </div>
-
-                    {!editingField?.isSystem && (
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-semibold text-text-main mb-2">
-                            Entity
-                          </label>
-                          <select
-                            className="w-full bg-surface-hover border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-muted outline-none appearance-none cursor-not-allowed"
-                            disabled
-                          >
-                            <option>Test case</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block text-sm font-semibold text-text-main mb-2">
-                            Type <span className="text-danger">*</span>
-                          </label>
-                          <select
-                            value={type}
-                            onChange={(e) => {
-                              setType(e.target.value);
-                              if (
-                                e.target.value !== "SELECT" &&
-                                e.target.value !== "MULTI_SELECT" &&
-                                e.target.value !== "RADIO"
-                              ) {
-                                setActiveTab("GENERAL");
-                              }
-                            }}
-                            className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main focus:ring-4 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-inner hover:border-text-muted/40"
-                          >
-                            <option value="NUMBER">Number</option>
-                            <option value="STRING">Short text</option>
-                            <option value="TEXT">Paragraph</option>
-                            <option value="SELECT">Select list (single)</option>
-                            <option value="CHECKBOX">Checkbox</option>
-                            <option value="RADIO">Radio</option>
-                            <option value="MULTI_SELECT">
-                              Select list (multi)
-                            </option>
-                            <option value="USER_PICKER">User picker</option>
-                            <option value="URL">URL</option>
-                            <option value="DATE_PICKER">Date picker</option>
-                          </select>
-                        </div>
-                      </div>
-                    )}
-
-                    {!editingField?.isSystem && (
-                      <div>
-                        <label className="flex items-center space-x-3 mb-2">
-                          <input
-                            type="checkbox"
-                            checked={isGlobal}
-                            onChange={(e) => setIsGlobal(e.target.checked)}
-                            className="w-4 h-4 rounded border-border text-primary focus:ring-primary bg-background"
-                          />
-                          <span className="text-sm font-semibold text-text-main">
-                            Enable for all projects
-                          </span>
-                        </label>
-                        <p className="text-xs text-text-muted ml-7 mb-4">
-                          The custom field will be available for every project
-                          in the workspace.
-                        </p>
-
-                        {!isGlobal && (
-                          <div className="ml-7 relative">
-                            <div
-                              className="w-full bg-background border border-border/80 rounded-xl px-4 py-2.5 text-[13px] font-semibold text-text-main flex justify-between items-center cursor-pointer shadow-inner hover:border-text-muted/40 transition-all"
-                              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            >
-                              <span className="text-sm">
-                                {projectIds.length > 0
-                                  ? `${projectIds.length} projects selected`
-                                  : "Select projects..."}
-                              </span>
-                              <svg
-                                className={`w-4 h-4 text-text-muted transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M19 9l-7 7-7-7"
-                                />
-                              </svg>
-                            </div>
-                            {isDropdownOpen && (
-                              <div className="absolute z-10 w-full mt-1 bg-surface border border-border/80 rounded-xl shadow-[var(--shadow-float)] max-h-60 overflow-y-auto py-2">
-                                {allProjects.length === 0 ? (
-                                  <div className="px-3 py-2 text-sm text-text-muted text-center">
-                                    No projects available
-                                  </div>
-                                ) : (
-                                  allProjects.map((p) => (
-                                    <label
-                                      key={p.id}
-                                      className="flex items-center px-3 py-2 hover:bg-surface-hover cursor-pointer space-x-3 transition-colors"
-                                    >
-                                      <input
-                                        type="checkbox"
-                                        checked={projectIds.includes(p.id)}
-                                        onChange={(e) => {
-                                          if (e.target.checked)
-                                            setProjectIds([
-                                              ...projectIds,
-                                              p.id,
-                                            ]);
-                                          else
-                                            setProjectIds(
-                                              projectIds.filter(
-                                                (id) => id !== p.id,
-                                              ),
-                                            );
-                                        }}
-                                        className="w-4 h-4 rounded border-border text-primary focus:ring-primary bg-background"
-                                      />
-                                      <div className="flex items-center space-x-2">
-                                        <span className="bg-primary/20 text-primary text-[10px] px-1.5 py-0.5 rounded font-bold">
-                                          {p.code}
-                                        </span>
-                                        <span className="text-sm text-text-main">
-                                          {p.name}
-                                        </span>
-                                      </div>
-                                    </label>
-                                  ))
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    <div>
-                      <label className="flex items-center space-x-3">
-                        <input
-                          type="checkbox"
-                          checked={isRequired}
-                          onChange={(e) => setIsRequired(e.target.checked)}
-                          className="w-4 h-4 rounded border-border text-primary focus:ring-primary bg-background"
-                        />
-                        <span className="text-sm font-semibold text-text-main">
-                          Required field
-                        </span>
-                      </label>
-                    </div>
-                  </>
-                )}
-
-                {activeTab === "VALUES" && isListType && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      {options.map((opt, idx) => (
-                        <div
-                          key={opt.id}
-                          className="flex items-center space-x-2"
-                        >
-                          <div className="bg-background border border-border/80 px-4 py-2.5 rounded-xl flex-1 flex items-center shadow-inner hover:border-text-muted/40 transition-all">
-                            <input
-                              type="text"
-                              value={opt.value}
-                              onChange={(e) =>
-                                handleOptionChange(opt.id, e.target.value)
-                              }
-                              className="bg-transparent border-none outline-none w-full text-[13px] font-semibold text-text-main placeholder:text-text-muted/50"
-                              placeholder={`Option ${idx + 1}`}
-                            />
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveOption(opt.id)}
-                            className="text-text-muted p-2 hover:bg-danger-soft hover:text-danger rounded-md transition-colors"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleAddOption}
-                      className="text-primary hover:text-blue-700"
-                    >
-                      <Plus size={16} /> Add new value
-                    </Button>
-                  </div>
-                )}
-              </div>
-
-              <div className="px-6 py-4 bg-surface/80 flex justify-end space-x-3 border-t border-border/80 rounded-b-2xl">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  loading={isSubmitting}
-                  className="shadow-[var(--shadow-float)] hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:hover:shadow-none"
-                >
-                  Save
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
       )}
     </div>
   );

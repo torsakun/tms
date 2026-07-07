@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Auth states" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; -webkit-font-smoothing:antialiased; display:flex; flex-direction:column; gap:20px;">
+
+  <!-- ========= ACCEPT INVITE ========= -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; min-height:440px; border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow:var(--shadow-sm);">
+    <div style="position:relative; overflow:hidden; background:var(--neutral-950); color:var(--white-100); padding:34px 38px; display:flex; flex-direction:column;">
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:28px; height:28px; border-radius:8px; background:var(--primary); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded fill" style="font-size:18px; color:var(--primary-fg);">radar</span></div><span style="font-weight:700; font-size:16px;">QMaster</span></div>
+      <div style="margin-top:auto;">
+        <div style="display:flex; align-items:center; gap:-8px; margin-bottom:16px;"><div style="width:40px; height:40px; border-radius:999px; background:var(--blue-400); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; box-shadow:0 0 0 2px var(--neutral-950);">ML</div><div style="width:40px; height:40px; border-radius:999px; background:var(--green-400); color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; box-shadow:0 0 0 2px var(--neutral-950); margin-left:-10px;">RK</div></div>
+        <div style="font-size:22px; font-weight:600; letter-spacing:-0.02em; line-height:1.2; max-width:320px;">Mara invited you to join Checkout Inc.</div>
+        <div style="font-size:13px; color:var(--neutral-400); margin-top:12px; max-width:320px; line-height:1.55;">QMaster is invite-only. Set your name and a password to join the workspace.</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:center; padding:34px; background:var(--surface);">
+      <div style="width:100%; max-width:320px; display:flex; flex-direction:column; gap:15px;">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--primary-text);">Accept invite</div>
+        <div style="font-size:20px; font-weight:600; letter-spacing:-0.015em;">Join Checkout Inc.</div>
+        <div style="display:flex; align-items:center; gap:9px; height:42px; padding:0 13px; border-radius:11px; background:var(--surface-2); box-shadow:inset 0 0 0 1px var(--border); font-size:13.5px; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">mail</span>priya@checkout.dev<span style="margin-left:auto; font-size:10px; font-weight:700; padding:2px 7px; border-radius:999px; background:var(--surface); color:var(--text-faint);">Locked</span></div>
+        <div><label style="display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;">Full name</label><div style="display:flex; align-items:center; height:42px; padding:0 13px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 2px var(--ring); font-size:14px;">Priya Sharma</div></div>
+        <div><label style="display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;">Password</label><div style="display:flex; align-items:center; gap:9px; height:42px; padding:0 13px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:14px; letter-spacing:2px; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint); letter-spacing:0;">lock</span>••••••••••</div></div>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="100%,44px" variant="primary" full-width="{{ true }}" trailing-icon="arrow_forward" style="{{ btn }}">Join workspace</x-import>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= SIGN UP ========= -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; min-height:440px; border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow:var(--shadow-sm);">
+    <div style="position:relative; overflow:hidden; background:var(--neutral-950); color:var(--white-100); padding:34px 38px; display:flex; flex-direction:column;">
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:28px; height:28px; border-radius:8px; background:var(--primary); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded fill" style="font-size:18px; color:var(--primary-fg);">radar</span></div><span style="font-weight:700; font-size:16px;">QMaster</span></div>
+      <div style="margin-top:auto;">
+        <div style="font-size:22px; font-weight:600; letter-spacing:-0.02em; line-height:1.2; max-width:320px;">Create your account</div>
+        <div style="font-size:13px; color:var(--neutral-400); margin-top:12px; max-width:320px; line-height:1.55;">You're joining as part of an invitation to Checkout Inc.</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:center; padding:34px; background:var(--surface);">
+      <div style="width:100%; max-width:320px; display:flex; flex-direction:column; gap:15px;">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--primary-text);">Sign up</div>
+        <div style="font-size:20px; font-weight:600; letter-spacing:-0.015em;">Set up your profile</div>
+        <div><label style="display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;">Full name</label><div style="display:flex; align-items:center; height:42px; padding:0 13px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:14px;">Priya Sharma</div></div>
+        <div><label style="display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;">Work email</label><div style="display:flex; align-items:center; gap:9px; height:42px; padding:0 13px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 2px var(--ring); font-size:14px;"><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">mail</span>priya@checkout.dev</div></div>
+        <div><label style="display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;">Password</label><div style="display:flex; align-items:center; gap:9px; height:42px; padding:0 13px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:14px; letter-spacing:2px; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint); letter-spacing:0;">lock</span>••••••••••</div></div>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="100%,44px" variant="primary" full-width="{{ true }}" trailing-icon="arrow_forward" style="{{ btn }}">Create account</x-import>
+        <div style="text-align:center; font-size:13px; color:var(--text-muted);">Already have an account? <span style="color:var(--primary-text); font-weight:600;">Sign in</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= FORGOT PASSWORD (success state) ========= -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; min-height:440px; border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow:var(--shadow-sm);">
+    <div style="position:relative; overflow:hidden; background:var(--neutral-950); color:var(--white-100); padding:34px 38px; display:flex; flex-direction:column;">
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:28px; height:28px; border-radius:8px; background:var(--primary); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded fill" style="font-size:18px; color:var(--primary-fg);">radar</span></div><span style="font-weight:700; font-size:16px;">QMaster</span></div>
+      <div style="margin-top:auto;">
+        <div style="font-size:22px; font-weight:600; letter-spacing:-0.02em; line-height:1.2; max-width:320px;">Reset your password</div>
+        <div style="font-size:13px; color:var(--neutral-400); margin-top:12px; max-width:320px; line-height:1.55;">We'll email you a secure link to choose a new one.</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:center; padding:34px; background:var(--surface);">
+      <div style="width:100%; max-width:320px; display:flex; flex-direction:column; gap:15px;">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--primary-text);">Forgot password</div>
+        <!-- success banner state -->
+        <div style="display:flex; gap:11px; padding:14px; border-radius:12px; background:var(--pass-soft); border:1px solid var(--success-border);">
+          <span class="material-symbols-rounded fill" style="font-size:20px; color:var(--pass);">mark_email_read</span>
+          <div><div style="font-size:13px; font-weight:600; color:var(--text);">Check your inbox</div><div style="font-size:12px; color:var(--text-muted); margin-top:2px; line-height:1.5;">We sent a reset link to <span style="font-weight:600; color:var(--text);">jordan@checkout.dev</span>. It expires in 30 minutes.</div></div>
+        </div>
+        <div style="font-size:12.5px; color:var(--text-faint); line-height:1.5;">Didn't get it? Check spam, or <span style="color:var(--primary-text); font-weight:600;">resend the link</span>.</div>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="100%,44px" variant="outline" full-width="{{ true }}" leading-icon="arrow_back" style="{{ btn }}">Back to sign in</x-import>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========= RESET PASSWORD ========= -->
+  <div style="display:grid; grid-template-columns:1fr 1fr; min-height:440px; border:1px solid var(--border); border-radius:14px; overflow:hidden; box-shadow:var(--shadow-sm);">
+    <div style="position:relative; overflow:hidden; background:var(--neutral-950); color:var(--white-100); padding:34px 38px; display:flex; flex-direction:column;">
+      <div style="display:flex; align-items:center; gap:10px;"><div style="width:28px; height:28px; border-radius:8px; background:var(--primary); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded fill" style="font-size:18px; color:var(--primary-fg);">radar</span></div><span style="font-weight:700; font-size:16px;">QMaster</span></div>
+      <div style="margin-top:auto;">
+        <div style="font-size:22px; font-weight:600; letter-spacing:-0.02em; line-height:1.2; max-width:320px;">Choose a new password</div>
+        <div style="font-size:13px; color:var(--neutral-400); margin-top:12px; max-width:320px; line-height:1.55;">Use at least 12 characters with a number and a symbol.</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:center; padding:34px; background:var(--surface);">
+      <div style="width:100%; max-width:320px; display:flex; flex-direction:column; gap:15px;">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--primary-text);">Reset password</div>
+        <div style="font-size:20px; font-weight:600; letter-spacing:-0.015em;">New password</div>
+        <div><label style="display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;">New password</label><div style="display:flex; align-items:center; gap:9px; height:42px; padding:0 13px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 2px var(--ring); font-size:14px; letter-spacing:2px; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint); letter-spacing:0;">lock</span>••••••••••••</div></div>
+        <div style="display:flex; align-items:center; gap:8px;"><div style="flex:1; height:5px; border-radius:3px; background:var(--surface-2); overflow:hidden;"><div style="width:85%; height:100%; background:var(--pass);"></div></div><span style="font-size:11.5px; font-weight:600; color:var(--pass);">Strong</span></div>
+        <div><label style="display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;">Confirm password</label><div style="display:flex; align-items:center; gap:9px; height:42px; padding:0 13px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 1.5px var(--pass); font-size:14px; letter-spacing:2px; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint); letter-spacing:0;">lock</span>••••••••••••<span class="material-symbols-rounded fill" style="font-size:18px; color:var(--pass); letter-spacing:0; margin-left:auto;">check_circle</span></div></div>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="100%,44px" variant="primary" full-width="{{ true }}" trailing-icon="check" style="{{ btn }}">Set new password</x-import>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){ return { btn: { height: 44, borderRadius: 11, fontSize: 15 } }; }
+}
+</script>
+</body>
+</html>

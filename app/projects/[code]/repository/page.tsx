@@ -1,6 +1,5 @@
 import { SuiteTree } from "@/components/repository/SuiteTree";
 import { RepositoryContent } from "@/components/repository/RepositoryContent";
-import { ResizableLayout } from "@/components/repository/ResizableLayout";
 import { SuiteExpansionProvider } from "@/components/providers/SuiteExpansionProvider";
 import { SuiteSelectionProvider } from "@/components/providers/SuiteSelectionProvider";
 import { prisma } from "@/lib/prisma";
@@ -27,18 +26,17 @@ export default async function RepositoryPage({
     });
 
     if (project) {
-      // Fetch suites
       suites = await prisma.testSuite.findMany({
         where: { projectId: project.id },
         orderBy: { position: "asc" },
       });
 
-      // Fetch cases (all for the project to build the tree)
       cases = await prisma.testCase.findMany({
         where: { projectId: project.id },
         include: {
           tags: true,
           steps: true,
+          author: { select: { name: true, email: true } },
           linkedIssues: { orderBy: { createdAt: "desc" } },
         },
         orderBy: { createdAt: "desc" },
@@ -53,25 +51,19 @@ export default async function RepositoryPage({
   return (
     <SuiteExpansionProvider initialExpandedIds={allSuiteIds} projectCode={code}>
       <SuiteSelectionProvider>
-        <div className="flex flex-col flex-1 w-full bg-background overflow-hidden h-full">
-          <ResizableLayout
-            leftPane={
-              <SuiteTree
-                initialSuites={suites}
-                cases={cases}
-                projectCode={code}
-              />
-            }
-            rightPane={
-              <RepositoryContent
-                projectCode={code}
-                suites={suites}
-                cases={cases}
-                activeSuiteId={activeSuiteId}
-                totalCases={cases.length}
-                totalSuites={suites.length}
-              />
-            }
+        <div className="grid min-h-0 flex-1 w-full bg-background overflow-hidden" style={{ gridTemplateColumns: "268px minmax(0, 1fr)" }}>
+          <SuiteTree
+            initialSuites={suites}
+            cases={cases}
+            projectCode={code}
+          />
+          <RepositoryContent
+            projectCode={code}
+            suites={suites}
+            cases={cases}
+            activeSuiteId={activeSuiteId}
+            totalCases={cases.length}
+            totalSuites={suites.length}
           />
         </div>
       </SuiteSelectionProvider>

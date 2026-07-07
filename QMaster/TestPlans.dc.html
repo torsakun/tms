@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Test Plans" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;">
+  <!-- project tab bar -->
+  <div style="display:flex; align-items:center; gap:18px; padding:0 18px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:7px; padding:11px 0;"><span style="font-weight:600; font-size:13.5px;">Checkout Web</span><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">unfold_more</span></div>
+    <div style="width:1px; height:18px; background:var(--border);"></div>
+    <div style="display:flex; gap:2px;">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><div style="padding:11px 12px 9px; font-weight:{{ t.weight }}; font-size:13px; color:{{ t.color }}; border-bottom:2px solid {{ t.border }}; margin-bottom:-1px;">{{ t.label }}</div></sc-for>
+    </div>
+  </div>
+
+  <div style="padding:20px 22px; max-width:1120px; margin:0 auto;">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+      <div><div style="font-size:19px; font-weight:600; letter-spacing:-0.015em;">Test plans</div><div style="font-size:13px; color:var(--text-muted); margin-top:2px;">Curated sets of cases you run together each cycle</div></div>
+      <div style="flex:1;"></div>
+      <div style="display:flex; align-items:center; gap:8px; height:36px; padding:0 11px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); border-radius:9px; color:var(--text-faint); font-size:12.5px; min-width:170px;"><span class="material-symbols-rounded" style="font-size:17px;">search</span>Search plans</div>
+      <div style="display:flex; align-items:center; gap:6px; height:36px; padding:0 12px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); border-radius:9px; font-size:12.5px; font-weight:500;"><span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">swap_vert</span>Recent</div>
+      <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="150px,36px" variant="primary" size="sm" leading-icon="add" style="{{ btn }}">Create test plan</x-import>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:11px; margin-bottom:28px;">
+      <sc-for list="{{ plans }}" as="p" hint-placeholder-count="4">
+        <div style="display:flex; align-items:center; gap:16px; background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:15px 18px; box-shadow:var(--shadow-sm);">
+          <div style="width:38px; height:38px; border-radius:10px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-symbols-rounded" style="font-size:21px;">{{ p.icon }}</span></div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:14px; font-weight:600;">{{ p.title }}</div>
+            <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ p.desc }}</div>
+          </div>
+          <div style="display:flex; gap:24px; flex-shrink:0;">
+            <div style="text-align:right;"><div style="font-size:14px; font-weight:700; font-variant-numeric:tabular-nums;">{{ p.cases }}</div><div style="font-size:10.5px; color:var(--text-faint);">cases</div></div>
+            <div style="text-align:right;"><div style="font-size:14px; font-weight:700; font-variant-numeric:tabular-nums;">{{ p.runs }}</div><div style="font-size:10.5px; color:var(--text-faint);">runs</div></div>
+            <div style="text-align:right; width:84px;"><div style="font-size:12.5px; font-weight:500; color:var(--text-muted);">{{ p.created }}</div><div style="font-size:10.5px; color:var(--text-faint);">created</div></div>
+          </div>
+          <div style="display:flex; gap:4px; flex-shrink:0;">
+            <div style="width:32px; height:32px; border-radius:8px; box-shadow:inset 0 0 0 1px var(--border); display:flex; align-items:center; justify-content:center; color:var(--primary-text);"><span class="material-symbols-rounded" style="font-size:18px;">play_arrow</span></div>
+            <div style="width:32px; height:32px; border-radius:8px; box-shadow:inset 0 0 0 1px var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:17px;">edit</span></div>
+            <div style="width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--text-faint);"><span class="material-symbols-rounded" style="font-size:18px;">more_horiz</span></div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- teaching empty state -->
+    <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Empty state</div>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow-sm); padding:36px; display:flex; align-items:center; gap:30px;">
+      <div style="flex:1;">
+        <div style="font-size:16px; font-weight:600;">Plan a test cycle once, run it every release</div>
+        <div style="font-size:13px; color:var(--text-muted); margin:8px 0 16px; line-height:1.6; max-width:420px;">A test plan bundles the cases that matter for a milestone — regression, smoke, release-candidate — so any tester can spin up a consistent run in one click.</div>
+        <div style="display:flex; gap:9px;">
+          <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="150px,40px" variant="primary" leading-icon="add" style="{{ btn2 }}">Create test plan</x-import>
+          <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="120px,40px" variant="ghost" leading-icon="menu_book" style="{{ btn2 }}">Learn more</x-import>
+        </div>
+      </div>
+      <div style="width:200px; flex-shrink:0; display:flex; flex-direction:column; gap:8px;">
+        <sc-for list="{{ ghost }}" as="g" hint-placeholder-count="3"><div style="display:flex; align-items:center; gap:9px; padding:9px 11px; border:1px dashed var(--border-strong); border-radius:9px;"><span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">drag_indicator</span><div style="height:7px; border-radius:4px; background:var(--surface-2); width:{{ g }};"></div></div></sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const btn = { height: 36, borderRadius: 9, fontSize: 13 };
+    const btn2 = { height: 40, borderRadius: 10, fontSize: 14 };
+    const tab=(label,sel)=>({ label, weight: sel?'600':'500', color: sel?'var(--primary-text)':'var(--text-muted)', border: sel?'var(--primary)':'transparent' });
+    const tabs=[ tab('Dashboards'), tab('Repository'), tab('Test Plans',true), tab('Test Runs'), tab('Automation') ];
+    const plans=[
+      { title:'Release regression', desc:'Full regression across checkout, payments and auth before each release', cases:418, runs:24, created:'Mar 2026', icon:'verified' },
+      { title:'Nightly smoke', desc:'Fast critical-path coverage run by CI every night', cases:64, runs:186, created:'Jan 2026', icon:'bolt' },
+      { title:'Payments deep-dive', desc:'Card, wallet and refund flows incl. negative cases', cases:142, runs:38, created:'Feb 2026', icon:'payments' },
+      { title:'Mobile web RC', desc:'Release-candidate sweep for mobile breakpoints', cases:96, runs:12, created:'May 2026', icon:'phone_iphone' },
+    ];
+    const ghost=['80%','100%','60%'];
+    return { tabs, plans, ghost, btn, btn2 };
+  }
+}
+</script>
+</body>
+</html>

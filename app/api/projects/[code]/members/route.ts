@@ -1,5 +1,19 @@
 import { prisma } from "@/lib/prisma";
+import { ProjectRole } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { requireProjectAccess } from "@/lib/project-route-auth";
+
+const PROJECT_ROLE_VALUES = new Set<ProjectRole>([
+  ProjectRole.VIEWER,
+  ProjectRole.EDITOR,
+  ProjectRole.ADMIN,
+]);
+
+function normalizeProjectRole(role: unknown): ProjectRole {
+  return typeof role === "string" && PROJECT_ROLE_VALUES.has(role as ProjectRole)
+    ? (role as ProjectRole)
+    : ProjectRole.VIEWER;
+}
 
 export async function GET(
   req: Request,
@@ -9,21 +23,40 @@ export async function GET(
   try {
     const project = await prisma.project.findUnique({
       where: { code },
+      select: {
+        id: true,
+        members: {
+          select: {
+            role: true,
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                workspaceRole: { select: { title: true } },
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // Since the mock db might not have project members yet,
-    // we'll just fetch all users for MVP and map them as project members.
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-      },
-    });
+    const users = project.members
+      .map((member) => ({
+        ...member.user,
+        projectRole: member.role,
+      }))
+      .sort((a, b) => {
+        const roleOrder = { ADMIN: 0, EDITOR: 1, VIEWER: 2 };
+        const roleDelta = roleOrder[a.projectRole] - roleOrder[b.projectRole];
+        if (roleDelta !== 0) return roleDelta;
+        return (a.name || a.email).localeCompare(b.name || b.email);
+      });
 
     return NextResponse.json(users);
   } catch (error) {
@@ -41,6 +74,9 @@ export async function POST(
 ) {
   try {
     const { code } = await params;
+    const access = await requireProjectAccess(code, [ProjectRole.ADMIN]);
+    if (access instanceof NextResponse) return access;
+
     const { userId, role } = await req.json();
     if (!userId)
       return NextResponse.json({ error: "userId required" }, { status: 400 });
@@ -49,10 +85,22 @@ export async function POST(
     if (!project)
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
+    const memberRole = normalizeProjectRole(role);
     const member = await prisma.projectMember.upsert({
       where: { userId_projectId: { userId, projectId: project.id } },
-      update: { role: role || "VIEWER" },
-      create: { userId, projectId: project.id, role: role || "VIEWER" },
+      update: { role: memberRole },
+      create: { userId, projectId: project.id, role: memberRole },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            workspaceRole: { select: { title: true } },
+          },
+        },
+      },
     });
 
     return NextResponse.json(member, { status: 201 });

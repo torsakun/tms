@@ -2,7 +2,6 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { canManageWorkspace } from "@/lib/permissions";
-import InviteMemberButton from "@/components/workspace/InviteMemberButton";
 import UsersTable from "@/components/workspace/UsersTable";
 
 function getInitials(name: string | null) {
@@ -33,7 +32,7 @@ function avatarColor(name: string | null) {
 
 export default async function WorkspaceUsersPage() {
   const session = await getServerSession(authOptions);
-  const currentUserId = (session?.user as any)?.id as string | undefined;
+  const currentUserId = (session?.user as { id?: string } | undefined)?.id;
 
   const dbUsers = await prisma.user.findMany({
     include: { workspaceRole: true },
@@ -52,7 +51,7 @@ export default async function WorkspaceUsersPage() {
     id: user.id,
     name: user.name || user.email.split("@")[0],
     email: user.email,
-    initials: getInitials(user.name),
+    initials: getInitials(user.name || user.email.split("@")[0]),
     avatarBg: avatarColor(user.name || user.email.split("@")[0]),
     isActive: user.isActive,
     isSysAdmin: user.role === "ADMIN",
@@ -68,20 +67,7 @@ export default async function WorkspaceUsersPage() {
   }));
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto px-6 py-6">
-      {/* ── Page header ─────────────────────────────────── */}
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-text-main tracking-tight">
-            Users
-          </h1>
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary">
-            {users.length}
-          </span>
-        </div>
-        {isAdmin && <InviteMemberButton />}
-      </div>
-
+    <div className="w-full max-w-[1180px] mx-auto p-[20px_22px]">
       <UsersTable users={users} roles={roles} isAdmin={isAdmin} />
     </div>
   );

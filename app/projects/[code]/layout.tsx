@@ -31,9 +31,9 @@ export default async function ProjectCodeLayout({
 
   return (
     <ProjectRoleProvider role={role} isSystemAdmin={isSystemAdmin}>
-      <div className="flex flex-col flex-1 w-full overflow-hidden bg-background transition-colors">
+      <div className="flex min-h-0 flex-col flex-1 w-full overflow-hidden bg-background transition-colors">
         <ProjectTabs projectCode={code} />
-        <div className="flex-1 flex flex-col overflow-hidden w-full">
+        <div className="flex-1 min-h-0 flex flex-col overflow-y-auto w-full">
           {children}
         </div>
       </div>

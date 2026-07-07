@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireRunAccess } from "@/lib/project-route-auth";
 
 export async function POST(
   req: Request,
@@ -8,6 +9,9 @@ export async function POST(
   const { runId } = await params;
 
   try {
+    const access = await requireRunAccess(runId);
+    if (access instanceof NextResponse) return access;
+
     // 1. Fetch the run and its results to calculate stats
     const run = await prisma.testRun.findUnique({
       where: { id: runId },
@@ -74,6 +78,7 @@ export async function POST(
               { name: "Passed", value: passed.toString() },
               { name: "Failed", value: failed.toString() },
               { name: "Blocked", value: blocked.toString() },
+              { name: "Skipped", value: skipped.toString() },
               { name: "Pass Rate", value: `${passRate}%` },
             ],
             markdown: true,
@@ -101,8 +106,11 @@ export async function POST(
     }
 
     return NextResponse.json({ success: true, run: updatedRun });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Complete Run Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to complete run" },
+      { status: 500 },
+    );
   }
 }

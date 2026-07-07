@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Login" style="width:100%; min-height:560px; display:grid; grid-template-columns:1fr 1fr; font-family:Inter,system-ui,sans-serif; font-size:14px; -webkit-font-smoothing:antialiased; background:var(--bg); color:var(--text);">
+
+  <!-- brand panel (always graphite) -->
+  <div style="position:relative; overflow:hidden; background:var(--neutral-950); color:var(--white-100); padding:40px 44px; display:flex; flex-direction:column;">
+    <svg style="position:absolute; right:-120px; top:50%; transform:translateY(-50%); opacity:.4;" width="560" height="560" viewBox="0 0 560 560" fill="none">
+      <circle cx="280" cy="280" r="90" stroke="var(--blue-500)" stroke-width="1"></circle>
+      <circle cx="280" cy="280" r="150" stroke="var(--blue-500)" stroke-width="1" stroke-opacity=".6"></circle>
+      <circle cx="280" cy="280" r="220" stroke="var(--blue-500)" stroke-width="1" stroke-opacity=".35"></circle>
+      <circle cx="280" cy="280" r="290" stroke="var(--blue-500)" stroke-width="1" stroke-opacity=".18"></circle>
+      <line x1="280" y1="0" x2="280" y2="560" stroke="var(--blue-500)" stroke-width="1" stroke-opacity=".2"></line>
+      <line x1="0" y1="280" x2="560" y2="280" stroke="var(--blue-500)" stroke-width="1" stroke-opacity=".2"></line>
+      <path d="M280 280 L470 170" stroke="var(--blue-400)" stroke-width="2"></path>
+      <circle cx="470" cy="170" r="5" fill="var(--blue-400)"></circle>
+      <circle cx="370" cy="350" r="3.5" fill="var(--green-400)"></circle>
+      <circle cx="200" cy="180" r="3.5" fill="var(--amber-400)"></circle>
+    </svg>
+    <div style="display:flex; align-items:center; gap:10px; position:relative;">
+      <div style="width:30px; height:30px; border-radius:8px; background:var(--primary); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded fill" style="font-size:20px; color:var(--primary-fg);">radar</span></div>
+      <span style="font-weight:700; font-size:17px; letter-spacing:-0.01em;">QMaster</span>
+    </div>
+    <div style="margin-top:auto; position:relative;">
+      <div style="font-size:27px; font-weight:600; letter-spacing:-0.02em; line-height:1.15; max-width:380px;">Every test cycle, read at a glance.</div>
+      <div style="font-size:14px; color:var(--neutral-400); margin-top:14px; max-width:360px; line-height:1.6;">Plan, execute and triage with a precision instrument built for QA teams under pressure.</div>
+      <div style="display:flex; gap:22px; margin-top:26px;">
+        <div><div style="font-size:20px; font-weight:600; font-variant-numeric:tabular-nums;">94.2%</div><div style="font-size:11px; color:var(--neutral-400);">avg pass rate</div></div>
+        <div><div style="font-size:20px; font-weight:600; font-variant-numeric:tabular-nums;">2,484</div><div style="font-size:11px; color:var(--neutral-400);">cases tracked</div></div>
+        <div><div style="font-size:20px; font-weight:600; font-variant-numeric:tabular-nums;">11</div><div style="font-size:11px; color:var(--neutral-400);">active runs</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- form panel (follows theme) -->
+  <div style="display:flex; align-items:center; justify-content:center; padding:40px; background:var(--surface);">
+    <div style="width:100%; max-width:340px; display:flex; flex-direction:column; gap:18px;">
+      <div>
+        <div style="font-size:22px; font-weight:600; letter-spacing:-0.02em;">Welcome back</div>
+        <div style="font-size:13.5px; color:var(--text-muted); margin-top:4px;">Sign in to your workspace.</div>
+      </div>
+      <div>
+        <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:7px;">Work email</label>
+        <div style="display:flex; align-items:center; gap:9px; height:44px; padding:0 13px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:14px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--text-faint);">mail</span>jordan@checkout.dev</div>
+      </div>
+      <div>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:7px;"><label style="font-size:13px; color:var(--text-muted);">Password</label><span style="font-size:12px; font-weight:600; color:var(--primary-text);">Forgot?</span></div>
+        <div style="display:flex; align-items:center; gap:9px; height:44px; padding:0 13px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 2px var(--ring); font-size:14px; letter-spacing:2px; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:19px; color:var(--text-faint); letter-spacing:0;">lock</span>••••••••••</div>
+      </div>
+      <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="100%,44px" variant="primary" full-width="{{ true }}" trailing-icon="arrow_forward" style="{{ btnStyle }}">Sign in</x-import>
+      <div style="display:flex; align-items:center; gap:12px; color:var(--text-faint); font-size:12px;"><div style="flex:1; height:1px; background:var(--border);"></div>or<div style="flex:1; height:1px; background:var(--border);"></div></div>
+      <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="100%,44px" variant="outline" full-width="{{ true }}" leading-icon="key" style="{{ btnStyle }}">Continue with SSO</x-import>
+      <div style="text-align:center; font-size:13px; color:var(--text-muted);">No account? <span style="color:var(--primary-text); font-weight:600;">Request access</span></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){ return { btnStyle: { height: 44, borderRadius: 11, fontSize: 15 } }; }
+}
+</script>
+</body>
+</html>

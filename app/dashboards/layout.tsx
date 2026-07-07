@@ -8,7 +8,7 @@ export default function DashboardsLayout({
   return (
     <div className="flex flex-col h-screen w-full overflow-hidden bg-surface-hover">
       <TopNav />
-      <div className="flex-1 flex flex-col overflow-hidden w-full">
+      <div className="flex-1 min-h-0 flex flex-col overflow-y-auto w-full">
         {children}
       </div>
     </div>

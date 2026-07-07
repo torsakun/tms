@@ -3,7 +3,7 @@
 import React, { use, useState } from "react";
 import useSWR from "swr";
 import { PdfReportTemplate } from "@/components/runs/PdfReportTemplate";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Radar, Globe, Download, AlertTriangle } from "lucide-react";
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -56,22 +56,10 @@ export default function PublicReportPage({
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-surface p-6">
-        <div className="bg-background border border-border/80 p-8 rounded-[13px] shadow-[var(--shadow-float)] max-w-md w-full text-center animate-in zoom-in-95 duration-200">
-          <div className="text-danger mb-4">
-            <svg
-              className="w-16 h-16 mx-auto"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6">
+        <div className="bg-surface border border-border p-8 rounded-[13px] shadow-[var(--shadow-float)] max-w-md w-full text-center animate-in zoom-in-95 duration-200">
+          <div className="text-danger mb-4 flex justify-center">
+            <AlertTriangle size={56} strokeWidth={1.5} />
           </div>
           <h2 className="text-xl font-bold text-text-main mb-2">
             Access Denied
@@ -85,43 +73,65 @@ export default function PublicReportPage({
   if (!run) return null;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center py-10 px-4 transition-colors">
-      <div className="w-full max-w-[1000px] mb-5 flex justify-between items-center">
-        <div className="flex items-center space-x-2.5">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-success"></span>
-          </span>
-          <span className="text-xs font-semibold text-text-muted uppercase tracking-widest">
-            Live Report
-          </span>
+    <div className="min-h-screen bg-background transition-colors">
+      {/* public top bar */}
+      <div className="flex items-center gap-[10px] px-[22px] py-[13px] bg-surface border-b border-border">
+        <div className="w-[24px] h-[24px] rounded-[7px] bg-primary flex items-center justify-center shrink-0">
+          <Radar size={16} className="text-primary-foreground" />
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setHidePassed((v) => !v)}
-            className={`text-[11px] font-bold px-3 py-1.5 rounded-lg border transition-colors ${
-              hidePassed
-                ? "bg-danger-soft text-danger border-danger/25"
-                : "bg-surface text-text-muted border-border hover:text-text-main"
-            }`}
-          >
-            {hidePassed ? "Showing failed only" : "Show failed only"}
-          </button>
-          <div className="text-[11px] font-semibold text-text-muted/60">
-            Auto-updating every 3 seconds
-          </div>
-        </div>
+        <span className="font-bold text-[14px] text-text-main">QMaster</span>
+        <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold px-[9px] py-[2px] rounded-full bg-surface-2 text-text-muted ml-[4px]">
+          <Globe size={13} />
+          Public report · read-only
+        </span>
+        <div className="flex-1" />
+        <button
+          onClick={() => window.print()}
+          className="flex items-center gap-[6px] text-[12.5px] font-semibold text-text-muted hover:text-text-main transition-colors"
+        >
+          <Download size={17} />
+          Export PDF
+        </button>
       </div>
 
-      <div
-        onClick={handleImageClick}
-        className="w-full max-w-[1000px] bg-surface shadow-[var(--shadow-float)] rounded-[13px] overflow-hidden border border-border/80 animate-in zoom-in-95 duration-300 [&_img[alt='Evidence']]:cursor-zoom-in"
-      >
-        <PdfReportTemplate
-          run={run}
-          projectCode={run.project?.code || "UNKNOWN"}
-          hidePassed={hidePassed}
-        />
+      <div className="flex flex-col items-center py-10 px-4">
+        <div className="w-full max-w-[1000px] mb-5 flex justify-between items-center">
+          <div className="flex items-center space-x-2.5">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-success"></span>
+            </span>
+            <span className="text-xs font-semibold text-text-muted uppercase tracking-widest">
+              Live Report
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setHidePassed((v) => !v)}
+              className={`text-[11px] font-bold px-3 py-1.5 rounded-lg border transition-colors ${
+                hidePassed
+                  ? "bg-danger-soft text-danger border-danger/25"
+                  : "bg-surface text-text-muted border-border hover:text-text-main"
+              }`}
+            >
+              {hidePassed ? "Showing failed only" : "Show failed only"}
+            </button>
+            <div className="text-[11px] font-semibold text-text-muted/60">
+              Auto-updating every 3 seconds
+            </div>
+          </div>
+        </div>
+
+        <div
+          onClick={handleImageClick}
+          className="w-full max-w-[1000px] bg-surface shadow-[var(--shadow-float)] rounded-[13px] overflow-hidden border border-border/80 animate-in zoom-in-95 duration-300 [&_img[alt='Evidence']]:cursor-zoom-in"
+        >
+          <PdfReportTemplate
+            run={run}
+            projectCode={run.project?.code || "UNKNOWN"}
+            hidePassed={hidePassed}
+          />
+        </div>
       </div>
 
       {lightboxSrc && (

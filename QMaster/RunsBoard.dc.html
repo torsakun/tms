@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Test Runs board" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;">
+
+  <!-- top nav (compact) -->
+  <div style="height:52px; display:flex; align-items:center; gap:18px; padding:0 18px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:9px;">
+      <div style="width:26px; height:26px; border-radius:7px; background:var(--primary); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded fill" style="font-size:18px; color:var(--primary-fg);">radar</span></div>
+      <span style="font-weight:700; font-size:15px; letter-spacing:-0.01em;">QMaster</span>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="display:flex; align-items:center; gap:8px; height:34px; padding:0 12px; min-width:200px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; color:var(--text-faint); font-size:13px;"><span class="material-symbols-rounded" style="font-size:18px;">search</span>Search</div>
+    <div style="width:30px; height:30px; border-radius:999px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700;">JL</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:18px; padding:0 18px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:7px; padding:11px 0;"><span style="font-weight:600; font-size:13.5px;">Checkout Web</span><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">unfold_more</span></div>
+    <div style="width:1px; height:18px; background:var(--border);"></div>
+    <div style="display:flex; gap:2px;">
+      <div style="padding:11px 12px 9px; font-weight:500; font-size:13px; color:var(--text-muted);">Dashboards</div>
+      <div style="padding:11px 12px 9px; font-weight:500; font-size:13px; color:var(--text-muted);">Repository</div>
+      <div style="padding:11px 12px 9px; font-weight:500; font-size:13px; color:var(--text-muted);">Test Plans</div>
+      <div style="padding:11px 12px 9px; font-weight:600; font-size:13px; color:var(--primary-text); border-bottom:2px solid var(--primary); margin-bottom:-1px;">Test Runs</div>
+      <div style="padding:11px 12px 9px; font-weight:500; font-size:13px; color:var(--text-muted);">Automation</div>
+    </div>
+  </div>
+
+  <!-- board header -->
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:18px 20px 12px;">
+    <div>
+      <div style="font-size:21px; font-weight:600; letter-spacing:-0.015em;">Test runs</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-top:2px;">11 runs · grouped by status</div>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <div style="display:flex; align-items:center; gap:7px; height:34px; padding:0 12px; background:var(--surface); border:1px solid var(--border); border-radius:9px; font-weight:500; font-size:13px;"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">filter_list</span>Filter</div>
+      <div style="display:flex; align-items:center; gap:7px; height:34px; padding:0 14px; background:var(--primary); color:var(--primary-fg); border-radius:9px; font-weight:600; font-size:13px; box-shadow:var(--shadow-sm);"><span class="material-symbols-rounded" style="font-size:17px;">add</span>New run</div>
+    </div>
+  </div>
+
+  <!-- board columns -->
+  <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px; padding:4px 20px 24px;">
+    <sc-for list="{{ columns }}" as="col" hint-placeholder-count="3">
+      <div>
+        <div style="display:flex; align-items:center; gap:8px; padding:0 4px 11px;">
+          <span style="width:9px; height:9px; border-radius:3px; background:{{ col.color }};"></span>
+          <span style="font-weight:600; font-size:13px;">{{ col.label }}</span>
+          <span style="font-size:11px; font-weight:700; background:var(--surface-2); border:1px solid var(--border); color:var(--text-muted); padding:1px 7px; border-radius:999px;">{{ col.count }}</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:11px;">
+          <sc-for list="{{ col.runs }}" as="r" hint-placeholder-count="2">
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:var(--shadow-sm);">
+              <div style="display:flex; align-items:flex-start; gap:12px;">
+                <div style="flex:1; min-width:0;">
+                  <div style="font-size:13.5px; font-weight:600; letter-spacing:-0.01em;">{{ r.name }}</div>
+                  <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-faint); margin-top:2px;">{{ r.id }}</div>
+                </div>
+                <svg width="46" height="46" viewBox="0 0 46 46" style="flex-shrink:0;">
+                  <circle cx="23" cy="23" r="18" fill="none" stroke="var(--surface-2)" stroke-width="5"></circle>
+                  <circle cx="23" cy="23" r="18" fill="none" stroke="{{ r.ringColor }}" stroke-width="5" stroke-linecap="round" stroke-dasharray="113.1" stroke-dashoffset="{{ r.ringOffset }}" transform="rotate(-90 23 23)"></circle>
+                  <text x="23" y="24" text-anchor="middle" dominant-baseline="middle" style="font-size:11px; font-weight:700; fill:var(--text); font-family:Inter;">{{ r.pass }}</text>
+                </svg>
+              </div>
+              <div style="display:flex; align-items:center; gap:7px; margin:13px 0 10px;">
+                <span style="font-size:11px; color:var(--text-faint);">Completion</span>
+                <div style="flex:1; height:6px; border-radius:3px; background:var(--surface-2); overflow:hidden;"><div style="width:{{ r.compw }}; height:100%; background:{{ r.compColor }};"></div></div>
+                <span style="font-size:11.5px; font-weight:700; font-variant-numeric:tabular-nums;">{{ r.completion }}%</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between;">
+                <div style="display:flex; gap:6px;">
+                  <span style="display:flex; align-items:center; gap:4px; font-size:11px; font-weight:600; color:var(--pass);"><span class="material-symbols-rounded fill" style="font-size:13px;">check_circle</span>{{ r.passed }}</span>
+                  <span style="display:flex; align-items:center; gap:4px; font-size:11px; font-weight:600; color:var(--fail);"><span class="material-symbols-rounded fill" style="font-size:13px;">cancel</span>{{ r.failed }}</span>
+                  <span style="display:flex; align-items:center; gap:4px; font-size:11px; font-weight:600; color:var(--warn);"><span class="material-symbols-rounded fill" style="font-size:13px;">block</span>{{ r.blocked }}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span style="font-size:11px; color:var(--text-faint);">{{ r.env }}</span>
+                  <div style="width:21px; height:21px; border-radius:999px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:700;">{{ r.owner }}</div>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const C=113.1;
+    const ring=p=>(C*(1-p/100)).toFixed(1);
+    const compColor=p=>p>=90?'var(--pass)':p>=60?'var(--primary)':'var(--warn)';
+    const ringColor=p=>p>=90?'var(--pass)':p>=75?'var(--warn)':'var(--fail)';
+    const mk=(r)=>({ ...r, ringOffset:ring(r.pass), ringColor:ringColor(r.pass), compw:r.completion+'%', compColor:compColor(r.completion) });
+    const columns=[
+      { label:'Active', color:'var(--primary)', runs:[
+        mk({ id:'RUN-320', name:'Regression — Checkout v4.9', env:'Staging', owner:'JL', completion:64, pass:92, passed:248, failed:14, blocked:6 }),
+        mk({ id:'RUN-319', name:'Cross-browser smoke', env:'CI', owner:'MA', completion:38, pass:88, passed:42, failed:5, blocked:1 }),
+        mk({ id:'RUN-321', name:'Payments E2E suite', env:'Staging', owner:'RK', completion:12, pass:100, passed:18, failed:0, blocked:0 }),
+      ]},
+      { label:'Completed', color:'var(--pass)', runs:[
+        mk({ id:'RUN-318', name:'Regression — Checkout v4.8', env:'Staging', owner:'JL', completion:100, pass:96, passed:403, failed:11, blocked:6 }),
+        mk({ id:'RUN-317', name:'Smoke — Payments hotfix', env:'Prod', owner:'RK', completion:100, pass:100, passed:64, failed:0, blocked:0 }),
+        mk({ id:'RUN-315', name:'Nightly automation', env:'CI', owner:'BOT', completion:100, pass:88, passed:1130, failed:118, blocked:36 }),
+      ]},
+      { label:'Aborted', color:'var(--fail)', runs:[
+        mk({ id:'RUN-313', name:'Load-spike regression', env:'Staging', owner:'MA', completion:22, pass:64, passed:58, failed:31, blocked:4 }),
+        mk({ id:'RUN-309', name:'Mobile web sanity', env:'Staging', owner:'JL', completion:40, pass:71, passed:39, failed:14, blocked:2 }),
+      ]},
+    ].map(c=>({ ...c, count:c.runs.length }));
+    return { columns };
+  }
+}
+</script>
+</body>
+</html>

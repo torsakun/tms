@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Roles" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;">
+  <div style="padding:18px 22px 0; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;"><div style="width:30px; height:30px; border-radius:9px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size:19px;">corporate_fare</span></div><div style="font-size:18px; font-weight:600; letter-spacing:-0.01em;">Workspace</div></div>
+    <div style="display:flex; gap:2px;"><sc-for list="{{ wsTabs }}" as="t" hint-placeholder-count="4"><div style="padding:10px 12px 9px; font-weight:{{ t.weight }}; font-size:13px; color:{{ t.color }}; border-bottom:2px solid {{ t.border }}; margin-bottom:-1px;">{{ t.label }}</div></sc-for></div>
+  </div>
+
+  <div style="padding:20px 22px; max-width:1120px; display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start;">
+
+    <!-- role list -->
+    <div>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+        <div style="font-size:16px; font-weight:600;">Roles <span style="color:var(--text-faint); font-weight:400;">· 5</span></div>
+        <div style="flex:1;"></div>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="100px,36px" variant="primary" size="sm" leading-icon="add" style="{{ btn }}">New role</x-import>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <sc-for list="{{ roles }}" as="r" hint-placeholder-count="5">
+          <div style="background:var(--surface); border:1px solid {{ r.borderC }}; border-radius:12px; padding:14px 16px; box-shadow:var(--shadow-sm);">
+            <div style="display:flex; align-items:center; gap:9px;">
+              <span style="font-size:13.5px; font-weight:600;">{{ r.name }}</span>
+              <span style="font-size:10px; font-weight:700; padding:1px 7px; border-radius:999px; background:{{ r.tagBg }}; color:{{ r.tagColor }};">{{ r.tag }}</span>
+              <div style="flex:1;"></div>
+              <span style="font-size:11.5px; color:var(--text-faint);">{{ r.count }} members</span>
+              <sc-if value="{{ r.editable }}" hint-placeholder-val="{{ true }}"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">more_horiz</span></sc-if>
+              <sc-if value="{{ r.locked }}" hint-placeholder-val="x"><span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">lock</span></sc-if>
+            </div>
+            <div style="font-size:12px; color:var(--text-muted); margin-top:6px;">{{ r.summary }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- role edit -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow-sm); overflow:hidden;">
+      <div style="padding:16px 18px; border-bottom:1px solid var(--border);">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint);">Editing role</div>
+        <div style="display:flex; align-items:center; height:40px; padding:0 13px; margin-top:8px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 2px var(--ring); font-size:14px; font-weight:600;">QA Engineer</div>
+      </div>
+      <div style="padding:6px 18px 16px;">
+        <sc-for list="{{ permGroups }}" as="g" hint-placeholder-count="3">
+          <div style="padding:14px 0 4px;">
+            <div style="display:flex; align-items:center; gap:7px; font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;"><span class="material-symbols-rounded" style="font-size:15px;">{{ g.icon }}</span>{{ g.name }}</div>
+            <sc-for list="{{ g.perms }}" as="p" hint-placeholder-count="3">
+              <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--border);">
+                <div style="flex:1;"><div style="font-size:12.5px; font-weight:500;">{{ p.label }}</div></div>
+                <div style="width:34px; height:20px; border-radius:999px; background:{{ p.bg }}; position:relative; flex-shrink:0;"><div style="position:absolute; top:2px; {{ p.side }}:2px; width:16px; height:16px; border-radius:999px; background:#fff;"></div></div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:9px; padding:14px 18px; border-top:1px solid var(--border);">
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="80px,36px" variant="ghost" size="sm" style="{{ btn }}">Cancel</x-import>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="120px,36px" variant="primary" size="sm" leading-icon="check" style="{{ btn }}">Save role</x-import>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const btn = { height: 36, borderRadius: 9, fontSize: 13 };
+    const tab=(label,sel)=>({ label, weight: sel?'600':'500', color: sel?'var(--primary-text)':'var(--text-muted)', border: sel?'var(--primary)':'transparent' });
+    const wsTabs=[ tab('Users'), tab('Invites'), tab('Groups'), tab('Roles',true) ];
+    const sys=['var(--surface-2)','var(--text-muted)'], cust=['var(--primary-soft)','var(--primary-text)'];
+    const mk=(name,system,count,summary,sel)=>({ name, tag: system?'System':'Custom', tagBg: system?sys[0]:cust[0], tagColor: system?sys[1]:cust[1],
+      count, summary, locked:system, editable:!system, borderC: sel?'var(--primary)':'var(--border)' });
+    const roles=[
+      mk('Admin',true,4,'Full access to every project and workspace setting'),
+      mk('Test lead',false,6,'Manage suites, plans and runs; invite engineers'),
+      mk('QA Engineer',false,11,'Create and execute cases; raise defects', true),
+      mk('Automation bot',false,2,'Trigger runs and write results via API'),
+      mk('Viewer',true,3,'Read-only access to dashboards and reports'),
+    ];
+    const tog=(on)=>({ bg: on?'var(--primary)':'var(--surface-2)', side: on?'right':'left' });
+    const perm=(label,on)=>({ label, ...tog(on) });
+    const permGroups=[
+      { name:'Repository', icon:'account_tree', perms:[ perm('View test cases',true), perm('Create & edit cases',true), perm('Delete cases',false) ] },
+      { name:'Test runs', icon:'play_circle', perms:[ perm('Execute runs',true), perm('Create runs',true), perm('Abort runs',false) ] },
+      { name:'Defects', icon:'bug_report', perms:[ perm('Raise defects',true), perm('Resolve defects',false) ] },
+    ];
+    return { wsTabs, roles, permGroups, btn };
+  }
+}
+</script>
+</body>
+</html>

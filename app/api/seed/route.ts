@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireDevRouteSecret } from "@/lib/dev-route-auth";
 
 export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const secret = url.searchParams.get("secret");
-
-  if (secret !== "socket9") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authError = requireDevRouteSecret(req);
+  if (authError) return authError;
 
   try {
     const user = await prisma.user.findFirst({ where: { role: "ADMIN" } });

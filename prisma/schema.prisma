@@ -452,6 +452,7 @@ model TestPlan {
 
   testCases TestCase[] @relation("TestPlanToTestCase")
   testRuns  TestRun[]
+  pipelines PipelineSchedule[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -581,10 +582,14 @@ model PipelineSchedule {
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
+  planId String?
+  plan   TestPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([projectId])
+  @@index([planId])
 }
 
 model AuditLog {

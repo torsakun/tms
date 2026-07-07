@@ -3,11 +3,16 @@ import { prisma } from "@/lib/prisma";
 import { generateInviteEmailHtml } from "@/lib/email-templates";
 import { sendEmail } from "@/lib/mailer";
 import { v4 as uuidv4 } from "uuid";
+import { getSessionUser, unauthorized, forbidden } from "@/lib/api-auth";
+import { canManageUsers } from "@/lib/permissions";
 
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const actor = await getSessionUser();
+  if (!actor) return unauthorized();
+  if (!canManageUsers(actor)) return forbidden();
   try {
     const { id } = await params;
 

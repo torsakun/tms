@@ -1,11 +1,17 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { getSessionUser, forbidden, unauthorized } from "@/lib/api-auth";
+import { canManageWorkspace } from "@/lib/permissions";
 
-export async function GET(req: Request) {
+export async function GET() {
+  const actor = await getSessionUser();
+  if (!actor) return unauthorized();
+  if (!canManageWorkspace(actor)) return forbidden();
+
   try {
     const settings = await prisma.workspaceSetting.findMany();
     // Convert to a simple key-value object
-    const config = settings.reduce((acc: any, setting: any) => {
+    const config = settings.reduce<Record<string, string>>((acc, setting) => {
       acc[setting.key] = setting.value;
       return acc;
     }, {});
@@ -37,6 +43,10 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const actor = await getSessionUser();
+  if (!actor) return unauthorized();
+  if (!canManageWorkspace(actor)) return forbidden();
+
   try {
     const body = await req.json();
 

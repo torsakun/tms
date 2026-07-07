@@ -1,6 +1,50 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+async function resolveRunCaseIds({
+  projectId,
+  caseIds,
+  planId,
+}: {
+  projectId: string;
+  caseIds?: unknown;
+  planId?: unknown;
+}) {
+  if (Array.isArray(caseIds) && caseIds.length > 0) {
+    const uniqueCaseIds = Array.from(
+      new Set(caseIds.filter((caseId): caseId is string => typeof caseId === "string")),
+    );
+    const cases = await prisma.testCase.findMany({
+      where: { id: { in: uniqueCaseIds }, projectId },
+      select: { id: true },
+    });
+
+    if (cases.length !== uniqueCaseIds.length) {
+      throw new Error("One or more test cases do not belong to this project");
+    }
+
+    return uniqueCaseIds;
+  }
+
+  if (typeof planId === "string" && planId) {
+    const plan = await prisma.testPlan.findFirst({
+      where: { id: planId, projectId },
+      select: { testCases: { select: { id: true } } },
+    });
+
+    if (!plan) throw new Error("Test plan not found");
+
+    const planCaseIds = plan.testCases.map((testCase) => testCase.id);
+    if (planCaseIds.length === 0) {
+      throw new Error("Selected test plan has no test cases");
+    }
+
+    return planCaseIds;
+  }
+
+  throw new Error("Provide caseIds or planId to create a test run");
+}
+
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ code: string }> },
@@ -43,18 +87,16 @@ export async function POST(
     // Find project
     const project = await prisma.project.findUnique({
       where: { code },
-      include: { testCases: true }, // grab all cases to auto-add to run for MVP
     });
 
     if (!project)
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
-    if (project.testCases.length === 0) {
-      return NextResponse.json(
-        { error: "Cannot start a run without test cases" },
-        { status: 400 },
-      );
-    }
+    const runCaseIds = await resolveRunCaseIds({
+      projectId: project.id,
+      caseIds: body.caseIds,
+      planId: body.planId,
+    });
 
     // Create Test Run
     const run = await prisma.testRun.create({
@@ -63,10 +105,14 @@ export async function POST(
           body.title || `Test Run ${new Date().toISOString().split("T")[0]}`,
         description: body.description || "",
         projectId: project.id,
-        // Auto create results for all cases in project
+        planId: typeof body.planId === "string" ? body.planId : undefined,
+        environmentId:
+          typeof body.environmentId === "string" ? body.environmentId : undefined,
+        milestoneId:
+          typeof body.milestoneId === "string" ? body.milestoneId : undefined,
         results: {
-          create: project.testCases.map((tc) => ({
-            caseId: tc.id,
+          create: runCaseIds.map((caseId) => ({
+            caseId,
             status: "IN_PROGRESS",
           })),
         },
@@ -80,8 +126,11 @@ export async function POST(
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Failed to create test run" },
-      { status: 500 },
+      {
+        error:
+          error instanceof Error ? error.message : "Failed to create test run",
+      },
+      { status: error instanceof Error ? 400 : 500 },
     );
   }
 }

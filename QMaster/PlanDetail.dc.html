@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Test plan detail" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;">
+  <!-- project tab bar -->
+  <div style="display:flex; align-items:center; gap:18px; padding:0 18px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:7px; padding:11px 0;"><span style="font-weight:600; font-size:13.5px;">Checkout Web</span><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">unfold_more</span></div>
+    <div style="width:1px; height:18px; background:var(--border);"></div>
+    <div style="display:flex; gap:2px;">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><div style="padding:11px 12px 9px; font-weight:{{ t.weight }}; font-size:13px; color:{{ t.color }}; border-bottom:2px solid {{ t.border }}; margin-bottom:-1px;">{{ t.label }}</div></sc-for>
+    </div>
+  </div>
+
+  <div style="padding:16px 22px; max-width:1120px; margin:0 auto;">
+    <!-- breadcrumb -->
+    <div style="display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--text-faint); margin-bottom:14px;"><span>Test plans</span><span class="material-symbols-rounded" style="font-size:15px;">chevron_right</span><span style="color:var(--text-muted); font-weight:500;">Release regression</span></div>
+
+    <!-- plan header -->
+    <div style="display:flex; align-items:flex-start; gap:16px; background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:20px; box-shadow:var(--shadow-sm); margin-bottom:16px;">
+      <div style="width:46px; height:46px; border-radius:12px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-symbols-rounded" style="font-size:25px;">verified</span></div>
+      <div style="flex:1; min-width:0;">
+        <div style="font-size:20px; font-weight:600; letter-spacing:-0.015em;">Release regression</div>
+        <div style="font-size:13px; color:var(--text-muted); margin-top:4px; line-height:1.55; max-width:560px;">Full regression across checkout, payments and auth, run before every production release.</div>
+        <div style="display:flex; gap:20px; margin-top:14px;">
+          <div><span style="font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">418</span><span style="font-size:12px; color:var(--text-faint); margin-left:5px;">cases</span></div>
+          <div><span style="font-size:15px; font-weight:700; font-variant-numeric:tabular-nums;">24</span><span style="font-size:12px; color:var(--text-faint); margin-left:5px;">runs created</span></div>
+          <div><span style="font-size:13px; font-weight:500; color:var(--text-muted);">Created Mar 2026 · by Jordan Lee</span></div>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; flex-shrink:0;">
+        <div style="width:36px; height:36px; border-radius:9px; box-shadow:inset 0 0 0 1px var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:18px;">edit</span></div>
+        <div style="width:36px; height:36px; border-radius:9px; box-shadow:inset 0 0 0 1px var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-faint);"><span class="material-symbols-rounded" style="font-size:18px;">delete</span></div>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="180px,36px" variant="primary" size="sm" leading-icon="play_arrow" style="{{ btn }}">Start run from this plan</x-import>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1.5fr 1fr; gap:16px;">
+      <!-- included cases -->
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow-sm); overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px;"><div style="font-weight:600; font-size:14px;">Included cases <span style="color:var(--text-faint); font-weight:400;">· 418</span></div><span style="font-size:12px; font-weight:600; color:var(--primary-text);">Manage</span></div>
+        <div style="display:grid; grid-template-columns:24px 1fr 96px; gap:10px; padding:8px 16px; font-size:10px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); border-top:1px solid var(--border); border-bottom:1px solid var(--border);"><div></div><div>Case</div><div>Type</div></div>
+        <sc-for list="{{ cases }}" as="c" hint-placeholder-count="6">
+          <div style="display:grid; grid-template-columns:24px 1fr 96px; gap:10px; padding:10px 16px; align-items:center; border-bottom:1px solid var(--border);">
+            <span class="material-symbols-rounded" style="font-size:16px; color:{{ c.priColor }};">{{ c.priIcon }}</span>
+            <div style="min-width:0;"><div style="font-size:12.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ c.title }}</div><div style="font-size:10.5px; color:var(--text-faint);">{{ c.suite }}</div></div>
+            <div style="font-size:11.5px; color:var(--text-muted);">{{ c.type }}</div>
+          </div>
+        </sc-for>
+        <div style="padding:11px 16px; font-size:12px; color:var(--text-faint); text-align:center;">+ 412 more cases</div>
+      </div>
+
+      <!-- runs from this plan -->
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow-sm); overflow:hidden;">
+        <div style="padding:14px 16px; font-weight:600; font-size:14px; border-bottom:1px solid var(--border);">Runs from this plan</div>
+        <sc-for list="{{ runs }}" as="r" hint-placeholder-count="4">
+          <div style="display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border);">
+            <svg width="38" height="38" viewBox="0 0 38 38" style="flex-shrink:0;">
+              <circle cx="19" cy="19" r="15" fill="none" stroke="var(--surface-2)" stroke-width="4"></circle>
+              <circle cx="19" cy="19" r="15" fill="none" stroke="{{ r.ringColor }}" stroke-width="4" stroke-linecap="round" stroke-dasharray="94.2" stroke-dashoffset="{{ r.ringOffset }}" transform="rotate(-90 19 19)"></circle>
+              <text x="19" y="20" text-anchor="middle" dominant-baseline="middle" style="font-size:9px; font-weight:700; fill:var(--text); font-family:Inter;">{{ r.pass }}</text>
+            </svg>
+            <div style="flex:1; min-width:0;"><div style="font-size:12.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.id }}</div><div style="font-size:11px; color:var(--text-faint);">{{ r.date }}</div></div>
+            <span style="display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; background:{{ r.stBg }}; color:{{ r.stColor }};">{{ r.status }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const btn={ height:36, borderRadius:9, fontSize:13 };
+    const tab=(label,sel)=>({ label, weight: sel?'600':'500', color: sel?'var(--primary-text)':'var(--text-muted)', border: sel?'var(--primary)':'transparent' });
+    const tabs=[ tab('Dashboards'), tab('Repository'), tab('Test Plans',true), tab('Test Runs'), tab('Automation') ];
+    const pri={ high:['keyboard_double_arrow_up','var(--fail)'], medium:['drag_handle','var(--warn)'], low:['keyboard_arrow_down','var(--text-faint)'] };
+    const mkc=(title,suite,p,type)=>({ title, suite, priIcon:pri[p][0], priColor:pri[p][1], type });
+    const cases=[
+      mkc('Apply promo code at checkout','Checkout / Pricing','high','Functional'),
+      mkc('Guest checkout — invalid card','Payments / Cards','high','Negative'),
+      mkc('Subtotal updates on quantity change','Checkout / Pricing','medium','Functional'),
+      mkc('Session timeout redirect','Auth / Sessions','medium','Functional'),
+      mkc('Tax recalculation on address change','Checkout / Tax','high','Functional'),
+      mkc('Free-shipping threshold banner','Checkout / Pricing','low','Visual'),
+    ];
+    const C=94.2; const ring=p=>(C*(1-p/100)).toFixed(1);
+    const rc=p=>p>=90?'var(--pass)':p>=75?'var(--warn)':'var(--fail)';
+    const st={ Completed:['var(--pass-soft)','var(--pass)'], Active:['var(--primary-soft)','var(--primary-text)'], Aborted:['var(--fail-soft)','var(--fail)'] };
+    const mkr=(id,pass,date,status)=>({ id, pass, date, status, ringOffset:ring(pass), ringColor:rc(pass), stBg:st[status][0], stColor:st[status][1] });
+    const runs=[
+      mkr('RUN-318',96,'Jun 22, 2026','Completed'),
+      mkr('RUN-311',92,'Jun 20, 2026','Completed'),
+      mkr('RUN-320',92,'In progress','Active'),
+      mkr('RUN-304',73,'Jun 14, 2026','Aborted'),
+    ];
+    return { tabs, cases, runs, btn };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Pending invites" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased; position:relative;">
+  <div style="padding:18px 22px 0; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+      <div style="width:30px; height:30px; border-radius:9px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size:19px;">corporate_fare</span></div>
+      <div style="font-size:18px; font-weight:600; letter-spacing:-0.01em;">Workspace</div>
+    </div>
+    <div style="display:flex; gap:2px;">
+      <sc-for list="{{ wsTabs }}" as="t" hint-placeholder-count="4"><div style="padding:10px 12px 9px; font-weight:{{ t.weight }}; font-size:13px; color:{{ t.color }}; border-bottom:2px solid {{ t.border }}; margin-bottom:-1px;">{{ t.label }}</div></sc-for>
+    </div>
+  </div>
+
+  <div style="padding:20px 22px; max-width:1060px;">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+      <div style="font-size:16px; font-weight:600;">Pending invites <span style="color:var(--text-faint); font-weight:400;">· 5</span></div>
+      <div style="flex:1;"></div>
+      <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="150px,36px" variant="primary" size="sm" leading-icon="send" style="{{ btn }}">Invite new member</x-import>
+    </div>
+
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow-sm); overflow:hidden;">
+      <div style="display:grid; grid-template-columns:2fr 1fr 120px 110px 80px; gap:14px; padding:10px 18px; font-size:10.5px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); border-bottom:1px solid var(--border);">
+        <div>Email</div><div>Role</div><div>Invited</div><div>Status</div><div></div>
+      </div>
+      <sc-for list="{{ invites }}" as="i" hint-placeholder-count="5">
+        <div style="display:grid; grid-template-columns:2fr 1fr 120px 110px 80px; gap:14px; padding:13px 18px; align-items:center; border-bottom:1px solid var(--border);">
+          <div style="display:flex; align-items:center; gap:10px; min-width:0;"><div style="width:28px; height:28px; border-radius:999px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">mail</span></div><span style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ i.email }}</span></div>
+          <div><span style="font-size:11.5px; font-weight:600; padding:3px 9px; border-radius:7px; background:var(--surface-2); color:var(--text-muted);">{{ i.role }}</span></div>
+          <div style="font-size:12px; color:var(--text-muted);">{{ i.invited }}</div>
+          <div><span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; background:{{ i.stBg }}; color:{{ i.stColor }};"><span class="material-symbols-rounded fill" style="font-size:12px;">{{ i.stIcon }}</span>{{ i.status }}</span></div>
+          <div style="display:flex; gap:10px; justify-content:flex-end; color:var(--text-faint);"><span class="material-symbols-rounded" style="font-size:18px;" title="Resend">refresh</span><span class="material-symbols-rounded" style="font-size:18px; color:var(--fail);" title="Revoke">block</span></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- invite modal w/ tabs -->
+  <div style="position:absolute; inset:0; background:var(--bg-overlay); display:flex; align-items:flex-start; justify-content:center; padding-top:54px;">
+    <div style="width:440px; background:var(--surface); border:1px solid var(--border); border-radius:15px; box-shadow:var(--shadow-lg); overflow:hidden;">
+      <div style="display:flex; align-items:center; gap:10px; padding:18px 20px 14px;"><div style="width:34px; height:34px; border-radius:9px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size:19px;">person_add</span></div><div style="font-size:15.5px; font-weight:600;">Invite members</div></div>
+      <div style="display:flex; gap:3px; margin:0 20px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:3px;">
+        <div style="flex:1; text-align:center; padding:6px 0; border-radius:7px; font-size:12.5px; font-weight:600; background:var(--surface); box-shadow:var(--shadow-sm);">Single</div>
+        <div style="flex:1; text-align:center; padding:6px 0; border-radius:7px; font-size:12.5px; font-weight:500; color:var(--text-muted);">Bulk paste</div>
+      </div>
+      <div style="padding:16px 20px; display:flex; flex-direction:column; gap:14px;">
+        <div><label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px;">Email address</label><div style="display:flex; align-items:center; gap:9px; height:42px; padding:0 13px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 2px var(--ring); font-size:14px;"><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">mail</span>new.hire@checkout.dev</div></div>
+        <div><label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px;">Role</label><div style="display:flex; align-items:center; justify-content:space-between; height:42px; padding:0 13px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13.5px;">Engineer<span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">expand_more</span></div></div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:9px; padding:14px 20px; border-top:1px solid var(--border);">
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="80px,36px" variant="ghost" size="sm" style="{{ btn }}">Cancel</x-import>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="120px,36px" variant="primary" size="sm" leading-icon="send" style="{{ btn }}">Send invite</x-import>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const btn = { height: 36, borderRadius: 9, fontSize: 13 };
+    const tab=(label,sel)=>({ label, weight: sel?'600':'500', color: sel?'var(--primary-text)':'var(--text-muted)', border: sel?'var(--primary)':'transparent' });
+    const wsTabs=[ tab('Users'), tab('Invites',true), tab('Groups'), tab('Roles') ];
+    const st=(s)=> s==='Pending' ? ['var(--warn-soft)','var(--warn)','schedule'] : ['var(--surface-2)','var(--text-faint)','history_toggle_off'];
+    const mk=(email,role,invited,status)=>({ email, role, invited, status, stBg:st(status)[0], stColor:st(status)[1], stIcon:st(status)[2] });
+    const invites=[
+      mk('priya@checkout.dev','Engineer','2 days ago','Pending'),
+      mk('marcus@checkout.dev','Test lead','4 days ago','Pending'),
+      mk('contractor@vendor.io','Viewer','3 weeks ago','Expired'),
+      mk('dev.lin@checkout.dev','Engineer','6 days ago','Pending'),
+      mk('old.invite@checkout.dev','Viewer','1 month ago','Expired'),
+    ];
+    return { wsTabs, invites, btn };
+  }
+}
+</script>
+</body>
+</html>

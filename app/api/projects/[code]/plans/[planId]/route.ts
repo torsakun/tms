@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireProjectAccess } from "@/lib/project-route-auth";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ code: string; planId: string }> },
 ) {
   try {
-    const { code, planId } = await params;
+    const { planId } = await params;
 
     const plan = await prisma.testPlan.findUnique({
       where: { id: planId },
@@ -50,6 +51,9 @@ export async function PUT(
 ) {
   try {
     const { code, planId } = await params;
+    const access = await requireProjectAccess(code);
+    if (access instanceof NextResponse) return access;
+
     const body = await request.json();
     const { title, description, caseIds } = body;
 
@@ -87,6 +91,8 @@ export async function DELETE(
 ) {
   try {
     const { code, planId } = await params;
+    const access = await requireProjectAccess(code);
+    if (access instanceof NextResponse) return access;
 
     await prisma.testPlan.delete({
       where: { id: planId },

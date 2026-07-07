@@ -1,12 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { requireProjectAccess } from "@/lib/project-route-auth";
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ code: string; id: string }> },
 ) {
-  const { id } = await params;
+  const { code, id } = await params;
   try {
+    const access = await requireProjectAccess(code);
+    if (access instanceof NextResponse) return access;
+
     const { title, action, expectedResult } = await req.json();
     const updated = await prisma.sharedStep.update({
       where: { id },
@@ -30,8 +34,11 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ code: string; id: string }> },
 ) {
-  const { id } = await params;
+  const { code, id } = await params;
   try {
+    const access = await requireProjectAccess(code);
+    if (access instanceof NextResponse) return access;
+
     await prisma.sharedStep.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {

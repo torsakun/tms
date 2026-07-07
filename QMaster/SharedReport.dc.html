@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Shared report" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; -webkit-font-smoothing:antialiased; min-height:560px;">
+  <!-- public top bar -->
+  <div style="display:flex; align-items:center; gap:10px; padding:13px 22px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="width:24px; height:24px; border-radius:7px; background:var(--primary); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded fill" style="font-size:16px; color:var(--primary-fg);">radar</span></div>
+    <span style="font-weight:700; font-size:14px;">QMaster</span>
+    <span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:2px 9px; border-radius:999px; background:var(--surface-2); color:var(--text-muted); margin-left:4px;"><span class="material-symbols-rounded" style="font-size:13px;">public</span>Public report · read-only</span>
+    <div style="flex:1;"></div>
+    <span style="display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:17px;">download</span>Export PDF</span>
+  </div>
+
+  <div style="max-width:920px; margin:0 auto; padding:24px;">
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:18px;">
+      <div>
+        <div style="font-size:21px; font-weight:600; letter-spacing:-0.015em;">Regression — Checkout v4.8</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-faint); margin-top:3px;">RUN-318 · Staging · completed Jun 22, 2026 · 1h 48m</div>
+      </div>
+      <span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; padding:3px 11px; border-radius:999px; background:var(--pass-soft); color:var(--pass);"><span class="material-symbols-rounded fill" style="font-size:14px;">check_circle</span>Completed</span>
+    </div>
+
+    <!-- summary -->
+    <div style="display:grid; grid-template-columns:200px 1fr; gap:16px; margin-bottom:16px;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:18px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; align-items:center; justify-content:center;">
+        <svg width="118" height="118" viewBox="0 0 118 118">
+          <circle cx="59" cy="59" r="48" fill="none" stroke="var(--surface-2)" stroke-width="11"></circle>
+          <circle cx="59" cy="59" r="48" fill="none" stroke="var(--pass)" stroke-width="11" stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="12" transform="rotate(-90 59 59)"></circle>
+          <text x="59" y="55" text-anchor="middle" style="font-size:26px; font-weight:700; fill:var(--text); font-family:Inter;">96%</text>
+          <text x="59" y="73" text-anchor="middle" style="font-size:11px; fill:var(--text-faint); font-family:Inter;">pass rate</text>
+        </svg>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:18px; box-shadow:var(--shadow-sm);">
+        <div style="font-weight:600; font-size:14px; margin-bottom:12px;">Result distribution <span style="color:var(--text-faint); font-weight:400;">· 420 cases</span></div>
+        <div style="display:flex; height:12px; border-radius:6px; overflow:hidden; gap:2px; margin-bottom:14px;">
+          <sc-for list="{{ dist }}" as="s" hint-placeholder-count="4"><div style="width:{{ s.w }}; background:{{ s.color }};"></div></sc-for>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:9px 24px;">
+          <sc-for list="{{ dist }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex; align-items:center; gap:8px; font-size:13px;"><span style="width:9px; height:9px; border-radius:3px; background:{{ s.color }};"></span><span style="flex:1; color:var(--text-muted);">{{ s.label }}</span><span style="font-weight:700; font-variant-numeric:tabular-nums;">{{ s.count }}</span></div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <!-- failed cases with evidence -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow-sm); overflow:hidden;">
+      <div style="padding:14px 18px; border-bottom:1px solid var(--border); font-weight:600; font-size:14px; display:flex; align-items:center; gap:8px;"><span class="material-symbols-rounded fill" style="font-size:18px; color:var(--fail);">cancel</span>Failed cases <span style="font-size:11px; font-weight:700; background:var(--fail-soft); color:var(--fail); padding:1px 8px; border-radius:999px;">11</span></div>
+      <sc-for list="{{ failed }}" as="f" hint-placeholder-count="3">
+        <div style="display:flex; align-items:center; gap:14px; padding:13px 18px; border-bottom:1px solid var(--border);">
+          <div style="width:64px; height:44px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--text-faint);"><span class="material-symbols-rounded" style="font-size:20px;">image</span></div>
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:13.5px; font-weight:500;">{{ f.title }}</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-faint); margin-top:2px;">{{ f.id }} · step {{ f.step }}</div>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--fail); background:var(--fail-soft); padding:3px 9px; border-radius:7px;">{{ f.error }}</div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="text-align:center; padding:20px; color:var(--text-faint); font-size:11.5px;">Generated by QMaster · this link is read-only and expires in 30 days</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const dist=[
+      { label:'Passed', count:'403', w:'96%', color:'var(--pass)' },
+      { label:'Failed', count:'11', w:'2.6%', color:'var(--fail)' },
+      { label:'Blocked', count:'6', w:'1.4%', color:'var(--warn)' },
+      { label:'Skipped', count:'0', w:'0%', color:'var(--skip)' },
+    ];
+    const failed=[
+      { id:'TC-2041', title:'Apply promo code at checkout', step:3, error:'HTTP 422' },
+      { id:'TC-1180', title:'Guest checkout — invalid card', step:5, error:'timeout' },
+      { id:'TC-3322', title:'Tax recalculation on address change', step:2, error:'assert' },
+    ];
+    return { dist, failed };
+  }
+}
+</script>
+</body>
+</html>

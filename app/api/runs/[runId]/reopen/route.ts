@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import { logAudit } from "@/lib/audit-logger";
+import { requireRunAccess } from "@/lib/project-route-auth";
 
 // Reopen a completed/aborted run back to ACTIVE so execution can continue.
 export async function POST(
@@ -11,10 +10,8 @@ export async function POST(
 ) {
   const { runId } = await params;
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const access = await requireRunAccess(runId);
+    if (access instanceof NextResponse) return access;
 
     const run = await prisma.testRun.findUnique({
       where: { id: runId },
@@ -39,7 +36,7 @@ export async function POST(
 
     await logAudit({
       projectId: run.projectId,
-      userId: (session.user as any).id,
+      userId: access.userId,
       action: "UPDATED",
       entity: "TEST_RUN",
       entityId: run.id,
@@ -47,8 +44,11 @@ export async function POST(
     });
 
     return NextResponse.json({ success: true, run: updated });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Reopen Run Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to reopen run" },
+      { status: 500 },
+    );
   }
 }

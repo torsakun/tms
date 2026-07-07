@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Workspace settings" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;">
+  <div style="padding:18px 22px 0; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;"><div style="width:30px; height:30px; border-radius:9px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size:19px;">corporate_fare</span></div><div style="font-size:18px; font-weight:600; letter-spacing:-0.01em;">Workspace</div></div>
+    <div style="display:flex; gap:2px;"><sc-for list="{{ wsTabs }}" as="t" hint-placeholder-count="5"><div style="padding:10px 12px 9px; font-weight:{{ t.weight }}; font-size:13px; color:{{ t.color }}; border-bottom:2px solid {{ t.border }}; margin-bottom:-1px;">{{ t.label }}</div></sc-for>
+      <div style="flex:1;"></div>
+      <div style="padding:10px 12px 9px; font-weight:600; font-size:13px; color:var(--primary-text); border-bottom:2px solid var(--primary); margin-bottom:-1px; display:flex; align-items:center; gap:5px;"><span class="material-symbols-rounded" style="font-size:17px;">settings</span>Settings</div>
+    </div>
+  </div>
+
+  <div style="padding:24px 22px; max-width:980px; margin:0 auto;">
+    <div style="font-size:19px; font-weight:600; letter-spacing:-0.015em; margin-bottom:18px;">Workspace settings</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start;">
+
+      <!-- identity -->
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:18px; box-shadow:var(--shadow-sm);">
+        <div style="font-size:14px; font-weight:600; margin-bottom:14px;">Identity</div>
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
+          <div style="width:48px; height:48px; border-radius:12px; background:var(--primary); color:var(--primary-fg); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700;">C</div>
+          <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="120px,34px" variant="outline" size="sm" leading-icon="upload" style="{{ btn }}">Change logo</x-import>
+        </div>
+        <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px;">Workspace name</label>
+        <div style="display:flex; align-items:center; height:40px; padding:0 12px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13.5px; margin-bottom:14px;">Checkout Inc.</div>
+        <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px;">Workspace URL</label>
+        <div style="display:flex; align-items:center; height:40px; padding:0 12px; border-radius:10px; background:var(--surface-2); box-shadow:inset 0 0 0 1px var(--border); font-size:13px; color:var(--text-muted); font-family:'JetBrains Mono',monospace;">qmaster.io/checkout</div>
+      </div>
+
+      <!-- preferences -->
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:18px; box-shadow:var(--shadow-sm);">
+        <div style="font-size:14px; font-weight:600; margin-bottom:6px;">Preferences</div>
+        <sc-for list="{{ prefs }}" as="p" hint-placeholder-count="4">
+          <div style="display:flex; align-items:center; gap:12px; padding:12px 0; border-top:1px solid var(--border);">
+            <div style="flex:1;"><div style="font-size:13px; font-weight:500;">{{ p.label }}</div><div style="font-size:11.5px; color:var(--text-faint); margin-top:1px;">{{ p.desc }}</div></div>
+            <div style="width:34px; height:20px; border-radius:999px; background:{{ p.bg }}; position:relative; flex-shrink:0;"><div style="position:absolute; top:2px; {{ p.side }}:2px; width:16px; height:16px; border-radius:999px; background:#fff;"></div></div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- backup -->
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:18px; box-shadow:var(--shadow-sm); display:flex; align-items:center; gap:14px;">
+        <div style="width:40px; height:40px; border-radius:11px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-symbols-rounded" style="font-size:21px; color:var(--text-muted);">archive</span></div>
+        <div style="flex:1;"><div style="font-size:13.5px; font-weight:600;">Export backup</div><div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Download all projects, cases and runs as JSON.</div></div>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="100px,36px" variant="outline" size="sm" leading-icon="download" style="{{ btn2 }}">Export</x-import>
+      </div>
+
+      <!-- danger zone -->
+      <div style="background:var(--surface); border:1px solid var(--danger-border); border-radius:13px; padding:18px; box-shadow:var(--shadow-sm);">
+        <div style="display:flex; align-items:center; gap:7px; font-size:14px; font-weight:600; color:var(--fail); margin-bottom:12px;"><span class="material-symbols-rounded" style="font-size:18px;">warning</span>Danger zone</div>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="flex:1;"><div style="font-size:13px; font-weight:500;">Delete workspace</div><div style="font-size:11.5px; color:var(--text-muted); margin-top:1px;">Permanently removes everything. Cannot be undone.</div></div>
+          <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="90px,36px" variant="danger" size="sm" leading-icon="delete" style="{{ btn2 }}">Delete</x-import>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:9px; margin-top:18px;">
+      <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="90px,40px" variant="ghost" style="{{ btn3 }}">Discard</x-import>
+      <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="130px,40px" variant="primary" leading-icon="check" style="{{ btn3 }}">Save changes</x-import>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const btn={ height:34, borderRadius:8, fontSize:12.5 };
+    const btn2={ height:36, borderRadius:9, fontSize:13 };
+    const btn3={ height:40, borderRadius:10, fontSize:14 };
+    const tab=(label,sel)=>({ label, weight: sel?'600':'500', color: sel?'var(--primary-text)':'var(--text-muted)', border: sel?'var(--primary)':'transparent' });
+    const wsTabs=[ tab('Users'), tab('Invites'), tab('Groups'), tab('Roles'), tab('Custom fields') ];
+    const tg=(on)=>({ bg: on?'var(--primary)':'var(--surface-2)', side: on?'right':'left' });
+    const pref=(label,desc,on)=>({ label, desc, ...tg(on) });
+    const prefs=[
+      pref('Require 2FA','Enforce two-factor for all members',true),
+      pref('Public shared reports','Allow read-only report links',true),
+      pref('Auto-archive runs','Archive runs older than 90 days',false),
+      pref('Weekly digest','Email a quality summary every Monday',true),
+    ];
+    return { wsTabs, prefs, btn, btn2, btn3 };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireProjectAccess } from "@/lib/project-route-auth";
 
 export async function PATCH(
   req: Request,
@@ -7,6 +8,9 @@ export async function PATCH(
 ) {
   const { code, id } = await params;
   try {
+    const access = await requireProjectAccess(code);
+    if (access instanceof NextResponse) return access;
+
     const body = await req.json();
     const { isActive, cron } = body;
 
@@ -14,8 +18,8 @@ export async function PATCH(
     if (!project)
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
-    const pipeline = await prisma.pipelineSchedule.findUnique({
-      where: { id },
+    const pipeline = await prisma.pipelineSchedule.findFirst({
+      where: { id, projectId: project.id },
     });
     if (!pipeline)
       return NextResponse.json(
@@ -109,8 +113,11 @@ jobs:
     }
 
     return NextResponse.json(updatedPipeline);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Unexpected error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -120,12 +127,15 @@ export async function DELETE(
 ) {
   const { code, id } = await params;
   try {
+    const access = await requireProjectAccess(code);
+    if (access instanceof NextResponse) return access;
+
     const project = await prisma.project.findUnique({ where: { code } });
     if (!project)
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
-    const pipeline = await prisma.pipelineSchedule.findUnique({
-      where: { id },
+    const pipeline = await prisma.pipelineSchedule.findFirst({
+      where: { id, projectId: project.id },
     });
     if (!pipeline)
       return NextResponse.json(
@@ -164,7 +174,10 @@ export async function DELETE(
     }
 
     return NextResponse.json({ success: true });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Unexpected error" },
+      { status: 500 },
+    );
   }
 }

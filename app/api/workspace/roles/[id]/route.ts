@@ -17,7 +17,7 @@ export async function GET(
       return NextResponse.json({ error: "Role not found" }, { status: 404 });
     }
     return NextResponse.json({ success: true, role });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch role" },
       { status: 500 },
@@ -44,6 +44,12 @@ export async function PUT(
     if (!existingRole) {
       return NextResponse.json({ error: "Role not found" }, { status: 404 });
     }
+    if (existingRole.isSystem) {
+      return NextResponse.json(
+        { error: "System roles cannot be edited" },
+        { status: 400 },
+      );
+    }
 
     if (isDefault) {
       await prisma.workspaceRole.updateMany({
@@ -63,7 +69,7 @@ export async function PUT(
     });
 
     return NextResponse.json({ success: true, role: updatedRole });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to update role" },
       { status: 500 },
@@ -95,6 +101,12 @@ export async function DELETE(
           error:
             "Cannot delete the default role. Set another role as default first.",
         },
+        { status: 400 },
+      );
+    }
+    if (existingRole.isSystem) {
+      return NextResponse.json(
+        { error: "System roles cannot be deleted" },
         { status: 400 },
       );
     }

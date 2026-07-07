@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Repository" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased; position:relative;">
+
+  <!-- project tab bar -->
+  <div style="display:flex; align-items:center; gap:18px; padding:0 18px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:7px; padding:11px 0;"><span style="font-weight:600; font-size:13.5px;">Checkout Web</span><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">unfold_more</span></div>
+    <div style="width:1px; height:18px; background:var(--border);"></div>
+    <div style="display:flex; gap:2px;">
+      <div style="padding:11px 12px 9px; font-weight:500; font-size:13px; color:var(--text-muted);">Dashboards</div>
+      <div style="padding:11px 12px 9px; font-weight:600; font-size:13px; color:var(--primary-text); border-bottom:2px solid var(--primary); margin-bottom:-1px;">Repository</div>
+      <div style="padding:11px 12px 9px; font-weight:500; font-size:13px; color:var(--text-muted);">Test Plans</div>
+      <div style="padding:11px 12px 9px; font-weight:500; font-size:13px; color:var(--text-muted);">Test Runs</div>
+      <div style="padding:11px 12px 9px; font-weight:500; font-size:13px; color:var(--text-muted);">Automation</div>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:268px 1fr; min-height:660px;">
+
+    <!-- suite tree -->
+    <div style="border-right:1px solid var(--border); background:var(--surface); display:flex; flex-direction:column;">
+      <div style="padding:13px 14px 10px; display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-weight:600; font-size:13px;">Suites</span>
+        <span class="material-symbols-rounded" style="font-size:19px; color:var(--text-faint);">create_new_folder</span>
+      </div>
+      <sc-for list="{{ tree }}" as="n" hint-placeholder-count="9">
+        <div style="display:flex; align-items:center; gap:7px; padding:7px 14px 7px {{ n.pad }}; background:{{ n.bg }}; box-shadow:{{ n.bar }}; cursor:pointer; border-radius:0;">
+          <span class="material-symbols-rounded" style="font-size:17px; color:{{ n.caretColor }}; visibility:{{ n.caretVis }};">{{ n.caret }}</span>
+          <span class="material-symbols-rounded {{ n.iconFill }}" style="font-size:17px; color:{{ n.iconColor }};">{{ n.icon }}</span>
+          <span style="flex:1; font-size:13px; font-weight:{{ n.weight }}; color:{{ n.textColor }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ n.label }}</span>
+          <span style="font-size:11px; color:var(--text-faint); font-variant-numeric:tabular-nums;">{{ n.count }}</span>
+        </div>
+      </sc-for>
+      <div style="margin-top:auto; padding:12px 14px; border-top:1px solid var(--border); display:flex; align-items:center; gap:7px; font-size:12px; color:var(--text-faint);">
+        <span class="material-symbols-rounded" style="font-size:16px;">account_tree</span>2,484 cases · 38 suites
+      </div>
+    </div>
+
+    <!-- case list -->
+    <div style="display:flex; flex-direction:column; min-width:0;">
+      <!-- toolbar -->
+      <div style="display:flex; align-items:center; gap:10px; padding:12px 18px; border-bottom:1px solid var(--border); background:var(--surface);">
+        <div style="display:flex; align-items:center; gap:7px; font-size:13px; color:var(--text-muted);"><span style="color:var(--text-faint);">Checkout</span><span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">chevron_right</span><span style="font-weight:600; color:var(--text);">Pricing &amp; promotions</span></div>
+        <div style="flex:1;"></div>
+        <div style="display:flex; align-items:center; gap:8px; height:34px; padding:0 11px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); border-radius:9px; color:var(--text-faint); font-size:12.5px; min-width:170px;"><span class="material-symbols-rounded" style="font-size:17px;">search</span>Filter cases</div>
+        <div style="display:flex; align-items:center; gap:6px; height:34px; padding:0 11px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); border-radius:9px; font-size:12.5px; font-weight:500; color:var(--text);"><span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">tune</span>Filters<span style="font-size:10px; font-weight:700; background:var(--primary-soft); color:var(--primary-text); padding:1px 6px; border-radius:999px;">2</span></div>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="120px,36px" variant="primary" size="sm" leading-icon="add" style="{{ btnStyle }}">New case</x-import>
+      </div>
+
+      <!-- bulk action bar -->
+      <div style="display:flex; align-items:center; gap:12px; padding:9px 18px; background:var(--primary-soft); border-bottom:1px solid var(--border);">
+        <span style="font-size:12.5px; font-weight:600; color:var(--primary-text);">3 selected</span>
+        <div style="display:flex; gap:14px; font-size:12.5px; font-weight:500; color:var(--primary-text);">
+          <span style="display:flex; align-items:center; gap:5px;"><span class="material-symbols-rounded" style="font-size:16px;">drive_file_move</span>Move</span>
+          <span style="display:flex; align-items:center; gap:5px;"><span class="material-symbols-rounded" style="font-size:16px;">label</span>Tag</span>
+          <span style="display:flex; align-items:center; gap:5px;"><span class="material-symbols-rounded" style="font-size:16px;">playlist_add</span>Add to run</span>
+          <span style="display:flex; align-items:center; gap:5px; color:var(--fail);"><span class="material-symbols-rounded" style="font-size:16px;">delete</span>Delete</span>
+        </div>
+        <div style="flex:1;"></div>
+        <span style="font-size:12px; color:var(--primary-text); opacity:.7;">Clear</span>
+      </div>
+
+      <!-- column header -->
+      <div style="display:grid; grid-template-columns:30px 26px 1fr 120px 96px 70px; gap:12px; padding:9px 18px; font-size:10.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); border-bottom:1px solid var(--border);">
+        <div></div><div></div><div>Case</div><div>Tags</div><div>Type</div><div style="text-align:right;">Owner</div>
+      </div>
+
+      <!-- rows -->
+      <sc-for list="{{ cases }}" as="c" hint-placeholder-count="9">
+        <div style="display:grid; grid-template-columns:30px 26px 1fr 120px 96px 70px; gap:12px; padding:11px 18px; align-items:center; border-bottom:1px solid var(--border); background:{{ c.bg }};">
+          <div style="display:flex; align-items:center; justify-content:center;">
+            <div style="width:18px; height:18px; border-radius:5px; box-shadow:{{ c.boxShadow }}; background:{{ c.boxBg }}; display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded fill" style="font-size:14px; color:var(--primary-fg); visibility:{{ c.checkVis }};">check</span></div>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size:17px; color:{{ c.priColor }};">{{ c.priIcon }}</span></div>
+          <div style="min-width:0;">
+            <div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ c.title }}</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint); margin-top:1px;">{{ c.id }}</div>
+          </div>
+          <div style="display:flex; gap:4px;">
+            <sc-for list="{{ c.tags }}" as="t" hint-placeholder-count="2"><span style="font-size:10.5px; font-weight:600; padding:1px 7px; border-radius:6px; background:var(--surface-2); color:var(--text-muted);">{{ t }}</span></sc-for>
+          </div>
+          <div style="display:flex; align-items:center; gap:5px; font-size:11.5px; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:15px; color:var(--text-faint);">{{ c.typeIcon }}</span>{{ c.type }}</div>
+          <div style="display:flex; justify-content:flex-end;"><div style="width:24px; height:24px; border-radius:999px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700;">{{ c.owner }}</div></div>
+        </div>
+      </sc-for>
+
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:13px 18px; margin-top:auto;">
+        <span style="font-size:12px; color:var(--text-faint);">Showing 9 of 142 in this suite</span>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Pagination" page="2" total="142" per-page="9" size="sm" hint-size="240px,32px"></x-import>
+      </div>
+    </div>
+  </div>
+
+  <!-- slide-over case drawer -->
+  <div style="position:absolute; top:0; right:0; bottom:0; width:392px; background:var(--surface); border-left:1px solid var(--border); box-shadow:var(--shadow-lg); display:flex; flex-direction:column; animation:qm-drawer-in .2s ease;">
+    <div style="display:flex; align-items:flex-start; gap:10px; padding:16px 18px 12px; border-bottom:1px solid var(--border);">
+      <div style="flex:1; min-width:0;">
+        <div style="display:flex; align-items:center; gap:8px;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);">TC-2041</span><span class="material-symbols-rounded" style="font-size:16px; color:var(--fail);">keyboard_double_arrow_up</span></div>
+        <div style="font-size:16px; font-weight:600; letter-spacing:-0.01em; margin-top:4px;">Apply promo code at checkout</div>
+      </div>
+      <span class="material-symbols-rounded" style="font-size:20px; color:var(--text-faint);">close</span>
+    </div>
+    <div style="display:flex; gap:2px; padding:0 14px; border-bottom:1px solid var(--border);">
+      <div style="padding:10px 10px 8px; font-size:12.5px; font-weight:600; color:var(--primary-text); border-bottom:2px solid var(--primary); margin-bottom:-1px;">General</div>
+      <div style="padding:10px 10px 8px; font-size:12.5px; font-weight:500; color:var(--text-muted); display:flex; align-items:center; gap:5px;">Defects<span style="font-size:9.5px; font-weight:700; background:var(--fail-soft); color:var(--fail); padding:0 5px; border-radius:999px;">2</span></div>
+      <div style="padding:10px 10px 8px; font-size:12.5px; font-weight:500; color:var(--text-muted);">Comments</div>
+      <div style="padding:10px 10px 8px; font-size:12.5px; font-weight:500; color:var(--text-muted);">History</div>
+    </div>
+    <div style="padding:16px 18px; overflow:auto; display:flex; flex-direction:column; gap:16px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div><div style="font-size:11px; color:var(--text-faint); margin-bottom:4px;">Priority</div><span style="display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600;"><span class="material-symbols-rounded" style="font-size:16px; color:var(--fail);">keyboard_double_arrow_up</span>High</span></div>
+        <div><div style="font-size:11px; color:var(--text-faint); margin-bottom:4px;">Type</div><span style="font-size:12.5px; font-weight:500;">Functional</span></div>
+        <div><div style="font-size:11px; color:var(--text-faint); margin-bottom:4px;">Status</div><span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; background:var(--fail-soft); color:var(--fail);"><span class="material-symbols-rounded fill" style="font-size:13px;">cancel</span>Failed</span></div>
+        <div><div style="font-size:11px; color:var(--text-faint); margin-bottom:4px;">Owner</div><div style="display:flex; align-items:center; gap:6px;"><div style="width:20px; height:20px; border-radius:999px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:700;">JL</div><span style="font-size:12.5px;">Jordan Lee</span></div></div>
+      </div>
+      <div>
+        <div style="font-size:11px; color:var(--text-faint); margin-bottom:6px;">Preconditions</div>
+        <div style="font-size:13px; color:var(--text-muted); line-height:1.55; background:var(--surface-2); border-radius:9px; padding:10px 12px;">Cart contains 2 items totalling $96.00. User is signed in with an active 10% member discount.</div>
+      </div>
+      <div>
+        <div style="font-size:11px; color:var(--text-faint); margin-bottom:8px;">Steps <span style="color:var(--text-faint);">· 4</span></div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex; gap:9px; align-items:flex-start;">
+              <div style="width:20px; height:20px; border-radius:6px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; color:var(--text-muted); flex-shrink:0;">{{ s.n }}</div>
+              <div style="font-size:12.5px; color:var(--text); line-height:1.45;">{{ s.text }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px; color:var(--text-faint); margin-bottom:6px;">Tags</div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <span style="font-size:11px; font-weight:600; padding:3px 9px; border-radius:7px; background:var(--surface-2); color:var(--text-muted);">e2e</span>
+          <span style="font-size:11px; font-weight:600; padding:3px 9px; border-radius:7px; background:var(--surface-2); color:var(--text-muted);">pricing</span>
+          <span style="font-size:11px; font-weight:600; padding:3px 9px; border-radius:7px; background:var(--surface-2); color:var(--text-muted);">regression</span>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:auto; display:flex; gap:9px; padding:14px 18px; border-top:1px solid var(--border);">
+      <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="120px,36px" variant="primary" size="sm" leading-icon="edit" full-width="{{ true }}" style="{{ btnStyle }}">Edit case</x-import>
+      <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="100px,36px" variant="outline" size="sm" leading-icon="play_arrow" full-width="{{ true }}" style="{{ btnStyle }}">Run</x-import>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const btnStyle = { height: 36, borderRadius: 9, fontSize: 13 };
+    const pri={ high:['keyboard_double_arrow_up','var(--fail)'], medium:['drag_handle','var(--warn)'], low:['keyboard_arrow_down','var(--text-faint)'] };
+    const node=(label,opts={})=>({
+      label, count:opts.count??'', icon:opts.icon||'folder', iconFill:opts.open?'fill':'',
+      iconColor: opts.sel?'var(--primary-text)':'var(--text-faint)',
+      caret: opts.leaf?'' : (opts.open?'expand_more':'chevron_right'),
+      caretVis: opts.leaf?'hidden':'visible', caretColor:'var(--text-faint)',
+      pad:(opts.depth||0)*18+14+'px',
+      bg: opts.sel?'var(--primary-soft)':'transparent',
+      bar: opts.sel?'inset 3px 0 0 var(--primary)':'none',
+      weight: opts.sel?'600':'500',
+      textColor: opts.sel?'var(--primary-text)':'var(--text)',
+    });
+    const tree=[
+      node('Checkout', {count:142, open:true, depth:0, icon:'folder_open'}),
+      node('Cart & items', {count:34, depth:1}),
+      node('Pricing & promotions', {count:142, depth:1, sel:true, open:true, icon:'folder_open'}),
+      node('Promo codes', {count:28, depth:2, leaf:true, icon:'description'}),
+      node('Tax & currency', {count:19, depth:2, leaf:true, icon:'description'}),
+      node('Address & shipping', {count:41, depth:1}),
+      node('Payments', {count:88, depth:0}),
+      node('Auth & sessions', {count:63, depth:0}),
+      node('Search & browse', {count:54, depth:0}),
+    ];
+
+    const mk=(r)=>({ ...r,
+      priIcon:pri[r.pri][0], priColor:pri[r.pri][1],
+      boxShadow: r.sel?'none':'inset 0 0 0 1.5px var(--border-strong)',
+      boxBg: r.sel?'var(--primary)':'var(--surface)',
+      checkVis: r.sel?'visible':'hidden',
+      bg: r.sel?'var(--primary-soft)':'transparent',
+    });
+    const cases=[
+      mk({ id:'TC-2041', title:'Apply promo code at checkout', pri:'high', tags:['e2e','pricing'], type:'Functional', typeIcon:'function', owner:'JL', sel:true }),
+      mk({ id:'TC-2042', title:'Stack two promo codes', pri:'high', tags:['pricing'], type:'Functional', typeIcon:'function', owner:'JL', sel:true }),
+      mk({ id:'TC-2039', title:'Subtotal updates on quantity change', pri:'medium', tags:['e2e'], type:'Functional', typeIcon:'function', owner:'MA', sel:true }),
+      mk({ id:'TC-2040', title:'Tax line recalculates by region', pri:'medium', tags:['tax'], type:'Functional', typeIcon:'function', owner:'RK' }),
+      mk({ id:'TC-2044', title:'Free-shipping threshold banner', pri:'low', tags:['ui'], type:'Visual', typeIcon:'visibility', owner:'MA' }),
+      mk({ id:'TC-2045', title:'Currency switch reprices cart', pri:'medium', tags:['i18n'], type:'Functional', typeIcon:'function', owner:'RK' }),
+      mk({ id:'TC-2046', title:'Expired promo shows inline error', pri:'low', tags:['edge'], type:'Negative', typeIcon:'block', owner:'JL' }),
+      mk({ id:'TC-2047', title:'Promo applies to sale items only', pri:'medium', tags:['pricing'], type:'Functional', typeIcon:'function', owner:'MA' }),
+      mk({ id:'TC-2048', title:'Gift card + promo combination', pri:'high', tags:['pricing','edge'], type:'Functional', typeIcon:'function', owner:'RK' }),
+    ];
+
+    const steps=[
+      { n:1, text:'Add 2 items to the cart totalling $96.00.' },
+      { n:2, text:'Open the promo field and enter "SAVE20".' },
+      { n:3, text:'Apply the promo while the member discount is active.' },
+      { n:4, text:'Proceed to the payment step and verify the total.' },
+    ];
+    return { tree, cases, steps, btnStyle };
+  }
+}
+</script>
+</body>
+</html>

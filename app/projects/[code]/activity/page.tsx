@@ -2,16 +2,19 @@
 
 import React, { useState, useEffect, use } from "react";
 import {
-  Activity,
-  PlusCircle,
-  Trash2,
-  Edit2,
-  PlayCircle,
-  Share2,
   Loader2,
-  Filter,
+  Zap,
+  Shapes,
+  User,
+  ChevronDown,
+  PlayCircle,
+  CheckCircle2,
+  XCircle,
+  Bug,
+  Pencil,
+  PlusCircle,
+  type LucideIcon,
 } from "lucide-react";
-import { formatThaiTime } from "@/lib/utils";
 
 type AuditLog = {
   id: string;
@@ -24,89 +27,67 @@ type AuditLog = {
   user: { id: string; name: string; email: string };
 };
 
-const ACTION_CONFIG: Record<
-  string,
-  { label: string; icon: React.ReactNode; bg: string; text: string }
-> = {
-  CREATED: {
-    label: "created",
-    icon: <PlusCircle size={13} />,
-    bg: "bg-success-soft",
-    text: "text-success-foreground",
-  },
-  DELETED: {
-    label: "deleted",
-    icon: <Trash2 size={13} />,
-    bg: "bg-danger-soft",
-    text: "text-danger-foreground",
-  },
-  UPDATED: {
-    label: "updated",
-    icon: <Edit2 size={13} />,
-    bg: "bg-primary-light",
-    text: "text-primary",
-  },
-  EXECUTED: {
-    label: "executed",
-    icon: <PlayCircle size={13} />,
-    bg: "bg-violet-50",
-    text: "text-violet-500",
-  },
-  SHARED: {
-    label: "shared",
-    icon: <Share2 size={13} />,
-    bg: "bg-warning-soft",
-    text: "text-warning",
-  },
+const ACTION_CONFIG: Record<string, { kind: string }> = {
+  CREATED: { kind: 'add' },
+  DELETED: { kind: 'fail' },
+  UPDATED: { kind: 'edit' },
+  EXECUTED: { kind: 'run' },
+  SHARED: { kind: 'pass' },
 };
 
-const COLORS = [
-  "#4f46e5",
-  "#7c3aed",
-  "#0891b2",
-  "#059669",
-  "#d97706",
-  "#e11d48",
-  "#0284c7",
-  "#9333ea",
+const AVS = [
+  { bg: 'var(--primary-soft)', color: 'var(--primary-text)' },
+  { bg: 'var(--info-soft-fill)', color: 'var(--info)' },
+  { bg: 'var(--pass-soft)', color: 'var(--pass)' },
+  { bg: 'var(--warn-soft)', color: 'var(--warn)' }
 ];
-function avatarColor(s: string) {
+
+const IC: Record<string, { icon: LucideIcon; bg: string; color: string }> = {
+  run: { icon: PlayCircle, bg: 'var(--primary-soft)', color: 'var(--primary-text)' },
+  pass: { icon: CheckCircle2, bg: 'var(--pass-soft)', color: 'var(--pass)' },
+  fail: { icon: XCircle, bg: 'var(--fail-soft)', color: 'var(--fail)' },
+  defect: { icon: Bug, bg: 'var(--warn-soft)', color: 'var(--warn)' },
+  edit: { icon: Pencil, bg: 'var(--info-soft-fill)', color: 'var(--info)' },
+  add: { icon: PlusCircle, bg: 'var(--primary-soft)', color: 'var(--primary-text)' }
+};
+
+function avatarInfo(name: string) {
   let n = 0;
-  for (const c of s) n += c.charCodeAt(0);
-  return COLORS[n % COLORS.length];
-}
-function initials(name: string) {
+  for (const c of name) n += c.charCodeAt(0);
+  const colorSet = AVS[n % AVS.length];
+  
   const p = name.trim().split(" ");
-  return p.length >= 2
+  const initials = p.length >= 2
     ? (p[0][0] + p[p.length - 1][0]).toUpperCase()
     : name.slice(0, 2).toUpperCase();
+    
+  return { ...colorSet, initials };
 }
 
 function groupByDate(logs: AuditLog[]) {
   const map: Record<string, AuditLog[]> = {};
   logs.forEach((log) => {
     const d = new Date(log.createdAt);
-    const key = d.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
+    // Use relative terms if close to today, else date
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    let key = d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    if (d.toDateString() === today.toDateString()) key = "Today";
+    else if (d.toDateString() === yesterday.toDateString()) key = "Yesterday";
+    
     if (!map[key]) map[key] = [];
     map[key].push(log);
   });
   return map;
 }
 
-export default function AuditLogsPage({
-  params,
-}: {
-  params: Promise<{ code: string }>;
-}) {
+export default function AuditLogsPage({ params }: { params: Promise<{ code: string }> }) {
   const { code } = use(params);
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState("ALL");
 
   useEffect(() => {
     fetch(`/api/projects/${code}/audit`)
@@ -116,9 +97,7 @@ export default function AuditLogsPage({
       .finally(() => setIsLoading(false));
   }, [code]);
 
-  const filtered =
-    filter === "ALL" ? logs : logs.filter((l) => l.action === filter);
-  const grouped = groupByDate(filtered);
+  const grouped = groupByDate(logs);
 
   if (isLoading)
     return (
@@ -128,138 +107,79 @@ export default function AuditLogsPage({
     );
 
   if (error)
-    return <div className="p-8 text-center text-danger-foreground text-sm">{error}</div>;
+    return <div className="p-[20px_22px] text-center text-danger text-[13px]">{error}</div>;
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-6 py-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+    <div className="w-full max-w-[860px] mx-auto p-[20px_22px] antialiased font-sans pb-20">
+      
+      <div className="flex items-center gap-[10px] mb-[16px]">
         <div>
-          <h1 className="text-xl font-bold text-text-main tracking-tight flex items-center gap-2">
-            <Activity size={18} className="text-primary" /> Activity
-          </h1>
-          <p className="text-xs text-text-muted mt-0.5">
-            Track all actions and changes within this project
-          </p>
+          <div className="text-[19px] font-semibold tracking-[-0.015em] text-text-main">Activity</div>
+          <div className="text-[13px] text-text-muted mt-[2px]">Everything that happened in this project</div>
         </div>
-        <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary">
-          {logs.length}
-        </span>
+        <div className="flex-1" />
+        <div className="flex items-center gap-[6px] h-[34px] px-[12px] bg-surface shadow-[inset_0_0_0_1px_var(--border)] rounded-[9px] text-[12.5px] font-medium text-text-main cursor-pointer hover:bg-surface-hover transition-colors">
+          <Zap size={16} className="text-text-faint" />All actions
+          <ChevronDown size={17} className="text-text-faint" />
+        </div>
+        <div className="flex items-center gap-[6px] h-[34px] px-[12px] bg-surface shadow-[inset_0_0_0_1px_var(--border)] rounded-[9px] text-[12.5px] font-medium text-text-main cursor-pointer hover:bg-surface-hover transition-colors">
+          <Shapes size={16} className="text-text-faint" />All entities
+          <ChevronDown size={17} className="text-text-faint" />
+        </div>
+        <div className="flex items-center gap-[6px] h-[34px] px-[12px] bg-surface shadow-[inset_0_0_0_1px_var(--border)] rounded-[9px] text-[12.5px] font-medium text-text-main cursor-pointer hover:bg-surface-hover transition-colors">
+          <User size={16} className="text-text-faint" />Anyone
+          <ChevronDown size={17} className="text-text-faint" />
+        </div>
       </div>
 
-      {/* Filter chips */}
-      {logs.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-6">
-          {["ALL", "CREATED", "UPDATED", "DELETED", "EXECUTED"].map((a) => {
-            const cfg = ACTION_CONFIG[a];
-            const active = filter === a;
-            return (
-              <button
-                key={a}
-                onClick={() => setFilter(a)}
-                className={`h-7 flex items-center gap-1.5 px-3 rounded-full text-xs font-semibold border transition-colors ${
-                  active
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-surface text-text-muted border-border hover:border-border"
-                }`}
-              >
-                {cfg && (
-                  <span className={active ? "text-white" : cfg.text}>
-                    {cfg.icon}
-                  </span>
-                )}
-                {a === "ALL" ? "All" : (cfg?.label ?? a.toLowerCase())}
-              </button>
-            );
-          })}
-        </div>
+      {logs.length === 0 && (
+        <div className="text-center p-8 text-text-muted text-[13px]">No activity recorded yet</div>
       )}
 
-      {/* Empty state */}
-      {filtered.length === 0 && (
-        <div className="bg-surface rounded-2xl border border-border/80 shadow-premium py-16 text-center">
-          <div className="w-12 h-12 rounded-xl bg-surface-hover flex items-center justify-center mx-auto mb-3">
-            <Activity size={20} className="text-text-faint" />
+      {Object.entries(grouped).map(([date, items]) => (
+        <React.Fragment key={date}>
+          <div className="flex items-center gap-[10px] m-[18px_0_10px]">
+            <span className="text-[11px] font-semibold tracking-[0.06em] uppercase text-text-faint">{date}</span>
+            <div className="flex-1 h-[1px] bg-border" />
           </div>
-          <p className="text-sm font-semibold text-text-muted">
-            No activity recorded yet
-          </p>
-          <p className="text-xs text-text-muted mt-1">
-            Actions in this project will appear here
-          </p>
-        </div>
-      )}
-
-      {/* Timeline grouped by date */}
-      <div className="space-y-6">
-        {Object.entries(grouped).map(([date, items]) => (
-          <div key={date}>
-            <div className="flex items-center gap-3 mb-3">
-              <span className="text-[11px] font-bold text-text-muted uppercase tracking-wider whitespace-nowrap">
-                {date}
-              </span>
-              <div className="flex-1 h-px bg-surface-hover" />
-            </div>
-
-            <div className="bg-surface rounded-2xl border border-border/80 shadow-premium overflow-hidden">
-              {items.map((log, i) => {
-                const cfg = ACTION_CONFIG[log.action] ?? {
-                  label: log.action.toLowerCase(),
-                  icon: <Activity size={13} />,
-                  bg: "bg-surface-hover",
-                  text: "text-text-muted",
-                };
-                const name = log.user.name || log.user.email.split("@")[0];
-                const time = new Date(log.createdAt).toLocaleTimeString(
-                  "en-GB",
-                  { hour: "2-digit", minute: "2-digit" },
-                );
-                return (
-                  <div
-                    key={log.id}
-                    className={`flex items-start gap-4 px-5 py-4 hover:bg-surface-hover/70 transition-colors ${i > 0 ? "border-t border-border/50" : ""}`}
-                  >
-                    {/* Avatar */}
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-                      style={{ background: avatarColor(name) }}
-                    >
-                      {initials(name)}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-semibold text-text-main">
-                          {name}
-                        </span>
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ${cfg.bg} ${cfg.text}`}
-                        >
-                          {cfg.icon} {cfg.label}
-                        </span>
-                        <span className="text-sm text-text-muted capitalize">
-                          {log.entity.replace(/_/g, " ").toLowerCase()}
-                        </span>
-                      </div>
-                      {log.details && (
-                        <p className="text-xs text-text-muted mt-1 truncate max-w-md">
-                          {log.details}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Time */}
-                    <span className="text-xs text-text-muted shrink-0 mt-0.5">
-                      {time}
-                    </span>
+          
+          <div className="bg-surface border border-border rounded-[13px] shadow-[var(--shadow-sm)] overflow-hidden mb-[10px]">
+            {items.map((log, index) => {
+              const name = log.user.name || log.user.email.split("@")[0];
+              const av = avatarInfo(name);
+              
+              const actionCfg = ACTION_CONFIG[log.action] || { kind: 'edit', icon: 'edit' };
+              const ic = IC[actionCfg.kind] || IC.edit;
+              const EventIcon = ic.icon;
+              
+              const time = new Date(log.createdAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+              const entityName = log.entity.replace(/_/g, " ").toLowerCase();
+              
+              return (
+                <div key={log.id} className="flex items-center gap-[12px] p-[11px_16px] border-b border-border last:border-0 hover:bg-surface-hover transition-colors">
+                  <div className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-[11px] font-bold shrink-0" style={{ background: av.bg, color: av.color }}>
+                    {av.initials}
                   </div>
-                );
-              })}
-            </div>
+                  
+                  <div className="w-[24px] h-[24px] rounded-[7px] flex items-center justify-center shrink-0" style={{ background: ic.bg, color: ic.color }}>
+                    <EventIcon size={14} />
+                  </div>
+                  
+                  <div className="flex-1 min-w-0 text-[13px]">
+                    <span className="font-semibold text-text-main">{name}</span>{" "}
+                    <span className="text-text-muted">{actionCfg.kind === 'run' ? 'executed' : log.action.toLowerCase()}</span>{" "}
+                    <span className="font-medium font-mono text-[11.5px] text-text-main">{entityName}</span>{" "}
+                    {log.details && <span className="text-text-muted truncate">{log.details}</span>}
+                  </div>
+                  
+                  <span className="text-[11.5px] text-text-faint shrink-0">{time}</span>
+                </div>
+              );
+            })}
           </div>
-        ))}
-      </div>
+        </React.Fragment>
+      ))}
+
     </div>
   );
 }

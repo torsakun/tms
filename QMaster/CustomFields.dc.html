@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Custom fields" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;">
+  <div style="padding:18px 22px 0; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;"><div style="width:30px; height:30px; border-radius:9px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size:19px;">corporate_fare</span></div><div style="font-size:18px; font-weight:600; letter-spacing:-0.01em;">Workspace</div></div>
+    <div style="display:flex; gap:2px;"><sc-for list="{{ wsTabs }}" as="t" hint-placeholder-count="5"><div style="padding:10px 12px 9px; font-weight:{{ t.weight }}; font-size:13px; color:{{ t.color }}; border-bottom:2px solid {{ t.border }}; margin-bottom:-1px;">{{ t.label }}</div></sc-for></div>
+  </div>
+
+  <div style="padding:20px 22px; max-width:1120px; display:grid; grid-template-columns:1.5fr 1fr; gap:18px; align-items:start;">
+    <!-- field list -->
+    <div>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+        <div style="font-size:16px; font-weight:600;">Custom fields <span style="color:var(--text-faint); font-weight:400;">· 9</span></div>
+        <div style="flex:1;"></div>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="110px,36px" variant="primary" size="sm" leading-icon="add" style="{{ btn }}">New field</x-import>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow-sm); overflow:hidden;">
+        <div style="display:grid; grid-template-columns:1.4fr 110px 86px 52px 36px; gap:12px; padding:10px 16px; font-size:10px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); border-bottom:1px solid var(--border);"><div>Label</div><div>Type</div><div>Scope</div><div>On</div><div></div></div>
+        <sc-for list="{{ fields }}" as="f" hint-placeholder-count="9">
+          <div style="display:grid; grid-template-columns:1.4fr 110px 86px 52px 36px; gap:12px; padding:11px 16px; align-items:center; border-bottom:1px solid var(--border);">
+            <div style="display:flex; align-items:center; gap:9px; min-width:0;"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">{{ f.icon }}</span><div style="min-width:0;"><span style="font-size:13px; font-weight:500;">{{ f.label }}</span><sc-if value="{{ f.system }}" hint-placeholder-val="x"><span style="font-size:9.5px; font-weight:700; padding:1px 6px; border-radius:5px; background:var(--surface-2); color:var(--text-faint); margin-left:6px;">System</span></sc-if></div></div>
+            <div><span style="font-size:11px; font-weight:600; padding:2px 8px; border-radius:6px; background:{{ f.typeBg }}; color:{{ f.typeColor }};">{{ f.type }}</span></div>
+            <div style="font-size:11.5px; color:var(--text-muted);">{{ f.scope }}</div>
+            <div><div style="width:32px; height:19px; border-radius:999px; background:{{ f.tgBg }}; position:relative;"><div style="position:absolute; top:2px; {{ f.tgSide }}:2px; width:15px; height:15px; border-radius:999px; background:#fff;"></div></div></div>
+            <div style="display:flex; justify-content:center; color:var(--text-faint);"><span class="material-symbols-rounded" style="font-size:18px;">more_horiz</span></div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- create field form -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow-sm); overflow:hidden;">
+      <div style="padding:14px 16px; border-bottom:1px solid var(--border); font-weight:600; font-size:14px;">New custom field</div>
+      <div style="padding:16px; display:flex; flex-direction:column; gap:15px;">
+        <div><label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px;">Label</label><div style="display:flex; align-items:center; height:40px; padding:0 12px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 2px var(--ring); font-size:13.5px;">Severity</div></div>
+        <div>
+          <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:7px;">Type</label>
+          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            <sc-for list="{{ typeChips }}" as="c" hint-placeholder-count="6"><span style="font-size:11.5px; font-weight:600; padding:5px 11px; border-radius:8px; background:{{ c.bg }}; color:{{ c.color }}; box-shadow:{{ c.ring }};">{{ c.label }}</span></sc-for>
+          </div>
+        </div>
+        <div>
+          <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:7px;">Options <span style="color:var(--text-faint);">· for select / radio</span></label>
+          <div style="display:flex; flex-direction:column; gap:7px;">
+            <sc-for list="{{ options }}" as="o" hint-placeholder-count="3">
+              <div style="display:flex; align-items:center; gap:9px; height:36px; padding:0 11px; border-radius:9px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13px;"><span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">drag_indicator</span>{{ o }}<span style="margin-left:auto;" class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">close</span></div>
+            </sc-for>
+            <div style="display:flex; align-items:center; gap:7px; padding:4px 2px; color:var(--primary-text); font-size:12.5px; font-weight:600;"><span class="material-symbols-rounded" style="font-size:16px;">add</span>Add option</div>
+          </div>
+        </div>
+        <div>
+          <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:7px;">Scope</label>
+          <div style="display:flex; gap:6px;">
+            <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:5px; height:34px; border-radius:8px; background:var(--primary-soft); color:var(--primary-text); font-size:12px; font-weight:600; box-shadow:inset 0 0 0 1px var(--primary-border);">Global</div>
+            <div style="flex:1; display:flex; align-items:center; justify-content:center; height:34px; border-radius:8px; color:var(--text-muted); font-size:12px; font-weight:500; box-shadow:inset 0 0 0 1px var(--border);">Per-project</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:9px; padding:13px 16px; border-top:1px solid var(--border);">
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="80px,36px" variant="ghost" size="sm" style="{{ btn }}">Cancel</x-import>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="110px,36px" variant="primary" size="sm" leading-icon="check" style="{{ btn }}">Create</x-import>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const btn={ height:36, borderRadius:9, fontSize:13 };
+    const tab=(label,sel)=>({ label, weight: sel?'600':'500', color: sel?'var(--primary-text)':'var(--text-muted)', border: sel?'var(--primary)':'transparent' });
+    const wsTabs=[ tab('Users'), tab('Invites'), tab('Groups'), tab('Roles'), tab('Custom fields',true) ];
+    const typeStyle={
+      Select:['var(--primary-soft)','var(--primary-text)'], 'Multi-select':['var(--primary-soft)','var(--primary-text)'], Radio:['var(--primary-soft)','var(--primary-text)'],
+      String:['var(--surface-2)','var(--text-muted)'], Text:['var(--surface-2)','var(--text-muted)'], Number:['var(--info-soft-fill)','var(--info)'],
+      Checkbox:['var(--pass-soft)','var(--pass)'], 'User picker':['var(--warn-soft)','var(--warn)'], URL:['var(--surface-2)','var(--text-muted)'], Date:['var(--info-soft-fill)','var(--info)'] };
+    const ti={ Select:'arrow_drop_down_circle', 'Multi-select':'checklist', Radio:'radio_button_checked', String:'short_text', Text:'notes', Number:'tag', Checkbox:'check_box', 'User picker':'person', URL:'link', Date:'calendar_today' };
+    const tg=(on)=>({ tgBg: on?'var(--primary)':'var(--surface-2)', tgSide: on?'right':'left' });
+    const mk=(label,type,scope,on,system)=>({ label, type, scope, system, icon:ti[type], typeBg:typeStyle[type][0], typeColor:typeStyle[type][1], ...tg(on) });
+    const fields=[
+      mk('Priority','Select','Global',true,true),
+      mk('Automation status','Select','Global',true),
+      mk('Layer','Radio','Global',true),
+      mk('Severity','Select','Per-project',true),
+      mk('Component','Multi-select','Per-project',true),
+      mk('Estimate (min)','Number','Global',false),
+      mk('Requirement URL','URL','Per-project',true),
+      mk('Reviewed by','User picker','Global',true),
+      mk('Last reviewed','Date','Per-project',false),
+    ];
+    const chip=(label,sel)=>({ label, bg: sel?'var(--primary-soft)':'var(--surface-2)', color: sel?'var(--primary-text)':'var(--text-muted)', ring: sel?'inset 0 0 0 1px var(--primary-border)':'none' });
+    const typeChips=[ chip('String'), chip('Text'), chip('Select',true), chip('Multi'), chip('Checkbox'), chip('Number'), chip('Radio'), chip('Date') ];
+    const options=['Critical','Major','Minor'];
+    return { wsTabs, fields, typeChips, options, btn };
+  }
+}
+</script>
+</body>
+</html>

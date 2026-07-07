@@ -5,19 +5,46 @@ import { useRouter } from "next/navigation";
 import { X, HelpCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
+type AccessType = "private" | "public";
+type MemberAccess = "all" | "group" | "none";
+type WorkspaceGroup = {
+  id: string;
+  title: string;
+  members: number;
+};
+
 export function CreateProjectModal() {
   const router = useRouter();
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [description, setDescription] = useState("");
-  const [accessType, setAccessType] = useState("private");
-  const [memberAccess, setMemberAccess] = useState("all");
+  const [accessType, setAccessType] = useState<AccessType>("private");
+  const [memberAccess, setMemberAccess] = useState<MemberAccess>("all");
+  const [groups, setGroups] = useState<WorkspaceGroup[]>([]);
+  const [selectedGroupIds, setSelectedGroupIds] = useState<string[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  React.useEffect(() => {
+    fetch("/api/workspace/groups")
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data) => {
+        if (Array.isArray(data)) setGroups(data);
+      })
+      .catch(() => setGroups([]));
+  }, []);
+
   const handleClose = () => {
     router.push("/projects");
+  };
+
+  const toggleGroup = (groupId: string) => {
+    setSelectedGroupIds((current) =>
+      current.includes(groupId)
+        ? current.filter((id) => id !== groupId)
+        : [...current, groupId],
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,15 +56,20 @@ export function CreateProjectModal() {
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, code, description }),
+        body: JSON.stringify({
+          name,
+          code,
+          description,
+          accessType: accessType === "public" ? "PUBLIC" : "PRIVATE",
+          memberAccess,
+          groupIds: memberAccess === "group" ? selectedGroupIds : [],
+        }),
       });
 
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || "Failed to create project");
       }
-
-      const data = await res.json();
 
       // Reset form
       setName("");
@@ -46,8 +78,8 @@ export function CreateProjectModal() {
 
       handleClose();
       router.refresh(); // Refresh the list of projects
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to create project");
     } finally {
       setLoading(false);
     }
@@ -168,7 +200,9 @@ export function CreateProjectModal() {
                         name="accessType"
                         value="private"
                         checked={accessType === "private"}
-                        onChange={(e) => setAccessType(e.target.value)}
+                        onChange={(e) =>
+                          setAccessType(e.target.value as AccessType)
+                        }
                         className="peer sr-only"
                       />
                       <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
@@ -186,7 +220,9 @@ export function CreateProjectModal() {
                         name="accessType"
                         value="public"
                         checked={accessType === "public"}
-                        onChange={(e) => setAccessType(e.target.value)}
+                        onChange={(e) =>
+                          setAccessType(e.target.value as AccessType)
+                        }
                         className="peer sr-only"
                       />
                       <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
@@ -212,7 +248,9 @@ export function CreateProjectModal() {
                         name="memberAccess"
                         value="all"
                         checked={memberAccess === "all"}
-                        onChange={(e) => setMemberAccess(e.target.value)}
+                        onChange={(e) =>
+                          setMemberAccess(e.target.value as MemberAccess)
+                        }
                         className="peer sr-only"
                       />
                       <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
@@ -230,7 +268,9 @@ export function CreateProjectModal() {
                         name="memberAccess"
                         value="group"
                         checked={memberAccess === "group"}
-                        onChange={(e) => setMemberAccess(e.target.value)}
+                        onChange={(e) =>
+                          setMemberAccess(e.target.value as MemberAccess)
+                        }
                         className="peer sr-only"
                       />
                       <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
@@ -248,16 +288,50 @@ export function CreateProjectModal() {
                         name="memberAccess"
                         value="none"
                         checked={memberAccess === "none"}
-                        onChange={(e) => setMemberAccess(e.target.value)}
+                        onChange={(e) =>
+                          setMemberAccess(e.target.value as MemberAccess)
+                        }
                         className="peer sr-only"
                       />
                       <div className="w-4 h-4 border-2 border-text-muted rounded-full peer-checked:border-blue-600 group-hover:border-blue-400 transition-colors"></div>
                       <div className="absolute w-2 h-2 bg-primary rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
                     </div>
                     <span className="text-sm font-medium text-text-main">
-                      Don't add members
+                      Don&apos;t add members
                     </span>
                   </label>
+
+                  {memberAccess === "group" && (
+                    <div className="ml-8 space-y-2">
+                      {groups.length > 0 ? (
+                        groups.map((group) => (
+                          <label
+                            key={group.id}
+                            className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2 text-sm cursor-pointer hover:bg-surface-hover"
+                          >
+                            <span className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={selectedGroupIds.includes(group.id)}
+                                onChange={() => toggleGroup(group.id)}
+                                className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                              />
+                              <span className="font-medium text-text-main">
+                                {group.title}
+                              </span>
+                            </span>
+                            <span className="text-xs text-text-muted">
+                              {group.members} members
+                            </span>
+                          </label>
+                        ))
+                      ) : (
+                        <div className="rounded-md border border-border px-3 py-2 text-xs text-text-muted">
+                          No groups available.
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -272,7 +346,11 @@ export function CreateProjectModal() {
           <Button
             form="create-project-form"
             type="submit"
-            disabled={!name || !code}
+            disabled={
+              !name ||
+              !code ||
+              (memberAccess === "group" && selectedGroupIds.length === 0)
+            }
             loading={loading}
           >
             {loading ? "Creating…" : "Create project"}

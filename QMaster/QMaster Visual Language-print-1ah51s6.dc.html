@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style data-omelette-print-defaults>
+@media print {
+  @page { margin: 0.5in; }
+  h1, h2, h3, h4, h5, h6 { break-after: avoid; }
+  figure, table, pre, blockquote, img, svg, tr, [class~="card" i] { break-inside: avoid; }
+  img, svg { max-width: 100%; }
+  p { orphans: 3; widows: 3; }
+}
+</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+<style>
+  body { margin:0; }
+  .qm-anchor { color: var(--text-muted); text-decoration:none; padding:6px 10px; border-radius:8px; font-size:13px; font-weight:500; }
+  .qm-anchor:hover { background: var(--surface-hover); color: var(--text); }
+</style>
+</helmet>
+<div class="{{ themeClass }}" style="min-height:100vh; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;">
+
+  <!-- ===== top bar ===== -->
+  <div style="position:sticky; top:0; z-index:50; display:flex; align-items:center; gap:14px; padding:11px 22px; background:color-mix(in oklab, var(--bg) 86%, transparent); backdrop-filter:blur(10px); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:9px;">
+      <div style="width:26px; height:26px; border-radius:7px; background:var(--primary); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded fill" style="font-size:18px; color:var(--primary-fg);">radar</span></div>
+      <span style="font-weight:700; font-size:14.5px; letter-spacing:-0.01em;">QMaster</span>
+      <span style="font-size:12px; color:var(--text-faint); font-family:'JetBrains Mono',monospace;">/ Instrument</span>
+    </div>
+    <div style="flex:1; display:flex; gap:2px; justify-content:center;">
+      <a class="qm-anchor" href="#direction">Direction</a>
+      <a class="qm-anchor" href="#color">Color</a>
+      <a class="qm-anchor" href="#type">Type</a>
+      <a class="qm-anchor" href="#space">Space</a>
+      <a class="qm-anchor" href="#components">Components</a>
+      <a class="qm-anchor" href="#shell">Shell</a>
+      <a class="qm-anchor" href="#screens">Screens</a>
+      <a class="qm-anchor" href="#coverage">Coverage</a>
+    </div>
+    <div onClick="{{ toggleTheme }}" style="display:flex; align-items:center; gap:7px; height:34px; padding:0 13px; border-radius:9px; background:var(--surface); border:1px solid var(--border); cursor:pointer; font-weight:600; font-size:12.5px; user-select:none;">
+      <span class="material-symbols-rounded" style="font-size:17px; color:var(--primary-text);">{{ themeIcon }}</span>{{ themeLabel }}
+    </div>
+  </div>
+
+  <!-- ===== cover / direction ===== -->
+  <section id="direction" style="max-width:1120px; margin:0 auto; padding:54px 24px 0;">
+    <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--primary-text); font-weight:600; letter-spacing:0.04em;">QMASTER · VISUAL LANGUAGE</div>
+    <h1 style="font-size:46px; font-weight:600; letter-spacing:-0.03em; line-height:1.05; margin:14px 0 0; max-width:780px;">Instrument — a precision readout for the work of testing.</h1>
+    <p style="font-size:16.5px; color:var(--text-muted); max-width:680px; margin:18px 0 0; line-height:1.6;">QMaster is a calm graphite instrument, not a marketing surface. The chassis stays quiet so the signal can be loud: every bit of color earns its place by communicating <span style="color:var(--text); font-weight:600;">state, priority and ownership</span> — never decoration. No purple gloss, no gradient headings, no shouting hero metric.</p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:30px;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; box-shadow:var(--shadow-sm);">
+        <div style="font-weight:600; font-size:14px; margin-bottom:8px; display:flex; align-items:center; gap:8px;"><span class="material-symbols-rounded" style="font-size:18px; color:var(--primary-text);">palette</span>The color strategy</div>
+        <p style="color:var(--text-muted); font-size:13.5px; line-height:1.6; margin:0;">A control room at night. The room (neutrals) is a cool blue-grey graphite — explicitly <span style="color:var(--text); font-weight:600;">not cream</span>. One confident <span style="color:var(--primary-text); font-weight:600;">cobalt</span> is the instrument's light: it marks what's actionable and what's selected, nothing else. State lives in a disciplined signal set — green pass, red fail, amber blocked, steel info, neutral skipped — tuned for both themes.</p>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; box-shadow:var(--shadow-sm);">
+        <div style="font-weight:600; font-size:14px; margin-bottom:14px; display:flex; align-items:center; gap:8px;"><span class="material-symbols-rounded" style="font-size:18px; color:var(--primary-text);">sensors</span>The signal set</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <sc-for list="{{ signal }}" as="s" hint-placeholder-count="6">
+            <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; padding:5px 11px; border-radius:999px; background:{{ s.soft }}; color:{{ s.color }};"><span class="material-symbols-rounded fill" style="font-size:14px;">{{ s.icon }}</span>{{ s.label }}</span>
+          </sc-for>
+        </div>
+        <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border); font-size:12px; color:var(--text-faint); line-height:1.6;">Constraints honored: OKLCH tokens · light + dark · 1rem = 14px · AA body contrast · never color-alone (icon + shape + label) · focus rings · ≥44px touch targets.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px; display:flex; align-items:center; gap:14px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 20px; box-shadow:var(--shadow-sm);">
+      <span class="material-symbols-rounded" style="font-size:22px; color:var(--primary-text);">layers</span>
+      <div style="font-size:13px; color:var(--text-muted); line-height:1.6;"><span style="color:var(--text); font-weight:600;">Built on the S9 Headless UI system.</span> Every component, the buttons, badges, inputs, avatars and tables below, is a real S9 component. Instrument doesn't fork them — it re-tunes the foundation: my OKLCH ramps <span style="color:var(--text); font-weight:600;">override S9's color ramps</span>, so S9's own semantic tokens and dark-mode machinery resolve to the graphite-and-cobalt palette automatically. The QA signal set (passed/failed/blocked/skipped/invalid/untested) is the product-specific layer added on top.</div>
+    </div>
+  </section>
+
+  <!-- ===== color ===== -->
+  <section id="color" style="max-width:1120px; margin:0 auto; padding:56px 24px 0;">
+    <div style="display:flex; align-items:baseline; gap:12px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--primary-text); font-weight:600;">01</span><span style="font-size:25px; font-weight:600; letter-spacing:-0.02em;">Color tokens</span></div>
+    <p style="color:var(--text-muted); font-size:14px; max-width:660px; margin:8px 0 24px;">Semantic roles in OKLCH for both themes. Every body pairing meets WCAG AA. Swatches show the light value (left) and dark value (right) side-by-side.</p>
+
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-sm); overflow:hidden;">
+      <div style="display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:18px; padding:11px 18px; font-size:10.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); border-bottom:1px solid var(--border);"><div>Role</div><div>Light</div><div>Dark</div></div>
+      <sc-for list="{{ roles }}" as="r" hint-placeholder-count="12">
+        <div style="display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:18px; padding:13px 18px; align-items:center; border-bottom:1px solid var(--border);">
+          <div><div style="font-size:13.5px; font-weight:600;">{{ r.label }}</div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); margin-top:2px;">{{ r.varName }}</div></div>
+          <div style="display:flex; align-items:center; gap:10px;"><div style="width:40px; height:40px; border-radius:9px; flex-shrink:0; background:{{ r.lightVal }}; box-shadow:inset 0 0 0 1px rgba(0,0,0,.1);"></div><span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-muted);">{{ r.lightVal }}</span></div>
+          <div style="display:flex; align-items:center; gap:10px;"><div style="width:40px; height:40px; border-radius:9px; flex-shrink:0; background:{{ r.darkVal }}; box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);"></div><span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-muted);">{{ r.darkVal }}</span></div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin-top:18px; background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-sm); overflow:hidden;">
+      <div style="display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid var(--border);"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">code</span><span style="font-weight:600; font-size:13px;">Paste into Tailwind v4 — @theme + .dark</span></div>
+      <pre style="margin:0; padding:16px 18px; overflow:auto; font-family:'JetBrains Mono',monospace; font-size:11.5px; line-height:1.65; color:var(--text-muted); background:var(--surface-2); max-height:340px;">{{ themeCode }}</pre>
+    </div>
+  </section>
+
+  <!-- ===== type ===== -->
+  <section id="type" style="max-width:1120px; margin:0 auto; padding:56px 24px 0;">
+    <div style="display:flex; align-items:baseline; gap:12px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--primary-text); font-weight:600;">02</span><span style="font-size:25px; font-weight:600; letter-spacing:-0.02em;">Typography</span></div>
+    <p style="color:var(--text-muted); font-size:14px; max-width:660px; margin:8px 0 24px;">Inter throughout; JetBrains Mono for IDs, counts and code. Fixed px scale (no fluid clamp), ratio ≈ 1.18, tuned at the 14px root. Tabular numerals everywhere data lives.</p>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-sm); overflow:hidden;">
+      <sc-for list="{{ typeScale }}" as="t" hint-placeholder-count="8">
+        <div style="display:grid; grid-template-columns:200px 1fr; gap:20px; padding:15px 20px; align-items:baseline; border-bottom:1px solid var(--border);">
+          <div><div style="font-size:12.5px; font-weight:600;">{{ t.role }}</div><div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-faint); margin-top:3px;">{{ t.meta }}</div></div>
+          <div style="font-size:{{ t.px }}; font-weight:{{ t.weight }}; letter-spacing:{{ t.ls }}; color:var(--text); font-family:{{ t.family }};">{{ t.sample }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- ===== space / radius / elevation / motion ===== -->
+  <section id="space" style="max-width:1120px; margin:0 auto; padding:56px 24px 0;">
+    <div style="display:flex; align-items:baseline; gap:12px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--primary-text); font-weight:600;">03</span><span style="font-size:25px; font-weight:600; letter-spacing:-0.02em;">Space, radius, elevation & motion</span></div>
+    <p style="color:var(--text-muted); font-size:14px; max-width:660px; margin:8px 0 24px;">A 4px spacing grid keeps dense tables legible; radii step from controls to cards; elevation stays restrained — outline first, shadow only to float.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px; box-shadow:var(--shadow-sm);">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); margin-bottom:14px;">Spacing — 4px grid</div>
+        <div style="display:flex; flex-direction:column; gap:9px;">
+          <sc-for list="{{ spacing }}" as="s" hint-placeholder-count="8">
+            <div style="display:flex; align-items:center; gap:12px;"><div style="width:46px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted);">{{ s.px }}</div><div style="height:14px; border-radius:3px; background:var(--primary); width:{{ s.w }};"></div></div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px; box-shadow:var(--shadow-sm);">
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); margin-bottom:14px;">Radius</div>
+          <div style="display:flex; gap:14px; align-items:flex-end;">
+            <sc-for list="{{ radii }}" as="r" hint-placeholder-count="6">
+              <div style="text-align:center;"><div style="width:52px; height:52px; background:var(--primary-soft); border:1.5px solid var(--primary); border-bottom:none; border-right:none; border-top-left-radius:{{ r.px }};"></div><div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint); margin-top:6px;">{{ r.px }}</div></div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px; box-shadow:var(--shadow-sm);">
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); margin-bottom:16px;">Elevation</div>
+          <div style="display:flex; gap:16px;">
+            <div style="flex:1; height:56px; border-radius:10px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text-faint);">outline</div>
+            <div style="flex:1; height:56px; border-radius:10px; background:var(--surface); box-shadow:var(--shadow-md); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text-faint);">card · md</div>
+            <div style="flex:1; height:56px; border-radius:10px; background:var(--surface); box-shadow:var(--shadow-lg); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text-faint);">float · lg</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:16px; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px; box-shadow:var(--shadow-sm); display:flex; align-items:center; gap:20px; flex-wrap:wrap;">
+      <div style="font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint);">Motion</div>
+      <span style="font-size:13px; color:var(--text-muted);">150–250ms, ease-out. State-conveying only — hover, press (scale .98), selection. No decorative loops. Honors <span style="font-family:'JetBrains Mono',monospace; color:var(--text);">prefers-reduced-motion</span>.</span>
+      <div style="flex:1;"></div>
+      <div style="display:flex; align-items:center; justify-content:center; gap:7px; height:36px; padding:0 16px; border-radius:9px; background:var(--primary); color:var(--primary-fg); font-weight:600; font-size:13px; transition:all .18s ease;" style-hover="background:var(--primary-hover); transform:translateY(-1px); box-shadow:var(--shadow-md);">Hover me</div>
+    </div>
+  </section>
+
+  <!-- ===== components ===== -->
+  <section id="components" style="max-width:1120px; margin:0 auto; padding:56px 24px 0;">
+    <div style="display:flex; align-items:baseline; gap:12px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--primary-text); font-weight:600;">04</span><span style="font-size:25px; font-weight:600; letter-spacing:-0.02em;">Components</span></div>
+    <p style="color:var(--text-muted); font-size:14px; max-width:660px; margin:8px 0 24px;">Core primitives with every state. Heights are explicit px (44 / 36 / 32) for the 14px root. Maps onto the S9 Headless primitives.</p>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+
+      <!-- buttons -->
+      <div style="grid-column:1 / -1; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; box-shadow:var(--shadow-sm);">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); margin-bottom:16px;">Buttons</div>
+        <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-bottom:20px;">
+          <div style="text-align:center;"><div style="display:inline-flex; align-items:center; gap:7px; height:44px; padding:0 20px; border-radius:10px; background:var(--primary); color:var(--primary-fg); font-weight:600; font-size:14px; box-shadow:var(--shadow-sm);"><span class="material-symbols-rounded" style="font-size:19px;">add</span>New run</div><div style="font-size:10.5px; color:var(--text-faint); margin-top:7px;">44 · primary</div></div>
+          <div style="text-align:center;"><div style="display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 16px; border-radius:9px; background:var(--surface); border:1px solid var(--border-strong); color:var(--text); font-weight:600; font-size:13px;">Secondary</div><div style="font-size:10.5px; color:var(--text-faint); margin-top:7px;">36 · secondary</div></div>
+          <div style="text-align:center;"><div style="display:inline-flex; align-items:center; gap:6px; height:32px; padding:0 12px; border-radius:8px; color:var(--primary-text); font-weight:600; font-size:12.5px;">Ghost</div><div style="font-size:10.5px; color:var(--text-faint); margin-top:7px;">32 · ghost</div></div>
+          <div style="text-align:center;"><div style="display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 16px; border-radius:9px; background:var(--fail); color:#fff; font-weight:600; font-size:13px;"><span class="material-symbols-rounded fill" style="font-size:17px;">delete</span>Danger</div><div style="font-size:10.5px; color:var(--text-faint); margin-top:7px;">danger</div></div>
+        </div>
+        <div style="height:1px; background:var(--border); margin:0 0 18px;"></div>
+        <div style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+          <div style="text-align:center;"><div style="height:36px; padding:0 16px; display:inline-flex; align-items:center; border-radius:9px; background:var(--primary); color:var(--primary-fg); font-weight:600; font-size:13px;">Default</div><div style="font-size:10px; color:var(--text-faint); margin-top:6px;">default</div></div>
+          <div style="text-align:center;"><div style="height:36px; padding:0 16px; display:inline-flex; align-items:center; border-radius:9px; background:var(--primary-hover); color:var(--primary-fg); font-weight:600; font-size:13px;">Hover</div><div style="font-size:10px; color:var(--text-faint); margin-top:6px;">hover</div></div>
+          <div style="text-align:center;"><div style="height:36px; padding:0 16px; display:inline-flex; align-items:center; border-radius:9px; background:var(--primary); color:var(--primary-fg); font-weight:600; font-size:13px; box-shadow:0 0 0 3px var(--ring), 0 0 0 5px color-mix(in oklab, var(--ring) 30%, transparent);">Focus</div><div style="font-size:10px; color:var(--text-faint); margin-top:6px;">focus ring</div></div>
+          <div style="text-align:center;"><div style="height:36px; padding:0 16px; display:inline-flex; align-items:center; border-radius:9px; background:var(--primary-active); color:var(--primary-fg); font-weight:600; font-size:13px; transform:scale(.97);">Active</div><div style="font-size:10px; color:var(--text-faint); margin-top:6px;">active ·.97</div></div>
+          <div style="text-align:center;"><div style="height:36px; padding:0 16px; display:inline-flex; align-items:center; border-radius:9px; background:var(--surface-2); color:var(--text-faint); font-weight:600; font-size:13px; opacity:.7;">Disabled</div><div style="font-size:10px; color:var(--text-faint); margin-top:6px;">disabled</div></div>
+          <div style="text-align:center;"><div style="height:36px; padding:0 16px; display:inline-flex; align-items:center; gap:7px; border-radius:9px; background:var(--primary); color:var(--primary-fg); font-weight:600; font-size:13px;"><span style="width:13px; height:13px; border-radius:999px; border:2px solid color-mix(in oklab, var(--primary-fg) 40%, transparent); border-top-color:var(--primary-fg); animation:qm-spin .7s linear infinite;"></span>Running</div><div style="font-size:10px; color:var(--text-faint); margin-top:6px;">loading</div></div>
+        </div>
+      </div>
+
+      <!-- inputs -->
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; box-shadow:var(--shadow-sm);">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); margin-bottom:16px;">Inputs & controls</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="display:flex; align-items:center; gap:9px; height:38px; padding:0 12px; border-radius:9px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13px; color:var(--text);"><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">search</span><span style="color:var(--text-muted);">Default input</span></div>
+          <div style="display:flex; align-items:center; gap:9px; height:38px; padding:0 12px; border-radius:9px; background:var(--surface); box-shadow:inset 0 0 0 2px var(--ring); font-size:13px;">Focused<span style="width:1px; height:16px; background:var(--primary); margin-left:-2px; animation:qm-pulse 1s infinite;"></span></div>
+          <div style="display:flex; align-items:center; gap:9px; height:38px; padding:0 12px; border-radius:9px; background:var(--surface); box-shadow:inset 0 0 0 1.5px var(--fail); font-size:13px; color:var(--text); justify-content:space-between;">Invalid value<span class="material-symbols-rounded fill" style="font-size:18px; color:var(--fail);">error</span></div>
+          <div style="display:flex; align-items:center; justify-content:space-between; height:38px; padding:0 12px; border-radius:9px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13px; color:var(--text-muted);">Select environment<span class="material-symbols-rounded" style="font-size:19px; color:var(--text-faint);">expand_more</span></div>
+          <div style="display:flex; align-items:center; gap:18px; padding-top:4px;">
+            <div style="display:flex; align-items:center; gap:8px; font-size:13px;"><div style="width:18px; height:18px; border-radius:5px; background:var(--primary); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded fill" style="font-size:14px; color:var(--primary-fg);">check</span></div>Checkbox</div>
+            <div style="display:flex; align-items:center; gap:8px; font-size:13px;"><div style="width:34px; height:20px; border-radius:999px; background:var(--primary); position:relative;"><div style="position:absolute; top:2px; right:2px; width:16px; height:16px; border-radius:999px; background:#fff;"></div></div>Switch on</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- badges & priority -->
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; box-shadow:var(--shadow-sm);">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); margin-bottom:16px;">Status & priority</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px;">
+          <sc-for list="{{ statusBadges }}" as="b" hint-placeholder-count="6">
+            <span style="display:inline-flex; align-items:center; gap:5px; font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:999px; background:{{ b.soft }}; color:{{ b.color }};"><span class="material-symbols-rounded fill" style="font-size:13px;">{{ b.icon }}</span>{{ b.label }}</span>
+          </sc-for>
+        </div>
+        <div style="font-size:11px; color:var(--text-faint); margin-bottom:10px;">Priority — shape + color, never color alone</div>
+        <div style="display:flex; gap:18px;">
+          <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600;"><span class="material-symbols-rounded" style="font-size:18px; color:var(--fail);">keyboard_double_arrow_up</span>High</span>
+          <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600;"><span class="material-symbols-rounded" style="font-size:18px; color:var(--warn);">drag_handle</span>Medium</span>
+          <span style="display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600;"><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">keyboard_arrow_down</span>Low</span>
+        </div>
+      </div>
+
+      <!-- tabs + sidebar -->
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; box-shadow:var(--shadow-sm);">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); margin-bottom:14px;">Tabs & nav item</div>
+        <div style="display:flex; gap:2px; border-bottom:1px solid var(--border); margin-bottom:16px;">
+          <div style="padding:8px 12px; font-size:13px; font-weight:600; color:var(--primary-text); border-bottom:2px solid var(--primary); margin-bottom:-1px;">Dashboards</div>
+          <div style="padding:8px 12px; font-size:13px; font-weight:500; color:var(--text-muted);">Repository</div>
+          <div style="padding:8px 12px; font-size:13px; font-weight:500; color:var(--text-muted);">Runs</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:9px; background:var(--primary-soft); color:var(--primary-text); font-weight:600; font-size:13px;"><span class="material-symbols-rounded fill" style="font-size:18px;">dashboard</span>Active item</div>
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:9px; color:var(--text-muted); font-weight:500; font-size:13px;"><span class="material-symbols-rounded" style="font-size:18px;">folder</span>Default item</div>
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:9px; background:var(--surface-hover); color:var(--text); font-weight:500; font-size:13px;"><span class="material-symbols-rounded" style="font-size:18px;">play_circle</span>Hover item</div>
+        </div>
+      </div>
+
+      <!-- dropdown -->
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; box-shadow:var(--shadow-sm);">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); margin-bottom:16px;">Dropdown menu</div>
+        <div style="width:200px; background:var(--surface); border:1px solid var(--border); border-radius:11px; box-shadow:var(--shadow-lg); padding:5px; overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13px; background:var(--surface-hover);"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-muted);">edit</span>Edit case</div>
+          <div style="display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13px;"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-muted);">content_copy</span>Duplicate</div>
+          <div style="height:1px; background:var(--border); margin:5px 0;"></div>
+          <div style="display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:8px; font-size:13px; color:var(--fail);"><span class="material-symbols-rounded" style="font-size:17px;">delete</span>Delete</div>
+        </div>
+      </div>
+
+      <!-- skeleton + toast -->
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; box-shadow:var(--shadow-sm);">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); margin-bottom:16px;">Loading & toast</div>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;">
+          <div style="height:12px; border-radius:4px; width:70%; background:linear-gradient(90deg,var(--surface-2),var(--surface-hover),var(--surface-2)); background-size:360px 100%; animation:qm-shimmer 1.3s infinite linear;"></div>
+          <div style="height:12px; border-radius:4px; width:90%; background:linear-gradient(90deg,var(--surface-2),var(--surface-hover),var(--surface-2)); background-size:360px 100%; animation:qm-shimmer 1.3s infinite linear;"></div>
+          <div style="height:12px; border-radius:4px; width:45%; background:linear-gradient(90deg,var(--surface-2),var(--surface-hover),var(--surface-2)); background-size:360px 100%; animation:qm-shimmer 1.3s infinite linear;"></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:11px; padding:12px 14px; border-radius:11px; background:var(--surface); border:1px solid var(--border); box-shadow:var(--shadow-lg); animation:qm-toast-in .3s ease;">
+          <span class="material-symbols-rounded fill" style="font-size:20px; color:var(--pass);">check_circle</span>
+          <div style="flex:1;"><div style="font-size:13px; font-weight:600;">Run RUN-318 completed</div><div style="font-size:11.5px; color:var(--text-muted);">403 passed · 96% pass rate</div></div>
+          <span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">close</span>
+        </div>
+      </div>
+
+      <!-- empty state -->
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; box-shadow:var(--shadow-sm);">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); margin-bottom:16px;">Empty state</div>
+        <div style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:14px 0;">
+          <div style="width:52px; height:52px; border-radius:14px; background:var(--primary-soft); display:flex; align-items:center; justify-content:center; margin-bottom:12px;"><span class="material-symbols-rounded" style="font-size:26px; color:var(--primary-text);">folder_open</span></div>
+          <div style="font-weight:600; font-size:14px;">No test cases yet</div>
+          <div style="font-size:12.5px; color:var(--text-muted); max-width:240px; margin:5px 0 14px;">This suite is empty. Add your first case or import from a CSV.</div>
+          <div style="display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 16px; border-radius:9px; background:var(--primary); color:var(--primary-fg); font-weight:600; font-size:13px;"><span class="material-symbols-rounded" style="font-size:17px;">add</span>New case</div>
+        </div>
+      </div>
+
+      <!-- table -->
+      <div style="grid-column:1 / -1; background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-sm); overflow:hidden;">
+        <div style="padding:14px 18px 0; font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint);">Data table row</div>
+        <div style="display:grid; grid-template-columns:28px 1fr 110px 90px 70px; gap:14px; padding:11px 18px; margin-top:8px; font-size:10.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); border-bottom:1px solid var(--border);"><div></div><div>Case</div><div>Suite</div><div>Status</div><div style="text-align:right;">Pri</div></div>
+        <sc-for list="{{ tableRows }}" as="r" hint-placeholder-count="3">
+          <div style="display:grid; grid-template-columns:28px 1fr 110px 90px 70px; gap:14px; padding:12px 18px; align-items:center; border-bottom:1px solid var(--border); background:{{ r.bg }};">
+            <span class="material-symbols-rounded fill" style="font-size:18px; color:{{ r.statusColor }};">{{ r.statusIcon }}</span>
+            <div><div style="font-size:13px; font-weight:500;">{{ r.title }}</div><div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint);">{{ r.id }}</div></div>
+            <div style="font-size:12px; color:var(--text-muted);">{{ r.suite }}</div>
+            <div><span style="display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; background:{{ r.soft }}; color:{{ r.statusColor }};">{{ r.statusLabel }}</span></div>
+            <div style="text-align:right;"><span class="material-symbols-rounded" style="font-size:17px; color:{{ r.priColor }};">{{ r.priIcon }}</span></div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- modal -->
+      <div style="grid-column:1 / -1; background:var(--surface-2); border:1px solid var(--border); border-radius:14px; padding:26px; box-shadow:var(--shadow-sm); display:flex; justify-content:center;">
+        <div style="width:380px; background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-lg); overflow:hidden;">
+          <div style="padding:18px 20px 0;"><div style="display:flex; align-items:center; gap:10px;"><div style="width:36px; height:36px; border-radius:10px; background:var(--fail-soft); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded fill" style="font-size:20px; color:var(--fail);">warning</span></div><div style="font-weight:600; font-size:15.5px;">Abort this run?</div></div><p style="color:var(--text-muted); font-size:13px; line-height:1.55; margin:14px 0 0;">RUN-320 is 64% complete. Results recorded so far are kept; remaining 152 cases stay untested.</p></div>
+          <div style="display:flex; gap:9px; justify-content:flex-end; padding:18px 20px;"><div style="height:36px; padding:0 16px; display:inline-flex; align-items:center; border-radius:9px; background:var(--surface); border:1px solid var(--border-strong); font-weight:600; font-size:13px;">Keep running</div><div style="height:36px; padding:0 16px; display:inline-flex; align-items:center; gap:6px; border-radius:9px; background:var(--fail); color:#fff; font-weight:600; font-size:13px;">Abort run</div></div>
+        </div>
+      </div>
+
+      <!-- LIVE S9 components (bridged to Instrument) -->
+      <div style="grid-column:1 / -1; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; box-shadow:var(--shadow-sm);">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;"><span class="material-symbols-rounded" style="font-size:18px; color:var(--primary-text);">deployed_code</span><span style="font-size:11px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint);">Live S9 components — re-themed via the OKLCH bridge</span></div>
+        <p style="font-size:12.5px; color:var(--text-muted); margin:0 0 18px;">Everything below is a real <span style="font-family:'JetBrains Mono',monospace; color:var(--text);">S9DesignSystem</span> React component, mounted live and inheriting the Instrument palette in whichever theme this document is set to.</p>
+        <div style="display:flex; flex-direction:column; gap:18px;">
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="120px,42px" variant="primary" leading-icon="add">New run</x-import>
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="110px,42px" variant="secondary">Secondary</x-import>
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="100px,42px" variant="outline" leading-icon="filter_list">Filter</x-import>
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="80px,42px" variant="ghost">Ghost</x-import>
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="100px,42px" variant="danger" leading-icon="delete">Delete</x-import>
+            <div style="width:1px; height:28px; background:var(--border);"></div>
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Spinner" size="sm" hint-size="20px,20px"></x-import>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Badge" color="success" variant="soft" leading-icon="check_circle" hint-size="84px,22px">Passed</x-import>
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Badge" color="danger" variant="soft" leading-icon="cancel" hint-size="78px,22px">Failed</x-import>
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Badge" color="warning" variant="soft" leading-icon="block" hint-size="86px,22px">Blocked</x-import>
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Badge" color="info" variant="soft" leading-icon="sync_problem" hint-size="72px,22px">Flaky</x-import>
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Badge" color="primary" variant="solid" hint-size="64px,22px">Active</x-import>
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Badge" color="neutral" variant="outline" hint-size="78px,22px">Untested</x-import>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; align-items:start;">
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Input" size="sm" label="Search cases" placeholder="e.g. promo code" leading-icon="search" hint-size="100%,72px"></x-import>
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Select" size="sm" options="{{ selOptions }}" value="staging" label="Environment" hint-size="100%,72px"></x-import>
+            <div style="display:flex; flex-direction:column; gap:12px; padding-top:2px;">
+              <x-import component-from-global-scope="S9DesignSystem_874ecb.Checkbox" checked="{{ true }}" label="Include skipped" hint-size="100%,24px"></x-import>
+              <x-import component-from-global-scope="S9DesignSystem_874ecb.Switch" checked="{{ true }}" label="Notify on failure" hint-size="100%,24px"></x-import>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <x-import component-from-global-scope="S9DesignSystem_874ecb.Avatar" name="Jordan Lee" status="online" hint-size="40px,40px"></x-import>
+              <div style="display:flex; align-items:center; gap:7px; padding-left:6px;">
+                <x-import component-from-global-scope="S9DesignSystem_874ecb.Avatar" name="Mara A" hint-size="32px,32px" size="sm"></x-import>
+                <x-import component-from-global-scope="S9DesignSystem_874ecb.Avatar" name="Ravi K" hint-size="32px,32px" size="sm"></x-import>
+                <x-import component-from-global-scope="S9DesignSystem_874ecb.Avatar" name="Sam P" hint-size="32px,32px" size="sm"></x-import>
+                <span style="width:32px; height:32px; border-radius:999px; background:var(--secondary-solid); color:var(--content-secondary); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600;">+5</span>
+              </div>
+            </div>
+            <div style="flex:1;"></div>
+            <x-import component-from-global-scope="S9DesignSystem_874ecb.Pagination" page="2" total="142" per-page="10" size="sm" hint-size="280px,32px"></x-import>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== shell & command ===== -->
+  <section id="shell" style="max-width:1120px; margin:0 auto; padding:56px 24px 0;">
+    <div style="display:flex; align-items:baseline; gap:12px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--primary-text); font-weight:600;">05</span><span style="font-size:25px; font-weight:600; letter-spacing:-0.02em;">Shell & command palette</span></div>
+    <p style="color:var(--text-muted); font-size:14px; max-width:660px; margin:8px 0 24px;">The global chrome stays out of the way: a single top bar, a per-project tab row, and a ⌘K palette that is the fastest path to anything. Notifications and the avatar menu drop from the bar.</p>
+    <div style="display:grid; grid-template-columns:1.3fr 1fr; gap:16px; align-items:start;">
+      <!-- command palette -->
+      <div style="position:relative; background:var(--bg); border:1px solid var(--border); border-radius:16px; padding:30px; overflow:hidden; box-shadow:var(--shadow-sm);">
+        <div style="position:absolute; inset:0; background:var(--bg-overlay);"></div>
+        <div style="position:relative; max-width:440px; margin:0 auto; background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-lg); overflow:hidden;">
+          <div style="display:flex; align-items:center; gap:11px; padding:14px 16px; border-bottom:1px solid var(--border);">
+            <span class="material-symbols-rounded" style="font-size:20px; color:var(--text-faint);">search</span>
+            <span style="flex:1; font-size:14px; color:var(--text-muted);">promo<span style="display:inline-block; width:1.5px; height:16px; background:var(--primary); margin-left:1px; vertical-align:-3px; animation:qm-pulse 1s infinite;"></span></span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px; padding:2px 6px; border:1px solid var(--border); border-radius:5px; color:var(--text-faint);">esc</span>
+          </div>
+          <div style="padding:6px; max-height:330px; overflow:auto;">
+            <sc-for list="{{ cmdItems }}" as="g" hint-placeholder-count="3">
+              <div style="font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); padding:9px 10px 5px;">{{ g.group }}</div>
+              <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="2">
+                <div style="display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:9px; background:{{ it.bg }};">
+                  <span class="material-symbols-rounded" style="font-size:18px; color:{{ it.iconColor }};">{{ it.icon }}</span>
+                  <span style="flex:1; font-size:13px; font-weight:{{ it.weight }}; color:{{ it.textColor }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ it.label }}</span>
+                  <sc-if value="{{ it.hint }}" hint-placeholder-val="x"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint);">{{ it.hint }}</span></sc-if>
+                </div>
+              </sc-for>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+      <!-- notifications + avatar menus -->
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-md); overflow:hidden;">
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid var(--border);"><span style="font-weight:600; font-size:13px;">Notifications</span><span style="font-size:11px; font-weight:600; color:var(--primary-text);">Mark all read</span></div>
+          <div style="display:flex; align-items:flex-start; gap:10px; padding:11px 14px; border-bottom:1px solid var(--border); background:var(--primary-soft);"><span class="material-symbols-rounded fill" style="font-size:18px; color:var(--fail);">cancel</span><div style="flex:1;"><div style="font-size:12.5px; font-weight:500;">RUN-320 has 3 new failures</div><div style="font-size:11px; color:var(--text-faint); margin-top:1px;">2 min ago · Checkout Web</div></div></div>
+          <div style="display:flex; align-items:flex-start; gap:10px; padding:11px 14px;"><span class="material-symbols-rounded fill" style="font-size:18px; color:var(--pass);">check_circle</span><div style="flex:1;"><div style="font-size:12.5px; font-weight:500;">Ravi assigned you 4 cases</div><div style="font-size:11px; color:var(--text-faint); margin-top:1px;">1 h ago · Payments</div></div></div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-md); padding:6px;">
+          <div style="display:flex; align-items:center; gap:10px; padding:10px 10px 12px;"><div style="width:34px; height:34px; border-radius:999px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;">JL</div><div><div style="font-size:13px; font-weight:600;">Jordan Lee</div><div style="font-size:11px; color:var(--text-faint);">jordan@checkout.dev</div></div></div>
+          <div style="height:1px; background:var(--border); margin:0 6px 4px;"></div>
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; font-size:13px;"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-muted);">person</span>Profile</div>
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; font-size:13px;"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-muted);">settings</span>Workspace settings</div>
+          <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; font-size:13px; color:var(--fail);"><span class="material-symbols-rounded" style="font-size:17px;">logout</span>Sign out</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== screens ===== -->
+  <section id="screens" style="max-width:1320px; margin:0 auto; padding:56px 24px 70px;">
+    <div style="display:flex; align-items:baseline; gap:12px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--primary-text); font-weight:600;">06</span><span style="font-size:25px; font-weight:600; letter-spacing:-0.02em;">Screens — light & dark</span></div>
+    <p style="color:var(--text-muted); font-size:14px; max-width:660px; margin:8px 0 26px;">The system applied. Each screen shown in both themes; chrome follows the theme. The toggle above also flips this whole document.</p>
+
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:18px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">hub</span>Global dashboard — QA Overview <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:500; color:var(--text-faint);">/dashboards</span></div>
+      <div style="font-size:12.5px; color:var(--text-muted); max-width:680px; margin-top:-6px;">Portfolio view across all projects — emphasis on <span style="color:var(--text); font-weight:600;">comparing</span> projects and drilling in. Hero is the ranked project-comparison table + a cross-project heatmap (one row per project).</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div>
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div>
+          <div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="QAOverview" hint-size="100%,1280px"></dc-import></div>
+        </div>
+        <div>
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div>
+          <div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="QAOverview" hint-size="100%,1280px"></dc-import></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">space_dashboard</span>Project dashboard — Project Overview <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:500; color:var(--text-faint);">/projects/PRO/dashboards</span></div>
+      <div style="font-size:12.5px; color:var(--text-muted); max-width:680px; margin-top:-6px;">One project only — emphasis on <span style="color:var(--text); font-weight:600;">depth</span> and "what to do next". Signature is the scoped project header (avatar · PRO code · meta · milestone/env filters), then milestone progress, suite coverage, defects and contributors.</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div>
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div>
+          <div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="ProjectOverview" hint-size="100%,1340px"></dc-import></div>
+        </div>
+        <div>
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div>
+          <div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="ProjectOverview" hint-size="100%,1340px"></dc-import></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">view_kanban</span>Test Runs status board</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div>
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div>
+          <div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="RunsBoard" hint-size="100%,560px"></dc-import></div>
+        </div>
+        <div>
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div>
+          <div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="RunsBoard" hint-size="100%,560px"></dc-import></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">checklist</span>Test execution & runner</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div>
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div>
+          <div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="ExecPage" hint-size="100%,760px"></dc-import></div>
+        </div>
+        <div>
+          <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div>
+          <div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="ExecPage" hint-size="100%,760px"></dc-import></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:14px; margin:34px 0;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">account_tree</span>Repository — suite tree, bulk bar & case drawer</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Repository" hint-size="100%,720px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Repository" hint-size="100%,720px"></dc-import></div></div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">edit_note</span>Form — create test case (steps editor, custom fields)</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="CaseCreate" hint-size="100%,700px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="CaseCreate" hint-size="100%,700px"></dc-import></div></div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">settings</span>Settings — two-pane, integrations</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Settings" hint-size="100%,640px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Settings" hint-size="100%,640px"></dc-import></div></div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">lock</span>Auth — sign in</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Auth" hint-size="100%,560px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Auth" hint-size="100%,560px"></dc-import></div></div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">public</span>Public shared report — read-only</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="SharedReport" hint-size="100%,600px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="SharedReport" hint-size="100%,600px"></dc-import></div></div>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:12px; margin:40px 0 4px;">
+      <div style="height:1px; flex:1; background:var(--border);"></div>
+      <span style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint);">Workspace & operational surfaces</span>
+      <div style="height:1px; flex:1; background:var(--border);"></div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">group</span>Members — workspace users</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Members" hint-size="100%,560px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Members" hint-size="100%,560px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">grid_view</span>Projects — list, grid & empty</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="ProjectsList" hint-size="100%,1180px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="ProjectsList" hint-size="100%,1180px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">fact_check</span>Test plans — list & teaching empty</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="TestPlans" hint-size="100%,760px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="TestPlans" hint-size="100%,760px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">smart_toy</span>Automation — pipelines & create modal</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Automation" hint-size="100%,760px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Automation" hint-size="100%,760px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">manage_accounts</span>Profile settings — account & password</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="ProfileSettings" hint-size="100%,620px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="ProfileSettings" hint-size="100%,620px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">mark_email_unread</span>Pending invites — table & invite modal</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Invites" hint-size="100%,620px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Invites" hint-size="100%,620px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">groups</span>Groups — list & member-picker drawer</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Groups" hint-size="100%,620px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Groups" hint-size="100%,620px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">shield_person</span>Roles & permissions — list & editor</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Roles" hint-size="100%,720px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Roles" hint-size="100%,720px"></dc-import></div></div>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:12px; margin:40px 0 4px;">
+      <div style="height:1px; flex:1; background:var(--border);"></div>
+      <span style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint);">Detail, wizard, configuration & timeline surfaces</span>
+      <div style="height:1px; flex:1; background:var(--border);"></div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">verified</span>Test plan detail — cases & runs from a plan</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="PlanDetail" hint-size="100%,640px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="PlanDetail" hint-size="100%,640px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">rocket_launch</span>Run create wizard — case selection tree</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="RunCreate" hint-size="100%,640px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="RunCreate" hint-size="100%,640px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">history</span>Activity / audit log — timeline by day</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="ActivityLog" hint-size="100%,620px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="ActivityLog" hint-size="100%,620px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">flag</span>Milestones — progress & create modal</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Milestones" hint-size="100%,640px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Milestones" hint-size="100%,640px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">list_alt</span>Shared steps — list & step editor</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="SharedSteps" hint-size="100%,560px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="SharedSteps" hint-size="100%,560px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">dns</span>Environments — CRUD list & add modal</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Environments" hint-size="100%,520px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Environments" hint-size="100%,520px"></dc-import></div></div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:14px; margin:34px 0;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">data_object</span>Custom fields — list & create form</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="CustomFields" hint-size="100%,620px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="CustomFields" hint-size="100%,620px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">tune</span>Workspace settings — cards & danger zone</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="WorkspaceSettings" hint-size="100%,620px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="WorkspaceSettings" hint-size="100%,620px"></dc-import></div></div>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:34px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">rocket_launch</span>Deployments — markers & add modal</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Deployments" hint-size="100%,560px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg);"><dc-import name="Deployments" hint-size="100%,560px"></dc-import></div></div>
+      </div>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:12px; margin:40px 0 4px;">
+      <div style="height:1px; flex:1; background:var(--border);"></div>
+      <span style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint);">Auth — invite-only flows (two-pane shell)</span>
+      <div style="height:1px; flex:1; background:var(--border);"></div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div style="display:flex; align-items:center; gap:9px; font-weight:600; font-size:15px;"><span class="material-symbols-rounded" style="font-size:19px; color:var(--primary-text);">key</span>Accept invite · Sign up · Forgot · Reset</div>
+      <div style="display:flex; flex-direction:column; gap:22px;">
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Light</div><div class="theme-light" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg); padding:16px;"><dc-import name="AuthStates" hint-size="100%,1900px"></dc-import></div></div>
+        <div><div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:8px;">Dark</div><div class="theme-dark" style="border-radius:14px; overflow:hidden; border:1px solid var(--border); box-shadow:var(--shadow-lg); padding:16px;"><dc-import name="AuthStates" hint-size="100%,1900px"></dc-import></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== coverage ===== -->
+  <section id="coverage" style="max-width:1120px; margin:0 auto; padding:56px 24px 0;">
+    <div style="display:flex; align-items:baseline; gap:12px;"><span style="font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--primary-text); font-weight:600;">07</span><span style="font-size:25px; font-weight:600; letter-spacing:-0.02em;">Archetype coverage</span></div>
+    <p style="color:var(--text-muted); font-size:14px; max-width:660px; margin:8px 0 24px;">~40 screens collapse into nine archetypes. Design the archetype once and every surface inherits it. Mocked screens above are marked; the rest reuse the same patterns and tokens.</p>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <sc-for list="{{ coverage }}" as="c" hint-placeholder-count="9">
+        <div style="display:flex; gap:13px; background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:15px 16px; box-shadow:var(--shadow-sm);">
+          <div style="width:34px; height:34px; border-radius:9px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-symbols-rounded" style="font-size:19px;">{{ c.icon }}</span></div>
+          <div style="min-width:0;"><div style="font-size:13.5px; font-weight:600;">{{ c.group }}</div><div style="font-size:12px; color:var(--text-muted); margin-top:3px; line-height:1.5;">{{ c.items }}</div></div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <div style="text-align:center; padding:30px 24px 50px; color:var(--text-faint); font-size:12px; font-family:'JetBrains Mono',monospace;">QMaster · Instrument visual language · OKLCH tokens · light + dark · 1rem = 14px</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { theme: 'light' };
+  renderVals(){
+    const dark = this.state.theme === 'dark';
+    const toggleTheme = () => this.setState(s => ({ theme: s.theme === 'dark' ? 'light' : 'dark' }));
+
+    const roles = [
+      { label:'Background (canvas)', varName:'--bg-sunken', lightVal:'oklch(0.975 0.004 256)', darkVal:'oklch(0.165 0.012 264)' },
+      { label:'Surface (card)', varName:'--bg-surface', lightVal:'oklch(1 0 0)', darkVal:'oklch(0.205 0.013 263)' },
+      { label:'Surface hover', varName:'--surface-hover', lightVal:'oklch(0.945 0.006 256)', darkVal:'oklch(0.262 0.014 263)' },
+      { label:'Sidebar / chrome', varName:'--sidebar', lightVal:'oklch(1 0 0)', darkVal:'oklch(0.205 0.013 263)' },
+      { label:'Border', varName:'--border-default', lightVal:'oklch(0.905 0.008 256)', darkVal:'oklch(0.262 0.014 263)' },
+      { label:'Text — main', varName:'--content-primary', lightVal:'oklch(0.165 0.012 264)', darkVal:'oklch(0.975 0.004 256)' },
+      { label:'Text — muted', varName:'--content-secondary', lightVal:'oklch(0.485 0.017 261)', darkVal:'oklch(0.852 0.011 257)' },
+      { label:'Primary (cobalt)', varName:'--primary-solid', lightVal:'oklch(0.550 0.172 256)', darkVal:'oklch(0.550 0.172 256)' },
+      { label:'Primary hover', varName:'--primary-solid-hover', lightVal:'oklch(0.478 0.162 257)', darkVal:'oklch(0.645 0.150 256)' },
+      { label:'Selected fill', varName:'--primary-soft', lightVal:'oklch(0.928 0.040 256)', darkVal:'oklch(0.262 0.082 262)' },
+      { label:'Passed / success', varName:'--pass', lightVal:'oklch(0.500 0.126 153)', darkVal:'oklch(0.660 0.140 152)' },
+      { label:'Failed / danger', varName:'--fail', lightVal:'oklch(0.572 0.212 27)', darkVal:'oklch(0.640 0.192 27)' },
+      { label:'Blocked / warning', varName:'--warn', lightVal:'oklch(0.530 0.110 58)', darkVal:'oklch(0.800 0.142 74)' },
+      { label:'Skipped / neutral', varName:'--skip', lightVal:'oklch(0.585 0.016 260)', darkVal:'oklch(0.705 0.014 259)' },
+      { label:'Info / flaky', varName:'--info', lightVal:'oklch(0.520 0.100 235)', darkVal:'oklch(0.682 0.110 233)' },
+    ];
+
+    const signal = [
+      { label:'Passed', icon:'check_circle', color:'var(--pass)', soft:'var(--pass-soft)' },
+      { label:'Failed', icon:'cancel', color:'var(--fail)', soft:'var(--fail-soft)' },
+      { label:'Blocked', icon:'block', color:'var(--warn)', soft:'var(--warn-soft)' },
+      { label:'Skipped', icon:'skip_next', color:'var(--skip)', soft:'var(--skip-soft)' },
+      { label:'Info', icon:'info', color:'var(--info)', soft:'var(--info-soft)' },
+      { label:'Selected', icon:'adjust', color:'var(--primary-text)', soft:'var(--primary-soft)' },
+    ];
+
+    const typeScale = [
+      { role:'Page title / h1', meta:'24px · 600 · -0.02em', px:'24px', weight:600, ls:'-0.02em', family:'Inter', sample:'Quality overview' },
+      { role:'Section title', meta:'19px · 600', px:'19px', weight:600, ls:'-0.015em', family:'Inter', sample:'Execution trend' },
+      { role:'Card title', meta:'15px · 600', px:'15px', weight:600, ls:'-0.01em', family:'Inter', sample:'Recent runs' },
+      { role:'Body', meta:'14px · 400 · 1rem', px:'14px', weight:400, ls:'0', family:'Inter', sample:'The promo code did not combine with the active member discount.' },
+      { role:'Label', meta:'13px · 500', px:'13px', weight:500, ls:'0', family:'Inter', sample:'Environment' },
+      { role:'Table cell', meta:'13px · 400 · tabular', px:'13px', weight:400, ls:'0', family:'Inter', sample:'248 passed · 14 failed' },
+      { role:'Mono — ID / count', meta:'JetBrains Mono · 12px', px:'12px', weight:500, ls:'0', family:"'JetBrains Mono',monospace", sample:'TC-2041 · RUN-320 · 94.2%' },
+      { role:'Eyebrow / header', meta:'11px · 600 · 0.05em · UPPER', px:'11px', weight:600, ls:'0.05em', family:'Inter', sample:'RESULT DISTRIBUTION' },
+    ];
+
+    const spacing = [
+      { px:'4px', w:'4px' },{ px:'8px', w:'8px' },{ px:'12px', w:'12px' },{ px:'16px', w:'16px' },
+      { px:'20px', w:'20px' },{ px:'24px', w:'24px' },{ px:'32px', w:'32px' },{ px:'48px', w:'48px' },{ px:'64px', w:'64px' },
+    ];
+    const radii = [ { px:'4px' },{ px:'6px' },{ px:'8px' },{ px:'10px' },{ px:'14px' },{ px:'20px' } ];
+
+    const sb=(label,icon,color,soft)=>({label,icon,color,soft});
+    const statusBadges=[
+      sb('Passed','check_circle','var(--pass)','var(--pass-soft)'),
+      sb('Failed','cancel','var(--fail)','var(--fail-soft)'),
+      sb('Blocked','block','var(--warn)','var(--warn-soft)'),
+      sb('Skipped','skip_next','var(--skip)','var(--skip-soft)'),
+      sb('Untested','radio_button_unchecked','var(--skip)','var(--skip-soft)'),
+      sb('Flaky','sync_problem','var(--info)','var(--info-soft)'),
+    ];
+
+    const cmdRaw = [
+      { group:'Navigate', items:[
+        { icon:'space_dashboard', label:'Go to Dashboards', hint:'G then D', sel:true },
+        { icon:'account_tree', label:'Open Repository', hint:'G then R' },
+        { icon:'play_circle', label:'Test Runs', hint:'G then T' },
+      ]},
+      { group:'Recent', items:[
+        { icon:'description', label:'TC-2041 · Apply promo code at checkout', hint:'' },
+        { icon:'play_circle', label:'RUN-320 · Regression — Checkout v4.9', hint:'' },
+      ]},
+      { group:'Actions', items:[
+        { icon:'add', label:'Create test case', hint:'C' },
+        { icon:'rocket_launch', label:'Start new run', hint:'R' },
+      ]},
+    ];
+    const cmdItems = cmdRaw.map(g => ({ group:g.group, items: g.items.map(it => ({
+      ...it,
+      bg: it.sel ? 'var(--primary-soft)' : 'transparent',
+      iconColor: it.sel ? 'var(--primary-text)' : 'var(--text-faint)',
+      textColor: it.sel ? 'var(--primary-text)' : 'var(--text)',
+      weight: it.sel ? '600' : '500',
+    })) }));
+    const selOptions = [{value:'staging',label:'Staging'},{value:'prod',label:'Production'},{value:'ci',label:'CI'}];
+    const btnSm = { height: 36, borderRadius: 9, fontSize: 13 };
+    const coverage = [
+      { group:'Global shell', icon:'dashboard', items:'Top nav · project tab bar · ⌘K palette · notifications · avatar menu' },
+      { group:'Auth & public', icon:'lock', items:'Login · sign up · forgot / reset · accept invite · shared report' },
+      { group:'List / overview', icon:'grid_view', items:'Projects (table + grid) · Users · Invites · Groups · Roles · Custom fields · Deployments' },
+      { group:'Dashboard / analytics', icon:'monitoring', items:'Global + per-project KPIs · trend · distribution · risk lists · quality grid · activity' },
+      { group:'Tree / repository', icon:'account_tree', items:'Suite tree · case rows · bulk bar · filters · case drawer (4 tabs) · empty states' },
+      { group:'Board / status', icon:'view_kanban', items:'Runs grouped Active / Completed / Aborted · rings · completion · chips' },
+      { group:'Execution', icon:'checklist', items:'Case list · runner panel · step results · evidence · metric cards · toolbar' },
+      { group:'Form / wizard', icon:'edit_note', items:'Case create/edit · run create · plan create/detail · milestones · environments · shared steps' },
+      { group:'Settings / two-pane', icon:'settings', items:'Project + workspace settings · members · access · integrations · profile · audit log' },
+    ];
+
+    const st={ failed:['cancel','var(--fail)','var(--fail-soft)','Failed'], passed:['check_circle','var(--pass)','var(--pass-soft)','Passed'], blocked:['block','var(--warn)','var(--warn-soft)','Blocked'] };
+    const pri={ high:['keyboard_double_arrow_up','var(--fail)'], medium:['drag_handle','var(--warn)'], low:['keyboard_arrow_down','var(--text-faint)'] };
+    const tableRows=[
+      { id:'TC-2041', title:'Apply promo code at checkout', suite:'Pricing', status:'failed', priK:'high', sel:true },
+      { id:'TC-2039', title:'Subtotal updates on quantity change', suite:'Pricing', status:'passed', priK:'medium' },
+      { id:'TC-2042', title:'Stack two promo codes', suite:'Pricing', status:'blocked', priK:'high' },
+    ].map(r=>({ ...r, statusIcon:st[r.status][0], statusColor:st[r.status][1], soft:st[r.status][2], statusLabel:st[r.status][3], priIcon:pri[r.priK][0], priColor:pri[r.priK][1], bg:r.sel?'var(--primary-soft)':'transparent' }));
+
+    const themeCode = `/* QMaster · Instrument re-tunes the S9 design system.
+   Override S9's color RAMPS in OKLCH — S9's own semantic aliases
+   (--bg-surface, --content-primary, --primary-solid, --success-*…)
+   and its .dark machinery then resolve to Instrument automatically. */
+@theme {
+  --color-white-100: oklch(1 0 0);
+  /* graphite neutrals (cool, faint blue cast) */
+  --color-neutral-50:  oklch(0.975 0.004 256);
+  --color-neutral-100: oklch(0.945 0.006 256);
+  --color-neutral-200: oklch(0.905 0.008 256);
+  --color-neutral-300: oklch(0.852 0.011 257);
+  --color-neutral-400: oklch(0.705 0.014 259);
+  --color-neutral-500: oklch(0.585 0.016 260);
+  --color-neutral-600: oklch(0.485 0.017 261);
+  --color-neutral-700: oklch(0.372 0.016 262);
+  --color-neutral-800: oklch(0.262 0.014 263);
+  --color-neutral-900: oklch(0.205 0.013 263);
+  --color-neutral-950: oklch(0.165 0.012 264);
+  /* cobalt primary */
+  --color-blue-100: oklch(0.928 0.040 256);
+  --color-blue-500: oklch(0.550 0.172 256);
+  --color-blue-600: oklch(0.478 0.162 257);
+  --color-blue-700: oklch(0.400 0.138 258);
+  --color-blue-900: oklch(0.262 0.082 262);
+  /* QA signal ramps */
+  --color-green-500: oklch(0.580 0.140 152);  /* passed  */
+  --color-red-500:   oklch(0.572 0.212 27);   /* failed  */
+  --color-amber-500: oklch(0.760 0.150 70);   /* blocked */
+  --color-cyan-500:  oklch(0.600 0.110 234);  /* info / flaky */
+  --color-orange-500: oklch(0.685 0.165 50);  /* invalid */
+  --radius-control: 9px;  --radius-card: 13px;
+}
+
+/* Dark mode = S9's .dark variant; aliases re-point to the same
+   re-tuned ramps, so no extra color values are needed here. */
+.dark { color-scheme: dark; }`;
+
+    return {
+      themeClass: dark ? 'theme-dark' : 'theme-light',
+      themeLabel: dark ? 'Dark' : 'Light',
+      themeIcon: dark ? 'dark_mode' : 'light_mode',
+      toggleTheme, roles, signal, typeScale, spacing, radii, statusBadges, tableRows, themeCode,
+      cmdItems, selOptions, btnSm, coverage,
+    };
+  }
+}
+</script>
+<script>
+(async () => {
+  if (!document.title || !document.title.trim()) document.title = "QMaster Visual Language";
+  // Prepend so page-supplied @page / break rules (deck-stage's margin:0,
+  // author CSS) keep source-order precedence over the baseline.
+  const baseCss = document.createElement('style');
+  baseCss.textContent = "@media print {\n  figure, table { break-inside: avoid; }\n  *, *::before, *::after {\n    print-color-adjust: exact; -webkit-print-color-adjust: exact;\n    backdrop-filter: none !important; -webkit-backdrop-filter: none !important;\n    animation-delay: -99s !important; animation-duration: .001s !important;\n    animation-iteration-count: 1 !important; animation-fill-mode: both !important;\n    animation-play-state: running !important; transition-duration: 0s !important;\n  }\n}";
+  document.head.prepend(baseCss);
+  if (document.readyState === 'loading') {
+    await new Promise((r) => document.addEventListener('DOMContentLoaded', r, { once: true }));
+  }
+  let ds = document.querySelector('deck-stage');
+  // whenDefined never resolves when nothing registers the element, so only
+  // await it when a <deck-stage> tag exists (and race a timeout regardless).
+  if (ds && !customElements.get('deck-stage')) {
+    try {
+      await Promise.race([
+        customElements.whenDefined('deck-stage'),
+        new Promise((r) => setTimeout(r, 3000)),
+      ]);
+    } catch (e) {}
+    ds = document.querySelector('deck-stage');
+  }
+  // dc-runtime assigns window.DCLogic at init and mounts into #dc-root on
+  // DOMContentLoaded; settle on that subtree so React has rendered before
+  // print(). Non-DC pages fall through to weighing body.
+  const isDc = !ds && 'DCLogic' in window;
+  const settleRoot = ds || (isDc ? document.getElementById('dc-root') : null) || document.body;
+  if (settleRoot) {
+    // Weigh only content children — skip script/style/template so inline
+    // Babel/CSS doesn't register as stable "content" before the framework
+    // has mounted anything.
+    const MEDIA = 'img,svg,canvas,video,picture,iframe,embed,object';
+    const weigh = () => {
+      let text = 0, media = 0;
+      for (const c of settleRoot.children) {
+        const t = c.tagName;
+        if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+        text += (c.textContent || '').trim().length;
+        media += c.querySelectorAll(MEDIA).length + (c.matches(MEDIA) ? 1 : 0);
+      }
+      return text + media * 100;
+    };
+    // "Non-zero and stable" alone is not sufficient to mean rendered: generic
+    // body can carry a static shell while async main content is pending, and
+    // #dc-root can carry the root DC's static text while child refs are still
+    // .sc-placeholder boxes. Gate generic on readyState 'complete', and never
+    // accept stability while a dc-runtime placeholder is present.
+    const isGeneric = settleRoot === document.body;
+    const deadline = Date.now() + 15000;
+    let last = -1, stable = 0;
+    while (Date.now() < deadline) {
+      const n = weigh();
+      const ready =
+        (!isGeneric || document.readyState === 'complete') &&
+        !settleRoot.querySelector('.sc-placeholder');
+      if (n > 0 && n === last && ready) { if (++stable >= 2) break; } else { stable = 0; }
+      last = n;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+  }
+  // Reveal content gated on scroll or visibility before printing. Lazy <img>,
+  // IntersectionObserver fade-ins, and collapsed <details> don't render while
+  // off-screen, so a long page would print with them blank or closed. Open
+  // every <details>, force native-lazy images eager, and scroll the document
+  // through its full height to trip lazy-load + IO; then wait (bounded) for the
+  // newly-triggered images. Inert for deck-stage (slides aren't scroll-gated).
+  try {
+    for (const d of document.querySelectorAll('details')) d.open = true;
+    for (const img of document.querySelectorAll('img[loading="lazy"]'))
+      img.loading = 'eager';
+    const scroller = document.scrollingElement || document.documentElement;
+    const full = Math.max(scroller.scrollHeight, document.body.scrollHeight);
+    const step = window.innerHeight || 800;
+    for (let y = 0; y <= full; y += step) {
+      window.scrollTo(0, y);
+      await new Promise((r) => requestAnimationFrame(r));
+    }
+    window.scrollTo(0, 0);
+    await Promise.race([
+      Promise.all(
+        [...document.images].map((img) =>
+          img.complete
+            ? null
+            : new Promise((res) => {
+                img.addEventListener('load', res, { once: true });
+                img.addEventListener('error', res, { once: true });
+              })
+        )
+      ),
+      new Promise((r) => setTimeout(r, 4000)),
+    ]);
+  } catch (e) {}
+  try { await document.fonts.ready; } catch (e) {}
+  // Jump every animation to its end state so print() never captures a slide
+  // mid-entrance. Ordering matters: the 0s-transition style must be live
+  // BEFORE data-deck-active is set so attribute-keyed transitions don't
+  // start a (now-0s) run from the pre-active base.
+  const st = document.createElement('style');
+  st.textContent = '*,*::before,*::after{animation-delay:-99s !important;animation-duration:.001s !important;animation-iteration-count:1 !important;animation-fill-mode:both !important;animation-play-state:running !important;transition-duration:0s !important}';
+  document.head.appendChild(st);
+  for (const d of document.querySelectorAll('deck-stage')) {
+    for (const c of d.children) {
+      const t = c.tagName;
+      if (t === 'SCRIPT' || t === 'STYLE' || t === 'TEMPLATE') continue;
+      c.setAttribute('data-deck-active', '');
+    }
+  }
+  // Re-append deck-stage's @page last so no author @page can add a margin and
+  // spill each full-bleed slide onto two sheets. Backstop for old copies.
+  if (ds) {
+    let pg = document.getElementById('deck-stage-print-page');
+    if (!pg) {
+      pg = document.createElement('style');
+      pg.textContent = '@page{size:' + (+ds.getAttribute('width') || 1920) +
+        'px ' + (+ds.getAttribute('height') || 1080) + 'px;margin:0}';
+    }
+    document.body.appendChild(pg);
+  }
+  try {
+    const sweep = () => {
+      for (const a of document.getAnimations()) {
+        try { a.finish(); } catch (e) {
+          try { a.currentTime = (a.effect && a.effect.getComputedTiming().duration) || 0; a.pause(); } catch (e2) {}
+        }
+      }
+    };
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+    sweep();
+    await new Promise((r) => requestAnimationFrame(r));
+  } catch (e) {}
+  // Size the PDF page to the rendered design unless the file opted into
+  // standard paper via @page{size:letter|A4|…}. Decks own their own @page.
+  var __m = null;
+  try { __m = (() => {
+  var docEl = document.documentElement;
+  var doc = { width: docEl.scrollWidth, height: docEl.scrollHeight };
+
+  var ds = document.querySelector('deck-stage');
+  if (ds) {
+    var dw = Number(ds.getAttribute('width')) || 1920;
+    var dh = Number(ds.getAttribute('height')) || 1080;
+    var n = typeof ds.length === 'number' ? ds.length : ds.children.length;
+    var idx = typeof ds.index === 'number' ? ds.index : 0;
+    var frames = [];
+    for (var i = 0; i < n; i++) frames.push({ left: 0, top: 0, width: dw, height: dh });
+    return { kind: 'deck', doc: doc, frames: frames,
+      authored: frames.map(function(){return{width:true,height:true}}),
+      deck: { width: dw, height: dh, slideCount: n, index: idx },
+      signals: { paperPage: false, pxPage: false } };
+  }
+
+  var paperPage = false, pxPage = false;
+  var eachRule = function (fn) {
+    for (var s = 0; s < document.styleSheets.length; s++) {
+      var rs; try { rs = document.styleSheets[s].cssRules; } catch (e) { continue; }
+      for (var r = 0; r < rs.length; r++) {
+        fn(rs[r]);
+        if (rs[r].cssRules) for (var n = 0; n < rs[r].cssRules.length; n++) fn(rs[r].cssRules[n]);
+      }
+    }
+  };
+  eachRule(function (r) {
+    if (r.type !== 6) return;
+    var m = /\bsize\s*:\s*([^;}]+)/i.exec(r.cssText || '');
+    if (!m) return;
+    if (/\b(letter|a[3-5]|legal|ledger)\b/i.test(m[1])) paperPage = true;
+    if (/\d+(?:\.\d+)?px\b/i.test(m[1])) pxPage = true;
+  });
+  var signals = { paperPage: paperPage, pxPage: pxPage };
+
+  if (paperPage) {
+    return { kind: 'paper-doc', doc: doc, signals: signals,
+      frames: [{ left: 0, top: 0, width: doc.width, height: doc.height }],
+      authored: [{ width: false, height: false }] };
+  }
+
+  var pxVal = function (v) {
+    var m = /^(\d+(?:\.\d+)?)px$/.exec(v || ''); return m ? +m[1] : 0;
+  };
+  var authoredPx = function (el, prop) {
+    if (pxVal(el.style[prop])) return true;
+    var attr = el.getAttribute(prop);
+    if (attr && /^\d+$/.test(attr)) return true;
+    var hit = false;
+    eachRule(function (r) {
+      if (hit || r.type !== 1 || !r.style) return;
+      try { if (el.matches(r.selectorText) && pxVal(r.style[prop])) hit = true; } catch (e) {}
+    });
+    return hit;
+  };
+
+  var el = document.body;
+  for (;;) {
+    var kids = [];
+    for (var c = 0; c < el.children.length; c++) {
+      var t = el.children[c].tagName;
+      if (t !== 'SCRIPT' && t !== 'STYLE' && t !== 'TEMPLATE') kids.push(el.children[c]);
+    }
+    if (kids.length !== 1 || !(kids[0] instanceof HTMLElement)) break;
+    el.setAttribute('data-om-frame-wrap', '');
+    el = kids[0];
+    if (authoredPx(el, 'width')) break;
+  }
+
+  var sx = window.scrollX || 0, sy = window.scrollY || 0;
+  var rectOf = function (e) {
+    var r = e.getBoundingClientRect();
+    var oy; try { oy = getComputedStyle(e).overflowY; } catch (err) {}
+    var h = oy === 'visible' ? Math.max(r.height, e.scrollHeight || 0) : r.height;
+    return { left: r.left + sx, top: r.top + sy, width: r.width, height: h };
+  };
+
+  // Multi-frame: ≥2 visible non-fixed children, each with authored px width
+  // AND height, all within ±2px of each other. Off unless the page opts in
+  // via data-om-multi-frame on the stop element — guards against card grids
+  // and pricing tables that match the geometry but aren't separate canvases.
+  if (el.hasAttribute('data-om-multi-frame')) {
+    var cands = [];
+    for (var k = 0; k < el.children.length; k++) {
+      var ch = el.children[k];
+      var cs; try { cs = getComputedStyle(ch); } catch (e) { continue; }
+      if (cs.display === 'none' || cs.visibility === 'hidden' || cs.position === 'fixed') continue;
+      var rc = rectOf(ch);
+      if (rc.width < 2 || rc.height < 2) continue;
+      if (!authoredPx(ch, 'width') || !authoredPx(ch, 'height')) continue;
+      cands.push(rc);
+    }
+    if (cands.length >= 2) {
+      var w0 = cands[0].width, h0 = cands[0].height, ok = true;
+      for (var q = 1; q < cands.length; q++)
+        if (Math.abs(cands[q].width - w0) > 2 || Math.abs(cands[q].height - h0) > 2) ok = false;
+      if (ok) return { kind: 'multi-frame', doc: doc, signals: signals,
+        frames: cands, authored: cands.map(function(){return{width:true,height:true}}) };
+    }
+  }
+
+  return { kind: 'single-canvas', doc: doc, signals: signals,
+    frames: [rectOf(el)],
+    authored: [{ width: authoredPx(el, 'width'), height: authoredPx(el, 'height') }] };
+})(); } catch (e) {}
+  var frame = null;
+  if (__m && __m.kind === 'single-canvas') {
+    var f = __m.frames && __m.frames[0];
+    if (f && f.width >= 200 && f.height >= 200) {
+      frame = f;
+      var fst = document.createElement('style');
+      fst.textContent = '@media print{@page{size:' + f.width + 'px ' + f.height +
+        'px;margin:0}html,body,[data-om-frame-wrap]{padding:0!important;' +
+        'margin:0!important;background:none!important}}';
+      document.body.appendChild(fst);
+    }
+  }
+  // Relax break-inside on oversized elements. An element taller than a
+  // printable page can't honor break-inside: avoid — browsers either overflow
+  // it or push it whole to the next page, leaving a blank gap, then break it
+  // anyway at an arbitrary point. After the final layout (content revealed,
+  // animations jumped), find elements taller than a page that still compute
+  // break-inside: avoid and reset them to auto, so the browser breaks them at
+  // their children's boundaries instead (children keep their own avoid). PAGE_PX
+  // is a conservative portrait estimate at 96 CSS px/in — Letter/A4 usable
+  // height minus our 0.5in margins — so only clearly-oversized elements are
+  // touched and under-page elements still stay whole. Skipped for decks (slides
+  // are sized to the page) and for fixed-size canvases (frame set, or an author
+  // px-based @page) — runs as before for flowing docs on letter/A4.
+  try {
+    if (!ds && !frame && !(__m && __m.signals && __m.signals.pxPage)) {
+      const PAGE_PX = 1024;
+      // Our print defaults add a real @page margin only when the source has
+      // no @page of its own; computed style can't tell us (it reports screen
+      // media), so read the injected rule directly.
+      const defaults = document.querySelector('style[data-omelette-print-defaults]');
+      const pageInset = /@page\s*\{[^}]*margin/.test(defaults ? defaults.textContent || '' : '');
+      const SEL = 'section,article,figure,table,pre,blockquote,[class~="card" i],[class~="page" i],[class~="sheet" i]';
+      for (const el of document.body.querySelectorAll(SEL)) {
+        if (el instanceof HTMLElement && el.offsetHeight > PAGE_PX) {
+          el.setAttribute('data-om-oversized', '');
+          // Fake-paged docs simulate sheets with over-tall break-after:page
+          // boxes; honoring the break spills half-blank pages and ends a
+          // colored box mid-sheet. Flow them, and (only when we own the page
+          // inset) drop the redundant padding/background via the rule below.
+          const cs = getComputedStyle(el);
+          if (cs.breakAfter === 'page' || cs.pageBreakAfter === 'always') {
+            el.setAttribute('data-om-fakepage', '');
+          }
+        }
+      }
+      const ost = document.createElement('style');
+      ost.textContent = '@media print{' +
+        '[data-om-oversized]{break-inside:auto !important;page-break-inside:auto !important}' +
+        '[data-om-fakepage]{break-after:auto !important;page-break-after:auto !important}' +
+        (pageInset ? '[data-om-fakepage]{padding:0 !important;background:none !important}' : '') +
+        '}';
+      document.head.appendChild(ost);
+    }
+  } catch (e) {}
+  // macOS Preview renders Skia-PDF Luminosity soft-masks as opaque grey boxes;
+  // swap the CSS that triggers them for Preview-safe forms.
+  try {
+    for (const el of document.body.querySelectorAll('*')) {
+      const cs = getComputedStyle(el);
+
+      if (cs.boxShadow !== 'none' && cs.filter === 'none') {
+        const outs = [], kept = [];
+        for (const s of cs.boxShadow.split(/,(?![^(]*[)])/)) {
+          const t = s.trim();
+          const m = t.match(/^(rgba?[(][^)]+[)]) (-?[0-9.]+px) (-?[0-9.]+px) ([0-9.]+px) -?[0-9.]+px$/);
+          if (m && parseFloat(m[4]) > 0) outs.push('drop-shadow(' + m[2] + ' ' + m[3] + ' ' + m[4] + ' ' + m[1] + ')');
+          else kept.push(t);
+        }
+        if (outs.length) {
+          el.style.setProperty('filter', outs.join(' '), 'important');
+          el.style.setProperty('box-shadow', kept.join(', ') || 'none', 'important');
+        }
+      }
+
+      const mask = cs.maskImage && cs.maskImage !== 'none' ? cs.maskImage : cs.webkitMaskImage;
+      if (mask && mask !== 'none' && cs.filter === 'none') el.style.setProperty('filter', 'opacity(1)', 'important');
+    }
+  } catch (e) {}
+  setTimeout(() => { try { window.print(); } catch (e) {} }, 200);
+})();
+</script>
+</body>
+</html>

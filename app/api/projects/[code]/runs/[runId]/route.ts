@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireRunAccess } from "@/lib/project-route-auth";
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ code: string; runId: string }> },
 ) {
-  const { code, runId } = await params;
+  const { runId } = await params;
   try {
     const run = await prisma.testRun.findUnique({
       where: { id: runId },
@@ -31,8 +32,11 @@ export async function PUT(
   req: Request,
   { params }: { params: Promise<{ code: string; runId: string }> },
 ) {
-  const { code, runId } = await params;
+  const { runId } = await params;
   try {
+    const access = await requireRunAccess(runId);
+    if (access instanceof NextResponse) return access;
+
     const body = await req.json();
     const { title, description, caseIds, environmentId, milestoneId } = body;
 
@@ -102,8 +106,11 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ code: string; runId: string }> },
 ) {
-  const { code, runId } = await params;
+  const { runId } = await params;
   try {
+    const access = await requireRunAccess(runId, ["ADMIN"]);
+    if (access instanceof NextResponse) return access;
+
     await prisma.testRun.delete({
       where: { id: runId },
     });

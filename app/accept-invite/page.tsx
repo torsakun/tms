@@ -1,9 +1,17 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Loader2, ShieldCheck } from "lucide-react";
-import Link from "next/link";
+import { Loader2, User, Lock, ShieldCheck, ArrowRight, ArrowLeft } from "lucide-react";
+import {
+  AuthShell,
+  AuthEyebrow,
+  AuthHeading,
+  AuthField,
+  AuthPrimaryButton,
+  AuthOutlineButton,
+  AuthBanner,
+} from "@/components/auth/AuthShell";
 
 function AcceptInviteContent() {
   const searchParams = useSearchParams();
@@ -58,148 +66,108 @@ function AcceptInviteContent() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-surface-hover flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-surface py-8 px-4 shadow-premium sm:rounded-3xl border border-border/80 sm:px-10 text-center animate-in zoom-in-95 duration-200">
-            <h2 className="text-xl font-bold text-text-main mb-2">
-              Invalid Invitation
-            </h2>
-            <p className="text-text-muted mb-6">
-              No invitation token was provided in the URL.
-            </p>
-            <Link
-              href="/"
-              className="text-primary hover:text-primary font-medium"
-            >
-              Return to Home
-            </Link>
-          </div>
-        </div>
-      </div>
+      <AuthShell
+        headline="Invitation link invalid"
+        subtext="This link is missing its invitation token. Ask the person who invited you for a fresh link."
+      >
+        <AuthEyebrow>Accept invite</AuthEyebrow>
+        <AuthBanner variant="danger">
+          No invitation token was provided in the URL.
+        </AuthBanner>
+        <AuthOutlineButton
+          type="button"
+          leadingIcon={ArrowLeft}
+          onClick={() => router.push("/login")}
+        >
+          Back to sign in
+        </AuthOutlineButton>
+      </AuthShell>
     );
   }
 
   if (success) {
     return (
-      <div className="min-h-screen bg-surface-hover flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <div className="bg-surface py-8 px-4 shadow-premium sm:rounded-3xl border border-border/80 sm:px-10 text-center animate-in zoom-in-95 duration-200">
-            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-              <ShieldCheck size={32} />
-            </div>
-            <h2 className="text-xl font-bold text-text-main mb-2">
-              Invitation Accepted!
-            </h2>
-            <p className="text-text-muted mb-6">
-              You have successfully joined the project.
-            </p>
-            <Link
-              href={`/login?redirect=/projects/${projectCode}/repository`}
-              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-primary-foreground bg-primary hover:bg-primary-hover transition-colors"
-            >
-              Sign In to Continue
-            </Link>
+      <AuthShell
+        headline="You're in."
+        subtext="Your account is ready. Sign in to start working on the project."
+      >
+        <AuthEyebrow>Accept invite</AuthEyebrow>
+        <AuthBanner variant="success" icon={ShieldCheck}>
+          <div className="text-text-main">Invitation accepted</div>
+          <div className="mt-0.5 font-medium text-text-muted">
+            You&apos;ve successfully joined the project.
           </div>
-        </div>
-      </div>
+        </AuthBanner>
+        <AuthPrimaryButton
+          type="button"
+          onClick={() =>
+            router.push(`/login?redirect=/projects/${projectCode}/repository`)
+          }
+        >
+          Sign in to continue
+        </AuthPrimaryButton>
+      </AuthShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-surface-hover flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h2 className="mt-6 text-center text-3xl font-extrabold text-text-main">
-          Accept Project Invitation
-        </h2>
-        <p className="mt-2 text-center text-sm text-text-muted">
-          Complete your profile to join the project team.
+    <AuthShell
+      headline="You've been invited to a project."
+      subtext="QMaster is invite-only. Set your name and a password to join the team."
+    >
+      <AuthEyebrow>Accept invite</AuthEyebrow>
+      <AuthHeading
+        title="Join the project"
+        subtitle="Complete your profile to join the project team."
+      />
+
+      <form className="flex flex-col gap-[15px]" onSubmit={handleSubmit}>
+        {error && <AuthBanner variant="danger">{error}</AuthBanner>}
+
+        <AuthField
+          label="Full name"
+          icon={User}
+          type="text"
+          required
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          placeholder="Priya Sharma"
+        />
+        <AuthField
+          label="Password"
+          icon={Lock}
+          type="password"
+          required
+          value={formData.password}
+          onChange={(e) =>
+            setFormData({ ...formData, password: e.target.value })
+          }
+          placeholder="••••••••••"
+        />
+        <AuthField
+          label="Confirm password"
+          icon={Lock}
+          type="password"
+          required
+          value={formData.confirmPassword}
+          onChange={(e) =>
+            setFormData({ ...formData, confirmPassword: e.target.value })
+          }
+          placeholder="••••••••••"
+        />
+        <p className="-mt-1 text-[12px] leading-relaxed text-text-faint">
+          If you already have an account with this email, your password
+          won&apos;t be changed.
         </p>
-      </div>
-
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-surface py-8 px-4 shadow-premium sm:rounded-3xl border border-border/80 sm:px-10 animate-in zoom-in-95 duration-200">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="p-4 rounded-xl bg-danger-soft text-danger-foreground text-[13px] font-bold shadow-inner border border-danger/25">
-                {error}
-              </div>
-            )}
-
-            <div>
-              <label className="block text-sm font-medium text-text-main">
-                Full Name
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                  className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-text-main">
-                Password
-              </label>
-              <div className="mt-1">
-                <input
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={(e) =>
-                    setFormData({ ...formData, password: e.target.value })
-                  }
-                  className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main"
-                />
-              </div>
-              <p className="mt-1 text-xs text-text-muted">
-                (If you already have an account with this email, your password
-                will not be changed)
-              </p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-text-main">
-                Confirm Password
-              </label>
-              <div className="mt-1">
-                <input
-                  type="password"
-                  required
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      confirmPassword: e.target.value,
-                    })
-                  }
-                  className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main"
-                />
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full flex justify-center py-2.5 px-4 rounded-xl shadow-premium text-sm font-bold text-primary-foreground bg-primary hover:bg-primary-hover hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:hover:translate-y-0"
-              >
-                {isLoading ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  "Accept Invitation"
-                )}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+        <AuthPrimaryButton
+          type="submit"
+          loading={isLoading}
+          loadingText="Joining…"
+        >
+          Join workspace
+        </AuthPrimaryButton>
+      </form>
+    </AuthShell>
   );
 }
 
@@ -207,7 +175,7 @@ export default function AcceptInvitePage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-surface-hover flex items-center justify-center">
+        <div className="flex min-h-screen items-center justify-center bg-background">
           <Loader2 size={32} className="animate-spin text-primary" />
         </div>
       }

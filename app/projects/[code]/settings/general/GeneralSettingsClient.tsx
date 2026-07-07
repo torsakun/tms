@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Save, Archive, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { Check, Archive, ArchiveRestore, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 interface Project {
   id: string;
@@ -20,8 +21,7 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
   const [saving, setSaving] = useState(false);
   const [archiving, setArchiving] = useState(false);
 
-  const isDirty =
-    name !== project.name || description !== (project.description || "");
+  const isDirty = name !== project.name || description !== (project.description || "");
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -69,103 +69,90 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
   };
 
   return (
-    <div className="space-y-8 max-w-2xl">
-      {/* Basic info */}
-      <section className="space-y-5">
+    <div className="animate-in fade-in duration-300 w-full max-w-[760px]">
+      <div className="mb-[6px] text-[17px] font-semibold tracking-[-0.01em] text-text-main">General</div>
+      <div className="text-[13.5px] text-text-muted mb-[22px]">Manage project details and status.</div>
+
+      <div className="flex flex-col gap-[20px]">
         <div>
-          <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
-            Project Name <span className="text-danger">*</span>
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="My Project"
-            className="w-full px-4 py-3 border border-border/80 rounded-xl text-[13px] font-semibold bg-surface focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40"
-          />
-        </div>
-
-        <div>
-          <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
-            Project Code
-          </label>
-          <input
-            type="text"
-            value={project.code}
-            disabled
-            className="w-full px-4 py-3 border border-border/80 rounded-xl text-[13px] font-semibold bg-surface-hover text-text-muted cursor-not-allowed"
-          />
-          <p className="text-sm text-text-muted mt-1.5">
-            Project code cannot be changed after creation.
-          </p>
-        </div>
-
-        <div>
-          <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
-            Description
-          </label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe this project's purpose…"
-            rows={4}
-            className="w-full px-4 py-3 border border-border/80 rounded-xl text-[13px] font-semibold bg-surface focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary resize-none transition-all shadow-inner hover:border-text-muted/40"
-          />
-        </div>
-
-        <div className="flex justify-end">
-          <button
-            onClick={handleSave}
-            disabled={saving || !isDirty}
-            className="flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-premium transition-all hover:-translate-y-0.5 duration-300 disabled:opacity-50 disabled:hover:translate-y-0 disabled:shadow-none"
-            style={{ background: "var(--primary)" }}
-          >
-            {saving ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : (
-              <Save size={14} />
-            )}
-            Save changes
-          </button>
-        </div>
-      </section>
-
-      <hr className="border-border/80" />
-
-      {/* Danger zone */}
-      <section>
-        <h2 className="text-[13px] font-bold text-red-600 mb-3 uppercase tracking-wider">Danger zone</h2>
-        <div className="border border-danger/25 rounded-2xl p-5 flex items-center justify-between bg-danger-soft shadow-sm">
-          <div>
-            <div className="text-sm font-semibold text-text-main">
-              {project.isArchived ? "Restore project" : "Archive project"}
-            </div>
-            <div className="text-xs text-text-muted mt-0.5">
-              {project.isArchived
-                ? "Make this project active again."
-                : "Archive this project to hide it from the active list."}
-            </div>
+          <label className="block text-[12px] text-text-muted mb-[6px]">Project Name</label>
+          <div className="flex items-center h-[40px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] text-[13.5px] focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+            <input 
+              type="text" 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
+              placeholder="My Project"
+              className="w-full bg-transparent outline-none text-text-main" 
+            />
           </div>
-          <button
+        </div>
+
+        <div>
+          <label className="block text-[12px] text-text-muted mb-[6px]">Project Code</label>
+          <div className="flex items-center h-[40px] px-[12px] rounded-[10px] bg-surface-2 shadow-[inset_0_0_0_1px_var(--border-color)] text-[13px] text-text-muted font-mono cursor-not-allowed opacity-80">
+            {project.code}
+          </div>
+          <div className="text-[11.5px] text-text-faint mt-[4px]">Project code cannot be changed after creation.</div>
+        </div>
+
+        <div>
+          <label className="block text-[12px] text-text-muted mb-[6px]">Description</label>
+          <div className="flex px-[12px] py-[10px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] text-[13.5px] focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+            <textarea 
+              value={description} 
+              onChange={(e) => setDescription(e.target.value)} 
+              placeholder="Describe this project's purpose…"
+              rows={4}
+              className="w-full bg-transparent outline-none text-text-main resize-none" 
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-[28px] flex justify-end gap-[9px]">
+        <Button
+          variant="ghost"
+          onClick={() => { setName(project.name); setDescription(project.description || ""); }}
+          disabled={!isDirty || saving}
+        >
+          Discard
+        </Button>
+        <Button
+          variant="primary"
+          onClick={handleSave}
+          disabled={saving || !isDirty}
+          loading={saving}
+        >
+          {!saving && <Check size={18} />}
+          Save changes
+        </Button>
+      </div>
+
+      <div className="mt-[40px] pt-[30px] border-t border-border">
+        <div className="mb-[6px] text-[15px] font-semibold text-danger">Danger Zone</div>
+        <div className="text-[13px] text-text-muted mb-[16px]">
+          {project.isArchived ? "Restore this project to make it active again." : "Archive this project to hide it from active lists."}
+        </div>
+        
+        <div className="flex items-center justify-between p-[18px] border border-danger-border bg-surface rounded-[13px] shadow-sm">
+          <div>
+            <div className="text-[14px] font-semibold text-text-main">{project.isArchived ? "Restore project" : "Archive project"}</div>
+          </div>
+          <button 
             onClick={handleArchiveToggle}
             disabled={archiving}
-            className={`flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold rounded-xl border transition-all duration-300 shadow-sm hover:-translate-y-0.5 disabled:hover:translate-y-0 disabled:shadow-none ${
-              project.isArchived
-                ? "border-green-300 text-green-700 bg-green-50 hover:bg-green-100"
-                : "border-danger/35 text-danger-foreground bg-surface hover:bg-danger-soft"
+            className={`h-[36px] px-[16px] rounded-[9px] text-[13px] font-semibold border flex items-center gap-[6px] transition-colors disabled:opacity-50 ${
+              project.isArchived 
+                ? 'border-pass text-pass hover:bg-pass-soft' 
+                : 'border-danger-border text-danger hover:bg-danger-soft'
             }`}
           >
-            {archiving ? (
-              <Loader2 size={14} className="animate-spin" />
-            ) : project.isArchived ? (
-              <RotateCcw size={14} />
-            ) : (
-              <Archive size={14} />
-            )}
+            {archiving ? <Loader2 size={18} className="animate-spin" /> : (project.isArchived ? <ArchiveRestore size={18} /> : <Archive size={18} />)}
             {project.isArchived ? "Restore" : "Archive"}
           </button>
         </div>
-      </section>
+      </div>
+
     </div>
   );
 }

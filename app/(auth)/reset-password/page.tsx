@@ -5,13 +5,21 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
-  Zap,
   Loader2,
   ArrowRight,
   AlertCircle,
   CheckCircle2,
   Lock,
 } from "lucide-react";
+import {
+  AuthShell,
+  AuthHeading,
+  AuthField,
+  AuthPrimaryButton,
+  AuthOutlineButton,
+  AuthBanner,
+  AuthEyebrow,
+} from "@/components/auth/AuthShell";
 
 function ResetPasswordContent() {
   const router = useRouter();
@@ -82,32 +90,19 @@ function ResetPasswordContent() {
     }
   };
 
-  const card = (children: React.ReactNode) => (
-    <div
-      className="min-h-screen flex items-center justify-center p-6"
-      style={{ background: "var(--bg-background)" }}
+  const wrapper = (children: React.ReactNode) => (
+    <AuthShell
+      headline="Choose a new password"
+      subtext="Use at least 12 characters with a number and a symbol."
     >
-      <div className="w-full max-w-[420px]">
-        <div className="flex items-center gap-3 mb-8 justify-center">
-          <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center shadow-premium"
-            style={{ background: "var(--primary)" }}
-          >
-            <Zap className="text-white" size={20} strokeWidth={2.5} />
-          </div>
-          <span className="text-2xl font-bold text-text-main tracking-tight">
-            QMaster
-          </span>
-        </div>
-        <div className="bg-surface rounded-2xl shadow-premium border border-border/80 p-8">
-          {children}
-        </div>
+      <div className="flex flex-col gap-[18px]">
+        {children}
       </div>
-    </div>
+    </AuthShell>
   );
 
   if (status === "checking") {
-    return card(
+    return wrapper(
       <div className="py-12 flex flex-col items-center gap-3 text-text-muted">
         <Loader2 className="animate-spin" size={26} />
         <span className="text-sm">Validating link…</span>
@@ -116,106 +111,85 @@ function ResetPasswordContent() {
   }
 
   if (status === "invalid") {
-    return card(
-      <div className="text-center py-2">
-        <div className="w-14 h-14 rounded-2xl bg-danger-soft flex items-center justify-center mx-auto mb-4">
-          <AlertCircle className="text-danger-foreground" size={26} />
+    return wrapper(
+      <>
+        <div className="flex flex-col items-center text-center gap-2 mt-4">
+          <div className="flex h-[44px] w-[44px] items-center justify-center rounded-[11px] bg-danger-soft text-danger">
+            <AlertCircle size={22} />
+          </div>
+          <AuthHeading
+            title="Link not valid"
+            subtitle={invalidMsg}
+          />
         </div>
-        <h2 className="text-xl font-bold text-text-main tracking-tight mb-2">
-          Link not valid
-        </h2>
-        <p className="text-sm text-text-muted leading-relaxed mb-6">
-          {invalidMsg}
-        </p>
-        <Link
-          href="/forgot-password"
-          className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-white shadow-premium hover:-translate-y-0.5 transition-all"
-          style={{ background: "var(--primary)" }}
-        >
-          Request a new link <ArrowRight size={16} />
+        <Link href="/forgot-password" className="w-full mt-4">
+          <AuthPrimaryButton type="button" trailingIcon={ArrowRight}>
+            Request a new link
+          </AuthPrimaryButton>
         </Link>
-      </div>,
+      </>
     );
   }
 
   if (done) {
-    return card(
-      <div className="text-center py-2">
-        <div className="w-14 h-14 rounded-2xl bg-success-soft flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 className="text-success-foreground" size={26} />
+    return wrapper(
+      <div className="flex flex-col items-center text-center gap-4 mt-4">
+        <div className="flex h-[44px] w-[44px] items-center justify-center rounded-[11px] bg-success-soft text-success">
+          <CheckCircle2 size={22} />
         </div>
-        <h2 className="text-xl font-bold text-text-main tracking-tight mb-2">
-          Password updated
-        </h2>
-        <p className="text-sm text-text-muted mb-2">
-          Redirecting you to sign in…
-        </p>
-        <Loader2 className="animate-spin text-primary mx-auto" size={20} />
-      </div>,
+        <AuthHeading
+          title="Password updated"
+          subtitle="Redirecting you to sign in…"
+        />
+        <Loader2 className="animate-spin text-primary mt-2" size={20} />
+      </div>
     );
   }
 
-  return card(
+  return wrapper(
     <>
-      <div className="mb-6">
-        <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-primary bg-primary/10 px-2.5 py-1 rounded-full mb-3">
-          <Lock size={12} /> Reset password
+      <div>
+        <AuthEyebrow>Reset password</AuthEyebrow>
+        <div className="mt-2">
+          <AuthHeading title="New password" />
         </div>
-        <h2 className="text-2xl font-extrabold text-text-main tracking-tight">
-          Choose a new password
-        </h2>
       </div>
-      <form className="space-y-4" onSubmit={handleSubmit}>
+
+      <form className="flex flex-col gap-[18px]" onSubmit={handleSubmit}>
         {error && (
-          <div className="p-3 bg-danger-soft text-danger-foreground flex items-center rounded-xl border border-danger/25 text-sm font-bold">
-            <AlertCircle size={16} className="mr-2 shrink-0" />
+          <AuthBanner variant="danger" icon={AlertCircle}>
             {error}
-          </div>
+          </AuthBanner>
         )}
-        <div>
-          <label className="block text-sm font-semibold text-text-main mb-1.5">
-            New password
-          </label>
-          <input
-            type="password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            className="w-full px-4 py-3.5 bg-surface-hover/50 border border-border/80 rounded-xl text-text-main font-semibold placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all text-[15px] hover:border-text-muted/40 shadow-inner"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-text-main mb-1.5">
-            Confirm password
-          </label>
-          <input
-            type="password"
-            required
-            value={confirm}
-            onChange={(e) => setConfirm(e.target.value)}
-            placeholder="••••••••"
-            className="w-full px-4 py-3.5 bg-surface-hover/50 border border-border/80 rounded-xl text-text-main font-semibold placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all text-[15px] hover:border-text-muted/40 shadow-inner"
-          />
-        </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold text-white shadow-premium hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:hover:translate-y-0"
-          style={{ background: "var(--primary)" }}
-        >
-          {loading ? (
-            <>
-              <Loader2 size={15} className="animate-spin" /> Updating…
-            </>
-          ) : (
-            <>
-              Update password <ArrowRight size={16} />
-            </>
-          )}
-        </button>
+
+        <AuthField
+          label="New password"
+          icon={Lock}
+          type="password"
+          required
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="••••••••••••"
+          className="tracking-[2px]"
+        />
+
+        <AuthField
+          label="Confirm password"
+          icon={Lock}
+          type="password"
+          required
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          placeholder="••••••••••••"
+          className="tracking-[2px]"
+          rightSlot={password === confirm && password.length >= 6 ? <CheckCircle2 size={19} className="shrink-0 text-success" /> : undefined}
+        />
+
+        <AuthPrimaryButton loading={loading} loadingText="Updating..." trailingIcon={CheckCircle2}>
+          Set new password
+        </AuthPrimaryButton>
       </form>
-    </>,
+    </>
   );
 }
 

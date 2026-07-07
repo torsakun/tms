@@ -1,25 +1,49 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcrypt";
+import {
+  AutomationStatus,
+  Priority,
+  Severity,
+  TestResultStatus,
+} from "@prisma/client";
+import {
+  getDevAdminCredentials,
+  requireDevRouteSecret,
+} from "@/lib/dev-route-auth";
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  if (searchParams.get("key") !== "recover-my-data-999") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authError = requireDevRouteSecret(req);
+  if (authError) return authError;
+
+  const credentials = getDevAdminCredentials();
+  if (!credentials) {
+    return NextResponse.json(
+      { error: "DEV_ADMIN_EMAIL and DEV_ADMIN_PASSWORD are required" },
+      { status: 503 },
+    );
   }
 
   try {
     // 1. Get or create a default user
+    const passwordHash = await bcrypt.hash(credentials.password, 10);
     let user = await prisma.user.findFirst({
-      where: { email: "supat.tor@gmail.com" },
+      where: { email: credentials.email },
     });
 
     if (!user) {
       user = await prisma.user.create({
         data: {
-          email: "supat.tor@gmail.com",
-          name: "Supat T",
-          passwordHash: "hashedpassword123", // mock
+          email: credentials.email,
+          name: "Admin User",
+          passwordHash,
+          role: "ADMIN",
         },
+      });
+    } else {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { passwordHash, role: "ADMIN" },
       });
     }
 
@@ -36,16 +60,20 @@ export async function GET(req: Request) {
       "Customer Support Chatbot",
     ];
 
-    const severities = [
-      "BLOCKER",
-      "CRITICAL",
-      "MAJOR",
-      "NORMAL",
-      "MINOR",
-      "TRIVIAL",
+    const severities: Severity[] = [
+      Severity.BLOCKER,
+      Severity.CRITICAL,
+      Severity.MAJOR,
+      Severity.NORMAL,
+      Severity.MINOR,
+      Severity.TRIVIAL,
     ];
-    const priorities = ["HIGH", "MEDIUM", "LOW"];
-    const autoStatuses = ["AUTOMATED", "TO_BE_AUTOMATED", "MANUAL"];
+    const priorities: Priority[] = [Priority.HIGH, Priority.MEDIUM, Priority.LOW];
+    const autoStatuses: AutomationStatus[] = [
+      AutomationStatus.AUTOMATED,
+      AutomationStatus.TO_BE_AUTOMATED,
+      AutomationStatus.MANUAL,
+    ];
 
     for (let i = 0; i < projectNames.length; i++) {
       const projName = projectNames[i];
@@ -98,15 +126,10 @@ export async function GET(req: Request) {
           projectId: project.id,
           suiteId: suite.id,
           authorId: user.id,
-          severity: severities[
-            Math.floor(Math.random() * severities.length)
-          ] as any,
-          priority: priorities[
-            Math.floor(Math.random() * priorities.length)
-          ] as any,
-          automationStatus: autoStatuses[
-            Math.floor(Math.random() * autoStatuses.length)
-          ] as any,
+          severity: severities[Math.floor(Math.random() * severities.length)],
+          priority: priorities[Math.floor(Math.random() * priorities.length)],
+          automationStatus:
+            autoStatuses[Math.floor(Math.random() * autoStatuses.length)],
         });
       }
 
@@ -135,15 +158,15 @@ export async function GET(req: Request) {
 
         for (const tc of casesToRun) {
           const rand = Math.random();
-          let status = "PASSED";
-          if (rand > 0.8) status = "FAILED";
-          else if (rand > 0.75) status = "BLOCKED";
-          else if (rand > 0.7) status = "SKIPPED";
+          let status: TestResultStatus = TestResultStatus.PASSED;
+          if (rand > 0.8) status = TestResultStatus.FAILED;
+          else if (rand > 0.75) status = TestResultStatus.BLOCKED;
+          else if (rand > 0.7) status = TestResultStatus.SKIPPED;
 
           runResultsData.push({
             runId: run.id,
             caseId: tc.id,
-            status: status as any,
+            status,
             timeSpent: Math.floor(Math.random() * 5000) + 1000,
           });
         }
@@ -156,8 +179,11 @@ export async function GET(req: Request) {
       success: true,
       message: "Generated 10 projects and hundreds of test cases successfully!",
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Seed error:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Failed to seed data" },
+      { status: 500 },
+    );
   }
 }

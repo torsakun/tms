@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Run create" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased; display:flex; flex-direction:column; min-height:640px;">
+  <div style="display:flex; align-items:center; gap:12px; padding:14px 22px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <span style="font-size:13px; color:var(--text-faint);">Test Runs</span>
+    <span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">chevron_right</span>
+    <span style="font-size:14px; font-weight:600;">New test run</span>
+  </div>
+
+  <div style="display:grid; grid-template-columns:340px 1fr; flex:1; min-height:0;">
+    <!-- left: run fields -->
+    <div style="border-right:1px solid var(--border); background:var(--surface); padding:20px 18px; display:flex; flex-direction:column; gap:16px; overflow:auto;">
+      <div style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint);">Run details</div>
+      <div><label style="display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;">Title</label><div style="display:flex; align-items:center; height:40px; padding:0 13px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 2px var(--ring); font-size:13.5px;">Regression — Checkout v4.9</div></div>
+      <div><label style="display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;">Description</label><div style="min-height:54px; padding:10px 13px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13px; color:var(--text-muted); line-height:1.5;">Pre-release regression sweep for the v4.9 candidate.</div></div>
+      <div><label style="display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;">Environment</label><div style="display:flex; align-items:center; justify-content:space-between; height:40px; padding:0 12px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13px;">Staging<span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">expand_more</span></div></div>
+      <div><label style="display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;">Milestone</label><div style="display:flex; align-items:center; justify-content:space-between; height:40px; padding:0 12px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13px;">v4.9 release<span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">expand_more</span></div></div>
+      <div>
+        <label style="display:block; font-size:12.5px; color:var(--text-muted); margin-bottom:6px;">From test plan <span style="color:var(--text-faint);">· optional</span></label>
+        <div style="display:flex; align-items:center; justify-content:space-between; height:40px; padding:0 12px; border-radius:10px; background:var(--primary-soft); box-shadow:inset 0 0 0 1px var(--primary-border); font-size:13px; color:var(--primary-text); font-weight:500;"><span style="display:flex; align-items:center; gap:7px;"><span class="material-symbols-rounded" style="font-size:17px;">verified</span>Release regression</span><span class="material-symbols-rounded" style="font-size:18px;">expand_more</span></div>
+        <div style="font-size:11px; color:var(--text-faint); margin-top:6px;">Cases from the plan are preselected below.</div>
+      </div>
+    </div>
+
+    <!-- right: case selection -->
+    <div style="display:flex; flex-direction:column; min-width:0; background:var(--bg);">
+      <div style="display:flex; align-items:center; gap:10px; padding:13px 18px; border-bottom:1px solid var(--border); background:var(--surface);">
+        <div style="font-weight:600; font-size:14px;">Select cases</div>
+        <div style="flex:1;"></div>
+        <div style="display:flex; align-items:center; gap:8px; height:34px; padding:0 11px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); border-radius:9px; color:var(--text-faint); font-size:12.5px; min-width:180px;"><span class="material-symbols-rounded" style="font-size:17px;">search</span>Search cases</div>
+        <span style="font-size:12px; font-weight:700; padding:5px 11px; border-radius:999px; background:var(--primary-soft); color:var(--primary-text);">418 selected</span>
+      </div>
+      <div style="flex:1; overflow:auto; padding:4px 0;">
+        <sc-for list="{{ tree }}" as="n" hint-placeholder-count="8">
+          <div style="display:flex; align-items:center; gap:9px; padding:9px 18px 9px {{ n.pad }}; background:{{ n.bg }};">
+            <div style="width:18px; height:18px; border-radius:5px; box-shadow:{{ n.boxShadow }}; background:{{ n.boxBg }}; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-symbols-rounded fill" style="font-size:13px; color:var(--primary-fg); visibility:{{ n.checkVis }};">{{ n.checkIcon }}</span></div>
+            <sc-if value="{{ n.isSuite }}" hint-placeholder-val="{{ true }}"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">{{ n.caret }}</span></sc-if>
+            <span class="material-symbols-rounded {{ n.iconFill }}" style="font-size:16px; color:{{ n.iconColor }};">{{ n.icon }}</span>
+            <span style="flex:1; font-size:13px; font-weight:{{ n.weight }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ n.label }}</span>
+            <span style="font-size:11px; color:var(--text-faint); font-variant-numeric:tabular-nums;">{{ n.count }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- sticky footer -->
+  <div style="display:flex; align-items:center; gap:10px; padding:13px 22px; background:var(--surface); border-top:1px solid var(--border);">
+    <span style="font-size:12.5px; color:var(--text-muted);"><span style="font-weight:700; color:var(--text);">418</span> cases selected across 6 suites</span>
+    <div style="flex:1;"></div>
+    <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="90px,40px" variant="ghost" style="{{ btn }}">Cancel</x-import>
+    <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="120px,40px" variant="primary" leading-icon="play_arrow" style="{{ btn }}">Start run</x-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const btn={ height:40, borderRadius:10, fontSize:14 };
+    const box=(state)=>{ // 'on' | 'off' | 'mixed'
+      if(state==='on') return { boxShadow:'none', boxBg:'var(--primary)', checkVis:'visible', checkIcon:'check' };
+      if(state==='mixed') return { boxShadow:'none', boxBg:'var(--primary)', checkVis:'visible', checkIcon:'remove' };
+      return { boxShadow:'inset 0 0 0 1.5px var(--border-strong)', boxBg:'var(--surface)', checkVis:'hidden', checkIcon:'check' };
+    };
+    const suite=(label,count,state,open)=>({ isSuite:true, label, count, pad:'18px', weight:'600', icon: open?'folder_open':'folder', iconFill:'', iconColor:'var(--text-faint)', caret: open?'expand_more':'chevron_right', bg:'transparent', ...box(state) });
+    const leaf=(label,state)=>({ isSuite:false, label, count:'', pad:'48px', weight:'400', icon:'description', iconFill:'', iconColor:'var(--text-faint)', caret:'', bg: state==='on'?'var(--primary-soft)':'transparent', ...box(state) });
+    const tree=[
+      suite('Checkout / Pricing',28,'on',true),
+      leaf('Apply promo code at checkout','on'),
+      leaf('Subtotal updates on quantity change','on'),
+      leaf('Free-shipping threshold banner','on'),
+      suite('Payments / Cards',64,'mixed',true),
+      leaf('Guest checkout — invalid card','on'),
+      leaf('Saved cards list pagination','off'),
+      suite('Auth / Sessions',42,'off',false),
+    ];
+    return { tree, btn };
+  }
+}
+</script>
+</body>
+</html>

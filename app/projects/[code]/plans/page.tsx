@@ -1,6 +1,4 @@
 import React from "react";
-import { Plus } from "lucide-react";
-import { ButtonLink } from "@/components/ui/Button";
 import { prisma } from "@/lib/prisma";
 import { TestPlansList } from "./TestPlansList";
 
@@ -40,21 +38,8 @@ export default async function TestPlansPage({
   }));
 
   return (
-    <div className="flex flex-col flex-1 bg-background transition-colors min-h-0">
-      <header className="h-16 bg-surface border-b border-border/80 flex items-center justify-between px-8 shrink-0 z-10 relative transition-colors">
-        <h1 className="text-xl font-bold text-text-main">Test Plans</h1>
-        <div className="flex items-center space-x-3">
-          <ButtonLink
-            href={`/projects/${code}/plans/create`}
-            className="shadow-[var(--shadow-float)] hover:-translate-y-0.5"
-          >
-            <Plus size={16} />
-            Create test plan
-          </ButtonLink>
-        </div>
-      </header>
-
-      <div className="flex-1 overflow-y-auto p-8">
+    <div className="flex flex-col flex-1 bg-background antialiased min-h-0 text-[14px]">
+      <div className="flex-1 overflow-y-auto">
         <TestPlansList initialPlans={serializedPlans} code={code} />
       </div>
     </div>

@@ -1,17 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Users,
-  UserPlus,
-  Lock,
-  Globe,
-  Check,
-  Search,
-  Loader2,
-  X,
-} from "lucide-react";
 import { toast } from "sonner";
+import { Globe, Lock, Users, Search, Loader2, Check, Plus, Minus, User } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 interface Owner {
   id?: string;
@@ -45,6 +37,26 @@ interface WorkspaceMember {
 
 type PrivateTab = "groups" | "members";
 
+const AVS = [
+  { bg: 'var(--primary-soft)', color: 'var(--primary-text)' },
+  { bg: 'var(--info-soft-fill)', color: 'var(--info)' },
+  { bg: 'var(--pass-soft)', color: 'var(--pass)' },
+  { bg: 'var(--warn-soft)', color: 'var(--warn)' }
+];
+
+function avatarInfo(name: string) {
+  let n = 0;
+  for (const c of name) n += c.charCodeAt(0);
+  const colorSet = AVS[n % AVS.length];
+  
+  const p = name.trim().split(" ");
+  const initials = p.length >= 2
+    ? (p[0][0] + p[p.length - 1][0]).toUpperCase()
+    : name.slice(0, 2).toUpperCase();
+    
+  return { ...colorSet, initials };
+}
+
 export function AccessControlClient({
   projectCode,
   accessType: initialAccessType,
@@ -57,29 +69,23 @@ export function AccessControlClient({
   assignedGroups: AssignedGroup[];
   assignedMembers: AssignedMember[];
 }) {
-  const [accessType, setAccessType] = useState<"PUBLIC" | "PRIVATE">(
-    initialAccessType,
-  );
+  const [accessType, setAccessType] = useState<"PUBLIC" | "PRIVATE">(initialAccessType);
   const [saving, setSaving] = useState(false);
   const [owner, setOwner] = useState<Owner | null>(initialOwner);
   const [activeTab, setActiveTab] = useState<PrivateTab>("groups");
 
-  // Edit-owner modal
   const [editOwnerOpen, setEditOwnerOpen] = useState(false);
   const [ownerSearch, setOwnerSearch] = useState("");
 
-  // Groups
   const [allGroups, setAllGroups] = useState<Group[]>([]);
   const [groupSearch, setGroupSearch] = useState("");
   const [groupsLoading, setGroupsLoading] = useState(false);
   const [togglingGroupId, setTogglingGroupId] = useState<string | null>(null);
 
-  // Members
   const [wsMembers, setWsMembers] = useState<WorkspaceMember[]>([]);
   const [memberSearch, setMemberSearch] = useState("");
   const [addingMemberId, setAddingMemberId] = useState<string | null>(null);
-  const [assignedMembers, setAssignedMembers] =
-    useState<AssignedMember[]>(initialMembers);
+  const [assignedMembers, setAssignedMembers] = useState<AssignedMember[]>(initialMembers);
 
   useEffect(() => {
     (async () => {
@@ -107,9 +113,7 @@ export function AccessControlClient({
       });
       if (!res.ok) throw new Error();
       setAccessType(type);
-      toast.success(
-        `Project set to ${type === "PUBLIC" ? "Public" : "Private"}`,
-      );
+      toast.success(`Project set to ${type === "PUBLIC" ? "Public" : "Private"}`);
     } catch {
       toast.error("Failed to update access type");
     } finally {
@@ -136,11 +140,7 @@ export function AccessControlClient({
   const toggleGroup = async (group: Group) => {
     setTogglingGroupId(group.id);
     const prev = allGroups;
-    setAllGroups((gs) =>
-      gs.map((g) =>
-        g.id === group.id ? { ...g, isAssigned: !g.isAssigned } : g,
-      ),
-    );
+    setAllGroups((gs) => gs.map((g) => g.id === group.id ? { ...g, isAssigned: !g.isAssigned } : g));
     try {
       const res = await fetch(`/api/projects/${projectCode}/groups`, {
         method: group.isAssigned ? "DELETE" : "POST",
@@ -150,12 +150,9 @@ export function AccessControlClient({
       if (!res.ok) {
         setAllGroups(prev);
         toast.error("Failed to update group");
-      } else
-        toast.success(
-          group.isAssigned
-            ? `Removed "${group.title}"`
-            : `Added "${group.title}"`,
-        );
+      } else {
+        toast.success(group.isAssigned ? `Removed "${group.title}"` : `Added "${group.title}"`);
+      }
     } catch {
       setAllGroups(prev);
     } finally {
@@ -173,10 +170,7 @@ export function AccessControlClient({
         body: JSON.stringify({ userId: user.id, role: "VIEWER" }),
       });
       if (!res.ok) throw new Error((await res.json()).error || "Failed");
-      setAssignedMembers((prev) => [
-        ...prev,
-        { id: user.id, name: user.name, email: user.email, role: "VIEWER" },
-      ]);
+      setAssignedMembers((prev) => [...prev, { id: user.id, name: user.name, email: user.email, role: "VIEWER" }]);
       toast.success(`Added ${user.name || user.email}`);
     } catch (e: any) {
       toast.error(e.message || "Failed to add member");
@@ -189,10 +183,7 @@ export function AccessControlClient({
     const prev = assignedMembers;
     setAssignedMembers((m) => m.filter((x) => x.id !== memberId));
     try {
-      const res = await fetch(
-        `/api/projects/${projectCode}/members/${memberId}`,
-        { method: "DELETE" },
-      );
+      const res = await fetch(`/api/projects/${projectCode}/members/${memberId}`, { method: "DELETE" });
       if (!res.ok) {
         setAssignedMembers(prev);
         toast.error("Failed to remove member");
@@ -202,445 +193,291 @@ export function AccessControlClient({
     }
   };
 
-  const filteredGroups = allGroups.filter(
-    (g) =>
-      !groupSearch || g.title.toLowerCase().includes(groupSearch.toLowerCase()),
-  );
+  const filteredGroups = allGroups.filter((g) => !groupSearch || g.title.toLowerCase().includes(groupSearch.toLowerCase()));
   const assignedGroups = allGroups.filter((g) => g.isAssigned);
   const filteredWsMembers = wsMembers.filter((u) => {
     const q = memberSearch.toLowerCase();
-    return (
-      !q ||
-      (u.name || "").toLowerCase().includes(q) ||
-      u.email.toLowerCase().includes(q)
-    );
+    return !q || (u.name || "").toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
   });
   const ownerCandidates = wsMembers.filter((u) => {
     const q = ownerSearch.toLowerCase();
-    return (
-      !q ||
-      (u.name || "").toLowerCase().includes(q) ||
-      u.email.toLowerCase().includes(q)
-    );
+    return !q || (u.name || "").toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
   });
 
+  const ownerName = owner?.name || owner?.email || "Unknown";
+  const ownerAv = avatarInfo(ownerName);
+
   return (
-    <div className="space-y-10">
-      {/* ── Project owner ── */}
-      <section>
-        <p className="text-[13px] font-bold text-text-main mb-4 uppercase tracking-wider">
-          Project owner
-        </p>
-        <div className="flex items-center gap-4">
-          <div className="w-9 h-9 rounded-xl bg-sidebar-bg flex items-center justify-center text-white text-[13px] font-bold shrink-0 shadow-inner">
-            {owner?.name?.[0]?.toUpperCase() ||
-              owner?.email?.[0]?.toUpperCase() ||
-              "?"}
+    <div className="animate-in fade-in duration-300 w-full max-w-[960px]">
+      
+      {/* Access control section */}
+      <div className="mb-[6px] text-[17px] font-semibold tracking-[-0.01em] text-text-main">Access control</div>
+      <div className="text-[13.5px] text-text-muted mb-[22px]">Manage project owner and privacy settings.</div>
+
+      {/* Owner */}
+      <div className="bg-surface border border-border rounded-[13px] shadow-sm overflow-hidden mb-[24px]">
+        <div className="p-[18px] flex items-center justify-between">
+          <div>
+            <div className="text-[14px] font-semibold text-text-main mb-[4px]">Project owner</div>
+            <div className="text-[13px] text-text-muted">The primary contact for this project</div>
           </div>
-          <span className="text-[15px] font-semibold text-text-main">
-            {owner?.name || owner?.email || "No owner set"}
-          </span>
-          <button
-            onClick={() => setEditOwnerOpen(true)}
-            className="px-5 py-2.5 text-[13px] font-bold text-text-main border border-border/80 bg-surface rounded-xl hover:bg-surface-hover hover:border-primary/40 hover:text-primary transition-all shadow-sm hover:-translate-y-0.5 duration-300"
-          >
-            Edit owner
-          </button>
-        </div>
-      </section>
-
-      {/* ── Project access type ── */}
-      <section>
-        <p className="text-[13px] font-bold text-text-main mb-4 uppercase tracking-wider">
-          Project access type
-        </p>
-
-        <div className="space-y-4 bg-surface p-5 rounded-2xl border border-border/80 shadow-premium">
-          {/* Public */}
-          <label className="flex items-center gap-4 cursor-pointer group p-3 rounded-xl hover:bg-surface-hover/50 transition-colors">
-            <div
-              onClick={() => saveAccessType("PUBLIC")}
-              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                accessType === "PUBLIC"
-                  ? "border-primary bg-primary shadow-sm"
-                  : "border-border group-hover:border-primary/40"
-              }`}
-            >
-              {accessType === "PUBLIC" && (
-                <div className="w-2 h-2 rounded-full bg-surface" />
-              )}
+          <div className="flex items-center gap-[14px]">
+            <div className="flex items-center gap-[10px]">
+              <div className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-[11px] font-bold shrink-0" style={{ background: ownerAv.bg, color: ownerAv.color }}>
+                {ownerAv.initials}
+              </div>
+              <span className="text-[13.5px] font-semibold text-text-main">{ownerName}</span>
             </div>
-            <div
-              className="flex items-center gap-2.5"
+            <Button variant="secondary" size="sm" onClick={() => setEditOwnerOpen(true)}>
+              Change
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Access Type */}
+      <div className="bg-surface border border-border rounded-[13px] shadow-sm overflow-hidden mb-[24px]">
+        <div className="p-[18px]">
+          <div className="text-[14px] font-semibold text-text-main mb-[12px]">Project privacy</div>
+          
+          <div className="flex flex-col gap-[10px]">
+            <div 
+              className={`flex items-center gap-[14px] p-[16px] rounded-[11px] border cursor-pointer transition-colors ${accessType === 'PUBLIC' ? 'border-primary bg-primary-soft/10' : 'border-border hover:bg-surface-hover'}`}
               onClick={() => saveAccessType("PUBLIC")}
             >
-              <Globe
-                size={18}
-                className={
-                  accessType === "PUBLIC" ? "text-primary" : "text-text-muted"
-                }
-              />
-              <span className="text-[15px] font-semibold text-text-main">
-                Public
-              </span>
-              <span className="text-[14px] text-text-muted">
-                — visible to all workspace members
-              </span>
+              <div className="w-[40px] h-[40px] rounded-[9px] bg-surface-2 flex items-center justify-center shrink-0">
+                <Globe size={20} className={accessType === 'PUBLIC' ? 'text-primary' : 'text-text-muted'} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[14px] font-semibold text-text-main mb-[2px]">Public</div>
+                <div className="text-[12.5px] text-text-muted">Visible to all members of the workspace</div>
+              </div>
+              <div className={`w-[22px] h-[22px] rounded-full border-[6px] transition-colors ${accessType === 'PUBLIC' ? 'border-primary bg-surface' : 'border-surface-2 bg-surface-2'}`} />
             </div>
-          </label>
 
-          {/* Private */}
-          <label className="flex items-center gap-4 cursor-pointer group p-3 rounded-xl hover:bg-surface-hover/50 transition-colors">
-            <div
-              onClick={() => saveAccessType("PRIVATE")}
-              className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                accessType === "PRIVATE"
-                  ? "border-primary bg-primary shadow-sm"
-                  : "border-border group-hover:border-primary/40"
-              }`}
-            >
-              {accessType === "PRIVATE" && (
-                <div className="w-2 h-2 rounded-full bg-surface" />
-              )}
-            </div>
-            <div
-              className="flex items-center gap-2.5"
+            <div 
+              className={`flex items-center gap-[14px] p-[16px] rounded-[11px] border cursor-pointer transition-colors ${accessType === 'PRIVATE' ? 'border-primary bg-primary-soft/10' : 'border-border hover:bg-surface-hover'}`}
               onClick={() => saveAccessType("PRIVATE")}
             >
-              <Lock
-                size={18}
-                className={
-                  accessType === "PRIVATE"
-                    ? "text-primary"
-                    : "text-text-muted"
-                }
-              />
-              <span className="text-[15px] font-semibold text-text-main">
-                Private
-              </span>
-              <span className="text-[14px] text-text-muted">
-                — only assigned users and groups
-              </span>
+              <div className="w-[40px] h-[40px] rounded-[9px] bg-surface-2 flex items-center justify-center shrink-0">
+                <Lock size={20} className={accessType === 'PRIVATE' ? 'text-primary' : 'text-text-muted'} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[14px] font-semibold text-text-main mb-[2px]">Private</div>
+                <div className="text-[12.5px] text-text-muted">Only visible to explicitly assigned users and groups</div>
+              </div>
+              <div className={`w-[22px] h-[22px] rounded-full border-[6px] transition-colors ${accessType === 'PRIVATE' ? 'border-primary bg-surface' : 'border-surface-2 bg-surface-2'}`} />
             </div>
-          </label>
-        </div>
-
-        {saving && (
-          <div className="flex items-center gap-2 mt-4 text-sm text-primary">
-            <Loader2 size={14} className="animate-spin" /> Saving…
           </div>
-        )}
-      </section>
+        </div>
+      </div>
 
-      {/* ── Private: Groups + Individual members ── */}
+      {/* Private Details */}
       {accessType === "PRIVATE" && (
-        <section>
-          {/* Action buttons */}
-          <div className="flex items-center gap-3 mb-6">
-            <button
+        <div className="animate-in fade-in duration-300">
+          <div className="flex gap-[4px] mb-[16px] border-b border-border">
+            <button 
               onClick={() => setActiveTab("groups")}
-              className="flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-premium transition-all hover:-translate-y-0.5 duration-300"
-              style={{
-                background: "var(--primary)",
-              }}
+              className={`px-[12px] pb-[10px] text-[13.5px] font-semibold border-b-[2px] transition-colors ${activeTab === 'groups' ? 'border-primary text-primary-text' : 'border-transparent text-text-muted hover:text-text-main'}`}
             >
-              <Users size={16} /> Add groups
+              Groups <span className="font-normal opacity-70">({assignedGroups.length})</span>
             </button>
-            <button
+            <button 
               onClick={() => setActiveTab("members")}
-              className="flex items-center gap-2 px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-premium transition-all hover:-translate-y-0.5 duration-300"
-              style={{
-                background: "var(--primary)",
-              }}
+              className={`px-[12px] pb-[10px] text-[13.5px] font-semibold border-b-[2px] transition-colors ${activeTab === 'members' ? 'border-primary text-primary-text' : 'border-transparent text-text-muted hover:text-text-main'}`}
             >
-              <UserPlus size={16} /> Add individual users
+              Members <span className="font-normal opacity-70">({assignedMembers.length})</span>
             </button>
           </div>
 
-          {/* Sub-tabs */}
-          <div className="border-b border-border mb-6">
-            <nav className="flex -mb-px gap-1">
-              {(["groups", "members"] as PrivateTab[]).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-5 py-3 text-[15px] font-semibold border-b-2 transition-colors capitalize ${
-                    activeTab === tab
-                      ? "border-primary text-primary"
-                      : "border-transparent text-text-muted hover:text-text-main"
-                  }`}
-                >
-                  {tab === "groups"
-                    ? `Groups${assignedGroups.length ? ` (${assignedGroups.length})` : ""}`
-                    : `Individual members${assignedMembers.length ? ` (${assignedMembers.length})` : ""}`}
-                </button>
-              ))}
-            </nav>
-          </div>
-
-          {/* Groups tab */}
           {activeTab === "groups" && (
             <div>
-              <div className="relative mb-4">
-                <Search
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
-                  size={16}
-                />
+              <div className="flex items-center gap-[8px] h-[36px] px-[12px] bg-surface border border-border rounded-[9px] mb-[14px] text-[13px] focus-within:border-primary transition-colors">
+                <Search size={18} className="text-text-faint" />
                 <input
                   type="text"
                   value={groupSearch}
-                  onChange={(e) => setGroupSearch(e.target.value)}
-                  placeholder="Search groups…"
-                  className="w-full pl-10 pr-4 py-2.5 text-[13px] font-semibold border border-border/80 rounded-xl bg-surface focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40 text-text-main placeholder:text-text-muted/50"
+                  onChange={(e) => setGroupSearch(e.target.value)} 
+                  placeholder="Search groups" 
+                  className="w-full bg-transparent outline-none text-text-main" 
                 />
               </div>
 
-              {groupsLoading ? (
-                <div className="flex justify-center py-12">
-                  <Loader2 size={24} className="animate-spin text-primary" />
-                </div>
-              ) : filteredGroups.length === 0 ? (
-                <div className="py-12 text-center text-[15px] text-text-muted">
-                  {allGroups.length === 0
-                    ? "No groups in workspace yet."
-                    : "No groups match your search."}
-                </div>
-              ) : (
-                <div className="border border-border/80 rounded-2xl bg-surface overflow-hidden shadow-premium divide-y divide-border/80">
-                  {filteredGroups.map((g) => (
-                    <div
-                      key={g.id}
-                      className="flex items-center justify-between px-5 py-4 hover:bg-surface-hover/70 transition"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-primary-light flex items-center justify-center shrink-0">
-                          <Users size={18} className="text-primary" />
+              <div className="bg-surface border border-border rounded-[13px] shadow-sm overflow-hidden">
+                {groupsLoading ? (
+                  <div className="p-8 flex justify-center text-primary"><Loader2 size={20} className="animate-spin" /></div>
+                ) : filteredGroups.length === 0 ? (
+                  <div className="p-8 text-center text-text-muted text-[13px]">No groups match your search.</div>
+                ) : (
+                  filteredGroups.map(g => (
+                    <div key={g.id} className="flex items-center justify-between p-[12px_18px] border-b border-border last:border-0 hover:bg-surface-hover transition-colors">
+                      <div className="flex items-center gap-[12px]">
+                        <div className="w-[32px] h-[32px] rounded-full bg-surface-2 flex items-center justify-center shrink-0">
+                          <Users size={16} className="text-text-muted" />
                         </div>
                         <div>
-                          <div className="text-[15px] font-semibold text-text-main">
-                            {g.title}
-                          </div>
-                          <div className="text-sm text-text-muted mt-0.5">
-                            {g.memberCount}{" "}
-                            {g.memberCount === 1 ? "member" : "members"}
-                            {g.description ? ` · ${g.description}` : ""}
+                          <div className="text-[13px] font-semibold text-text-main">{g.title}</div>
+                          <div className="text-[11.5px] text-text-faint">
+                            {g.memberCount} {g.memberCount === 1 ? 'member' : 'members'} {g.description ? `· ${g.description}` : ''}
                           </div>
                         </div>
                       </div>
                       <button
                         onClick={() => toggleGroup(g)}
                         disabled={togglingGroupId === g.id}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold transition-all shadow-sm hover:-translate-y-0.5 duration-300 ${
-                          g.isAssigned
-                            ? "bg-primary text-primary-foreground hover:bg-primary-hover"
-                            : "bg-surface border border-border/80 text-text-muted hover:border-primary/40 hover:text-primary"
+                        className={`h-[28px] px-[12px] rounded-[7px] text-[12px] font-semibold flex items-center gap-[4px] transition-colors ${
+                          g.isAssigned 
+                            ? "bg-primary-soft text-primary-text hover:bg-danger-soft hover:text-danger" 
+                            : "bg-surface-2 text-text-muted hover:bg-surface-hover hover:text-text-main"
                         }`}
                       >
                         {togglingGroupId === g.id ? (
-                          <Loader2 size={14} className="animate-spin" />
+                          <Loader2 size={15} className="animate-spin" />
                         ) : g.isAssigned ? (
-                          <>
-                            <Check size={14} strokeWidth={3} /> Added
-                          </>
+                          <Check size={15} />
                         ) : (
-                          "+ Add"
+                          <Plus size={15} />
                         )}
+                        {g.isAssigned ? "Assigned" : "Assign"}
                       </button>
                     </div>
-                  ))}
-                </div>
-              )}
+                  ))
+                )}
+              </div>
             </div>
           )}
 
-          {/* Individual members tab */}
           {activeTab === "members" && (
             <div>
-              <div className="relative mb-4">
-                <Search
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
-                  size={16}
-                />
+              <div className="flex items-center gap-[8px] h-[36px] px-[12px] bg-surface border border-border rounded-[9px] mb-[14px] text-[13px] focus-within:border-primary transition-colors">
+                <Search size={18} className="text-text-faint" />
                 <input
                   type="text"
                   value={memberSearch}
-                  onChange={(e) => setMemberSearch(e.target.value)}
-                  placeholder="Search workspace members…"
-                  className="w-full pl-10 pr-4 py-2.5 text-[13px] font-semibold border border-border/80 rounded-xl bg-surface focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40 text-text-main placeholder:text-text-muted/50"
+                  onChange={(e) => setMemberSearch(e.target.value)} 
+                  placeholder="Search workspace members" 
+                  className="w-full bg-transparent outline-none text-text-main" 
                 />
               </div>
 
-              {filteredWsMembers.length === 0 ? (
-                <div className="py-12 text-center text-[15px] text-text-muted">
-                  No users found.
-                </div>
-              ) : (
-                <div className="border border-border/80 rounded-2xl bg-surface overflow-hidden shadow-premium divide-y divide-border/80">
-                  {filteredWsMembers.map((u) => {
+              <div className="bg-surface border border-border rounded-[13px] shadow-sm overflow-hidden">
+                {filteredWsMembers.length === 0 ? (
+                  <div className="p-8 text-center text-text-muted text-[13px]">No users found.</div>
+                ) : (
+                  filteredWsMembers.map(u => {
                     const isAdded = assignedMembers.some((m) => m.id === u.id);
+                    const av = avatarInfo(u.name || u.email);
                     return (
-                      <div
-                        key={u.id}
-                        className="flex items-center justify-between px-5 py-4 hover:bg-surface-hover/70 transition"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-surface-hover flex items-center justify-center text-text-muted text-sm font-bold shrink-0">
-                            {(u.name || u.email)[0].toUpperCase()}
+                      <div key={u.id} className="flex items-center justify-between p-[12px_18px] border-b border-border last:border-0 hover:bg-surface-hover transition-colors">
+                        <div className="flex items-center gap-[12px]">
+                          <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center text-[12px] font-bold shrink-0" style={{ background: av.bg, color: av.color }}>
+                            {av.initials}
                           </div>
                           <div>
-                            <div className="text-[15px] font-semibold text-text-main">
-                              {u.name || u.email}
-                            </div>
-                            <div className="text-sm text-text-muted mt-0.5">
-                              {u.email}
-                            </div>
+                            <div className="text-[13px] font-semibold text-text-main">{u.name || u.email}</div>
+                            <div className="text-[11.5px] text-text-faint">{u.email}</div>
                           </div>
                         </div>
                         {isAdded ? (
                           <button
                             onClick={() => removeMember(u.id)}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold bg-primary text-primary-foreground hover:bg-danger transition-all shadow-sm group hover:-translate-y-0.5 duration-300"
+                            className="h-[28px] px-[12px] rounded-[7px] text-[12px] font-semibold flex items-center gap-[4px] bg-primary-soft text-primary-text hover:bg-danger-soft hover:text-danger transition-colors group"
                           >
-                            <span className="group-hover:hidden flex items-center gap-1.5">
-                              <Check size={14} strokeWidth={3} /> Added
-                            </span>
-                            <span className="hidden group-hover:flex items-center gap-1.5">
-                              <X size={14} /> Remove
-                            </span>
+                            <Check size={15} className="group-hover:hidden" />
+                            <Minus size={15} className="hidden group-hover:inline-block" />
+                            <span className="group-hover:hidden">Added</span>
+                            <span className="hidden group-hover:inline-block">Remove</span>
                           </button>
                         ) : (
                           <button
                             onClick={() => addMember(u)}
                             disabled={addingMemberId === u.id}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold bg-surface border border-border/80 text-text-muted hover:border-primary/40 hover:text-primary transition-all shadow-sm hover:-translate-y-0.5 duration-300"
+                            className="h-[28px] px-[12px] rounded-[7px] text-[12px] font-semibold flex items-center gap-[4px] bg-surface-2 text-text-muted hover:bg-surface-hover hover:text-text-main transition-colors"
                           >
                             {addingMemberId === u.id ? (
-                              <Loader2 size={14} className="animate-spin" />
+                              <Loader2 size={15} className="animate-spin" />
                             ) : (
-                              "+ Add"
+                              <Plus size={15} />
                             )}
+                            Add
                           </button>
                         )}
                       </div>
                     );
-                  })}
-                </div>
-              )}
-
-              {/* Assigned list summary */}
-              {assignedMembers.length > 0 && (
-                <div className="mt-6">
-                  <p className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-3">
-                    Currently assigned ({assignedMembers.length})
-                  </p>
-                  <div className="space-y-2">
-                    {assignedMembers.map((m) => (
-                      <div
-                        key={m.id}
-                        className="flex items-center justify-between px-4 py-3 bg-primary-light border border-primary/20 rounded-xl"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0">
-                            {(m.name || m.email)[0].toUpperCase()}
-                          </div>
-                          <span className="text-[15px] text-text-main font-medium">
-                            {m.name || m.email}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => removeMember(m.id)}
-                          className="text-text-muted hover:text-danger transition-colors p-1"
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                  })
+                )}
+              </div>
             </div>
           )}
-        </section>
+        </div>
       )}
 
-      {/* ── Edit Owner Modal ── */}
+      {/* Edit Owner Modal */}
       {editOwnerOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4"
-          onClick={() => setEditOwnerOpen(false)}
-        >
-          <div
-            className="bg-surface rounded-2xl shadow-premium border border-border/80 w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200"
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[64px]" style={{ background: "color(display-p3 0 0 0 / 0.4)" }} onClick={() => setEditOwnerOpen(false)}>
+          <div 
+            className="w-[440px] bg-surface border border-border rounded-[15px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-6 py-5 border-b border-border/80 flex items-center justify-between bg-surface-hover/50">
-              <h3 className="text-base font-bold text-text-main">
-                Change project owner
-              </h3>
-              <button
-                onClick={() => setEditOwnerOpen(false)}
-                className="text-text-muted hover:text-text-muted transition-colors p-1"
-              >
-                <X size={18} />
-              </button>
+            <div className="flex items-center gap-[10px] p-[18px_20px_0] mb-[16px]">
+              <div className="w-[34px] h-[34px] rounded-[9px] bg-primary-soft text-primary-text flex items-center justify-center">
+                <User size={19} />
+              </div>
+              <div className="text-[15.5px] font-semibold text-text-main">Change project owner</div>
             </div>
-            <div className="p-5">
-              <div className="relative mb-4">
-                <Search
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted"
-                  size={15}
-                />
+
+            <div className="px-[20px] pb-[20px] flex flex-col gap-[14px]">
+              <div className="flex items-center gap-[8px] h-[40px] px-[12px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] rounded-[10px] text-[13px] focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+                <Search size={18} className="text-text-faint" />
                 <input
                   type="text"
                   value={ownerSearch}
                   onChange={(e) => setOwnerSearch(e.target.value)}
                   placeholder="Search members…"
                   autoFocus
-                  className="w-full pl-10 pr-4 py-2.5 text-[13px] font-semibold border border-border/80 rounded-xl bg-surface-hover focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40 text-text-main placeholder:text-text-muted/50"
+                  className="w-full bg-transparent outline-none text-text-main"
                 />
               </div>
-              <div className="divide-y divide-border/80 max-h-64 overflow-y-auto rounded-xl border border-border/80 shadow-inner">
+
+              <div className="border border-border rounded-[11px] overflow-hidden max-h-[240px] overflow-y-auto">
                 {ownerCandidates.length === 0 ? (
-                  <div className="py-8 text-center text-sm text-text-muted">
-                    No users found
-                  </div>
+                  <div className="p-8 text-center text-[13px] text-text-muted">No users found</div>
                 ) : (
                   ownerCandidates.map((u) => {
-                    const isCurrent =
-                      owner?.id === u.id || owner?.email === u.email;
+                    const isCurrent = owner?.id === u.id || owner?.email === u.email;
+                    const av = avatarInfo(u.name || u.email);
                     return (
-                      <button
+                      <div 
                         key={u.id}
                         onClick={() => changeOwner(u)}
-                        className={`w-full flex items-center gap-3 px-4 py-3.5 text-left transition-colors ${isCurrent ? "bg-primary-light" : "hover:bg-surface-hover"}`}
+                        className={`flex items-center gap-[11px] p-[10px_12px] cursor-pointer hover:bg-surface-hover transition-colors border-b border-border last:border-0 ${isCurrent ? 'bg-primary-soft/30' : ''}`}
                       >
-                        <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0">
-                          {(u.name || u.email)[0].toUpperCase()}
+                        <div className="w-[28px] h-[28px] rounded-full flex items-center justify-center text-[11px] font-bold shrink-0" style={{ background: av.bg, color: av.color }}>
+                          {av.initials}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="text-sm font-semibold text-text-main truncate">
-                            {u.name || u.email}
-                          </div>
-                          <div className="text-xs text-text-muted truncate">
-                            {u.email}
-                          </div>
+                          <div className="text-[13px] font-semibold text-text-main truncate">{u.name || u.email}</div>
+                          <div className="text-[11px] text-text-faint truncate">{u.email}</div>
                         </div>
                         {isCurrent && (
-                          <Check
-                            size={16}
-                            className="text-primary shrink-0"
-                            strokeWidth={3}
-                          />
+                          <Check size={18} className="text-primary" />
                         )}
-                      </button>
+                      </div>
                     );
                   })
                 )}
               </div>
             </div>
+
+            <div className="flex justify-end gap-[9px] p-[14px_20px] border-t border-border bg-surface">
+              <Button variant="ghost" size="sm" onClick={() => setEditOwnerOpen(false)}>
+                Close
+              </Button>
+            </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }

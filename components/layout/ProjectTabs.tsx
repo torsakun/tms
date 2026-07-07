@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
-import { Settings, ChevronDown } from "lucide-react";
+import { Settings, ChevronDown, ChevronsUpDown, Folders } from "lucide-react";
 
 export function ProjectTabs({ projectCode }: { projectCode: string }) {
   const pathname = usePathname();
@@ -25,10 +25,11 @@ export function ProjectTabs({ projectCode }: { projectCode: string }) {
 
   const base = `/projects/${projectCode}`;
   const tabs = [
-    { name: "Overview", href: `${base}/dashboards`, match: "/dashboards" },
+    { name: "Dashboards", href: `${base}/dashboards`, match: "/dashboards" },
     { name: "Repository", href: `${base}/repository`, match: "/repository" },
     { name: "Test Plans", href: `${base}/plans`, match: "/plans" },
     { name: "Test Runs", href: `${base}/runs`, match: "/runs" },
+    { name: "Milestones", href: `${base}/milestones`, match: "/milestones" },
     { name: "Automation", href: `${base}/automation`, match: "/automation" },
   ];
 
@@ -48,89 +49,77 @@ export function ProjectTabs({ projectCode }: { projectCode: string }) {
   );
 
   return (
-    <div className="shrink-0 bg-surface border-b border-border">
-      <div className="flex items-center gap-1 h-12 px-4">
-        {/* Project identity */}
-        <div className="flex items-center gap-2 pr-3 mr-1 shrink-0">
-          <div
-            className="w-6 h-6 rounded-[7px] flex items-center justify-center text-white text-[10px] font-bold shadow-sm"
-            style={{ background: "var(--primary)" }}
-          >
-            {projectCode.slice(0, 2).toUpperCase()}
-          </div>
-          <span className="text-sm font-bold text-text-main tracking-tight">
-            {projectCode}
-          </span>
-          <span className="w-px h-5 bg-border ml-1" />
-        </div>
+    <div className="flex items-center gap-[18px] px-[18px] bg-surface border-b border-border antialiased w-full text-[14px]">
+      <div className="flex items-center gap-[7px] py-[11px] shrink-0 cursor-pointer">
+        <span className="font-semibold text-[13.5px] tracking-[-0.015em] text-text-main">
+          {projectCode}
+        </span>
+        <ChevronsUpDown size={18} className="text-text-faint" />
+      </div>
 
-        {/* Primary tabs */}
-        <nav className="flex items-center gap-0.5 flex-1 min-w-0 overflow-x-auto">
-          {tabs.map((t) => {
-            const active = isActive(t.match);
-            return (
-              <Link
-                key={t.name}
-                href={t.href}
-                className={cn(
-                  "relative px-3 h-12 inline-flex items-center text-[13px] font-semibold whitespace-nowrap transition-colors",
-                  active
-                    ? "text-primary"
-                    : "text-text-muted hover:text-text-main",
-                )}
-              >
-                {t.name}
-                {active && (
-                  <span className="absolute left-2 right-2 -bottom-px h-0.5 rounded-full bg-primary" />
-                )}
-              </Link>
-            );
-          })}
-        </nav>
+      <div className="w-px h-[18px] bg-border shrink-0"></div>
 
-        {/* Config overflow */}
-        {(role === "ADMIN" || isSystemAdmin) && (
-          <div className="relative shrink-0" ref={configRef}>
-            <button
-              onClick={() => setConfigOpen((o) => !o)}
+      <div className="flex gap-[2px] flex-1 min-w-0 overflow-x-auto h-full items-end">
+        {tabs.map((t) => {
+          const active = isActive(t.match);
+          return (
+            <Link
+              key={t.name}
+              href={t.href}
               className={cn(
-                "inline-flex items-center gap-1.5 px-3 h-8 rounded-lg text-[13px] font-semibold border transition-colors",
-                configActive || configOpen
-                  ? "bg-primary-light text-primary border-primary/30"
-                  : "bg-surface text-text-muted border-border hover:text-text-main hover:bg-surface-hover hover:border-[var(--border-strong)]",
+                "pt-[11px] px-[12px] pb-[9px] text-[13px] whitespace-nowrap transition-colors mb-[-1px]",
+                active
+                  ? "font-semibold text-primary-text border-b-2 border-primary"
+                  : "font-medium text-text-muted hover:text-text-main border-b-2 border-transparent",
               )}
             >
-              <Settings size={14} />
-              <span className="hidden sm:inline">Manage</span>
-              <ChevronDown size={13} />
-            </button>
-
-            {configOpen && (
-              <div className="absolute right-0 mt-1.5 w-48 qm-panel z-50 py-1 overflow-hidden animate-fade-up">
-                {configItems.map((c) => {
-                  const active =
-                    pathname === c.href || pathname.startsWith(`${c.href}/`);
-                  return (
-                    <Link
-                      key={c.name}
-                      href={c.href}
-                      onClick={() => setConfigOpen(false)}
-                      className={cn(
-                        "block px-4 py-2 text-sm font-medium transition-colors",
-                        active
-                          ? "bg-primary-light text-primary"
-                          : "text-text-main hover:bg-surface-hover",
-                      )}
-                    >
-                      {c.name}
-                    </Link>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        )}
+              {t.name}
+            </Link>
+          );
+        })}
       </div>
+
+      {/* Config overflow */}
+      {(role === "ADMIN" || isSystemAdmin) && (
+        <div className="relative shrink-0" ref={configRef}>
+          <button
+            onClick={() => setConfigOpen((o) => !o)}
+            className={cn(
+              "flex items-center gap-1.5 px-[11px] py-[5px] rounded-[9px] text-[12.5px] font-semibold border transition-all duration-200",
+              configActive || configOpen
+                ? "bg-primary-light text-primary border-primary/30"
+                : "bg-surface text-text-muted border-transparent hover:text-text-main hover:bg-surface-hover hover:border-border",
+            )}
+          >
+            <Settings size={15} />
+            <span className="hidden sm:inline">Settings</span>
+          </button>
+
+          {configOpen && (
+            <div className="absolute right-0 mt-1.5 w-48 bg-surface border border-border shadow-md rounded-[11px] py-1 z-[100] overflow-hidden animate-fade-up">
+              {configItems.map((c) => {
+                const active =
+                  pathname === c.href || pathname.startsWith(`${c.href}/`);
+                return (
+                  <Link
+                    key={c.name}
+                    href={c.href}
+                    onClick={() => setConfigOpen(false)}
+                    className={cn(
+                      "block px-[14px] py-[8px] text-[13px] transition-colors",
+                      active
+                        ? "bg-primary-soft text-primary-text font-semibold"
+                        : "text-text-main font-medium hover:bg-surface-hover",
+                    )}
+                  >
+                    {c.name}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

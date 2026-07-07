@@ -1,16 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import {
-  UserPlus,
-  Loader2,
-  Users,
-  Check,
-  Search,
-  X,
-  ShieldCheck,
-} from "lucide-react";
 import { toast } from "sonner";
+import { UserPlus, X, Search, Users, Loader2, Plus, Check } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 interface Group {
   id: string;
@@ -38,6 +31,26 @@ interface WsMember {
   email: string;
   role: string;
   workspaceRole: { title: string } | null;
+}
+
+const AVS = [
+  { bg: 'var(--primary-soft)', color: 'var(--primary-text)' },
+  { bg: 'var(--info-soft-fill)', color: 'var(--info)' },
+  { bg: 'var(--pass-soft)', color: 'var(--pass)' },
+  { bg: 'var(--warn-soft)', color: 'var(--warn)' }
+];
+
+function avatarInfo(name: string) {
+  let n = 0;
+  for (const c of name) n += c.charCodeAt(0);
+  const colorSet = AVS[n % AVS.length];
+  
+  const p = name.trim().split(" ");
+  const initials = p.length >= 2
+    ? (p[0][0] + p[p.length - 1][0]).toUpperCase()
+    : name.slice(0, 2).toUpperCase();
+    
+  return { ...colorSet, initials };
 }
 
 export function MembersListClient({
@@ -198,338 +211,223 @@ export function MembersListClient({
     setShowDropdown(false);
   };
 
-  // Display the user's workspace role (or system role if no workspace role)
   const getRoleLabel = (member: Member) => {
     if (member.user.workspaceRole?.title)
       return member.user.workspaceRole.title;
     return member.user.role === "ADMIN" ? "Admin" : "Member";
   };
 
-  const getRoleColor = (member: Member) => {
-    const isAdmin =
-      member.user.role === "ADMIN" ||
-      member.user.workspaceRole?.title?.toLowerCase().includes("admin");
-    if (isAdmin) return "bg-warning-soft text-warning-foreground";
-    return "bg-surface-hover text-text-muted";
+  const getRoleStyle = (roleLabel: string, baseRole: string) => {
+    const l = roleLabel.toLowerCase();
+    if (baseRole === "ADMIN" || l.includes("admin")) return { bg: 'var(--warning-soft)', color: 'var(--warning-foreground)' };
+    if (l.includes("lead")) return { bg: 'var(--info-soft-fill)', color: 'var(--info)' };
+    if (l.includes("viewer")) return { bg: 'var(--surface-2)', color: 'var(--text-faint)' };
+    return { bg: 'var(--surface-2)', color: 'var(--text-muted)' };
   };
 
   return (
-    <>
-      <header className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-text-main">Project Members</h1>
-          <p className="text-sm text-text-muted mt-1">
-            Manage who has access to {projectCode}.
-          </p>
+    <div className="animate-in fade-in duration-300 w-full max-w-[960px]">
+      
+      {/* toolbar */}
+      <div className="flex items-center gap-[10px] mb-[16px]">
+        <div className="text-[16px] font-semibold text-text-main">
+          Users <span className="font-normal text-text-faint ml-[4px]">· {members.length}</span>
         </div>
-        <button
-          onClick={() => {
-            setIsModalOpen(true);
-            setTimeout(() => inputRef.current?.focus(), 100);
-          }}
-          className="flex items-center px-5 py-2.5 text-[13px] font-bold text-white rounded-xl shadow-premium hover:-translate-y-0.5 transition-all duration-300"
-          style={{ background: "var(--primary)" }}
+        <div className="flex-1" />
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={() => { setIsModalOpen(true); setTimeout(() => inputRef.current?.focus(), 100); }}
         >
-          <UserPlus size={16} className="mr-2" />
-          Add Member
-        </button>
-      </header>
-
-      {/* Members table */}
-      <div className="bg-surface rounded-2xl shadow-premium border border-border/80 overflow-hidden mb-8">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-surface-hover border-b border-border">
-              <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">
-                Member
-              </th>
-              <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">
-                Email
-              </th>
-              <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">
-                Workspace Role
-              </th>
-              <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider text-right">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {members.map((m) => (
-              <tr key={m.userId} className="hover:bg-surface-hover transition">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0">
-                      {(m.user.name || m.user.email)[0].toUpperCase()}
-                    </div>
-                    <span className="font-semibold text-text-main">
-                      {m.user.name || "Unknown"}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-text-muted">
-                  {m.user.email}
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-full ${getRoleColor(m)}`}
-                  >
-                    {(m.user.role === "ADMIN" ||
-                      m.user.workspaceRole?.title
-                        ?.toLowerCase()
-                        .includes("admin")) && <ShieldCheck size={11} />}
-                    {getRoleLabel(m)}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button
-                    onClick={() => removeMember(m.userId)}
-                    className="text-danger hover:text-danger-foreground text-sm font-medium transition-colors"
-                  >
-                    Remove
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {members.length === 0 && (
-              <tr>
-                <td
-                  colSpan={4}
-                  className="px-6 py-10 text-center text-text-muted"
-                >
-                  No members yet. Add workspace members to get started.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+          <UserPlus size={16} />
+          Invite member
+        </Button>
       </div>
 
-      {/* Groups section */}
-      <div className="mb-2 flex items-center gap-3">
-        <h2 className="text-base font-bold text-text-main flex items-center gap-2">
-          <Users size={16} className="text-primary" />
-          Assigned Groups
-        </h2>
-        {groups.filter((g) => g.isAssigned).length > 0 && (
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary">
-            {groups.filter((g) => g.isAssigned).length}
-          </span>
+      {/* users table */}
+      <div className="bg-surface border border-border rounded-[13px] shadow-sm overflow-hidden mb-[32px]">
+        <div className="grid grid-cols-[2fr_1fr_60px] gap-[14px] p-[10px_18px] text-[10.5px] font-semibold tracking-[0.06em] uppercase text-text-faint border-b border-border bg-surface-hover/30">
+          <div>Member</div>
+          <div>Role</div>
+          <div></div>
+        </div>
+        
+        {members.map(m => {
+          const name = m.user.name || "Unknown";
+          const av = avatarInfo(name !== "Unknown" ? name : m.user.email);
+          const roleLabel = getRoleLabel(m);
+          const rStyle = getRoleStyle(roleLabel, m.user.role);
+          
+          return (
+            <div key={m.userId} className="grid grid-cols-[2fr_1fr_60px] gap-[14px] p-[12px_18px] items-center border-b border-border last:border-0 hover:bg-surface-hover transition-colors">
+              <div className="flex items-center gap-[11px] min-w-0">
+                <div className="w-[32px] h-[32px] rounded-full flex items-center justify-center text-[12px] font-bold shrink-0" style={{ background: av.bg, color: av.color }}>
+                  {av.initials}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[13px] font-semibold text-text-main truncate">{name}</div>
+                  <div className="text-[11.5px] text-text-faint truncate">{m.user.email}</div>
+                </div>
+              </div>
+              
+              <div>
+                <span className="inline-flex items-center gap-[5px] text-[11.5px] font-semibold p-[3px_9px] rounded-[7px]" style={{ background: rStyle.bg, color: rStyle.color }}>
+                  {roleLabel}
+                </span>
+              </div>
+              
+              <div className="flex justify-end">
+                <button 
+                  onClick={() => removeMember(m.userId)}
+                  className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center text-text-faint hover:bg-danger-soft hover:text-danger transition-colors"
+                  title="Remove from project"
+                >
+                  <X size={17} />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+        
+        {members.length === 0 && (
+          <div className="p-8 text-center text-text-muted text-[13px]">No members found.</div>
         )}
       </div>
-      <p className="text-xs text-text-muted mb-4">
-        Assign user groups to this project. All group members will inherit
-        access.
-      </p>
 
-      <div className="bg-surface rounded-2xl shadow-premium border border-border/80 overflow-hidden">
-        <div className="px-5 py-4 border-b border-border/80 bg-surface-hover/50">
-          <div className="relative">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-              size={14}
-            />
-            <input
-              type="text"
-              value={groupSearch}
-              onChange={(e) => setGroupSearch(e.target.value)}
-              placeholder="Search groups…"
-              className="w-full pl-8 pr-3 py-2.5 text-[13px] font-semibold border border-border/80 rounded-xl bg-surface focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all shadow-inner hover:border-text-muted/40"
-            />
-          </div>
+      {/* groups toolbar */}
+      <div className="flex items-center gap-[10px] mb-[16px] mt-[10px]">
+        <div className="text-[16px] font-semibold text-text-main">
+          Groups <span className="font-normal text-text-faint ml-[4px]">· {groups.filter(g => g.isAssigned).length}</span>
         </div>
+        <div className="flex-1" />
+        <div className="flex items-center gap-[8px] h-[36px] px-[11px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] rounded-[9px] text-text-faint text-[12.5px] min-w-[200px] focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+          <Search size={17} />
+          <input
+            type="text"
+            value={groupSearch}
+            onChange={(e) => setGroupSearch(e.target.value)}
+            placeholder="Search groups"
+            className="w-full bg-transparent outline-none text-text-main"
+          />
+        </div>
+      </div>
+
+      {/* groups table */}
+      <div className="bg-surface border border-border rounded-[13px] shadow-sm overflow-hidden mb-[32px]">
+        <div className="grid grid-cols-[1fr_90px] gap-[14px] p-[10px_18px] text-[10.5px] font-semibold tracking-[0.06em] uppercase text-text-faint border-b border-border bg-surface-hover/30">
+          <div>Group</div>
+          <div></div>
+        </div>
+        
         {groupsLoading ? (
-          <div className="flex items-center justify-center py-10">
-            <Loader2 size={24} className="animate-spin text-primary" />
-          </div>
+          <div className="p-8 flex justify-center text-primary"><Loader2 size={20} className="animate-spin" /></div>
         ) : filteredGroups.length === 0 ? (
-          <div className="px-6 py-8 text-center text-text-muted text-sm">
-            {groups.length === 0
-              ? "No groups exist in this workspace yet."
-              : "No groups match your search."}
-          </div>
+          <div className="p-8 text-center text-text-muted text-[13px]">No groups found.</div>
         ) : (
-          <div className="divide-y divide-border">
-            {filteredGroups.map((group) => (
-              <div
-                key={group.id}
-                className="flex items-center justify-between px-6 py-3 hover:bg-surface-hover transition"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center">
-                    <Users size={14} className="text-primary" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold text-text-main">
-                      {group.title}
-                    </div>
-                    <div className="text-xs text-text-muted">
-                      {group.memberCount}{" "}
-                      {group.memberCount === 1 ? "member" : "members"}
-                      {group.description ? ` · ${group.description}` : ""}
-                    </div>
+          filteredGroups.map(group => (
+            <div key={group.id} className="grid grid-cols-[1fr_90px] gap-[14px] p-[12px_18px] items-center border-b border-border last:border-0 hover:bg-surface-hover transition-colors">
+              <div className="flex items-center gap-[11px] min-w-0">
+                <div className="w-[32px] h-[32px] rounded-full bg-surface-2 flex items-center justify-center shrink-0">
+                  <Users size={16} className="text-text-muted" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[13px] font-semibold text-text-main truncate">{group.title}</div>
+                  <div className="text-[11.5px] text-text-faint truncate">
+                    {group.memberCount} {group.memberCount === 1 ? 'member' : 'members'} {group.description ? `· ${group.description}` : ''}
                   </div>
                 </div>
+              </div>
+              
+              <div className="flex justify-end">
                 <button
                   onClick={() => toggleGroup(group)}
                   disabled={togglingId === group.id}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-bold transition-all duration-300 shadow-sm hover:-translate-y-0.5 ${
-                    group.isAssigned
-                      ? "bg-primary text-primary-foreground hover:bg-primary-hover"
-                      : "bg-surface border border-border text-text-muted hover:border-primary/40 hover:text-primary"
+                  className={`h-[28px] px-[12px] rounded-[7px] text-[12px] font-semibold flex items-center gap-[4px] transition-colors ${
+                    group.isAssigned 
+                      ? "bg-primary-soft text-primary-text hover:bg-danger-soft hover:text-danger" 
+                      : "bg-surface-2 text-text-muted hover:bg-surface-hover hover:text-text-main"
                   }`}
+                  title={group.isAssigned ? "Remove from project" : "Add to project"}
                 >
                   {togglingId === group.id ? (
-                    <Loader2 size={12} className="animate-spin" />
+                    <Loader2 size={15} className="animate-spin" />
                   ) : group.isAssigned ? (
-                    <>
-                      <Check size={12} strokeWidth={3} /> Assigned
-                    </>
+                    <Check size={15} />
                   ) : (
-                    <>+ Assign</>
+                    <Plus size={15} />
                   )}
+                  {group.isAssigned ? "Assigned" : "Assign"}
                 </button>
               </div>
-            ))}
-          </div>
+            </div>
+          ))
         )}
       </div>
 
-      {/* Add Member Modal */}
+      {/* modal */}
       {isModalOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={resetModal}
-        >
-          <div
-            className="bg-surface rounded-2xl shadow-premium border border-border/80 w-full max-w-md overflow-visible animate-in fade-in zoom-in-95 duration-200"
+        <div className="fixed inset-0 z-50 flex items-start justify-center pt-[64px]" style={{ background: "color(display-p3 0 0 0 / 0.4)" }} onClick={resetModal}>
+          <div 
+            className="w-[440px] bg-surface border border-border rounded-[15px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-6 py-5 border-b border-border/80 flex justify-between items-center bg-surface-hover/50 rounded-t-2xl">
-              <h2 className="text-base font-bold text-text-main">
-                Add Member to Project
-              </h2>
-              <button
-                onClick={resetModal}
-                className="text-text-muted hover:text-text-muted transition-colors"
-              >
-                <X size={18} />
-              </button>
+            <div className="flex items-center gap-[10px] p-[18px_20px_0] mb-[16px]">
+              <div className="w-[34px] h-[34px] rounded-[9px] bg-primary-soft text-primary-text flex items-center justify-center">
+                <UserPlus size={19} />
+              </div>
+              <div className="text-[15.5px] font-semibold text-text-main">Add member to project</div>
             </div>
 
-            <div className="p-6">
-              <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
-                Search workspace member
-              </label>
+            <div className="px-[20px] pb-[20px] flex flex-col gap-[14px]">
               <div className="relative">
-                <Search
-                  className="absolute left-3 top-3 text-text-muted z-10"
-                  size={15}
-                />
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={query}
-                  onChange={(e) => handleQueryChange(e.target.value)}
-                  onFocus={() =>
-                    suggestions.length > 0 && setShowDropdown(true)
-                  }
-                  onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
-                  placeholder="Search by name or email…"
-                  autoComplete="off"
-                  className="w-full pl-9 pr-3 py-2.5 border border-border/80 rounded-xl text-[13px] font-semibold focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary bg-surface-hover transition-all shadow-inner hover:border-text-muted/40"
-                />
+                <div className="flex items-center gap-[8px] h-[40px] px-[12px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] rounded-[10px] text-[13px] focus-within:shadow-[inset_0_0_0_2px_var(--primary-color)] transition-shadow">
+                  <Search size={18} className="text-text-faint" />
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={query}
+                    onChange={(e) => handleQueryChange(e.target.value)}
+                    onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+                    placeholder="Search by name or email…"
+                    className="w-full bg-transparent outline-none text-text-main"
+                  />
+                </div>
+                
                 {showDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-surface rounded-xl shadow-premium border border-border/80 z-50 overflow-hidden max-h-56 overflow-y-auto">
-                    {suggestions.map((u) => (
-                      <button
-                        key={u.id}
-                        type="button"
-                        onMouseDown={() => addMember(u)}
-                        disabled={addingId === u.id}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-primary-light transition-colors text-left"
-                      >
-                        <div className="w-8 h-8 rounded-full bg-primary-light flex items-center justify-center text-primary text-xs font-bold shrink-0">
-                          {(u.name || u.email)[0].toUpperCase()}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-semibold text-text-main truncate">
-                            {u.name || u.email}
+                  <div className="absolute top-full left-0 right-0 mt-[4px] bg-surface border border-border rounded-[11px] shadow-lg overflow-hidden max-h-[220px] overflow-y-auto z-50">
+                    {suggestions.map((u) => {
+                      const av = avatarInfo(u.name || u.email);
+                      return (
+                        <div 
+                          key={u.id}
+                          onMouseDown={() => addMember(u)}
+                          className={`flex items-center gap-[11px] p-[10px_12px] cursor-pointer hover:bg-surface-hover transition-colors ${addingId === u.id ? 'opacity-50 pointer-events-none' : ''}`}
+                        >
+                          <div className="w-[28px] h-[28px] rounded-full flex items-center justify-center text-[11px] font-bold shrink-0" style={{ background: av.bg, color: av.color }}>
+                            {av.initials}
                           </div>
-                          <div className="text-xs text-text-muted truncate">
-                            {u.email}
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[13px] font-semibold text-text-main truncate">{u.name || u.email}</div>
+                            <div className="text-[11px] text-text-faint truncate">{u.email}</div>
                           </div>
+                          <div className="text-[11.5px] font-semibold text-primary-text">Add</div>
                         </div>
-                        <span className="text-xs text-text-muted shrink-0">
-                          {u.workspaceRole?.title ||
-                            (u.role === "ADMIN" ? "Admin" : "Member")}
-                        </span>
-                        {addingId === u.id ? (
-                          <Loader2
-                            size={14}
-                            className="animate-spin text-primary shrink-0"
-                          />
-                        ) : (
-                          <span className="text-xs text-primary font-semibold shrink-0 ml-2">
-                            + Add
-                          </span>
-                        )}
-                      </button>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
-              <p className="text-xs text-text-muted mt-2">
-                Members are added instantly. Access is based on their workspace
-                role.
-              </p>
+            </div>
 
-              {members.length > 0 && (
-                <div className="mt-5">
-                  <p className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
-                    Current members ({members.length})
-                  </p>
-                  <div className="space-y-1 max-h-40 overflow-y-auto">
-                    {members.map((m) => (
-                      <div
-                        key={m.userId}
-                        className="flex items-center justify-between px-4 py-2.5 bg-surface-hover border border-border/80 rounded-xl"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-primary-light flex items-center justify-center text-primary text-[10px] font-bold shrink-0">
-                            {(m.user.name || m.user.email)[0].toUpperCase()}
-                          </div>
-                          <span className="text-sm text-text-main">
-                            {m.user.name || m.user.email}
-                          </span>
-                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-surface-hover text-text-muted">
-                            {getRoleLabel(m)}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => removeMember(m.userId)}
-                          className="text-text-faint hover:text-danger transition-colors"
-                        >
-                          <X size={13} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="mt-5 flex justify-end">
-                <button
-                  onClick={resetModal}
-                  className="px-5 py-2.5 text-[13px] font-bold text-text-main bg-surface-hover border border-border/80 hover:border-text-muted/40 rounded-xl transition-all shadow-sm hover:-translate-y-0.5"
-                >
-                  Done
-                </button>
-              </div>
+            <div className="flex justify-end gap-[9px] p-[14px_20px] border-t border-border bg-surface">
+              <Button variant="ghost" size="sm" onClick={resetModal}>
+                Close
+              </Button>
             </div>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

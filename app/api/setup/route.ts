@@ -1,30 +1,35 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import {
+  getDevAdminCredentials,
+  requireDevRouteSecret,
+} from "@/lib/dev-route-auth";
 
 export async function GET(req: Request) {
-  // Simple protection: only allow setup if there are no users, or passing a special secret
-  const url = new URL(req.url);
-  const secret = url.searchParams.get("secret");
+  const authError = requireDevRouteSecret(req);
+  if (authError) return authError;
 
-  if (secret !== "socket9") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const credentials = getDevAdminCredentials();
+  if (!credentials) {
+    return NextResponse.json(
+      { error: "DEV_ADMIN_EMAIL and DEV_ADMIN_PASSWORD are required" },
+      { status: 503 },
+    );
   }
 
   try {
-    const email = "admin@example.com";
-    const password = "password123";
-    const passwordHash = await bcrypt.hash(password, 10);
+    const passwordHash = await bcrypt.hash(credentials.password, 10);
 
     const user = await prisma.user.upsert({
-      where: { email },
+      where: { email: credentials.email },
       update: {
         passwordHash,
         name: "Admin User",
         role: "ADMIN",
       },
       create: {
-        email,
+        email: credentials.email,
         passwordHash,
         name: "Admin User",
         role: "ADMIN",

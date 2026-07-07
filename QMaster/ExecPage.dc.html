@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Test execution" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;">
+
+  <!-- run context header -->
+  <div style="display:flex; align-items:center; gap:14px; padding:13px 20px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <span class="material-symbols-rounded" style="font-size:20px; color:var(--text-faint);">arrow_back</span>
+    <div>
+      <div style="display:flex; align-items:center; gap:9px;"><span style="font-weight:600; font-size:15px;">Regression — Checkout v4.9</span><span style="font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; background:var(--primary-soft); color:var(--primary-text);">Active</span></div>
+      <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-faint); margin-top:2px;">RUN-320 · Staging · started 24m ago</div>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <div style="text-align:right;"><div style="font-size:11px; color:var(--text-faint);">Progress</div><div style="font-weight:700; font-variant-numeric:tabular-nums;">268 / 420</div></div>
+      <div style="width:160px; height:7px; border-radius:4px; background:var(--surface-2); overflow:hidden;"><div style="width:64%; height:100%; background:var(--primary);"></div></div>
+      <div style="display:flex; gap:9px; font-size:12px; font-weight:600;">
+        <span style="color:var(--pass);">248 passed</span><span style="color:var(--fail);">14 failed</span><span style="color:var(--warn);">6 blocked</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:370px 1fr; min-height:660px;">
+
+    <!-- case list -->
+    <div style="border-right:1px solid var(--border); background:var(--surface); display:flex; flex-direction:column;">
+      <div style="display:flex; align-items:center; gap:8px; padding:11px 14px; border-bottom:1px solid var(--border);">
+        <div style="flex:1; display:flex; align-items:center; gap:8px; height:32px; padding:0 10px; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; color:var(--text-faint); font-size:12.5px;"><span class="material-symbols-rounded" style="font-size:16px;">search</span>Filter cases</div>
+        <span class="material-symbols-rounded" style="font-size:20px; color:var(--text-faint);">tune</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:7px; padding:9px 14px; background:var(--surface-2);">
+        <span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">expand_more</span>
+        <span style="font-weight:600; font-size:12px;">Checkout / Pricing</span>
+        <span style="font-size:10.5px; color:var(--text-faint); margin-left:auto; font-variant-numeric:tabular-nums;">6 cases</span>
+      </div>
+      <sc-for list="{{ cases }}" as="c" hint-placeholder-count="7">
+        <div style="display:flex; align-items:center; gap:11px; padding:11px 14px; border-bottom:1px solid var(--border); background:{{ c.rowBg }}; box-shadow:{{ c.rowBar }};">
+          <span class="material-symbols-rounded fill" style="font-size:18px; color:{{ c.statusColor }};">{{ c.statusIcon }}</span>
+          <div style="flex:1; min-width:0;">
+            <div style="font-size:13px; font-weight:{{ c.weight }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text);">{{ c.title }}</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint); margin-top:1px;">{{ c.id }}</div>
+          </div>
+          <span class="material-symbols-rounded" style="font-size:16px; color:{{ c.priColor }};">{{ c.priIcon }}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- runner detail -->
+    <div style="padding:20px 24px; background:var(--bg); overflow:auto;">
+      <div style="display:flex; align-items:flex-start; gap:12px;">
+        <div style="flex:1;">
+          <div style="display:flex; align-items:center; gap:9px; margin-bottom:5px;">
+            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);">TC-2041</span>
+            <span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; background:var(--fail-soft); color:var(--fail);"><span class="material-symbols-rounded fill" style="font-size:13px;">cancel</span>Failed</span>
+            <span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:2px 9px; border-radius:999px; background:var(--fail-soft); color:var(--fail);"><span class="material-symbols-rounded" style="font-size:13px;">keyboard_double_arrow_up</span>High</span>
+          </div>
+          <div style="font-size:19px; font-weight:600; letter-spacing:-0.015em;">Apply promo code at checkout</div>
+          <div style="display:flex; gap:7px; margin-top:9px;">
+            <span style="font-size:11px; font-weight:600; padding:3px 9px; border-radius:7px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-muted);">e2e</span>
+            <span style="font-size:11px; font-weight:600; padding:3px 9px; border-radius:7px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-muted);">pricing</span>
+            <span style="font-size:11px; font-weight:600; padding:3px 9px; border-radius:7px; background:var(--surface-2); border:1px solid var(--border); color:var(--text-muted);">regression</span>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <div style="width:32px; height:32px; border-radius:8px; border:1px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:18px;">chevron_left</span></div>
+          <div style="width:32px; height:32px; border-radius:8px; border:1px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:18px;">chevron_right</span></div>
+        </div>
+      </div>
+
+      <!-- steps -->
+      <div style="margin-top:18px; background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow-sm); overflow:hidden;">
+        <div style="display:grid; grid-template-columns:34px 1fr 1fr 84px; gap:12px; padding:9px 16px; font-size:10.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); border-bottom:1px solid var(--border);">
+          <div>#</div><div>Action</div><div>Expected</div><div style="text-align:right;">Result</div>
+        </div>
+        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="5">
+          <div style="display:grid; grid-template-columns:34px 1fr 1fr 84px; gap:12px; padding:12px 16px; align-items:start; border-bottom:1px solid var(--border); background:{{ s.bg }};">
+            <div style="width:22px; height:22px; border-radius:6px; background:var(--surface-2); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--text-muted); font-variant-numeric:tabular-nums;">{{ s.n }}</div>
+            <div style="font-size:12.5px; color:var(--text);">{{ s.action }}</div>
+            <div style="font-size:12.5px; color:var(--text-muted);">{{ s.expected }}</div>
+            <div style="text-align:right;"><span style="display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; background:{{ s.soft }}; color:{{ s.color }};"><span class="material-symbols-rounded fill" style="font-size:12px;">{{ s.icon }}</span>{{ s.label }}</span></div>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- evidence -->
+      <div style="margin-top:16px; display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:var(--shadow-sm);">
+          <div style="display:flex; align-items:center; gap:7px; font-weight:600; font-size:13px; margin-bottom:10px;"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">image</span>Evidence</div>
+          <div style="aspect-ratio:16/10; border-radius:9px; background:var(--surface-2); border:1px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--text-faint);">
+            <span class="material-symbols-rounded" style="font-size:30px;">broken_image</span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:10.5px;">promo_error_step3.png</span>
+          </div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:var(--shadow-sm);">
+          <div style="display:flex; align-items:center; gap:7px; font-weight:600; font-size:13px; margin-bottom:10px;"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">terminal</span>Console</div>
+          <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:9px; padding:11px 12px; font-family:'JetBrains Mono',monospace; font-size:11px; line-height:1.7; color:var(--text-muted); overflow:hidden;">
+            <div><span style="color:var(--text-faint);">POST</span> /api/v2/cart/promo <span style="color:var(--fail); font-weight:700;">422</span></div>
+            <div style="color:var(--fail);">PromoStackingError: code SAVE20 not</div>
+            <div style="color:var(--fail); padding-left:14px;">combinable with active discount</div>
+            <div style="color:var(--text-faint);">expected total 84.00, got 96.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- runner action bar -->
+      <div style="margin-top:18px; display:flex; align-items:center; gap:9px;">
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:7px; height:44px; border-radius:10px; background:var(--pass); color:#fff; font-weight:700; font-size:14px; box-shadow:var(--shadow-sm);"><span class="material-symbols-rounded fill" style="font-size:19px;">check_circle</span>Pass</div>
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:7px; height:44px; border-radius:10px; background:var(--fail); color:#fff; font-weight:700; font-size:14px; box-shadow:var(--shadow-sm);"><span class="material-symbols-rounded fill" style="font-size:19px;">cancel</span>Fail</div>
+        <div style="display:flex; align-items:center; justify-content:center; gap:7px; height:44px; padding:0 18px; border-radius:10px; background:var(--surface); border:1px solid var(--border-strong); color:var(--warn); font-weight:700; font-size:14px;"><span class="material-symbols-rounded fill" style="font-size:19px;">block</span>Block</div>
+        <div style="display:flex; align-items:center; justify-content:center; gap:7px; height:44px; padding:0 18px; border-radius:10px; background:var(--surface); border:1px solid var(--border-strong); color:var(--text-muted); font-weight:700; font-size:14px;"><span class="material-symbols-rounded" style="font-size:19px;">skip_next</span>Skip</div>
+        <div style="width:44px; height:44px; border-radius:10px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:20px;">more_horiz</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const st={ passed:['check_circle','var(--pass)','var(--pass-soft)','Pass'], failed:['cancel','var(--fail)','var(--fail-soft)','Fail'], blocked:['block','var(--warn)','var(--warn-soft)','Block'], skipped:['skip_next','var(--skip)','var(--skip-soft)','Skip'], untested:['radio_button_unchecked','var(--skip)','var(--skip-soft)','—'] };
+    const pri={ high:['keyboard_double_arrow_up','var(--fail)'], medium:['drag_handle','var(--warn)'], low:['keyboard_arrow_down','var(--text-faint)'] };
+    const rows=[
+      { id:'TC-2041', title:'Apply promo code at checkout', status:'failed', pri:'high', sel:true },
+      { id:'TC-2042', title:'Stack two promo codes (blocked)', status:'blocked', pri:'high' },
+      { id:'TC-2039', title:'Subtotal updates on quantity change', status:'passed', pri:'medium' },
+      { id:'TC-2040', title:'Tax line recalculates by region', status:'passed', pri:'medium' },
+      { id:'TC-2044', title:'Free-shipping threshold banner', status:'untested', pri:'low' },
+      { id:'TC-2045', title:'Currency switch reprices cart', status:'untested', pri:'medium' },
+      { id:'TC-2046', title:'Expired promo shows inline error', status:'skipped', pri:'low' },
+    ];
+    const cases=rows.map(r=>({ ...r, statusIcon:st[r.status][0], statusColor:st[r.status][1], priIcon:pri[r.pri][0], priColor:pri[r.pri][1], weight:r.sel?'600':'500', rowBg:r.sel?'var(--primary-soft)':'transparent', rowBar:r.sel?'inset 3px 0 0 var(--primary)':'none' }));
+
+    const sdef=(s)=>({ icon:st[s][0], color:st[s][1], soft:st[s][2], label:st[s][3] });
+    const steps=[
+      { n:1, action:'Add 2 items to cart ($96.00)', expected:'Cart subtotal = $96.00', status:'passed' },
+      { n:2, action:'Open promo field, enter "SAVE20"', expected:'Field accepts input', status:'passed' },
+      { n:3, action:'Apply promo while member discount active', expected:'Best single discount applied → $84.00', status:'failed' },
+      { n:4, action:'Proceed to payment', expected:'Total reflects discounted price', status:'blocked' },
+    ].map(x=>({ ...x, ...sdef(x.status), bg: x.status==='failed' ? 'var(--fail-soft)' : 'transparent' }));
+
+    return { cases, steps };
+  }
+}
+</script>
+</body>
+</html>

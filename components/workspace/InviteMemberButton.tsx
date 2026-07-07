@@ -4,6 +4,7 @@ import { useState } from "react";
 import { UserPlus } from "lucide-react";
 import { InviteUserModal } from "@/components/workspace/InviteUserModal";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
 
 export default function InviteMemberButton() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,14 +12,10 @@ export default function InviteMemberButton() {
 
   return (
     <>
-      <button
-        onClick={() => setIsModalOpen(true)}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-sm hover:-translate-y-0.5 transition-all"
-        style={{ background: "var(--primary)" }}
-      >
+      <Button size="sm" onClick={() => setIsModalOpen(true)}>
         <UserPlus size={15} strokeWidth={2.5} />
         Invite member
-      </button>
+      </Button>
 
       {isModalOpen && (
         <InviteUserModal

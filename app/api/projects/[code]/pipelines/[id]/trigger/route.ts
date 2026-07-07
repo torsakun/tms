@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+function errorMessage(error: unknown) {
+  return error instanceof Error ? error.message : "Unexpected error";
+}
+
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ code: string; id: string }> },
@@ -11,8 +15,17 @@ export async function POST(
     if (!project)
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
-    const pipeline = await prisma.pipelineSchedule.findUnique({
-      where: { id },
+    const pipeline = await prisma.pipelineSchedule.findFirst({
+      where: { id, projectId: project.id },
+      include: {
+        plan: {
+          include: {
+            testCases: {
+              where: { automationStatus: "AUTOMATED" },
+            },
+          },
+        },
+      },
     });
     if (!pipeline)
       return NextResponse.json(
@@ -42,17 +55,22 @@ export async function POST(
       );
     }
 
-    // Find automated test cases
-    const testCases = await prisma.testCase.findMany({
-      where: {
-        projectId: project.id,
-        automationStatus: "AUTOMATED",
-      },
-    });
+    const testCases = pipeline.planId
+      ? (pipeline.plan?.testCases ?? [])
+      : await prisma.testCase.findMany({
+          where: {
+            projectId: project.id,
+            automationStatus: "AUTOMATED",
+          },
+        });
 
     if (testCases.length === 0) {
       return NextResponse.json(
-        { error: "No automated test cases found" },
+        {
+          error: pipeline.planId
+            ? "Selected test plan has no automated test cases"
+            : "No automated test cases found",
+        },
         { status: 400 },
       );
     }
@@ -63,6 +81,7 @@ export async function POST(
         title: `Scheduled Run: ${pipeline.title}`,
         description: `Triggered automatically by TESSA Pipeline Orchestration at ${new Date().toISOString()}`,
         projectId: project.id,
+        planId: pipeline.planId || undefined,
         status: "ACTIVE",
         results: {
           create: testCases.map((tc) => ({
@@ -117,8 +136,8 @@ export async function POST(
     }
 
     return NextResponse.json({ success: true, runId: run.id });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Pipeline Trigger Error", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: errorMessage(err) }, { status: 500 });
   }
 }

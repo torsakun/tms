@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Automation" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased; position:relative;">
+  <div style="display:flex; align-items:center; gap:18px; padding:0 18px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:7px; padding:11px 0;"><span style="font-weight:600; font-size:13.5px;">Checkout Web</span><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">unfold_more</span></div>
+    <div style="width:1px; height:18px; background:var(--border);"></div>
+    <div style="display:flex; gap:2px;">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><div style="padding:11px 12px 9px; font-weight:{{ t.weight }}; font-size:13px; color:{{ t.color }}; border-bottom:2px solid {{ t.border }}; margin-bottom:-1px;">{{ t.label }}</div></sc-for>
+    </div>
+  </div>
+
+  <div style="padding:20px 22px; max-width:1120px; margin:0 auto;">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+      <div><div style="font-size:19px; font-weight:600; letter-spacing:-0.015em;">Automation</div><div style="font-size:13px; color:var(--text-muted); margin-top:2px;">Scheduled pipelines and CI integration</div></div>
+      <div style="flex:1;"></div>
+      <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="200px,36px" variant="primary" size="sm" leading-icon="add" style="{{ btn }}">Create scheduled pipeline</x-import>
+    </div>
+
+    <!-- two action panels -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:18px; box-shadow:var(--shadow-sm); display:flex; gap:14px; align-items:flex-start;">
+        <div style="width:40px; height:40px; border-radius:11px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-symbols-rounded" style="font-size:22px;">auto_awesome</span></div>
+        <div style="flex:1;">
+          <div style="font-size:14.5px; font-weight:600;">Generate automation</div>
+          <div style="font-size:12.5px; color:var(--text-muted); margin:4px 0 13px; line-height:1.5;">Turn manual cases in this suite into runnable test scaffolds.</div>
+          <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="150px,36px" variant="primary" size="sm" leading-icon="auto_awesome" style="{{ btn }}">Generate scripts</x-import>
+        </div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; padding:18px; box-shadow:var(--shadow-sm); display:flex; gap:14px; align-items:flex-start;">
+        <div style="width:40px; height:40px; border-radius:11px; background:var(--surface-2); color:var(--text); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-symbols-rounded" style="font-size:22px;">merge</span></div>
+        <div style="flex:1;">
+          <div style="font-size:14.5px; font-weight:600;">Push to GitHub</div>
+          <div style="font-size:12.5px; color:var(--text-muted); margin:4px 0 13px; line-height:1.5;">Open a pull request with the generated suite in your repo.</div>
+          <div style="display:inline-flex; align-items:center; gap:8px; height:36px; padding:0 16px; border-radius:9px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border-strong); font-size:13px; font-weight:600; color:var(--text-muted);"><span style="width:14px; height:14px; border-radius:999px; border:2px solid var(--border-strong); border-top-color:var(--primary); animation:qm-spin .7s linear infinite;"></span>Opening PR…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- pipelines table -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow-sm); overflow:hidden;">
+      <div style="display:grid; grid-template-columns:1.6fr 1fr 90px 130px 70px; gap:14px; padding:10px 18px; font-size:10.5px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); border-bottom:1px solid var(--border);">
+        <div>Pipeline</div><div>Schedule</div><div>State</div><div>Last run</div><div></div>
+      </div>
+      <sc-for list="{{ pipes }}" as="p" hint-placeholder-count="4">
+        <div style="display:grid; grid-template-columns:1.6fr 1fr 90px 130px 70px; gap:14px; padding:13px 18px; align-items:center; border-bottom:1px solid var(--border);">
+          <div style="display:flex; align-items:center; gap:11px; min-width:0;">
+            <div style="width:32px; height:32px; border-radius:9px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-muted);">{{ p.icon }}</span></div>
+            <div style="min-width:0;"><div style="font-size:13px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ p.name }}</div><div style="font-size:11px; color:var(--text-faint);">{{ p.project }}</div></div>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted);">{{ p.cron }}</div>
+          <div><div style="width:34px; height:20px; border-radius:999px; background:{{ p.toggleBg }}; position:relative;"><div style="position:absolute; top:2px; {{ p.thumbSide }}:2px; width:16px; height:16px; border-radius:999px; background:#fff;"></div></div></div>
+          <div style="display:flex; align-items:center; gap:6px; font-size:12px;"><span class="material-symbols-rounded fill" style="font-size:14px; color:{{ p.lastColor }};">{{ p.lastIcon }}</span><span style="color:var(--text-muted);">{{ p.last }}</span></div>
+          <div style="display:flex; gap:3px; justify-content:flex-end;">
+            <div style="width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--primary-text);"><span class="material-symbols-rounded" style="font-size:17px;">play_arrow</span></div>
+            <div style="width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:var(--text-faint);"><span class="material-symbols-rounded" style="font-size:17px;">more_horiz</span></div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- create pipeline modal -->
+  <div style="position:absolute; inset:0; background:var(--bg-overlay); display:flex; align-items:flex-start; justify-content:center; padding-top:64px;">
+    <div style="width:440px; background:var(--surface); border:1px solid var(--border); border-radius:15px; box-shadow:var(--shadow-lg); overflow:hidden;">
+      <div style="display:flex; align-items:center; gap:10px; padding:18px 20px 0;"><div style="width:34px; height:34px; border-radius:9px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded" style="font-size:19px;">schedule</span></div><div style="font-size:15.5px; font-weight:600;">New scheduled pipeline</div></div>
+      <div style="padding:16px 20px; display:flex; flex-direction:column; gap:14px;">
+        <div><label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px;">Name</label><div style="display:flex; align-items:center; height:40px; padding:0 13px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13.5px;">Nightly regression</div></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div><label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px;">Test plan</label><div style="display:flex; align-items:center; justify-content:space-between; height:40px; padding:0 12px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13px;">Release regression<span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">expand_more</span></div></div>
+          <div><label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px;">Cron</label><div style="display:flex; align-items:center; height:40px; padding:0 12px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 2px var(--ring); font-family:'JetBrains Mono',monospace; font-size:12.5px;">0 2 * * *</div></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:9px; padding:11px 12px; background:var(--surface-2); border-radius:10px;"><div style="width:34px; height:20px; border-radius:999px; background:var(--primary); position:relative;"><div style="position:absolute; top:2px; right:2px; width:16px; height:16px; border-radius:999px; background:#fff;"></div></div><span style="font-size:12.5px; font-weight:500;">Activate immediately</span></div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; gap:9px; padding:14px 20px; border-top:1px solid var(--border);">
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="80px,36px" variant="ghost" size="sm" style="{{ btn }}">Cancel</x-import>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="140px,36px" variant="primary" size="sm" leading-icon="check" style="{{ btn }}">Create pipeline</x-import>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const btn = { height: 36, borderRadius: 9, fontSize: 13 };
+    const tab=(label,sel)=>({ label, weight: sel?'600':'500', color: sel?'var(--primary-text)':'var(--text-muted)', border: sel?'var(--primary)':'transparent' });
+    const tabs=[ tab('Dashboards'), tab('Repository'), tab('Test Plans'), tab('Test Runs'), tab('Automation',true) ];
+    const mk=(name,project,cron,active,last,ok,icon)=>({ name, project, cron, icon,
+      toggleBg: active?'var(--primary)':'var(--surface-2)', thumbSide: active?'right':'left',
+      last, lastIcon: ok?'check_circle':'cancel', lastColor: ok?'var(--pass)':'var(--fail)' });
+    const pipes=[
+      mk('Nightly regression','Checkout Web','0 2 * * *',true,'8 h ago',true,'dark_mode'),
+      mk('Hourly smoke','Checkout Web','0 * * * *',true,'24 min ago',true,'bolt'),
+      mk('Pre-deploy gate','Payments API','on deploy',true,'2 d ago',false,'rocket_launch'),
+      mk('Weekly full sweep','Checkout Web','0 3 * * 1',false,'6 d ago',true,'calendar_month'),
+    ];
+    return { tabs, pipes, btn };
+  }
+}
+</script>
+</body>
+</html>

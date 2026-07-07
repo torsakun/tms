@@ -8,48 +8,28 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   MoreVertical,
-  Clock,
-  Search,
   Filter,
   Play,
+  Plus,
   Trash2,
-  FileText,
-  Edit,
   CheckCircle2,
   XCircle,
   Ban,
-  CircleDashed,
 } from "lucide-react";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
 
-// Vivid leading chip per run status — colored fill + white icon + glow.
-const STATUS_CHIP: Record<
-  string,
-  { bg: string; Icon: React.ComponentType<{ size?: number; strokeWidth?: number }> }
-> = {
-  Passed: { bg: "#10b981", Icon: CheckCircle2 },
-  Failed: { bg: "#ef4444", Icon: XCircle },
-  "In Progress": { bg: "#6366f1", Icon: Play },
-  Completed: { bg: "#64748b", Icon: CheckCircle2 },
-  Aborted: { bg: "#e11d48", Icon: Ban },
-  Empty: { bg: "#94a3b8", Icon: CircleDashed },
-};
+// Color thresholds mirror the design's <script> data shaping.
+// Ring + completion bar use raw CSS vars (needed in SVG stroke / inline style).
+const RING_TRACK = "var(--bg-surface-hover)";
+const COLOR_PASS = "var(--success)";
+const COLOR_WARN = "var(--warning)";
+const COLOR_FAIL = "var(--danger)";
+const COLOR_PRIMARY = "var(--primary)";
 
-function timeAgo(dateString: string) {
-  const date = new Date(dateString);
-  const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-  let interval = seconds / 31536000;
-  if (interval > 1) return Math.floor(interval) + " years ago";
-  interval = seconds / 2592000;
-  if (interval > 1) return Math.floor(interval) + " months ago";
-  interval = seconds / 86400;
-  if (interval >= 1) return Math.floor(interval) + " days ago";
-  interval = seconds / 3600;
-  if (interval >= 1) return Math.floor(interval) + " hours ago";
-  interval = seconds / 60;
-  if (interval >= 1) return Math.floor(interval) + " minutes ago";
-  return "Just now";
-}
+const ringColorFor = (pass: number) =>
+  pass >= 90 ? COLOR_PASS : pass >= 75 ? COLOR_WARN : COLOR_FAIL;
+const compColorFor = (comp: number) =>
+  comp >= 90 ? COLOR_PASS : comp >= 60 ? COLOR_PRIMARY : COLOR_WARN;
 
 const AVATAR_COLORS = [
   "#4f46e5",
@@ -76,19 +56,6 @@ function authorMeta(
     initials,
     color: AVATAR_COLORS[sum % AVATAR_COLORS.length],
   };
-}
-
-function formatDuration(ms: number) {
-  if (ms === 0) return "0s";
-  const days = Math.floor(ms / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
-  const minutes = Math.floor((ms / 1000 / 60) % 60);
-  const seconds = Math.floor((ms / 1000) % 60);
-
-  if (days > 0) return `${days}d ${hours}h`;
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  if (minutes > 0) return `${minutes}m ${seconds}s`;
-  return `${seconds}s`;
 }
 
 interface TestRunsListProps {
@@ -180,132 +147,102 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
   };
   filteredRuns.forEach((r) => grouped[zoneOf(r)].push(r));
 
-  const renderRunRow = (run: any, idx: number, hero: boolean) => {
+  const renderRunRow = (run: any) => {
     const passed = run.results.filter((r: any) => r.status === "PASSED").length;
     const failed = run.results.filter((r: any) => r.status === "FAILED").length;
     const blocked = run.results.filter((r: any) => r.status === "BLOCKED").length;
-    const skipped = run.results.filter((r: any) => r.status === "SKIPPED").length;
-    const untested = run.results.filter((r: any) => r.status === "IN_PROGRESS").length;
     const total = run.results.length;
-    const completed = passed + failed + blocked + skipped;
-    const completionPercent = total > 0 ? Math.round((completed / total) * 100) : 0;
-    const segs = [
-      { n: passed, c: "#10b981" },
-      { n: failed, c: "#ef4444" },
-      { n: blocked, c: "#f59e0b" },
-      { n: skipped, c: "#94a3b8" },
-      { n: untested, c: "#cbd5e1" },
-    ].filter((s) => s.n > 0);
+    const executed = passed + failed + blocked;
+    // completion = executed / total ; passRate = passed / executed (design's donut)
+    const completionPercent =
+      total > 0 ? Math.round((executed / total) * 100) : 0;
+    const passRate = executed > 0 ? Math.round((passed / executed) * 100) : 0;
 
-    let statusLabel = "Empty";
-    if (total > 0) {
-      if (run.status === "COMPLETED") statusLabel = "Completed";
-      else if (run.status === "ABORTED") statusLabel = "Aborted";
-      else if (failed > 0) statusLabel = "Failed";
-      else if (passed === total) statusLabel = "Passed";
-      else statusLabel = "In Progress";
-    }
-    const chip = STATUS_CHIP[statusLabel] || STATUS_CHIP.Empty;
-    const ChipIcon = chip.Icon;
+    // Color thresholds from the design <script>.
+    const compColor = compColorFor(completionPercent);
+    const ringColor = ringColorFor(passRate);
+    const C = 113.1;
+    const ringOffset = (C * (1 - passRate / 100)).toFixed(1);
 
-    const start = new Date(run.createdAt);
-    const end = run.status === "ACTIVE" ? new Date() : new Date(run.updatedAt);
-    let elapsedMs = end.getTime() - start.getTime();
-    if (elapsedMs < 0) elapsedMs = 0;
     const a = authorMeta(run.author);
 
     return (
       <div
         key={run.id}
-        className={`group flex items-center gap-3 px-4 rounded-2xl border transition-all animate-list-in ${
-          hero
-            ? "py-4 bg-surface border-primary/25 hover:border-primary/40 shadow-premium"
-            : "py-3 bg-surface border-border/60 hover:border-border/80 shadow-sm"
-        }`}
-        style={{ animationDelay: `${Math.min(idx, 10) * 45}ms` }}
+        className="relative group bg-surface border border-border rounded-[12px] p-[14px] shadow-sm hover:shadow-md transition-shadow"
       >
-        {/* completion ring (hero) or status chip */}
-        {hero ? (
-          <div
-            className="relative w-11 h-11 shrink-0"
-            style={{
-              background: `conic-gradient(${chip.bg} ${completionPercent * 3.6}deg, var(--bg-surface-hover) 0deg)`,
-              borderRadius: "9999px",
-            }}
-          >
-            <div className="absolute inset-1 rounded-full bg-surface flex items-center justify-center text-[11px] font-extrabold" style={{ color: chip.bg }}>
-              {completionPercent}%
+        <div className="flex items-start gap-[12px]">
+          <div className="flex-1 min-w-0">
+            <Link href={`/projects/${code}/runs/${run.id}`} className="block">
+              <div className="text-[13.5px] font-semibold tracking-[-0.01em] text-text-main group-hover:text-primary transition-colors truncate">
+                {run.title}
+              </div>
+              <div className="font-mono text-[10.5px] text-text-faint mt-[2px] truncate">
+                {run.id}
+              </div>
+            </Link>
+          </div>
+          
+          {/* Circular progress SVG */}
+          <div className="relative shrink-0 w-[46px] h-[46px]">
+            <svg width="46" height="46" viewBox="0 0 46 46">
+              <circle cx="23" cy="23" r="18" fill="none" stroke={RING_TRACK} strokeWidth="5"></circle>
+              <circle
+                cx="23" cy="23" r="18" fill="none"
+                stroke={ringColor} strokeWidth="5" strokeLinecap="round"
+                strokeDasharray="113.1" strokeDashoffset={ringOffset}
+                transform="rotate(-90 23 23)"
+                className="transition-all duration-1000 ease-out"
+              ></circle>
+              <text x="23" y="24" textAnchor="middle" dominantBaseline="middle" className="text-[11px] font-bold fill-text-main font-sans">
+                {passRate}
+              </text>
+            </svg>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-[7px] my-[13px] mb-[10px]">
+          <span className="text-[11px] text-text-faint">Completion</span>
+          <div className="flex-1 h-[6px] rounded-[3px] bg-surface-hover overflow-hidden">
+            <div className="h-full transition-all duration-1000 ease-out" style={{ width: `${completionPercent}%`, background: compColor }}></div>
+          </div>
+          <span className="text-[11.5px] font-bold tabular-nums text-text-main">{completionPercent}%</span>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex gap-[6px]">
+            <span className="flex items-center gap-[4px] text-[11px] font-semibold text-success">
+              <CheckCircle2 size={13} />{passed}
+            </span>
+            <span className="flex items-center gap-[4px] text-[11px] font-semibold text-danger">
+              <XCircle size={13} />{failed}
+            </span>
+            <span className="flex items-center gap-[4px] text-[11px] font-semibold text-warning">
+              <Ban size={13} />{blocked}
+            </span>
+          </div>
+          <div className="flex items-center gap-[6px]">
+            <span className="text-[11px] text-text-faint truncate max-w-[60px]">{run.environment?.title || "No Env"}</span>
+            <div className="w-[21px] h-[21px] rounded-full bg-primary-light text-primary flex items-center justify-center text-[9.5px] font-bold" title={a.display}>
+              {a.initials}
             </div>
           </div>
-        ) : (
-          <span
-            className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0 text-white transition-transform duration-200 group-hover:scale-110 group-hover:-rotate-3 shadow-sm"
-            style={{ background: chip.bg }}
-            aria-hidden="true"
-          >
-            <ChipIcon size={18} strokeWidth={2.25} />
-          </span>
-        )}
-
-        <Link href={`/projects/${code}/runs/${run.id}`} className="flex-1 min-w-0">
-          <span className={`block font-bold text-text-main tracking-tight group-hover:text-primary transition-colors truncate ${hero ? "text-[15px]" : "text-[14px]"}`}>
-            {run.title}
-          </span>
-          <span className="block text-[11px] text-text-muted truncate mt-0.5">
-            {a.display} · {timeAgo(run.createdAt)}
-            {run.environment?.title ? ` · ${run.environment.title}` : ""} ·{" "}
-            {formatDuration(elapsedMs)}
-          </span>
-        </Link>
-
-        {/* mini stats bar */}
-        {total > 0 && (
-          <div className="hidden sm:flex h-2 w-36 shrink-0 rounded-full overflow-hidden bg-surface-hover">
-            {segs.map((s, i) => (
-              <div
-                key={i}
-                style={{ width: `${(s.n / total) * 100}%`, background: s.c }}
-              />
-            ))}
-          </div>
-        )}
-        <span className="text-[11px] font-bold text-text-muted w-14 text-right shrink-0">
-          {completed}/{total}
-        </span>
-
-        <div
-          className="relative shrink-0"
-          ref={activeDropdown === run.id ? dropdownRef : null}
-        >
+        </div>
+        
+        {/* Dropdown menu action */}
+        <div className="absolute top-[14px] right-[14px] opacity-0 group-hover:opacity-100 transition-opacity" ref={activeDropdown === run.id ? dropdownRef : null}>
           <button
-            onClick={() =>
-              setActiveDropdown(activeDropdown === run.id ? null : run.id)
-            }
-            className={`p-1.5 rounded-xl transition-colors ${activeDropdown === run.id ? "bg-surface-hover text-text-main" : "text-text-muted hover:text-text-main hover:bg-surface-hover"}`}
+            onClick={(e) => { e.preventDefault(); setActiveDropdown(activeDropdown === run.id ? null : run.id); }}
+            className="p-[2px] rounded-md text-text-faint hover:text-text-main hover:bg-surface-hover"
           >
-            <MoreVertical size={18} />
+            <MoreVertical size={16} />
           </button>
           {activeDropdown === run.id && (
-            <div className="absolute right-0 mt-1 w-40 bg-surface border border-border/80 rounded-xl shadow-premium z-30 py-1 overflow-hidden animate-in zoom-in-95 duration-200">
-              <Link
-                href={`/projects/${code}/runs/${run.id}`}
-                className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center transition-colors"
-              >
+            <div className="absolute right-0 mt-1 w-40 bg-surface border border-border rounded-xl shadow-premium z-30 py-1 overflow-hidden animate-in zoom-in-95 duration-200">
+              <Link href={`/projects/${code}/runs/${run.id}`} className="w-full text-left px-4 py-2 text-[13px] text-text-main hover:bg-surface-hover flex items-center">
                 <Play size={13} className="mr-2 text-text-muted" /> Open run
               </Link>
-              <Link
-                href={`/projects/${code}/runs/${run.id}/edit`}
-                className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center transition-colors"
-              >
-                <Edit size={13} className="mr-2 text-text-muted" /> Edit run
-              </Link>
-              <button
-                onClick={() => {
-                  setActiveDropdown(null);
-                  setConfirmDeleteId(run.id);
-                }}
-                className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger-soft flex items-center transition-colors"
-              >
+              <button onClick={() => { setActiveDropdown(null); setConfirmDeleteId(run.id); }} className="w-full text-left px-4 py-2 text-[13px] text-danger hover:bg-danger-soft flex items-center">
                 <Trash2 size={13} className="mr-2" /> Delete run
               </button>
             </div>
@@ -316,126 +253,81 @@ export function TestRunsList({ initialRuns, code }: TestRunsListProps) {
   };
 
   return (
-    <div className="w-full flex flex-col">
-      <div className="flex items-center gap-3 mb-4">
-        {role !== "VIEWER" && (
-          <Link
-            href={`/projects/${code}/runs/create`}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white shadow-premium hover:-translate-y-0.5 transition-all duration-300"
-            style={{ background: "var(--primary)" }}
-          >
-            Start new test run
-          </Link>
-        )}
-
-        <div className="relative">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-            size={14}
-          />
-          <input
-            type="text"
-            placeholder="Search test runs…"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 pr-4 py-2.5 text-[13px] font-semibold border border-border/80 bg-surface text-text-main rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/20 shadow-inner w-52 transition-all hover:border-text-muted/40"
-          />
+    <div className="w-full flex flex-col h-full bg-bg">
+      {/* Board Header */}
+      <div className="flex items-center justify-between p-[18px_20px_12px] shrink-0">
+        <div>
+          <div className="text-[21px] font-semibold tracking-[-0.015em] text-text-main">Test runs</div>
+          <div className="text-text-muted text-[13px] mt-[2px]">{runs.length} runs · grouped by status</div>
         </div>
-
-        <div className="relative">
+        <div className="flex items-center gap-[8px]">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={[
-              "flex items-center py-2.5 text-[13px] font-bold px-4 rounded-xl border transition-all duration-300",
-              showFilters || statusFilter !== "ALL"
-                ? "bg-primary-light text-primary border-primary/25 shadow-sm"
-                : "bg-surface text-text-muted border-border/80 hover:text-text-main hover:bg-surface-hover shadow-sm",
-            ].join(" ")}
+            className="flex items-center gap-[7px] h-[34px] px-[12px] bg-surface border border-border rounded-[9px] font-medium text-[13px] text-text-main hover:bg-surface-hover transition-colors"
           >
-            <Filter size={13} className="mr-1.5" />
-            {statusFilter === "ALL" ? "All Statuses" : statusFilter}
+            <Filter size={17} className="text-text-faint" />Filter
           </button>
-
-          {showFilters && (
-            <div className="absolute top-full mt-2 left-0 w-44 bg-surface border border-border/80 rounded-2xl shadow-premium z-20 py-1.5 overflow-hidden animate-in zoom-in-95 duration-200">
-              {["ALL", "ACTIVE", "COMPLETED", "ABORTED"].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => {
-                    setStatusFilter(s);
-                    setShowFilters(false);
-                  }}
-                  className={[
-                    "w-full text-left px-4 py-2 text-sm font-medium transition-colors",
-                    statusFilter === s
-                      ? "bg-primary-light text-primary"
-                      : "text-text-main hover:bg-surface-hover",
-                  ].join(" ")}
-                >
-                  {s === "ALL"
-                    ? "All Statuses"
-                    : s.charAt(0) + s.slice(1).toLowerCase()}
-                </button>
-              ))}
-            </div>
+          {role !== "VIEWER" && (
+            <Link
+              href={`/projects/${code}/runs/create`}
+              className="flex items-center gap-[7px] h-[34px] px-[14px] bg-primary text-white rounded-[9px] font-semibold text-[13px] shadow-sm hover:bg-primary-hover transition-colors"
+            >
+              <Plus size={17} />New run
+            </Link>
           )}
         </div>
       </div>
 
-      {filteredRuns.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-surface rounded-2xl border border-border/80 shadow-premium transition-all duration-300 animate-in zoom-in-95">
-          <div className="w-16 h-16 bg-primary-light text-primary rounded-full flex items-center justify-center mb-4 shadow-sm">
-            <FileText size={32} />
-          </div>
-          <h3 className="text-lg font-bold text-text-main mb-2">
-            No test runs found
-          </h3>
-          <p className="text-text-muted text-center max-w-sm mb-6 text-sm">
-            {role !== "VIEWER"
-              ? "Create a new test run to start executing tests and tracking quality."
-              : "There are currently no test runs for this project."}
-          </p>
-          {role !== "VIEWER" && (
-            <Link
-              href={`/projects/${code}/runs/create`}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-[13px] font-bold text-white shadow-premium hover:-translate-y-0.5 transition-all duration-300"
-              style={{
-                background: "var(--primary)",
-              }}
-            >
-              Start test run
-            </Link>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-7">
-          {ZONES.map((zone) => {
-            const zoneRuns = grouped[zone.key];
-            if (zoneRuns.length === 0) return null;
-            return (
-              <section key={zone.key}>
-                <div className="flex items-center gap-2 mb-2.5 px-1">
-                  <span
-                    className="w-2 h-2 rounded-full"
-                    style={{ background: zone.dot }}
-                  />
-                  <h3 className="text-[11px] font-extrabold uppercase tracking-wider text-text-muted">
-                    {zone.label}
-                  </h3>
-                  <span className="text-[11px] font-bold text-text-muted">
-                    {zoneRuns.length}
-                  </span>
-                </div>
-                <div className="space-y-2">
-                  {zoneRuns.map((run, i) =>
-                    renderRunRow(run, i, zone.key === "ACTIVE"),
-                  )}
-                </div>
-              </section>
-            );
-          })}
+      {showFilters && (
+        <div className="px-[20px] pb-[12px] flex gap-2">
+           <input
+             type="text"
+             placeholder="Search test runs…"
+             value={searchQuery}
+             onChange={(e) => setSearchQuery(e.target.value)}
+             className="px-[12px] py-[6px] text-[13px] border border-border bg-surface text-text-main rounded-[8px] focus:outline-none focus:ring-2 focus:ring-primary/20 w-[200px]"
+           />
+           <select
+             value={statusFilter}
+             onChange={(e) => setStatusFilter(e.target.value)}
+             className="px-[12px] py-[6px] text-[13px] border border-border bg-surface text-text-main rounded-[8px] focus:outline-none"
+           >
+             <option value="ALL">All Statuses</option>
+             <option value="ACTIVE">Active</option>
+             <option value="COMPLETED">Completed</option>
+             <option value="ABORTED">Aborted</option>
+           </select>
         </div>
       )}
+
+      {/* Board Columns */}
+      <div className="grid grid-cols-3 gap-[14px] p-[4px_20px_24px] overflow-y-auto flex-1 min-h-0 items-start">
+        {ZONES.map((zone) => {
+          const zoneRuns = grouped[zone.key];
+          return (
+            <div key={zone.key} className="flex flex-col">
+              <div className="flex items-center gap-[8px] p-[0_4px_11px] sticky top-0 bg-bg z-10">
+                <span className="w-[9px] h-[9px] rounded-[3px]" style={{ background: zone.dot }} />
+                <span className="font-semibold text-[13px] text-text-main">{zone.label}</span>
+                <span className="text-[11px] font-bold bg-surface-hover border border-border text-text-muted px-[7px] py-[1px] rounded-full">
+                  {zoneRuns.length}
+                </span>
+              </div>
+              
+              <div className="flex flex-col gap-[11px]">
+                {zoneRuns.length === 0 ? (
+                  <div className="h-[100px] border border-dashed border-border rounded-[12px] flex items-center justify-center text-[13px] text-text-faint">
+                    No {zone.label.toLowerCase()} runs
+                  </div>
+                ) : (
+                  zoneRuns.map((run) => renderRunRow(run))
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
       {confirmDeleteId && (
         <ConfirmDialog
           title="Delete test run"

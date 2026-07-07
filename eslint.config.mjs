@@ -12,6 +12,14 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    ".agents/**",
+    ".claude/**",
+    ".codex/**",
+    ".github/skills/**",
+    ".impeccable/**",
+    "QMaster/**",
+    "*.pdf",
+    "*.tsbuildinfo",
   ]),
 ]);
 

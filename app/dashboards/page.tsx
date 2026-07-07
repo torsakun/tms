@@ -1,24 +1,32 @@
 import React from "react";
 import Link from "next/link";
 import { Inter } from "next/font/google";
+import { getServerSession } from "next-auth/next";
 import {
+  Activity,
   ArrowUp,
   Bot,
   Bug,
   CalendarDays,
   CheckCircle2,
+  CheckSquare,
   ChevronDown,
   ChevronRight,
+  ChevronsUp,
   Circle,
-  Filter,
+  GripHorizontal,
+  MinusCircle,
+  Moon,
   PlayCircle,
   Rocket,
-  ShieldAlert,
   TrendingDown,
   Workflow,
   XCircle,
   Zap,
 } from "lucide-react";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { DashboardFilters } from "./DashboardFilters";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
@@ -26,287 +34,553 @@ export const dynamic = "force-dynamic";
 
 type ProjectRow = {
   rank: number;
+  code: string;
   name: string;
   abbr: string;
   cases: number;
   suites: number;
   health: number;
+  healthBg: string;
+  healthColor: string;
   auto: number;
+  autow: string;
   activeRuns: number;
   totalRuns: number;
   lastActivity: string;
-  fresh: boolean;
-  trend: number[];
+  actDot: string;
+  spark: string;
+  sparkColor: string;
   iconBg: string;
   iconColor: string;
 };
 
-const spark = (values: number[]) => {
+type HeatRow = {
+  name: string;
+  cells: Array<{ rate: number | null; varRef: string }>;
+};
+
+type RiskItem = {
+  proj: string;
+  title: string;
+  metric: string;
+  metricColor: string;
+  projBg: string;
+  projColor: string;
+  href: string;
+};
+
+type WorkItem = {
+  title: string;
+  proj: string;
+  href: string;
+  statusIcon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>;
+  statusColor: string;
+  priIcon: React.ComponentType<{ size?: number; style?: React.CSSProperties }>;
+  priColor: string;
+};
+
+type ActivityItem = {
+  who: string;
+  action: string;
+  proj: string;
+  when: string;
+  icon: React.ComponentType<{ size?: number }>;
+  iconBg: string;
+  iconColor: string;
+};
+
+type ScheduleItem = {
+  name: string;
+  proj: string;
+  cron: string;
+  when: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+};
+
+const nf = new Intl.NumberFormat("en-US");
+
+const sparkFn = (values: number[]) => {
+  const safe = values.length > 1 ? values : [values[0] || 0, values[0] || 0];
   const width = 78;
   const height = 26;
-  const min = Math.min(...values);
-  const max = Math.max(...values);
+  const min = Math.min(...safe);
+  const max = Math.max(...safe);
   const spread = max - min || 1;
-  return values
+  return safe
     .map((value, index) => {
-      const x = (index * (width / (values.length - 1))).toFixed(1);
+      const x = (index * (width / (safe.length - 1))).toFixed(1);
       const y = (height - 2 - ((value - min) / spread) * (height - 4)).toFixed(1);
       return `${x},${y}`;
     })
     .join(" ");
 };
 
-const orgKpis = [
-  { label: "Overall pass rate", value: "91.6%", icon: CheckCircle2, delta: "+1.2 pts", spark: [88, 89, 90, 90, 91, 91, 92], color: "var(--pass)" },
-  { label: "Total projects", value: "8", icon: Workflow, delta: "+1", spark: [6, 6, 7, 7, 7, 8, 8], color: "var(--primary)" },
-  { label: "Total runs", value: "1,284", icon: PlayCircle, delta: "+96", spark: [1050, 1100, 1140, 1180, 1210, 1250, 1284], color: "var(--primary)" },
-  { label: "Org automation", value: "64%", icon: Bot, delta: "+6 pts", spark: [52, 55, 57, 59, 61, 62, 64], color: "var(--primary)" },
-];
+const formatPct = (value: number) => `${Math.round(value)}%`;
+const formatDelta = (value: number, unit = "") => `${value >= 0 ? "+" : ""}${unit === "pts" ? value.toFixed(1) : Math.round(value)}${unit ? ` ${unit}` : ""}`;
+const dateKey = (date: Date) => date.toISOString().slice(0, 10);
+const daysAgo = (days: number) => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - days);
+  return d;
+};
+const formatAge = (date?: Date | null) => {
+  if (!date) return "No activity";
+  const diff = Date.now() - date.getTime();
+  const minutes = Math.max(1, Math.round(diff / 60000));
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours} h ago`;
+  return `${Math.round(hours / 24)} d ago`;
+};
 
-const projects: ProjectRow[] = [
-  { rank: 1, name: "Auth Service", abbr: "AS", cases: 642, suites: 14, health: 97, auto: 84, activeRuns: 1, totalRuns: 96, lastActivity: "2 d ago", fresh: false, trend: [94, 95, 95, 96, 96, 97, 97], iconBg: "var(--pass-soft)", iconColor: "var(--pass)" },
-  { rank: 2, name: "Checkout Web", abbr: "CW", cases: 2484, suites: 38, health: 94, auto: 72, activeRuns: 6, totalRuns: 318, lastActivity: "6 h ago", fresh: true, trend: [90, 91, 92, 92, 93, 94, 94], iconBg: "var(--primary-soft)", iconColor: "var(--primary-text)" },
-  { rank: 3, name: "Search & Browse", abbr: "SB", cases: 531, suites: 11, health: 91, auto: 63, activeRuns: 0, totalRuns: 78, lastActivity: "3 d ago", fresh: false, trend: [88, 89, 90, 90, 91, 91, 91], iconBg: "var(--primary-soft)", iconColor: "var(--primary-text)" },
-  { rank: 4, name: "Payments API", abbr: "PA", cases: 1203, suites: 22, health: 88, auto: 91, activeRuns: 3, totalRuns: 204, lastActivity: "1 d ago", fresh: true, trend: [84, 85, 86, 87, 87, 88, 88], iconBg: "var(--info-soft-fill)", iconColor: "var(--info)" },
-  { rank: 5, name: "Notifications", abbr: "NT", cases: 388, suites: 9, health: 86, auto: 58, activeRuns: 1, totalRuns: 52, lastActivity: "5 h ago", fresh: true, trend: [83, 84, 84, 85, 86, 86, 86], iconBg: "var(--warn-soft)", iconColor: "var(--warn)" },
-  { rank: 6, name: "Mobile Web", abbr: "MW", cases: 918, suites: 19, health: 73, auto: 46, activeRuns: 2, totalRuns: 142, lastActivity: "4 h ago", fresh: true, trend: [78, 76, 75, 74, 74, 73, 73], iconBg: "var(--warn-soft)", iconColor: "var(--warn)" },
-  { rank: 7, name: "Admin Console", abbr: "AC", cases: 274, suites: 7, health: 69, auto: 38, activeRuns: 0, totalRuns: 34, lastActivity: "8 d ago", fresh: false, trend: [74, 73, 72, 71, 70, 69, 69], iconBg: "var(--info-soft-fill)", iconColor: "var(--info)" },
-  { rank: 8, name: "Legacy Import", abbr: "LI", cases: 146, suites: 5, health: 61, auto: 22, activeRuns: 0, totalRuns: 18, lastActivity: "21 d ago", fresh: false, trend: [68, 66, 65, 64, 63, 62, 61], iconBg: "var(--pass-soft)", iconColor: "var(--pass)" },
-];
+const healthTone = (h: number) =>
+  h >= 90
+    ? ["var(--success-soft)", "var(--success)"]
+    : h >= 75
+      ? ["var(--warning-soft)", "var(--warning)"]
+      : ["var(--danger-soft)", "var(--danger)"];
 
-const heat = projects.map((project, projectIndex) => ({
-  name: project.name,
-  cells: Array.from({ length: 30 }, (_, day) => {
-    const rate = Math.min(100, Math.max(45, project.health - 6 + ((projectIndex * 5 + day * 7) % 16) - (day > 26 ? 5 : 0)));
-    const tier = rate < 65 ? 0 : rate < 80 ? 1 : rate < 90 ? 2 : rate < 97 ? 3 : 4;
-    return { rate, tier };
-  }),
-}));
+const projectBadgeTone = (code: string): [string, string] => {
+  const tones: Array<[string, string]> = [
+    ["var(--primary-soft)", "var(--primary-text)"],
+    ["var(--info-soft)", "var(--info)"],
+    ["var(--success-soft)", "var(--success)"],
+    ["var(--warning-soft)", "var(--warning)"],
+    ["var(--bg-surface-hover)", "var(--text-muted)"],
+  ];
+  const index = code.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0) % tones.length;
+  return tones[index];
+};
 
-const riskCards = [
-  {
-    title: "Top failing - across all projects",
-    icon: TrendingDown,
-    iconColor: "var(--fail)",
-    badge: "org",
-    badgeBg: "var(--fail-soft)",
-    badgeColor: "var(--fail)",
-    items: [
-      { proj: "CW", title: "Apply promo code at checkout", metric: "62%", metricColor: "var(--fail)" },
-      { proj: "MW", title: "Tap-to-pay sheet dismiss", metric: "64%", metricColor: "var(--fail)" },
-      { proj: "CW", title: "Guest checkout - invalid card", metric: "68%", metricColor: "var(--fail)" },
-      { proj: "PA", title: "Refund partial capture", metric: "71%", metricColor: "var(--warn)" },
-    ],
-  },
-  {
-    title: "Open defects - across all projects",
-    icon: Bug,
-    iconColor: "var(--warn)",
-    badge: "42",
-    badgeBg: "var(--warn-soft)",
-    badgeColor: "var(--warn)",
-    items: [
-      { proj: "CW", title: "Promo stacking returns 422", metric: "P1", metricColor: "var(--fail)" },
-      { proj: "PA", title: "Webhook retry storm on timeout", metric: "P1", metricColor: "var(--fail)" },
-      { proj: "MW", title: "Keyboard covers CVV field", metric: "P2", metricColor: "var(--warn)" },
-      { proj: "AC", title: "Role table pagination off-by-one", metric: "P3", metricColor: "var(--text-faint)" },
-    ],
-  },
-];
+const heatColor = (rate: number | null) => {
+  if (rate === null) return "var(--bg-surface-hover)";
+  if (rate < 65) return "var(--heat-0)";
+  if (rate < 80) return "var(--heat-1)";
+  if (rate < 90) return "var(--heat-2)";
+  if (rate < 97) return "var(--heat-3)";
+  return "var(--heat-4)";
+};
 
-const mywork = [
-  { title: "Guest checkout - invalid card", proj: "Checkout Web", status: XCircle, statusColor: "var(--fail)", pri: "keyboard_double_arrow_up", priColor: "var(--fail)" },
-  { title: "Webhook retry on timeout", proj: "Payments API", status: ShieldAlert, statusColor: "var(--warn)", pri: "keyboard_double_arrow_up", priColor: "var(--fail)" },
-  { title: "Tap-to-pay sheet dismiss", proj: "Mobile Web", status: Circle, statusColor: "var(--skip)", pri: "drag_handle", priColor: "var(--warn)" },
-  { title: "SSO session expiry banner", proj: "Auth Service", status: CheckCircle2, statusColor: "var(--pass)", pri: "keyboard_arrow_down", priColor: "var(--text-faint)" },
-];
+const statusMeta = (status: string) => {
+  if (status === "FAILED") return { icon: XCircle, color: "var(--danger)" };
+  if (status === "BLOCKED") return { icon: MinusCircle, color: "var(--warning)" };
+  if (status === "PASSED") return { icon: CheckCircle2, color: "var(--success)" };
+  return { icon: Circle, color: "var(--skip)" };
+};
 
-const activity = [
-  { who: "Mara Alvarez", action: "completed a regression run", proj: "Checkout Web", when: "12 min ago", icon: CheckCircle2, bg: "var(--pass-soft)", color: "var(--pass)" },
-  { who: "Ravi Kapoor", action: "raised a P1 defect", proj: "Payments API", when: "38 min ago", icon: Bug, bg: "var(--warn-soft)", color: "var(--warn)" },
-  { who: "CI bot", action: "aborted a load-spike run", proj: "Mobile Web", when: "1 h ago", icon: XCircle, bg: "var(--fail-soft)", color: "var(--fail)" },
-  { who: "Jordan Lee", action: "created a new project", proj: "Notifications", when: "3 h ago", icon: Workflow, bg: "var(--primary-soft)", color: "var(--primary-text)" },
-  { who: "Lin Qiu", action: "published a test plan", proj: "Auth Service", when: "5 h ago", icon: CheckCircle2, bg: "var(--info-soft-fill)", color: "var(--info)" },
-];
+const priorityMeta = (priority?: string | null) => {
+  if (priority === "HIGH") return { icon: ChevronsUp, color: "var(--danger)" };
+  if (priority === "MEDIUM") return { icon: GripHorizontal, color: "var(--warning)" };
+  return { icon: ChevronDown, color: "var(--text-faint)" };
+};
 
-const schedules = [
-  { name: "Nightly regression", proj: "Checkout Web", cron: "0 2 * * *", when: "in 6h", icon: CalendarDays },
-  { name: "Hourly smoke", proj: "Payments API", cron: "0 * * * *", when: "in 24m", icon: Zap },
-  { name: "Pre-deploy gate", proj: "Auth Service", cron: "on deploy", when: "pending", icon: Rocket },
-  { name: "Weekly sweep", proj: "Mobile Web", cron: "0 3 * * 1", when: "Mon", icon: CalendarDays },
-];
+const scheduleIcon = (cron: string) => {
+  if (/deploy/i.test(cron)) return Rocket;
+  if (/^0 2 /.test(cron)) return Moon;
+  if (/\*/.test(cron)) return Zap;
+  return CalendarDays;
+};
 
-function healthTone(health: number) {
-  if (health >= 90) return ["var(--pass-soft)", "var(--pass)"];
-  if (health >= 75) return ["var(--warn-soft)", "var(--warn)"];
-  return ["var(--fail-soft)", "var(--fail)"];
-}
+export default async function GlobalDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ project?: string; timeframe?: string }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const timeframe = [7, 14, 30, 60, 90].includes(Number(resolvedSearchParams.timeframe))
+    ? Number(resolvedSearchParams.timeframe)
+    : 30;
+  const now = new Date();
+  const currentStart = daysAgo(timeframe);
+  const previousStart = daysAgo(timeframe * 2);
 
-function projectBadgeColor(project: string) {
-  const map: Record<string, [string, string]> = {
-    CW: ["var(--primary-soft)", "var(--primary-text)"],
-    PA: ["var(--info-soft-fill)", "var(--info)"],
-    MW: ["var(--warn-soft)", "var(--warn)"],
-    AS: ["var(--pass-soft)", "var(--pass)"],
-    AC: ["var(--surface-2)", "var(--text-muted)"],
-  };
-  return map[project] || map.AC;
-}
+  const session = await getServerSession(authOptions);
+  const userId = (session?.user as any)?.id as string | undefined;
+  const allProjectsForFilter = await prisma.project.findMany({
+    where: { isArchived: false },
+    orderBy: { name: "asc" },
+    select: { code: true, name: true },
+  });
+  const selectedProject = allProjectsForFilter.some((project) => project.code === resolvedSearchParams.project)
+    ? resolvedSearchParams.project || ""
+    : "";
+  const selectedProjectWhere = selectedProject ? { code: selectedProject } : {};
+  const resultProjectWhere = selectedProject ? { testRun: { project: { code: selectedProject } } } : {};
+  const runProjectWhere = selectedProject ? { project: { code: selectedProject } } : {};
+  const issueProjectWhere = selectedProject ? { project: { code: selectedProject } } : {};
+  const auditProjectWhere = selectedProject ? { project: { code: selectedProject } } : {};
+  const scheduleProjectWhere = selectedProject ? { project: { code: selectedProject } } : {};
 
-export default function GlobalDashboardPage() {
+  const [projectData, currentResults, previousResults, currentRuns, previousRuns, linkedIssues, auditLogs, schedulesData, myPending] = await Promise.all([
+    prisma.project.findMany({
+      where: { isArchived: false, ...selectedProjectWhere },
+      orderBy: { updatedAt: "desc" },
+      include: {
+        _count: { select: { suites: true, testCases: true, testRuns: true } },
+        testCases: { select: { id: true, automationStatus: true, suiteId: true, priority: true, title: true } },
+        testRuns: {
+          orderBy: { createdAt: "desc" },
+          take: 12,
+          include: { results: { select: { status: true } } },
+        },
+      },
+    }),
+    prisma.testRunResult.findMany({
+      where: { updatedAt: { gte: currentStart, lte: now }, status: { not: "IN_PROGRESS" }, ...resultProjectWhere },
+      select: {
+        status: true,
+        updatedAt: true,
+        testRun: { select: { id: true, title: true, createdAt: true, project: { select: { code: true, name: true } } } },
+        testCase: { select: { id: true, title: true, priority: true, suite: { select: { title: true } } } },
+      },
+    }),
+    prisma.testRunResult.findMany({
+      where: { updatedAt: { gte: previousStart, lt: currentStart }, status: { not: "IN_PROGRESS" }, ...resultProjectWhere },
+      select: { status: true },
+    }),
+    prisma.testRun.findMany({
+      where: { createdAt: { gte: currentStart, lte: now }, ...runProjectWhere },
+      select: { id: true, title: true, status: true, createdAt: true, project: { select: { code: true, name: true } }, results: { select: { status: true } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.testRun.findMany({
+      where: { createdAt: { gte: previousStart, lt: currentStart }, ...runProjectWhere },
+      select: { id: true },
+    }),
+    prisma.linkedIssue.findMany({
+      where: issueProjectWhere,
+      orderBy: { createdAt: "desc" },
+      take: 24,
+      select: { id: true, key: true, summary: true, severity: true, status: true, url: true, project: { select: { code: true } } },
+    }),
+    prisma.auditLog.findMany({
+      where: auditProjectWhere,
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      include: { user: { select: { name: true, email: true } }, project: { select: { code: true, name: true } } },
+    }),
+    prisma.pipelineSchedule.findMany({
+      where: { isActive: true, ...scheduleProjectWhere },
+      orderBy: { createdAt: "desc" },
+      take: 4,
+      include: { project: { select: { code: true, name: true } } },
+    }),
+    userId
+      ? prisma.testRunResult.findMany({
+          where: { assigneeId: userId, status: "IN_PROGRESS", testRun: { status: "ACTIVE", ...runProjectWhere } },
+          take: 4,
+          include: {
+            testRun: { select: { id: true, title: true, project: { select: { code: true, name: true } } } },
+            testCase: { select: { title: true, priority: true } },
+          },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const totalCases = projectData.reduce((sum, project) => sum + project._count.testCases, 0);
+  const totalRuns = projectData.reduce((sum, project) => sum + project._count.testRuns, 0);
+  const totalAutomated = projectData.reduce(
+    (sum, project) => sum + project.testCases.filter((testCase) => testCase.automationStatus === "AUTOMATED").length,
+    0,
+  );
+  const currentExecuted = currentResults.length;
+  const currentPassed = currentResults.filter((result) => result.status === "PASSED").length;
+  const previousExecuted = previousResults.length;
+  const previousPassed = previousResults.filter((result) => result.status === "PASSED").length;
+  const passRate = currentExecuted ? (currentPassed / currentExecuted) * 100 : 0;
+  const previousPassRate = previousExecuted ? (previousPassed / previousExecuted) * 100 : 0;
+  const automationRate = totalCases ? (totalAutomated / totalCases) * 100 : 0;
+
+  const kpiSparkSeed = (base: number) => [base * 0.82, base * 0.86, base * 0.9, base * 0.94, base * 0.98, base].map((v) => Math.max(0, Math.round(v)));
+  const orgKpis = [
+    { label: "Overall pass rate", value: formatPct(passRate), icon: CheckCircle2, delta: formatDelta(passRate - previousPassRate, "pts"), suffix: "vs prev", spark: sparkFn(kpiSparkSeed(passRate)), sparkColor: "var(--success)", deltaColor: passRate >= previousPassRate ? "var(--success)" : "var(--danger)", arrow: ArrowUp },
+    { label: "Total projects", value: nf.format(projectData.length), icon: Workflow, delta: formatDelta(projectData.filter((p) => p.createdAt >= currentStart).length), suffix: "new", spark: sparkFn(kpiSparkSeed(projectData.length)), sparkColor: "var(--primary)", deltaColor: "var(--text-muted)", arrow: ArrowUp },
+    { label: "Total runs", value: nf.format(totalRuns), icon: PlayCircle, delta: formatDelta(currentRuns.length - previousRuns.length), suffix: "vs prev", spark: sparkFn(kpiSparkSeed(totalRuns)), sparkColor: "var(--primary)", deltaColor: "var(--text-muted)", arrow: ArrowUp },
+    { label: "Org automation", value: formatPct(automationRate), icon: Bot, delta: nf.format(totalAutomated), suffix: "automated", spark: sparkFn(kpiSparkSeed(automationRate)), sparkColor: "var(--primary)", deltaColor: "var(--success)", arrow: ArrowUp },
+  ];
+
+  const projectResultMap = new Map<string, { passed: number; total: number }>();
+  const projectDailyMap = new Map<string, Map<string, { passed: number; total: number }>>();
+  for (const result of currentResults) {
+    const code = result.testRun.project.code;
+    const current = projectResultMap.get(code) || { passed: 0, total: 0 };
+    current.total += 1;
+    if (result.status === "PASSED") current.passed += 1;
+    projectResultMap.set(code, current);
+
+    const day = dateKey(result.updatedAt);
+    const days = projectDailyMap.get(code) || new Map<string, { passed: number; total: number }>();
+    const dayValue = days.get(day) || { passed: 0, total: 0 };
+    dayValue.total += 1;
+    if (result.status === "PASSED") dayValue.passed += 1;
+    days.set(day, dayValue);
+    projectDailyMap.set(code, days);
+  }
+
+  const projects = projectData
+    .map((project) => {
+      const resultStats = projectResultMap.get(project.code);
+      const health = resultStats?.total ? Math.round((resultStats.passed / resultStats.total) * 100) : 0;
+      const automated = project.testCases.filter((testCase) => testCase.automationStatus === "AUTOMATED").length;
+      const auto = project.testCases.length ? Math.round((automated / project.testCases.length) * 100) : 0;
+      const activeRuns = project.testRuns.filter((run) => run.status === "ACTIVE").length;
+      const latestRun = project.testRuns[0];
+      const recentHealth = project.testRuns.slice(0, 7).reverse().map((run) => {
+        const executed = run.results.filter((result) => result.status !== "IN_PROGRESS").length;
+        const passed = run.results.filter((result) => result.status === "PASSED").length;
+        return executed ? Math.round((passed / executed) * 100) : health;
+      });
+      const [healthBg, healthColor] = healthTone(health);
+      const [iconBg, iconColor] = projectBadgeTone(project.code);
+      return {
+        code: project.code,
+        name: project.name,
+        abbr: project.code.slice(0, 2).toUpperCase(),
+        cases: project._count.testCases,
+        suites: project._count.suites,
+        health,
+        healthBg,
+        healthColor,
+        auto,
+        autow: `${auto}%`,
+        activeRuns,
+        totalRuns: project._count.testRuns,
+        lastActivity: formatAge(latestRun?.createdAt),
+        actDot: latestRun && latestRun.createdAt >= daysAgo(2) ? "var(--success)" : "var(--text-faint)",
+        spark: sparkFn(recentHealth.length ? recentHealth : [health, health]),
+        sparkColor: recentHealth.at(-1)! >= recentHealth[0] ? "var(--success)" : "var(--danger)",
+        iconBg,
+        iconColor,
+      };
+    })
+    .sort((a, b) => b.health - a.health || b.cases - a.cases)
+    .map((project, index) => ({ ...project, rank: index + 1 }));
+
+  const dayKeys = Array.from({ length: timeframe }, (_, index) => dateKey(daysAgo(timeframe - 1 - index)));
+  const heat: HeatRow[] = projects.map((project) => {
+    const daily = projectDailyMap.get(project.code);
+    return {
+      name: project.name,
+      cells: dayKeys.map((day) => {
+        const value = daily?.get(day);
+        const rate = value?.total ? Math.round((value.passed / value.total) * 100) : null;
+        return { rate, varRef: heatColor(rate) };
+      }),
+    };
+  });
+
+  const caseRiskMap = new Map<string, { title: string; proj: string; failed: number; total: number }>();
+  for (const result of currentResults) {
+    const key = result.testCase.id;
+    const item = caseRiskMap.get(key) || { title: result.testCase.title, proj: result.testRun.project.code, failed: 0, total: 0 };
+    item.total += 1;
+    if (result.status === "FAILED" || result.status === "BLOCKED") item.failed += 1;
+    caseRiskMap.set(key, item);
+  }
+  const topFailing = [...caseRiskMap.values()]
+    .filter((item) => item.failed > 0)
+    .sort((a, b) => b.failed / b.total - a.failed / a.total)
+    .slice(0, 4)
+    .map<RiskItem>((item) => {
+      const [projBg, projColor] = projectBadgeTone(item.proj);
+      return {
+        proj: item.proj,
+        title: item.title,
+        metric: formatPct((item.failed / item.total) * 100),
+        metricColor: "var(--danger)",
+        projBg,
+        projColor,
+        href: `/projects/${item.proj}/repository`,
+      };
+    });
+  const openDefects = linkedIssues
+    .filter((issue) => !issue.status || !/closed|done|resolved|fixed/i.test(issue.status))
+    .slice(0, 4)
+    .map<RiskItem>((issue) => {
+      const [projBg, projColor] = projectBadgeTone(issue.project.code);
+      return {
+        proj: issue.project.code,
+        title: issue.summary,
+        metric: issue.severity || issue.key,
+        metricColor: issue.severity === "P1" || issue.severity === "BLOCKER" ? "var(--danger)" : "var(--warning)",
+        projBg,
+        projColor,
+        href: issue.url || `/dashboards`,
+      };
+    });
+  const riskCards = [
+    { title: selectedProject ? "Top failing — selected project" : "Top failing — across all projects", icon: TrendingDown, iconColor: "var(--danger)", badge: topFailing.length ? `${topFailing.length}` : "0", badgeBg: "var(--danger-soft)", badgeColor: "var(--danger)", items: topFailing },
+    { title: selectedProject ? "Open defects — selected project" : "Open defects — across all projects", icon: Bug, iconColor: "var(--warning)", badge: `${openDefects.length}`, badgeBg: "var(--warning-soft)", badgeColor: "var(--warning)", items: openDefects },
+  ];
+
+  const mywork: WorkItem[] = myPending.map((item) => {
+    const priority = priorityMeta(item.testCase.priority);
+    return {
+      title: item.testCase.title,
+      proj: item.testRun.project.name,
+      href: `/projects/${item.testRun.project.code}/runs/${item.testRun.id}`,
+      statusIcon: Circle,
+      statusColor: "var(--skip)",
+      priIcon: priority.icon,
+      priColor: priority.color,
+    };
+  });
+
+  const activity: ActivityItem[] = auditLogs.map((entry) => ({
+    who: entry.user?.name || entry.user?.email || "System",
+    action: entry.action.toLowerCase().replaceAll("_", " "),
+    proj: entry.project.code,
+    when: formatAge(entry.createdAt),
+    icon: entry.action.includes("DELETE") ? XCircle : entry.action.includes("CREATE") ? CheckSquare : Activity,
+    iconBg: entry.action.includes("DELETE") ? "var(--danger-soft)" : "var(--primary-soft)",
+    iconColor: entry.action.includes("DELETE") ? "var(--danger)" : "var(--primary-text)",
+  }));
+
+  const schedules: ScheduleItem[] = schedulesData.map((schedule) => ({
+    name: schedule.title,
+    proj: schedule.project.name,
+    cron: schedule.cron,
+    when: "active",
+    icon: scheduleIcon(schedule.cron),
+  }));
+  const scopeLabel = selectedProject ? "selected project" : "all projects";
+
   return (
-    <div
-      className={`${inter.className} flex min-h-0 flex-1 flex-col bg-white text-[14px] leading-[1.45] text-black`}
-      style={{
-        background: "#fff",
-        ["--bg" as string]: "var(--bg-background)",
-        ["--surface" as string]: "var(--bg-surface)",
-        ["--surface-2" as string]: "var(--bg-surface-hover)",
-        ["--border" as string]: "var(--border-color)",
-        ["--text" as string]: "var(--text-main)",
-        ["--pass" as string]: "var(--success)",
-        ["--pass-soft" as string]: "var(--success-soft)",
-        ["--fail" as string]: "var(--danger)",
-        ["--fail-soft" as string]: "var(--danger-soft)",
-        ["--warn" as string]: "var(--warning)",
-        ["--warn-soft" as string]: "var(--warning-soft)",
-        ["--info-soft-fill" as string]: "var(--info-soft)",
-      }}
-    >
-      <div className="flex-1 overflow-y-auto">
-        <main className="mx-auto w-full max-w-[1320px] p-5">
-          <header className="mb-[18px] flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <div className="flex items-center gap-[11px]">
-                <h1 className="text-[21px] font-semibold tracking-[-0.015em]">QA Overview</h1>
-                <span className="rounded-full bg-surface-hover px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.05em] text-text-muted">Portfolio</span>
-              </div>
-              <p className="mt-[3px] text-[13px] text-text-muted">Quality across all 8 projects · last 30 days</p>
+    <div className={`${inter.className} min-h-screen bg-background text-[14px] leading-[1.45] text-text-main antialiased`}>
+      <div className="mx-auto w-full max-w-[1320px] p-[20px]">
+        <div className="mb-[18px] flex items-end justify-between">
+          <div>
+            <div className="flex items-center gap-[9px]">
+              <span className="text-[21px] font-semibold tracking-[-0.015em]">QA Overview</span>
+              <span className="rounded-full bg-surface-hover px-[8px] py-[2px] text-[10.5px] font-bold uppercase tracking-[0.05em] text-text-muted">Portfolio</span>
             </div>
-            <div className="flex items-center gap-2">
-              <button className="flex h-[34px] items-center gap-[7px] rounded-[9px] border border-border bg-surface px-3 text-[13px] font-medium text-black">
-                <Filter size={17} className="text-text-faint" />
-                All projects
-                <ChevronDown size={18} className="text-text-faint" />
-              </button>
-              <button className="flex h-[34px] items-center gap-[7px] rounded-[9px] border border-border bg-surface px-3 text-[13px] font-medium text-black">
-                <CalendarDays size={17} className="text-text-faint" />
-                30 days
-                <ChevronDown size={18} className="text-text-faint" />
-              </button>
-            </div>
-          </header>
+            <div className="mt-[3px] text-[13px] text-text-muted">Quality across {selectedProject ? projectData[0]?.name || selectedProject : `all ${projectData.length} projects`} · last {timeframe} days</div>
+          </div>
+          <DashboardFilters projects={allProjectsForFilter} selectedProject={selectedProject} timeframe={timeframe} />
+        </div>
 
-          <section className="mb-[14px] grid grid-cols-1 gap-[14px] sm:grid-cols-2 xl:grid-cols-4">
-            {orgKpis.map((kpi) => {
-              const Icon = kpi.icon;
-              return (
-                <div key={kpi.label}>
-                  <div className="flex items-center gap-[7px] text-[12.5px] font-medium text-text-muted">
-                    <Icon size={16} className="text-text-faint" />
-                    {kpi.label}
-                  </div>
-                  <div className="mt-[9px] flex items-end justify-between">
-                    <div className="text-[27px] font-semibold tracking-[-0.02em] tabular-nums">{kpi.value}</div>
-                  </div>
-                  <div className="mt-[6px] flex items-center gap-1 text-[12px] font-semibold text-black">
-                    <ArrowUp size={15} />
-                    {kpi.delta}
-                    <span className="font-normal text-text-faint">vs prev</span>
-                  </div>
+        <div className="mb-[14px] grid grid-cols-4 gap-[14px]">
+          {orgKpis.map((k, i) => {
+            const Icon = k.icon;
+            const Arrow = k.arrow;
+            return (
+              <div key={i} className="rounded-[12px] border border-border bg-surface p-[15px_16px] shadow-sm">
+                <div className="flex items-center gap-[7px] text-[12.5px] font-medium text-text-muted">
+                  <Icon size={16} className="text-text-faint" />
+                  {k.label}
                 </div>
-              );
-            })}
-          </section>
+                <div className="mt-[9px] flex items-end justify-between">
+                  <div className="text-[27px] font-semibold tabular-nums tracking-[-0.02em]">{k.value}</div>
+                  <svg width="78" height="26" viewBox="0 0 78 26" className="overflow-visible">
+                    <polyline points={k.spark} fill="none" stroke={k.sparkColor} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="mt-[6px] flex items-center gap-[4px] text-[12px] font-semibold" style={{ color: k.deltaColor }}>
+                  <Arrow size={15} />
+                  {k.delta}
+                  <span className="font-normal text-text-faint">{k.suffix}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
-          <section className="mb-[14px]">
-            <div className="mb-[14px] flex items-center justify-between">
-              <h2 className="text-[14px] font-semibold">Projects, ranked by health</h2>
-              <span className="text-[12px] text-text-faint">click a project to open its overview</span>
-            </div>
-            <div className="grid grid-cols-[24px_1.9fr_96px_150px_110px_130px_96px_28px] gap-3 px-[18px] py-2 text-[10px] font-semibold uppercase tracking-[0.05em] text-text-faint max-lg:hidden">
-              <div>#</div><div>Project</div><div>Health</div><div>Automation</div><div>Runs</div><div>Last activity</div><div>Trend</div><div />
-            </div>
-            {projects.map((project) => {
-              return (
-                <Link
-                  key={project.abbr}
-                  href="/projects/PRO/dashboards"
-                  className="grid grid-cols-[24px_1.9fr_96px_150px_110px_130px_96px_28px] items-center gap-3 px-[18px] py-3 max-lg:grid-cols-[36px_1fr_auto] max-lg:gap-x-3"
-                  style={{ background: "transparent" }}
-                >
-                  <div className="text-[12px] font-bold tabular-nums text-black">{project.rank}</div>
+        <div className="mb-[14px] overflow-hidden rounded-[12px] border border-border bg-surface shadow-sm">
+          <div className="flex items-center justify-between p-[14px_18px]">
+            <div className="text-[14.5px] font-semibold">Projects, ranked by health</div>
+            <span className="text-[12px] text-text-faint">click a project to open its overview</span>
+          </div>
+          <div className="overflow-x-auto">
+            <div className="min-w-[880px]">
+              <div className="grid grid-cols-[24px_1.9fr_96px_150px_110px_130px_96px_28px] gap-[12px] border-y border-border p-[8px_18px] text-[10px] font-semibold uppercase tracking-[0.05em] text-text-faint">
+                <div>#</div><div>Project</div><div>Health</div><div>Automation</div><div>Runs</div><div>Last activity</div><div>Trend</div><div />
+              </div>
+              {projects.length ? projects.map((p) => (
+                <Link href={`/projects/${p.code}/dashboards`} key={p.code} className="grid grid-cols-[24px_1.9fr_96px_150px_110px_130px_96px_28px] items-center gap-[12px] border-b border-border p-[12px_18px] transition-colors hover:bg-surface-hover">
+                  <div className="text-[12px] font-bold tabular-nums text-text-faint">{p.rank}</div>
                   <div className="flex min-w-0 items-center gap-[11px]">
-                    <div className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-[8px] text-[12px] font-bold" style={project.rank === 2 || project.rank === 3 ? { background: "#dbeafe", color: "black" } : { color: "black" }}>{project.abbr}</div>
+                    <div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[8px] text-[12px] font-bold" style={{ background: p.iconBg, color: p.iconColor }}>{p.abbr}</div>
                     <div className="min-w-0">
-                      <div className="truncate text-[13px] font-semibold">{project.name}</div>
-                      <div className="text-[10.5px] text-text-faint">{project.cases} cases · {project.suites} suites</div>
+                      <div className="truncate text-[13px] font-semibold">{p.name}</div>
+                      <div className="text-[10.5px] text-text-faint">{p.cases} cases · {p.suites} suites</div>
                     </div>
                   </div>
-                  <div><span className="text-[12px] font-bold tabular-nums text-black">{project.health}%</span></div>
-                  <div className="text-[12px] font-bold tabular-nums text-black max-lg:hidden">{project.auto}%</div>
-                  <div className="text-[12.5px] tabular-nums text-black max-lg:hidden"><span className="font-bold">{project.activeRuns}</span><span> / {project.totalRuns}</span></div>
-                  <div className="text-[11.5px] text-text-muted max-lg:hidden">{project.lastActivity}</div>
-                  <div className="max-lg:hidden" />
-                  <ChevronRight size={18} className="justify-self-end text-black max-lg:hidden" />
+                  <div><span className="rounded-full p-[3px_9px] text-[11.5px] font-bold tabular-nums" style={{ background: p.healthBg, color: p.healthColor }}>{p.health}%</span></div>
+                  <div className="flex items-center gap-[8px]"><div className="h-[5px] flex-1 overflow-hidden rounded-[3px] bg-surface-hover"><div className="h-full bg-primary" style={{ width: p.autow }} /></div><span className="text-[11.5px] font-semibold tabular-nums text-text-muted">{p.auto}%</span></div>
+                  <div className="text-[12.5px] tabular-nums"><span className="font-bold text-primary">{p.activeRuns}</span><span className="text-text-faint"> / {p.totalRuns}</span></div>
+                  <div className="flex items-center gap-[6px] text-[11.5px] text-text-muted"><span className="h-[6px] w-[6px] rounded-full" style={{ background: p.actDot }} />{p.lastActivity}</div>
+                  <div><svg width="78" height="24" viewBox="0 0 78 26" preserveAspectRatio="none" className="overflow-visible"><polyline points={p.spark} fill="none" stroke={p.sparkColor} strokeWidth="1.6" strokeLinejoin="round" strokeLinecap="round" /></svg></div>
+                  <div className="flex justify-center text-text-faint"><ChevronRight size={18} /></div>
                 </Link>
-              );
-            })}
-          </section>
-
-          <section className="mb-[14px]">
-            <div className="mb-[14px] flex items-center justify-between gap-4">
-              <h2 className="text-[14px] font-semibold">Quality grid <span className="text-[12.5px] font-normal text-text-faint">· daily pass rate per project · 30d</span></h2>
-              <div className="flex items-center gap-1.5 text-[11px] text-text-faint">low<span>high</span></div>
+              )) : <div className="p-[28px_18px] text-center text-[13px] text-text-muted">No projects yet.</div>}
             </div>
-            <div className="flex flex-col gap-1.5">
-              {heat.map((row) => (
-                <div key={row.name} className="flex items-center gap-2.5">
-                  <div className="w-24 shrink-0 truncate text-right text-[12px] text-text-muted">{row.name}</div>
-                  <div className="flex flex-1 gap-[3px] opacity-0">{row.cells.map((cell, index) => <div key={index} title={`${cell.rate}% pass`} className="h-4 flex-1 rounded-[3px]" style={{ background: `var(--heat-${cell.tier})` }} />)}</div>
-                </div>
-              ))}
-            </div>
-          </section>
+          </div>
+        </div>
 
-          <section className="mb-[14px] grid grid-cols-1 gap-[14px] lg:grid-cols-2">
-            {riskCards.map((card) => {
-              const Icon = card.icon;
-              return (
-                <div key={card.title}>
-                  <div className="mb-1.5 flex items-center gap-2">
-                    <Icon size={17} className="text-text-muted" />
-                    <h2 className="text-[14px] font-semibold">{card.title}</h2>
-                    <span className="ml-auto text-[11px] font-bold text-black">{card.badge}</span>
-                  </div>
-                  {card.items.map((item) => {
-                    const [bg, color] = projectBadgeColor(item.proj);
-                    return <div key={item.title} className="flex items-center gap-1.5 py-[10px]"><span className="shrink-0 rounded-md px-[7px] py-px text-[10px] font-bold" style={{ background: item.proj === "CW" ? bg : "transparent", color: item.proj === "CW" ? color : "black" }}>{item.proj}</span><span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-black">{item.title}</span><span className="text-[12px] font-bold tabular-nums text-black">{item.metric}</span></div>;
-                  })}
-                </div>
-              );
-            })}
-          </section>
-
-          <section className="grid grid-cols-1 gap-[14px] xl:grid-cols-3">
-            <div>
-              <div className="mb-[13px] flex items-center justify-between"><h2 className="text-[14px] font-semibold">My work <span className="text-[12px] font-normal text-text-faint">· all projects</span></h2><span className="rounded-full bg-[#dbeafe] px-2 py-px text-[11px] font-bold text-black">{mywork.length}</span></div>
-              {mywork.map((work) => { const Status = work.status; return <div key={work.title} className="flex items-center gap-2.5 py-2.5"><Status size={17} className="text-black" /><div className="min-w-0 flex-1"><div className="truncate text-[13px] font-semibold text-black">{work.title}</div><div className="text-[10.5px] text-text-faint">{work.proj}</div></div><span className="text-[11px] font-bold text-black">{work.pri === "keyboard_double_arrow_up" ? "⌃" : work.pri === "drag_handle" ? "=" : "⌄"}</span></div>; })}
-            </div>
-
-            <div>
-              <h2 className="mb-[13px] text-[14px] font-semibold">Org activity</h2>
-              {activity.map((entry) => { const Icon = entry.icon; return <div key={entry.who + entry.when} className="flex gap-[11px] pb-[14px]"><div className="flex shrink-0 flex-col items-center"><div className="flex h-[26px] w-[26px] items-center justify-center rounded-full bg-transparent text-black"><Icon size={14} /></div></div><div className="min-w-0"><div className="truncate text-[12px] text-text-faint"><span className="font-semibold">{entry.who}</span> <span>{entry.action}</span></div><div className="mt-1 text-[10.5px] text-text-faint">{entry.proj} · {entry.when}</div></div></div>; })}
-            </div>
-
-            <div>
-              <h2 className="mb-[13px] text-[14px] font-semibold">Upcoming schedules <span className="text-[12px] font-normal text-text-faint">· all projects</span></h2>
-              <div className="flex flex-col gap-3">
-                {schedules.map((schedule) => { const Icon = schedule.icon; return <div key={schedule.name} className="flex items-center gap-2.5"><div className="grid h-[30px] w-[30px] shrink-0 place-items-center"><Icon size={17} className="text-text-muted" /></div><div className="min-w-0 flex-1"><div className="truncate text-[13px] font-semibold text-black">{schedule.name}</div><div className="truncate text-[10.5px] text-text-faint">{schedule.proj} · <span className="font-mono">{schedule.cron}</span></div></div><span className="text-[11px] font-bold text-black">{schedule.when}</span></div>; })}
+        <div className="mb-[14px] rounded-[12px] border border-border bg-surface p-[16px] shadow-sm">
+          <div className="mb-[14px] flex items-center justify-between">
+            <div className="text-[14.5px] font-semibold">Quality grid <span className="text-[12.5px] font-normal text-text-faint">· daily pass rate per project · {timeframe}d</span></div>
+            <div className="flex items-center gap-[6px] text-[11px] text-text-faint">low<span className="h-[11px] w-[11px] rounded-[3px] bg-[var(--heat-0)]" /><span className="h-[11px] w-[11px] rounded-[3px] bg-[var(--heat-2)]" /><span className="h-[11px] w-[11px] rounded-[3px] bg-[var(--heat-4)]" />high</div>
+          </div>
+          <div className="flex flex-col gap-[6px]">
+            {heat.length ? heat.map((row, i) => (
+              <div key={i} className="flex items-center gap-[10px]">
+                <div className="w-[96px] shrink-0 truncate text-right text-[12px] text-text-muted">{row.name}</div>
+                <div className="flex flex-1 gap-[3px]">{row.cells.map((c, j) => <div key={j} title={c.rate === null ? "No runs" : `${c.rate}% pass`} className="h-[16px] flex-1 rounded-[3px]" style={{ background: c.varRef }} />)}</div>
               </div>
+            )) : <div className="py-6 text-center text-[13px] text-text-muted">No execution data in the last 30 days.</div>}
+          </div>
+        </div>
+
+        <div className="mb-[14px] grid grid-cols-2 gap-[14px]">
+          {riskCards.map((rc, i) => {
+            const Icon = rc.icon;
+            return (
+              <div key={i} className="rounded-[12px] border border-border bg-surface p-[16px] shadow-sm">
+                <div className="mb-[6px] flex items-center gap-[8px]"><Icon size={18} style={{ color: rc.iconColor }} /><span className="text-[14px] font-semibold">{rc.title}</span><span className="ml-auto rounded-full p-[1px_8px] text-[11px] font-bold" style={{ background: rc.badgeBg, color: rc.badgeColor }}>{rc.badge}</span></div>
+                {rc.items.length ? rc.items.map((it, j) => (
+                  <Link key={j} href={it.href} className="flex items-center gap-[9px] border-t border-border py-[8px]">
+                    <span className="shrink-0 rounded-[6px] p-[1px_7px] text-[10px] font-bold" style={{ background: it.projBg, color: it.projColor }}>{it.proj}</span>
+                    <div className="min-w-0 flex-1 truncate text-[12.5px] font-medium">{it.title}</div>
+                    <span className="tabular-nums text-[12px] font-bold" style={{ color: it.metricColor }}>{it.metric}</span>
+                  </Link>
+                )) : <div className="border-t border-border py-[18px] text-[12.5px] text-text-muted">No items to review.</div>}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="grid grid-cols-3 gap-[14px]">
+          <div className="overflow-hidden rounded-[12px] border border-border bg-surface shadow-sm">
+            <div className="flex items-center justify-between border-b border-border p-[14px_16px]"><div className="text-[14px] font-semibold">My work <span className="text-[12px] font-normal text-text-faint">· {scopeLabel}</span></div><span className="rounded-full bg-primary-soft p-[2px_8px] text-[11px] font-bold text-primary">{mywork.length}</span></div>
+            {mywork.length ? mywork.map((m, i) => {
+              const StatusIcon = m.statusIcon;
+              const PriIcon = m.priIcon;
+              return <Link href={m.href} key={i} className="flex items-center gap-[10px] border-b border-border p-[10px_16px] last:border-b-0"><StatusIcon size={17} style={{ color: m.statusColor }} /><div className="min-w-0 flex-1"><div className="truncate text-[12.5px] font-medium">{m.title}</div><div className="text-[10.5px] text-text-faint">{m.proj}</div></div><PriIcon size={15} style={{ color: m.priColor }} /></Link>;
+            }) : <div className="p-[18px_16px] text-[12.5px] text-text-muted">No assigned active work.</div>}
+          </div>
+
+          <div className="rounded-[12px] border border-border bg-surface p-[16px] shadow-sm">
+            <div className="mb-[13px] text-[14px] font-semibold">Org activity</div>
+            <div className="flex flex-col">
+              {activity.length ? activity.map((a, i) => {
+                const Icon = a.icon;
+                return <div key={i} className="flex gap-[11px]"><div className="flex shrink-0 flex-col items-center"><div className="flex h-[26px] w-[26px] items-center justify-center rounded-full" style={{ background: a.iconBg, color: a.iconColor }}><Icon size={14} /></div>{i !== activity.length - 1 && <div className="my-[3px] min-h-[8px] w-[2px] flex-1 bg-border" />}</div><div className="min-w-0 pb-[14px]"><div className="text-[12.5px]"><span className="font-semibold">{a.who}</span> <span className="text-text-muted">{a.action}</span></div><div className="mt-[2px] text-[10.5px] text-text-faint">{a.proj} · {a.when}</div></div></div>;
+              }) : <div className="text-[12.5px] text-text-muted">No recent activity.</div>}
             </div>
-          </section>
-        </main>
+          </div>
+
+          <div className="rounded-[12px] border border-border bg-surface p-[16px] shadow-sm">
+            <div className="mb-[13px] text-[14px] font-semibold">Upcoming schedules <span className="text-[12px] font-normal text-text-faint">· {scopeLabel}</span></div>
+            <div className="flex flex-col gap-[12px]">
+              {schedules.length ? schedules.map((s, i) => {
+                const Icon = s.icon;
+                return <div key={i} className="flex items-center gap-[10px]"><div className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[8px] bg-surface-hover"><Icon size={17} className="text-text-muted" /></div><div className="min-w-0 flex-1"><div className="truncate text-[12.5px] font-medium">{s.name}</div><div className="text-[10.5px] text-text-faint">{s.proj} · <span className="font-mono">{s.cron}</span></div></div><span className="text-[11px] font-bold text-primary">{s.when}</span></div>;
+              }) : <div className="text-[12.5px] text-text-muted">No active schedules.</div>}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,44 +1,49 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import {
+  getDevAdminCredentials,
+  requireDevRouteSecret,
+} from "@/lib/dev-route-auth";
 
 export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  if (searchParams.get("key") !== "recover-my-data-999") {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const authError = requireDevRouteSecret(req);
+  if (authError) return authError;
+
+  const credentials = getDevAdminCredentials();
+  if (!credentials) {
+    return NextResponse.json(
+      { error: "DEV_ADMIN_EMAIL and DEV_ADMIN_PASSWORD are required" },
+      { status: 503 },
+    );
   }
 
   try {
-    const passwordHash = await bcrypt.hash("password123", 10);
+    const passwordHash = await bcrypt.hash(credentials.password, 10);
 
     await prisma.user.upsert({
-      where: { email: "admin@example.com" },
+      where: { email: credentials.email },
       update: { passwordHash, name: "Admin User", role: "ADMIN" },
       create: {
-        email: "admin@example.com",
+        email: credentials.email,
         passwordHash,
         name: "Admin User",
         role: "ADMIN",
       },
     });
 
-    await prisma.user.upsert({
-      where: { email: "supat.tor@gmail.com" },
-      update: { passwordHash, name: "Supat T", role: "ADMIN" },
-      create: {
-        email: "supat.tor@gmail.com",
-        passwordHash,
-        name: "Supat T",
-        role: "ADMIN",
-      },
-    });
-
     return NextResponse.json({
       success: true,
-      message: "Admin users created/updated successfully!",
+      message: "Admin user created/updated successfully!",
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Admin user creation error:", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        error:
+          err instanceof Error ? err.message : "Failed to create admin user",
+      },
+      { status: 500 },
+    );
   }
 }

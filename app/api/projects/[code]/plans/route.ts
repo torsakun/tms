@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { requireProjectAccess } from "@/lib/project-route-auth";
 
 export async function GET(
   request: Request,
@@ -42,6 +43,9 @@ export async function POST(
 ) {
   try {
     const { code } = await params;
+    const access = await requireProjectAccess(code);
+    if (access instanceof NextResponse) return access;
+
     const body = await request.json();
     const { title, description, caseIds } = body;
 

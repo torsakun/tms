@@ -198,6 +198,7 @@ export default function TestCaseEditor() {
   const projectCode = params.code as string;
 
   const [customFieldsDef, setCustomFieldsDef] = React.useState<any[]>([]);
+  const [caseCode, setCaseCode] = React.useState<string>("");
 
   useEffect(() => {
     if (!projectCode) return;
@@ -227,6 +228,11 @@ export default function TestCaseEditor() {
         const res = await fetch(`/api/cases/${caseId}`);
         if (res.ok) {
           const data = await res.json();
+          setCaseCode(
+            data.sequenceNumber
+              ? `${projectCode}-${data.sequenceNumber}`
+              : data.title || "",
+          );
           reset({
             title: data.title,
             severity: data.severity || "NORMAL",
@@ -298,7 +304,7 @@ export default function TestCaseEditor() {
             <X size={20} className="text-text-muted" />
           </button>
           <h1 className="text-xl font-semibold text-text-main">
-            Edit test case {caseId}
+            Edit test case{caseCode ? ` · ${caseCode}` : ""}
           </h1>
         </div>
         <div className="flex items-center space-x-3">

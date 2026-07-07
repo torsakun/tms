@@ -5,29 +5,34 @@ import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   XCircle,
-  MinusCircle,
   RefreshCw,
   RotateCcw,
   ArrowLeft,
-  Eye,
-  Edit3,
-  VolumeX,
-  Settings,
   ChevronRight,
+  ChevronLeft,
   ChevronDown,
+  ChevronsUp,
+  ChevronDown as ChevronDownIcon,
+  Minus,
   Clock,
   X,
-  PlayCircle,
-  Check,
   Share,
-  Download,
+  MoreVertical,
   MoreHorizontal,
   Loader2,
   Terminal,
   BarChart2,
-  Edit,
   FileText,
   Bug,
+  Search,
+  SlidersHorizontal,
+  Image as ImageIcon,
+  ImageOff,
+  Ban,
+  SkipForward,
+  Circle,
+  GitBranch,
+  Play,
 } from "lucide-react";
 import { ReportBugModal } from "./ReportBugModal";
 import { toast } from "sonner";
@@ -128,6 +133,38 @@ interface RunExecutionClientProps {
   runId: string;
 }
 
+// ── Status visual map (lucide icon + real design tokens) ──
+// Maps the design's --pass/--fail/--warn/--skip onto the app's
+// --success/--danger/--warning/--skip tokens.
+type StatusVisual = {
+  Icon: React.ComponentType<any>;
+  color: string;
+  soft: string;
+  label: string;
+};
+function statusVisual(status?: string): StatusVisual {
+  switch (status) {
+    case "PASSED":
+      return { Icon: CheckCircle2, color: "var(--success)", soft: "var(--success-soft)", label: "Pass" };
+    case "FAILED":
+      return { Icon: XCircle, color: "var(--danger)", soft: "var(--danger-soft)", label: "Fail" };
+    case "BLOCKED":
+      return { Icon: Ban, color: "var(--warning)", soft: "var(--warning-soft)", label: "Block" };
+    case "SKIPPED":
+      return { Icon: SkipForward, color: "var(--skip)", soft: "var(--skip-soft)", label: "Skip" };
+    default:
+      return { Icon: Circle, color: "var(--text-faint)", soft: "transparent", label: "—" };
+  }
+}
+function priorityVisual(priority?: string) {
+  const p = (priority || "MEDIUM").toUpperCase();
+  if (p === "HIGH" || p === "CRITICAL")
+    return { Icon: ChevronsUp, color: "var(--danger)", soft: "var(--danger-soft)", label: "High" };
+  if (p === "LOW" || p === "TRIVIAL")
+    return { Icon: ChevronDownIcon, color: "var(--text-faint)", soft: "var(--surface-2, var(--bg-surface-hover))", label: "Low" };
+  return { Icon: Minus, color: "var(--warning)", soft: "var(--warning-soft)", label: "Medium" };
+}
+
 function ResultRow({
   result,
   depth,
@@ -157,243 +194,80 @@ function ResultRow({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "PASSED":
-        return "bg-success text-white shadow-sm";
-      case "FAILED":
-        return "bg-danger text-white shadow-md";
-      case "BLOCKED":
-        return "bg-warning text-[var(--neutral-950)] shadow-sm";
-      case "SKIPPED":
-        return "bg-skip text-white shadow-sm";
-      default:
-        return "bg-skip-soft text-skip-foreground border border-border";
-    }
-  };
+  const st = statusVisual(result.status);
+  const pri = priorityVisual(result.testCase.priority);
 
   const handleAssignToMe = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setMenuOpen(false);
-    if (!currentUser?.id) {
-      toast.error("You must be signed in to assign cases");
-      return;
-    }
-    onUpdateAssignee(result.id, {
-      id: currentUser.id,
-      name: currentUser.name,
-      email: currentUser.email,
-    });
-    try {
-      await fetch(`/api/runs/${runId}/results/${result.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assigneeId: currentUser.id }),
-      });
-    } catch (err) {
-      console.error(err);
-    }
+    if (!currentUser?.id) return;
+    onUpdateAssignee(result.id, { id: currentUser.id, name: currentUser.name, email: currentUser.email });
+    fetch(`/api/runs/${runId}/results/${result.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ assigneeId: currentUser.id }) });
   };
-
   const handleUnassign = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setMenuOpen(false);
     onUpdateAssignee(result.id, null);
-    try {
-      await fetch(`/api/runs/${runId}/results/${result.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assigneeId: null }),
-      });
-    } catch (err) {
-      console.error(err);
-    }
+    fetch(`/api/runs/${runId}/results/${result.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ assigneeId: null }) });
   };
-
   const handleDelete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setMenuOpen(false);
-    if (
-      !confirm("Are you sure you want to remove this test case from the run?")
-    )
-      return;
+    if (!confirm("Are you sure?")) return;
     onDelete(result.id);
-    try {
-      await fetch(`/api/runs/${runId}/results/${result.id}`, {
-        method: "DELETE",
-      });
-    } catch (err) {
-      console.error(err);
-    }
+    fetch(`/api/runs/${runId}/results/${result.id}`, { method: "DELETE" });
   };
-
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
     setMenuOpen(false);
     router.push(`/projects/${projectCode}/cases/${result.testCase.id}/edit`);
   };
 
-  const leftPadding = depth * 24 + 16;
-  const paddingLeftVal = isSelected ? `${leftPadding - 4}px` : `${leftPadding}px`;
+  const leftPadding = depth * 24 + 14;
 
   return (
     <div
       onClick={() => openResult(result)}
-      className={`flex items-center group cursor-pointer border-b border-border last:border-0 transition-all duration-200 ${
-        isSelected
-          ? "bg-primary-light/70 border-l-4 border-primary shadow-xs"
-          : "hover:bg-primary-light/35 bg-surface border-l-4 border-transparent hover:border-l-primary/30"
-      }`}
-      style={{ paddingLeft: paddingLeftVal }}
+      className="flex items-center gap-[11px] border-b border-border transition-colors cursor-pointer relative group"
+      style={{
+        padding: `11px 14px 11px ${leftPadding}px`,
+        background: isSelected ? "var(--primary-light)" : "transparent",
+        boxShadow: isSelected ? "inset 3px 0 0 var(--primary)" : "none"
+      }}
     >
-      <div className="py-2 px-3 flex items-center w-full relative">
-        <input
-          type="checkbox"
-          className="w-4 h-4 mr-4 rounded border-border text-primary focus:ring-primary/20"
-          onClick={(e) => e.stopPropagation()}
-        />
-        <div className="mr-2 w-4 flex justify-center items-center shrink-0">
-          {renderPriorityIcon(result.testCase.priority)}
-        </div>
-        <div className="w-12 text-text-muted text-xs font-mono mr-2 flex items-center">
-          <div
-            className={`w-1.5 h-4 rounded-full mr-2 ${result.status === "PASSED" ? "bg-success" : result.status === "FAILED" ? "bg-danger" : result.status === "BLOCKED" ? "bg-warning" : result.status === "SKIPPED" ? "bg-skip" : "bg-background border border-border"}`}
-          />
-          {result.testCase.sequenceNumber ||
-            result.testCase.id.substring(0, 4).toUpperCase()}
-        </div>
-        <div className="flex-1 flex items-center">
-          <span
-            className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-extrabold rounded-full uppercase tracking-wider mr-3 transition-all ${getStatusColor(result.status)}`}
-          >
-            {result.status === "IN_PROGRESS" && (
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-skip opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-skip"></span>
-              </span>
-            )}
-            {result.status === "IN_PROGRESS"
-              ? "Untested"
-              : result.status}
-          </span>
-          <span
-            className={`text-[14px] ${isSelected ? "text-primary font-bold" : "text-text-main font-normal group-hover:text-primary transition-colors"}`}
-          >
-            {result.testCase.title}
-          </span>
-        </div>
-        {result.status !== "IN_PROGRESS" && result.updatedAt && (
-          <span
-            className="hidden lg:flex items-center gap-1 text-[11px] text-text-muted whitespace-nowrap mr-3 shrink-0"
-            title={`Executed ${new Date(result.updatedAt).toLocaleString()}`}
-          >
-            <Clock size={11} />
-            {new Date(result.updatedAt).toLocaleDateString("en-GB", {
-              day: "2-digit",
-              month: "short",
-            })}
-          </span>
-        )}
-        {!isDetailsOpen && (
-          <div className="w-48 flex items-center justify-between shrink-0">
-            <div className="flex items-center">
-              {result.assigneeId ? (
-                (() => {
-                  const a = userMeta(result.assignee);
-                  return (
-                    <>
-                      <div
-                        className="w-6 h-6 rounded-full text-[10px] text-white flex items-center justify-center font-bold mr-2 shrink-0"
-                        style={{ background: a.color }}
-                      >
-                        {a.initials}
-                      </div>
-                      <span className="text-xs text-text-muted truncate w-24">
-                        {a.display}
-                      </span>
-                    </>
-                  );
-                })()
-              ) : (
-                <span className="text-xs text-text-muted italic opacity-70">
-                  Unassigned
-                </span>
-              )}
-            </div>
-            <div className="relative" ref={menuRef}>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setMenuOpen(!menuOpen);
-                }}
-                className="p-1 text-text-muted hover:text-text-main hover:bg-surface-hover rounded transition-all"
-              >
-                <MoreHorizontal size={16} />
-              </button>
-              {menuOpen && (
-                <div className="absolute right-0 top-full mt-1 w-40 qm-panel z-50 py-1 overflow-hidden">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setMenuOpen(false);
-                      openResult(result);
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
-                  >
-                    Run wizard
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setMenuOpen(false);
-                      onAssignClick(result.id);
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
-                  >
-                    Assign
-                  </button>
-                  <button
-                    onClick={handleAssignToMe}
-                    className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
-                  >
-                    Assign to me
-                  </button>
-                  <button
-                    onClick={handleUnassign}
-                    className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
-                  >
-                    Unassign case
-                  </button>
-                  <div className="h-px bg-border my-1"></div>
-                  <button
-                    onClick={handleEdit}
-                    className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
-                  >
-                    Edit case
-                  </button>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setMenuOpen(false);
-                      openResult(result);
-                    }}
-                    className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover"
-                  >
-                    View case
-                  </button>
-                  <div className="h-px bg-border my-1"></div>
-                  <button
-                    onClick={handleDelete}
-                    className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger-soft"
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+      <st.Icon size={18} className="shrink-0" style={{ color: st.color } as any} />
+      <div className="flex-1 min-w-0">
+        <div className="text-[13px] whitespace-nowrap overflow-hidden text-ellipsis text-text-main" style={{ fontWeight: isSelected ? "600" : "500" }}>{result.testCase.title}</div>
+        <div className="font-mono text-[10px] text-text-faint mt-[1px]">{projectCode}-{result.testCase.sequenceNumber || result.testCase.id.substring(0, 4).toUpperCase()}</div>
       </div>
+      <pri.Icon size={16} className="shrink-0" style={{ color: pri.color } as any} />
+      
+      {!isDetailsOpen && (
+        <div className="w-32 flex items-center justify-end shrink-0 gap-2 opacity-0 group-hover:opacity-100 transition-opacity absolute right-4">
+          {result.assigneeId ? (
+            <div className="w-5 h-5 rounded-full text-[9px] text-white flex items-center justify-center font-bold" style={{ background: userMeta(result.assignee).color }} title={userMeta(result.assignee).display}>
+              {userMeta(result.assignee).initials}
+            </div>
+          ) : null}
+          <div className="relative" ref={menuRef}>
+            <button onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }} className="text-text-muted hover:text-text-main flex items-center justify-center bg-surface border border-border rounded shadow-sm w-[24px] h-[24px]">
+              <MoreHorizontal size={16} />
+            </button>
+            {menuOpen && (
+              <div className="absolute right-0 top-full mt-1 w-40 bg-surface border border-border shadow-md z-50 py-1 rounded">
+                <button onClick={(e) => { e.stopPropagation(); setMenuOpen(false); openResult(result); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Run wizard</button>
+                <button onClick={(e) => { e.stopPropagation(); setMenuOpen(false); onAssignClick(result.id); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Assign</button>
+                <button onClick={handleAssignToMe} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Assign to me</button>
+                <button onClick={handleUnassign} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Unassign</button>
+                <div className="h-px bg-border my-1"></div>
+                <button onClick={handleEdit} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Edit case</button>
+                <div className="h-px bg-border my-1"></div>
+                <button onClick={handleDelete} className="w-full text-left px-4 py-2 text-[13px] text-danger hover:bg-danger-soft">Delete</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -520,6 +394,22 @@ export default function RunExecutionClient({
 
     return () => clearInterval(intervalId);
   }, [run?.status, runId]);
+
+  // Auto-select a case on load so the two-pane runner is always populated.
+  React.useEffect(() => {
+    if (activeResultId) return;
+    const results = run?.results || [];
+    if (results.length === 0) return;
+    const firstActionable =
+      results.find(
+        (r: any) => r.status === "IN_PROGRESS" || !r.status,
+      ) || results[0];
+    if (firstActionable) {
+      setActiveResultId(firstActionable.id);
+      setStepResults(firstActionable.stepResults || {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleAssignClick = (resultId: string) => {
     setAssigningResultId(resultId);
@@ -1214,6 +1104,27 @@ export default function RunExecutionClient({
   const activeResult = run.results.find((r: any) => r.id === activeResultId);
   const unassignedResults = resultsBySuiteId.get("unassigned") || [];
 
+  // Flat, ordered list of currently-visible results for prev/next navigation.
+  const flatVisibleResults = useMemo(() => {
+    const out: any[] = [];
+    const walk = (suiteId: string) => {
+      (resultsBySuiteId.get(suiteId) || []).forEach((r) => out.push(r));
+      (childrenMap.get(suiteId) || []).forEach((c) => walk(c.id));
+    };
+    out.push(...unassignedResults);
+    roots.forEach((s) => walk(s.id));
+    return out;
+  }, [resultsBySuiteId, childrenMap, roots, unassignedResults]);
+
+  const activeIndex = flatVisibleResults.findIndex((r) => r.id === activeResultId);
+  const goPrev = () => {
+    if (activeIndex > 0) openResult(flatVisibleResults[activeIndex - 1]);
+  };
+  const goNext = () => {
+    if (activeIndex >= 0 && activeIndex < flatVisibleResults.length - 1)
+      openResult(flatVisibleResults[activeIndex + 1]);
+  };
+
   const exportToCSV = () => {
     const headers = [
       "Case Code",
@@ -1518,1060 +1429,307 @@ export default function RunExecutionClient({
         </div>
       )}
 
-      <div className="flex h-[calc(100vh-4rem)] w-full bg-background overflow-hidden relative transition-colors">
-        {/* Main Suite/Case Tree View */}
-        <main
-          className={`flex-col min-w-0 bg-surface border-r transition-all duration-300 ease-in-out ${
-            activeResultId
-              ? "hidden lg:flex lg:w-[360px] xl:w-[400px] lg:shrink-0"
-              : "flex flex-1 w-full"
-          }`}
-          style={{ borderColor: "var(--border-color)" }}
-        >
-          <header
-            className="px-5 pt-4 pb-3 border-b bg-surface shadow-xs"
-            style={{
-              borderColor: "var(--border-color)",
-            }}
-          >
-            <div
-              className="flex items-center text-xs text-text-muted hover:text-text-main cursor-pointer transition-colors mb-3 gap-1.5"
-              onClick={() => router.push(`/projects/${projectCode}/runs`)}
-            >
-              <ArrowLeft size={14} />
-              Back to runs
+      <div className="w-full bg-background text-text-main font-sans text-[14px] leading-snug antialiased h-[calc(100vh-112px)] min-h-0 flex flex-col overflow-hidden">
+        {/* run context header */}
+        <div className="flex items-center gap-[14px] px-[20px] py-[13px] bg-surface border-b border-border shrink-0">
+          <button onClick={() => router.push(`/projects/${projectCode}/runs`)} className="text-text-faint hover:text-text-main transition-colors flex items-center" title="Back to runs"><ArrowLeft size={20} /></button>
+          <div>
+            <div className="flex items-center gap-[9px]">
+              <span className="font-semibold text-[15px]">{run.title}</span>
+              <span className="text-[11px] font-bold px-[8px] py-[2px] rounded-full bg-primary-light text-primary">{run.status}</span>
             </div>
-            <div className="flex flex-col gap-3 mb-2">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-[11px] font-semibold text-text-muted uppercase tracking-[0.12em] mb-1">
-                    Test execution
-                  </div>
-                  <h1 className="text-[22px] font-semibold text-text-main tracking-tight leading-tight">
-                  {run.title}
-                  </h1>
-                </div>
-                <div className="hidden xl:flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2">
-                  <div
-                    className="w-8 h-8 rounded-full"
-                    style={{ background: renderConicGradient() }}
-                  />
-                  <div>
-                    <div className="text-[18px] font-semibold text-text-main leading-none">
-                      {completionRate}%
-                    </div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-text-muted">
-                      complete
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className={`flex flex-wrap items-center gap-2 ${activeResultId ? "hidden" : ""}`}>
-                {run.reportUrl && (
-                  <Button
-                    size="md"
-                    onClick={() => setIsReportModalOpen(true)}
-                    className="bg-primary hover:bg-primary-hover text-primary-foreground shadow-sm"
-                  >
-                    <BarChart2 size={14} /> View Report
-                  </Button>
-                )}
-                <Button
-                  size="md"
-                  onClick={handleTriggerGitHub}
-                  loading={isTriggeringGitHub}
-                  className="bg-success hover:bg-success/90 text-white shadow-sm"
-                >
-                  {!isTriggeringGitHub && <Terminal size={14} />}
-                  {isTriggeringGitHub ? `Triggering...` : "Trigger GitHub Action"}
-                </Button>
-                <Button
-                  size="md"
-                  onClick={handleRunAllAutomated}
-                  loading={isExecutingAllAutomated}
-                  disabled={process.env.NEXT_PUBLIC_IS_DEMO === "true"}
-                  className="bg-warning hover:bg-warning/90 text-[var(--neutral-950)] shadow-sm"
-                  title={
-                    process.env.NEXT_PUBLIC_IS_DEMO === "true"
-                      ? "Local Playwright execution is disabled in Vercel Demo mode"
-                      : ""
-                  }
-                >
-                  {!isExecutingAllAutomated && <PlayCircle size={14} />}
-                  {isExecutingAllAutomated
-                    ? `Running (${automatedProgress.current}/${automatedProgress.total})`
-                    : "Run Local"}
-                </Button>
-                <Button size="md" onClick={handleOpenWizard}>
-                  <PlayCircle size={14} /> Open wizard
-                </Button>
-                {run.status === "COMPLETED" || run.status === "ABORTED" ? (
-                  <Button
-                    size="md"
-                    onClick={handleReopenRun}
-                    loading={isReopening}
-                    className="bg-warning hover:bg-warning/90 text-[var(--neutral-950)]"
-                  >
-                    {!isReopening && <RotateCcw size={14} />}
-                    Reopen
-                  </Button>
-                ) : (
-                  <Button size="md" onClick={() => setIsCompleteModalOpen(true)}>
-                    <Check size={14} /> Complete
-                  </Button>
-                )}
-                <div className="relative" ref={mainMenuRef}>
-                  <Button
-                    variant="secondary"
-                    size="md"
-                    iconOnly
-                    onClick={() => setMainMenuOpen(!mainMenuOpen)}
-                  >
-                    <MoreHorizontal size={14} />
-                  </Button>
-                  {mainMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-surface border border-border rounded-md shadow-lg z-50 overflow-hidden">
-                      <button
-                        onClick={() => {
-                          setIsShareModalOpen(true);
-                          setMainMenuOpen(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center transition-colors"
-                      >
-                        <Share size={14} className="mr-2 text-text-muted" />{" "}
-                        Share report
-                      </button>
-                      <button
-                        onClick={() => {
-                          setIsExportModalOpen(true);
-                          setMainMenuOpen(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center transition-colors border-b border-border"
-                      >
-                        <Download size={14} className="mr-2 text-text-muted" />{" "}
-                        Export
-                      </button>
-                      <button
-                        onClick={() =>
-                          router.push(
-                            `/projects/${projectCode}/runs/${runId}/edit`,
-                          )
-                        }
-                        className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center transition-colors"
-                      >
-                        <Edit size={14} className="mr-2 text-text-muted" /> Edit
-                        run
-                      </button>
-                      {failedCount > 0 && (
-                        <button
-                          onClick={handleRerunFailed}
-                          disabled={isRerunning}
-                          className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center transition-colors border-t border-border disabled:opacity-50"
-                        >
-                          {isRerunning ? (
-                            <Loader2
-                              size={14}
-                              className="mr-2 animate-spin text-text-muted"
-                            />
-                          ) : (
-                            <RotateCcw
-                              size={14}
-                              className="mr-2 text-text-muted"
-                            />
-                          )}
-                          Re-run failed ({failedCount})
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Metric Cards Row */}
-            <div className={`gap-2 mb-3 mt-2 ${activeResultId ? "hidden" : "grid grid-cols-1 md:grid-cols-4"}`}>
-              {/* Progress Card */}
-              <div 
-                onClick={() => setStatusFilter(null)}
-                className={`rounded-lg border p-3 flex items-center justify-between shadow-xs transition-all duration-200 cursor-pointer ${
-                  statusFilter === null
-                    ? "bg-primary-light border-primary/35 ring-1 ring-primary/20"
-                    : "bg-background border-border hover:border-primary/25"
-                }`}
-              >
-                <div className="flex flex-col">
-                  <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Completion rate</span>
-                  <div className="flex items-baseline gap-1.5 mt-1">
-                    <span className="text-lg font-extrabold text-text-main">{completionRate}%</span>
-                    <span className="text-[10px] text-text-muted">({runStats.total - runStats.untested}/{runStats.total})</span>
-                  </div>
-                  {/* Segmented Progress Bar */}
-                  <div className="flex h-1.5 w-32 rounded-full bg-skip-soft overflow-hidden mt-1.5 border border-border/50">
-                    {runStats.passed > 0 && (
-                      <div style={{ width: `${(runStats.passed / runStats.total) * 100}%` }} className="bg-success" />
-                    )}
-                    {runStats.failed > 0 && (
-                      <div style={{ width: `${(runStats.failed / runStats.total) * 100}%` }} className="bg-danger" />
-                    )}
-                    {runStats.blocked > 0 && (
-                      <div style={{ width: `${(runStats.blocked / runStats.total) * 100}%` }} className="bg-warning" />
-                    )}
-                    {runStats.skipped > 0 && (
-                      <div style={{ width: `${(runStats.skipped / runStats.total) * 100}%` }} className="bg-skip" />
-                    )}
-                  </div>
-                </div>
-                <div className="w-9 h-9 rounded-lg shrink-0 flex items-center justify-center bg-surface border border-border">
-                  <BarChart2 className="w-4 h-4 text-primary" />
-                </div>
-              </div>
-
-              {/* Status Card */}
-              <div 
-                className={`rounded-lg border p-3 flex items-center justify-between shadow-xs transition-all duration-200 ${
-                  completionRate === 100 
-                    ? "bg-success-soft border-success/25"
-                    : "bg-background border-border"
-                }`}
-              >
-                <div className="flex flex-col justify-center">
-                  <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Status</span>
-                  <div className="flex items-center gap-1.5 mt-1.5">
-                    {completionRate === 100 ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg bg-success-soft text-success-foreground bg-success-soft text-success-foreground border border-success/25">
-                        <CheckCircle2 size={12} className="text-success" />
-                        Completed
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-lg bg-primary-light text-primary bg-primary-light text-primary border border-primary/25">
-                        <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-                        </span>
-                        In Progress
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="w-9 h-9 rounded-lg shrink-0 flex items-center justify-center bg-surface border border-border">
-                  <Clock className="w-4 h-4 text-primary" />
-                </div>
-              </div>
-
-              {/* Started By Card */}
-              <div className="rounded-lg border p-3 flex items-center justify-between shadow-xs transition-all duration-200 bg-background border-border">
-                <div className="flex flex-col justify-center">
-                  <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Started by</span>
-                  {(() => {
-                    const a = userMeta((run as any).author);
-                    return (
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <div
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                          style={{ background: a.color }}
-                        >
-                          {a.initials}
-                        </div>
-                        <span className="text-xs text-text-main font-semibold truncate max-w-[120px]">
-                          {a.display}
-                        </span>
-                      </div>
-                    );
-                  })()}
-                </div>
-                <div className="w-9 h-9 rounded-lg shrink-0 flex items-center justify-center bg-info-soft border border-info/20">
-                  <Eye className="w-4 h-4 text-info" />
-                </div>
-              </div>
-
-              {/* Context Card (Env & Milestone) */}
-              <div className="rounded-lg border p-3 flex items-center justify-between shadow-xs transition-all duration-200 bg-background border-border">
-                <div className="flex flex-col justify-center min-w-0">
-                  <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider">Context</span>
-                  <div className="mt-1 space-y-0.5 min-w-0">
-                    <div className="text-xs text-text-main font-semibold truncate flex items-center gap-1">
-                      <span className="text-text-muted font-normal">Env:</span>
-                      {(run as any).environment?.title || "Not specified"}
-                    </div>
-                    {(run as any).milestone && (
-                      <div className="text-xs text-text-main font-semibold truncate flex items-center gap-1">
-                        <span className="text-text-muted font-normal">Milestone:</span>
-                        {(run as any).milestone.title}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="w-9 h-9 rounded-lg shrink-0 flex items-center justify-center bg-info-soft border border-info/20">
-                  <Settings className="w-4 h-4 text-info" />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-6 border-b border-border">
-              <div className="pb-3 border-b-2 border-primary text-primary font-semibold text-sm cursor-pointer transition-colors">
-                Test cases
-              </div>
-            </div>
-          </header>
-
-          {/* Toolbar */}
-          <div
-            className={`bg-surface border-b px-4 py-2 flex z-10 relative transition-all ${
-              activeResultId ? "flex-col items-stretch gap-2.5" : "flex-row items-center justify-between gap-4"
-            }`}
-            style={{ borderColor: "var(--border-color)" }}
-          >
-            <div className={`relative ${activeResultId ? "w-full" : "w-80"}`}>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search cases…"
-                className="w-full pl-3 pr-3 py-1.5 text-sm border border-border bg-surface-hover text-text-main rounded-lg focus:ring-2 focus:ring-primary/25 focus:outline-none transition-colors"
-              />
-            </div>
-
-            {/* Status Filter Tab Pills */}
-            <div className={`flex items-center bg-background border border-border rounded-lg p-0.5 shadow-xs overflow-x-auto ${activeResultId ? "flex-wrap justify-start gap-1" : ""}`}>
-              <button
-                onClick={() => setStatusFilter(null)}
-                className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
-                  statusFilter === null
-                    ? "bg-surface text-primary shadow-xs font-extrabold border border-border/40"
-                    : "text-text-muted hover:text-text-main hover:bg-surface-hover"
-                }`}
-              >
-                <span>All</span>
-                <span className="bg-skip-soft text-text-muted px-1.5 py-0.5 rounded text-[10px] font-semibold">
-                  {runStats.total}
-                </span>
-              </button>
-              <button
-                onClick={() => setStatusFilter("PASSED")}
-                className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
-                  statusFilter === "PASSED"
-                    ? "bg-success/10 text-success text-success-foreground shadow-xs font-extrabold border border-success/20"
-                    : "text-text-muted hover:text-success hover:bg-success/[0.04]"
-                }`}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-success" />
-                <span>Passed</span>
-                <span className="bg-success/10 text-success text-success-foreground px-1.5 py-0.5 rounded text-[10px] font-semibold">
-                  {runStats.passed}
-                </span>
-              </button>
-              <button
-                onClick={() => setStatusFilter("FAILED")}
-                className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
-                  statusFilter === "FAILED"
-                    ? "bg-danger/10 text-danger text-danger shadow-xs font-extrabold border border-danger/20"
-                    : "text-text-muted hover:text-danger hover:bg-danger/[0.04]"
-                }`}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-danger" />
-                <span>Failed</span>
-                <span className="bg-success/10 text-danger text-danger px-1.5 py-0.5 rounded text-[10px] font-semibold">
-                  {runStats.failed}
-                </span>
-              </button>
-              <button
-                onClick={() => setStatusFilter("BLOCKED")}
-                className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
-                  statusFilter === "BLOCKED"
-                    ? "bg-warning/10 text-warning-foreground text-warning-foreground shadow-xs font-extrabold border border-warning/20"
-                    : "text-text-muted hover:text-warning-foreground hover:bg-warning/[0.04]"
-                }`}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-warning" />
-                <span>Blocked</span>
-                <span className="bg-warning/10 text-warning-foreground text-warning-foreground px-1.5 py-0.5 rounded text-[10px] font-semibold">
-                  {runStats.blocked}
-                </span>
-              </button>
-              <button
-                onClick={() => setStatusFilter("SKIPPED")}
-                className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
-                  statusFilter === "SKIPPED"
-                    ? "bg-skip/10 text-skip-foreground text-skip-foreground shadow-xs font-extrabold border border-skip/20"
-                    : "text-text-muted hover:text-skip-foreground hover:bg-skip/[0.04]"
-                }`}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-skip" />
-                <span>Skipped</span>
-                <span className="bg-skip-soft text-skip-foreground text-skip-foreground px-1.5 py-0.5 rounded text-[10px] font-semibold">
-                  {runStats.skipped}
-                </span>
-              </button>
-              <button
-                onClick={() => setStatusFilter("IN_PROGRESS")}
-                className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${
-                  statusFilter === "IN_PROGRESS"
-                    ? "bg-skip/10 text-text-main shadow-xs font-extrabold border border-border"
-                    : "text-text-muted hover:text-text-main hover:bg-surface-hover"
-                }`}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-skip-soft border border-skip/40" />
-                <span>Untested</span>
-                <span className="bg-skip-soft text-text-muted px-1.5 py-0.5 rounded text-[10px] font-semibold">
-                  {runStats.untested}
-                </span>
-              </button>
-            </div>
+            <div className="font-mono text-[10px] text-text-faint mt-[2px]">RUN-{run.id.substring(0, 4)} · {(run as any).environment?.title || "No env"} · started {formatThaiTime(run.createdAt)}</div>
           </div>
+          <div className="flex-1" />
+          <div className="flex items-center gap-[14px]">
+            <div className="text-right">
+              <div className="text-[11px] text-text-faint">Progress</div>
+              <div className="font-bold tabular-nums">{runStats.passed + runStats.failed + runStats.blocked} / {runStats.total}</div>
+            </div>
+            <div className="w-[160px] h-[7px] rounded-[4px] bg-surface-hover overflow-hidden">
+              <div className="h-full bg-primary transition-all" style={{ width: `${completionRate}%` }} />
+            </div>
+            <div className="flex gap-[9px] text-[12px] font-semibold">
+              <span className="text-success">{runStats.passed} passed</span>
+              <span className="text-danger">{runStats.failed} failed</span>
+              <span className="text-warning">{runStats.blocked} blocked</span>
+            </div>
 
-          <div className="flex-1 overflow-y-auto pb-32 bg-background p-3 space-y-2">
-            {unassignedResults.length > 0 && (
-              <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden mb-3 hover:shadow transition-shadow duration-300">
-                <div className="flex items-center py-2.5 px-4 border-b border-border bg-gradient-to-r from-surface-hover/90 to-surface/80 hover:bg-primary-light/40 cursor-pointer group transition-colors">
-                  <span className="font-extrabold text-text-muted text-[11px] uppercase tracking-wider">
-                    Unassigned Cases
-                  </span>
-                </div>
-                <div className="flex flex-col bg-surface">
-                  {unassignedResults.map((r) => renderResultRow(r, 0))}
-                </div>
-              </div>
+            {run.status === "ACTIVE" ? (
+              <Button size="sm" onClick={() => setIsCompleteModalOpen(true)}>
+                <CheckCircle2 size={15} /> Complete run
+              </Button>
+            ) : (
+              <Button size="sm" variant="secondary" onClick={handleReopenRun} loading={isReopening}>
+                {!isReopening && <RotateCcw size={14} />} Reopen
+              </Button>
             )}
-            {roots.map((suite) => renderSuiteTree(suite, 0))}
-          </div>
-        </main>
 
-        {/* Execution Workspace Panel */}
-        <div
-          className={`bg-[color:oklch(0.165_0.012_264)] text-[var(--neutral-100)] flex flex-col border-l transition-all duration-300 ease-in-out ${activeResultId ? "w-full lg:flex-1 opacity-100" : "w-0 opacity-0 overflow-hidden border-l-transparent"}`}
-          style={{ borderColor: "var(--border-color)" }}
-        >
-          {activeResult && activeResult.testCase && (
-            <>
-              <header
-                className="flex items-start justify-between px-5 py-4 border-b border-white/10 bg-[color:oklch(0.145_0.012_264)] shrink-0"
-              >
-                <div className="flex items-start gap-3 min-w-0">
-                  <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${getStatusColor(activeResult.status)}`}
-                  >
-                    {activeResult.status === "PASSED" && (
-                      <CheckCircle2 size={17} />
-                    )}
-                    {activeResult.status === "FAILED" && <XCircle size={17} />}
-                    {activeResult.status === "BLOCKED" && (
-                      <MinusCircle size={17} />
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[11px] font-semibold text-primary-light border border-primary/30 bg-primary/15 px-2 py-0.5 rounded-md shrink-0">
-                        {projectCode}-
-                        {activeResult.testCase.sequenceNumber ||
-                          activeResult.testCase.id.substring(0, 4).toUpperCase()}
-                      </span>
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--neutral-400)]">
-                        Runner panel
-                      </span>
-                    </div>
-                    <h2 className="text-[20px] font-semibold text-white tracking-tight break-words leading-snug">
-                      {activeResult.testCase.title}
-                    </h2>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 ml-4 shrink-0">
-                  {(activeResult.status === "FAILED" ||
-                    activeResult.status === "BLOCKED") && (
-                    <button
-                      onClick={() => setReportingResult(activeResult)}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 rounded-lg shadow-sm bg-danger hover:bg-danger/90 transition-all"
-                    >
-                      <Bug size={13} /> Report bug
-                    </button>
-                  )}
-                  <button
-                    onClick={() => setActiveResultId(null)}
-                    className="text-[var(--neutral-400)] hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
-              </header>
-
-              <div className="flex-1 overflow-y-auto bg-[color:oklch(0.165_0.012_264)] pb-24">
-                <div
-                  className="border-b border-white/10 bg-[color:oklch(0.18_0.014_264)] px-6"
-                >
-                  <div className="flex gap-6">
-                    <button className="pb-3 pt-4 border-b-2 border-primary text-primary-light font-semibold text-sm">
-                      Execution
-                    </button>
-                  </div>
-                </div>
-
-                {/* Global Status Buttons */}
-                <div className="fixed bottom-0 left-0 right-0 lg:left-[360px] xl:left-[400px] z-40 px-5 py-4 border-t border-white/10 bg-[color:oklch(0.145_0.012_264)] shadow-[0_-18px_40px_rgba(0,0,0,0.34)]">
-                  <div className="grid grid-cols-4 gap-2">
-                    <button
-                      onClick={() => updateResult(activeResult.id, "PASSED")}
-                      className={`h-12 justify-center px-3 text-sm font-semibold rounded-lg border transition-all flex items-center gap-2 ${
-                        activeResult.status === "PASSED"
-                          ? "bg-success text-white border-success shadow-sm"
-                          : "bg-white/[0.04] text-success border-white/10 hover:bg-success-soft/20"
-                      }`}
-                    >
-                      <CheckCircle2 size={16} />
-                      Pass
-                    </button>
-                    <button
-                      onClick={() => updateResult(activeResult.id, "FAILED")}
-                      className={`h-12 justify-center px-3 text-sm font-semibold rounded-lg border transition-all flex items-center gap-2 ${
-                        activeResult.status === "FAILED"
-                          ? "bg-danger text-white border-danger shadow-sm"
-                          : "bg-white/[0.04] text-danger border-white/10 hover:bg-danger-soft/20"
-                      }`}
-                    >
-                      <XCircle size={16} />
-                      Fail
-                    </button>
-                    <button
-                      onClick={() => updateResult(activeResult.id, "BLOCKED")}
-                      className={`h-12 justify-center px-3 text-sm font-semibold rounded-lg border transition-all flex items-center gap-2 ${
-                        activeResult.status === "BLOCKED"
-                          ? "bg-warning text-[var(--neutral-950)] border-warning shadow-sm"
-                          : "bg-white/[0.04] text-warning border-white/10 hover:bg-warning-soft/20"
-                      }`}
-                    >
-                      <MinusCircle size={16} />
-                      Block
-                    </button>
-                    <button
-                      onClick={() => updateResult(activeResult.id, "SKIPPED")}
-                      className={`h-12 justify-center px-3 text-sm font-semibold rounded-lg border transition-all flex items-center gap-2 ${
-                        activeResult.status === "SKIPPED"
-                          ? "bg-skip text-white border-skip shadow-sm"
-                          : "bg-white/[0.04] text-[var(--neutral-300)] border-white/10 hover:bg-white/10"
-                      }`}
-                    >
-                      Skipped
-                    </button>
-                  </div>
-                </div>
-
-                {/* Case Details */}
-                <div className="px-5 py-4 border-b border-white/10 grid grid-cols-1 xl:grid-cols-[1fr_220px] gap-4">
-                  <div className="min-w-0">
-                    <details className="group/det bg-white/[0.04] border border-white/10 rounded-lg p-3" open>
-                      <summary className="cursor-pointer select-none list-none flex items-center justify-between text-xs font-semibold text-[var(--neutral-300)] hover:text-white transition-colors">
-                        <span className="flex items-center gap-2 uppercase tracking-wider">
-                          <Eye size={14} className="text-[var(--neutral-400)]" />
-                          Description &amp; pre-conditions
-                        </span>
-                        <ChevronDown size={14} className="transition-transform duration-200 group-open/det:rotate-180 text-[var(--neutral-400)]" />
-                      </summary>
-                      <div className="mt-3 pt-3 border-t border-white/10 space-y-3 pl-1">
-                        <div>
-                          <h3 className="text-[11px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-2">
-                            Description
-                          </h3>
-                          <p className="text-sm text-[var(--neutral-100)] leading-relaxed">
-                            {activeResult.testCase.description ||
-                              "No description provided."}
-                          </p>
-                        </div>
-                        <div>
-                          <h3 className="text-[11px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-2">
-                            Pre-conditions
-                          </h3>
-                          <div className="text-sm text-[var(--neutral-100)] leading-relaxed whitespace-pre-wrap break-words">
-                            {activeResult.testCase.preconditions || "None"}
-                          </div>
-                        </div>
-                      </div>
-                    </details>
-                  </div>
-                  <div className="text-xs space-y-3 bg-white/[0.04] border border-white/10 rounded-lg p-3">
-                    <div>
-                      <div className="text-[10px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-1">
-                        Executed by
-                      </div>
-                      {(() => {
-                        const a = userMeta(
-                          activeResult.assignee || (run as any).author,
-                        );
-                        return (
-                          <div className="flex items-center gap-2">
-                            <div
-                              className="w-5 h-5 rounded-full text-white text-[10px] flex items-center justify-center font-bold shrink-0"
-                              style={{ background: a.color }}
-                            >
-                              {a.initials}
-                            </div>
-                            <span className="text-[var(--neutral-200)] font-semibold truncate">
-                              {a.display}
-                            </span>
-                          </div>
-                        );
-                      })()}
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-1">
-                        Time spent
-                      </div>
-                      <div className="text-[var(--neutral-200)] font-medium">
-                        {formatRunDuration(activeResult.timeSpent || 0)}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-1">
-                        Started at
-                      </div>
-                      <div className="text-[var(--neutral-200)] font-medium">
-                        {formatThaiTime(activeResult.createdAt)}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-1">
-                        Environment
-                      </div>
-                      <div className="text-[var(--neutral-200)] font-medium">
-                        {(run as any).environment?.title || "Not specified"}
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-1">
-                        Priority
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[var(--neutral-200)] font-medium mt-0.5">
-                        {renderPriorityIcon(activeResult.testCase.priority)}
-                        <span className="capitalize text-xs font-semibold">
-                          {(activeResult.testCase.priority || "MEDIUM").toLowerCase()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Steps List or Automation Terminal */}
-                <div className="px-5 py-4">
-                  {activeResult.testCase.automationStatus === "AUTOMATED" ? (
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold text-white text-lg flex items-center">
-                          <Terminal className="mr-2 text-primary-light" size={20} />
-                          Automated Execution
-                        </h3>
-                        <button
-                          onClick={handleRunAutomation}
-                          disabled={
-                            isExecutingAutomated ||
-                            process.env.NEXT_PUBLIC_IS_DEMO === "true"
-                          }
-                          className="flex items-center px-4 py-2 bg-primary hover:bg-primary-hover text-primary-foreground rounded-md font-semibold shadow-sm transition-all disabled:opacity-50"
-                          title={
-                            process.env.NEXT_PUBLIC_IS_DEMO === "true"
-                              ? "Playwright is disabled in Demo Mode"
-                              : ""
-                          }
-                        >
-                          {isExecutingAutomated ? (
-                            <Loader2 size={16} className="mr-2 animate-spin" />
-                          ) : (
-                            <PlayCircle size={16} className="mr-2" />
-                          )}
-                          {isExecutingAutomated
-                            ? "Executing..."
-                            : "Run Automation"}
-                        </button>
-                      </div>
-
-                      <div className="bg-[#0d1117] border border-[color:rgba(255,255,255,0.12)] rounded-xl overflow-hidden shadow-inner flex flex-col">
-                        <div className="bg-[#161b22] px-4 py-2 border-b border-[color:rgba(255,255,255,0.12)] flex items-center">
-                          <div className="flex space-x-2">
-                            <div className="w-3 h-3 rounded-full bg-danger"></div>
-                            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                            <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                          </div>
-                          <div className="ml-4 text-xs font-mono text-text-muted">
-                            playwright execution log
-                          </div>
-                        </div>
-                        <div className="p-4 min-h-[300px] max-h-[500px] overflow-y-auto">
-                          {!automationLogs ? (
-                            <div className="text-text-muted font-mono text-sm">
-                              Ready to execute. Click "Run Automation" to start.
-                              <div className="mt-4 opacity-50">
-                                <pre>
-                                  {activeResult.testCase.automationScript}
-                                </pre>
-                              </div>
-                            </div>
-                          ) : (
-                            <pre className="font-mono text-sm text-[#c9d1d9] whitespace-pre-wrap">
-                              {automationLogs}
-                            </pre>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-4 pt-4 border-t border-border flex items-center gap-3">
-                        <div className="text-sm font-bold text-text-main flex items-center">
-                          <FileText
-                            size={16}
-                            className="mr-2 text-text-muted"
-                          />{" "}
-                          Artifacts
-                        </div>
-                        <button
-                          onClick={() =>
-                            setViewingAttachment({
-                              url: "https://demo.playwright.dev/reports/todomvc/data/e6099cadf79aa753d5500aa9508f9d1dbd87b5ee.zip",
-                              name: "Playwright Trace",
-                              isTrace: true,
-                            })
-                          }
-                          className="flex items-center px-4 py-2 bg-[color:oklch(0.18_0.015_264)] text-text-faint border border-[color:rgba(255,255,255,0.18)] rounded-md text-sm font-medium hover:bg-[color:oklch(0.24_0.016_264)] hover:text-white transition-colors"
-                        >
-                          <FileText size={16} className="mr-2 text-primary" />
-                          View Latest Trace
-                        </button>
-                      </div>
-
-                      {activeResult.executionHistory &&
-                        activeResult.executionHistory.length > 0 && (
-                          <div className="mt-6 border border-border rounded-lg overflow-hidden bg-background">
-                            <div className="bg-surface px-4 py-3 border-b border-border font-bold text-sm text-text-main flex items-center">
-                              <Clock
-                                size={16}
-                                className="mr-2 text-text-muted"
-                              />
-                              Execution History
-                            </div>
-                            <div className="divide-y divide-border">
-                              {[...activeResult.executionHistory]
-                                .reverse()
-                                .map((historyItem: any, i: number) => (
-                                  <details key={i} className="group">
-                                    <summary className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-surface-hover transition-colors">
-                                      <div className="flex items-center space-x-3">
-                                        <div
-                                          className={`w-2 h-2 rounded-full ${historyItem.status === "PASSED" ? "bg-success" : "bg-danger"}`}
-                                        ></div>
-                                        <span className="text-sm font-medium text-text-main">
-                                          {formatThaiTime(
-                                            historyItem.timestamp,
-                                          )}
-                                        </span>
-                                      </div>
-                                      <span className="text-xs text-text-muted group-open:hidden">
-                                        View Logs
-                                      </span>
-                                      <span className="text-xs text-text-muted hidden group-open:block">
-                                        Hide Logs
-                                      </span>
-                                    </summary>
-                                    <div className="px-4 py-3 bg-[#0d1117] border-t border-border">
-                                      <pre className="font-mono text-xs text-[#c9d1d9] whitespace-pre-wrap">
-                                        {historyItem.logs}
-                                      </pre>
-                                    </div>
-                                  </details>
-                                ))}
-                            </div>
-                          </div>
-                        )}
-                    </div>
-                  ) : activeResult.testCase.steps &&
-                    activeResult.testCase.steps.length > 0 ? (
-                    <div className="space-y-3">
-                      {activeResult.testCase.steps.map(
-                        (step: any, idx: number) => {
-                          const stepData = stepResults[step.id] || {};
-                          const stepStatus = stepData.status;
-                          const actualResult = stepData.actualResult || "";
-                          const attachments = stepData.attachments || [];
-
-                          return (
-                            <div
-                              key={step.id}
-                              className="bg-white/[0.04] rounded-lg border border-white/10 shadow-xs p-0 overflow-hidden hover:border-primary/35 transition-all"
-                            >
-                              <div className="grid grid-cols-[48px_1fr] max-w-full">
-                                <div className="border-r border-white/10 bg-black/10 flex items-start justify-center py-4">
-                                  <div
-                                    className={`w-7 h-7 rounded-lg flex items-center justify-center font-semibold text-[12px] shadow-sm shrink-0 ${
-                                      stepStatus === "PASSED"
-                                        ? "bg-success text-white"
-                                        : stepStatus === "FAILED"
-                                          ? "bg-danger text-white"
-                                          : stepStatus === "BLOCKED"
-                                            ? "bg-warning text-[var(--neutral-950)]"
-                                            : stepStatus === "SKIPPED"
-                                              ? "bg-skip text-white"
-                                              : "bg-white/10 text-[var(--neutral-300)] border border-white/10"
-                                    }`}
-                                  >
-                                    {idx + 1}
-                                  </div>
-                                </div>
-                                <div className="p-4 space-y-3">
-                                  <div className="space-y-2">
-                                    <div className="text-sm text-[var(--neutral-100)] whitespace-pre-wrap leading-relaxed">
-                                      {step.action}
-                                    </div>
-                                    {step.expectedResult && (
-                                      <div className="text-[13px] bg-black/20 border border-white/10 rounded-lg px-3 py-2 text-[var(--neutral-200)] whitespace-pre-wrap leading-relaxed">
-                                        <span className="font-semibold text-success mr-1">Expected: </span>
-                                        {step.expectedResult}
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  <div className="flex flex-wrap gap-2 pt-0.5">
-                                  <button
-                                    onClick={() =>
-                                      updateStepResult(step.id, {
-                                        status: "PASSED",
-                                      })
-                                    }
-                                    className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "PASSED" ? "bg-success text-white border-success shadow-sm" : "bg-white/[0.04] text-success border-white/10 hover:bg-success-soft/20"}`}
-                                  >
-                                    <CheckCircle2 size={15} />
-                                    Pass
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      updateStepResult(step.id, {
-                                        status: "FAILED",
-                                      })
-                                    }
-                                    className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "FAILED" ? "bg-danger text-white border-danger shadow-sm" : "bg-white/[0.04] text-danger border-white/10 hover:bg-danger-soft/20"}`}
-                                  >
-                                    <XCircle size={15} />
-                                    Fail
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      updateStepResult(step.id, {
-                                        status: "BLOCKED",
-                                      })
-                                    }
-                                    className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "BLOCKED" ? "bg-warning text-[var(--neutral-950)] border-warning shadow-sm" : "bg-white/[0.04] text-warning border-white/10 hover:bg-warning-soft/20"}`}
-                                  >
-                                    <MinusCircle size={15} />
-                                    Block
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      updateStepResult(step.id, {
-                                        status: "SKIPPED",
-                                      })
-                                    }
-                                    className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-all flex items-center gap-1.5 ${stepStatus === "SKIPPED" ? "bg-skip text-white border-skip shadow-sm" : "bg-white/[0.04] text-[var(--neutral-300)] border-white/10 hover:bg-white/10"}`}
-                                  >
-                                    Skipped
-                                  </button>
-                                </div>
-
-                                <div className="pt-1">
-                                  <div className="text-[11px] font-semibold text-[var(--neutral-400)] uppercase tracking-wider mb-2">
-                                    Actual result
-                                  </div>
-                                  <textarea
-                                    value={actualResult}
-                                    onChange={(e) =>
-                                      setStepResults({
-                                        ...stepResults,
-                                        [step.id]: {
-                                          ...stepData,
-                                          actualResult: e.target.value,
-                                        },
-                                      })
-                                    }
-                                    onBlur={(e) =>
-                                      updateStepResult(step.id, {
-                                        actualResult: e.target.value,
-                                      })
-                                    }
-                                    onPaste={(e) => handlePaste(e, step.id)}
-                                    className="w-full text-xs bg-black/20 text-[var(--neutral-100)] border border-white/10 rounded-md p-2 min-h-[54px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition placeholder:text-[var(--neutral-500)]"
-                                    placeholder="Type actual result here..."
-                                  />
-                                </div>
-
-                                {attachments.length > 0 && (
-                                  <div className="flex flex-wrap gap-3 pt-2">
-                                    {attachments.map((att: any, i: number) => (
-                                      <div
-                                        key={i}
-                                        className="relative w-48 h-32 border border-white/10 rounded-md overflow-hidden group bg-black/20 flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
-                                        onClick={() =>
-                                          setViewingAttachment({
-                                            url: att.url,
-                                            name: att.name || "Attachment",
-                                          })
-                                        }
-                                      >
-                                        {att.url?.match(
-                                          /\.(mp4|webm|ogg)$/i,
-                                        ) ? (
-                                          <video
-                                            src={att.url}
-                                            className="w-full h-full object-contain bg-black"
-                                          />
-                                        ) : att.url?.match(
-                                            /\.(zip|pdf|csv|txt|doc|docx|xls|xlsx)$/i,
-                                          ) ? (
-                                          <div className="w-full h-full flex flex-col items-center justify-center bg-white/[0.04] text-[var(--neutral-400)]">
-                                            <FileText
-                                              size={32}
-                                              className="mb-2"
-                                            />
-                                            <span className="text-xs font-medium px-2 text-center truncate w-full">
-                                              {att.name || "File"}
-                                            </span>
-                                          </div>
-                                        ) : (
-                                          <img
-                                            src={att.url}
-                                            alt={att.name || "Attachment"}
-                                            className="w-full h-full object-contain"
-                                          />
-                                        )}
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            const newAtts = attachments.filter(
-                                              (_: any, index: number) =>
-                                                index !== i,
-                                            );
-                                            updateStepResult(step.id, {
-                                              attachments: newAtts,
-                                            });
-                                          }}
-                                          className="absolute top-1.5 right-1.5 bg-black/50 text-danger rounded p-1 shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-danger/20 z-10"
-                                        >
-                                          <XCircle size={14} />
-                                        </button>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-
-                                <div className="pt-1">
-                                  <input
-                                    type="file"
-                                    id={`file-upload-${step.id}`}
-                                    className="hidden"
-                                    accept="image/*,video/*"
-                                    onChange={(e) => {
-                                      const file = e.target.files?.[0];
-                                      if (file) {
-                                        handleFileUpload(step.id, file);
-                                        e.target.value = "";
-                                      }
-                                    }}
-                                  />
-                                  <label
-                                    htmlFor={`file-upload-${step.id}`}
-                                    className="flex items-center justify-center gap-1.5 py-2 border border-dashed border-white/15 hover:border-primary/50 bg-black/15 hover:bg-white/[0.04] rounded-md text-[11px] font-semibold text-[var(--neutral-400)] hover:text-primary-light cursor-pointer transition-all w-full"
-                                  >
-                                    <span>Drag &amp; drop or click to upload screenshots / logs</span>
-                                    {uploadingStepId === step.id && (
-                                      <RefreshCw
-                                        size={12}
-                                        className="animate-spin text-text-muted"
-                                      />
-                                    )}
-                                  </label>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          );
-                        },
-                      )}
-                    </div>
+            <div className="relative" ref={mainMenuRef}>
+              <button className="text-text-muted hover:text-text-main flex items-center w-[32px] h-[32px] justify-center rounded-lg border border-border bg-surface hover:bg-surface-hover transition-colors" onClick={() => setMainMenuOpen(!mainMenuOpen)} title="More actions"><MoreVertical size={18} /></button>
+              {mainMenuOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-surface border border-border rounded-lg shadow-md z-50 py-1">
+                  {run.reportUrl && <button onClick={() => { setMainMenuOpen(false); setIsReportModalOpen(true); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><BarChart2 size={14} className="text-text-muted" /> View Playwright report</button>}
+                  <button onClick={() => { setMainMenuOpen(false); handleTriggerGitHub(); }} disabled={isTriggeringGitHub} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><GitBranch size={14} className="text-text-muted" /> {isTriggeringGitHub ? "Triggering…" : "Trigger GitHub Action"}</button>
+                  <button onClick={() => { setMainMenuOpen(false); handleRunAllAutomated(); }} disabled={isExecutingAllAutomated} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><Play size={14} className="text-text-muted" /> {isExecutingAllAutomated ? `Running ${automatedProgress.current}/${automatedProgress.total}…` : "Run all automated (Local)"}</button>
+                  <button onClick={() => { setMainMenuOpen(false); handleOpenWizard(); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><RefreshCw size={14} className="text-text-muted" /> Open run wizard</button>
+                  <div className="h-px bg-border my-1" />
+                  <button onClick={() => { setMainMenuOpen(false); setIsShareModalOpen(true); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><Share size={14} className="text-text-muted" /> Share report</button>
+                  <button onClick={() => { setMainMenuOpen(false); setIsExportModalOpen(true); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><FileText size={14} className="text-text-muted" /> Export (PDF / CSV)</button>
+                  {failedCount > 0 && <button onClick={handleRerunFailed} disabled={isRerunning} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><RotateCcw size={14} className="text-text-muted" /> {isRerunning ? "Re-running…" : `Re-run failed (${failedCount})`}</button>}
+                  <div className="h-px bg-border my-1" />
+                  {run.status === "ACTIVE" ? (
+                    <button onClick={() => { setMainMenuOpen(false); setIsCompleteModalOpen(true); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><CheckCircle2 size={14} className="text-text-muted" /> Complete run</button>
                   ) : (
-                    <div className="text-text-muted text-[15px]">
-                      No steps defined.
-                    </div>
+                    <button onClick={() => { setMainMenuOpen(false); handleReopenRun(); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><RotateCcw size={14} className="text-text-muted" /> Reopen run</button>
                   )}
                 </div>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Fullscreen Attachment Viewer */}
-        {viewingAttachment && (
-          <div
-            className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-200"
-            onClick={() => setViewingAttachment(null)}
-          >
-            <div className="absolute top-4 right-4 md:top-6 md:right-6">
-              <button
-                onClick={() => setViewingAttachment(null)}
-                className="bg-surface/10 hover:bg-surface/20 text-white rounded-full p-2 transition backdrop-blur-sm"
-              >
-                <XCircle size={32} />
-              </button>
-            </div>
-            <div
-              className="relative w-full h-full flex items-center justify-center animate-in zoom-in-95 duration-200 p-8 pt-16"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {viewingAttachment.url?.match(/\.(mp4|webm|ogg)$/i) ? (
-                <video
-                  src={viewingAttachment.url}
-                  controls
-                  autoPlay
-                  className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl bg-black"
-                />
-              ) : viewingAttachment.isTrace ? (
-                <div className="w-full h-full bg-surface rounded-lg overflow-hidden shadow-2xl flex flex-col">
-                  <div className="bg-surface-hover border-b border-border px-4 py-3 flex items-center">
-                    <span className="text-sm font-bold text-text-main flex items-center">
-                      <img
-                        src="https://playwright.dev/img/playwright-logo.svg"
-                        className="w-5 h-5 mr-2"
-                        alt="Playwright"
-                      />
-                      Playwright Trace Viewer
-                    </span>
-                  </div>
-                  <iframe
-                    src={`https://trace.playwright.dev/?trace=${encodeURIComponent(viewingAttachment.url)}`}
-                    className="w-full flex-1 border-none"
-                    title="Playwright Trace Viewer"
-                  />
-                </div>
-              ) : viewingAttachment.url?.match(
-                  /\.(zip|pdf|csv|txt|doc|docx|xls|xlsx)$/i,
-                ) ? (
-                <div className="bg-surface p-12 rounded-lg shadow-2xl flex flex-col items-center justify-center border border-border min-w-[300px]">
-                  <FileText size={48} className="text-text-muted mb-4" />
-                  <h3 className="text-lg font-bold text-text-main mb-6 text-center break-all max-w-sm">
-                    {viewingAttachment.name}
-                  </h3>
-                  <a
-                    href={viewingAttachment.url}
-                    download
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-6 py-2.5 bg-primary text-primary-foreground font-medium rounded-md hover:bg-primary-hover transition-colors shadow-sm"
-                  >
-                    Download File
-                  </a>
-                </div>
-              ) : (
-                <img
-                  src={viewingAttachment.url}
-                  alt={viewingAttachment.name}
-                  className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
-                />
               )}
             </div>
           </div>
-        )}
+        </div>
 
+        <div className={`flex-1 min-h-0 ${activeResultId ? "grid grid-cols-[370px_1fr] grid-rows-[minmax(0,1fr)]" : "flex"}`}>
+          {/* case list */}
+          <div className={`border-r border-border bg-surface flex-col ${activeResultId ? "flex" : "flex flex-1 w-full"}`}>
+            <div className="flex items-center gap-[8px] px-[14px] py-[11px] border-b border-border shrink-0">
+              <div className="flex-1 flex items-center gap-[8px] h-[32px] px-[10px] bg-surface-hover border border-border rounded-[8px] text-text-faint text-[12.5px] focus-within:border-primary transition-colors">
+                <Search size={16} />
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Filter cases" className="bg-transparent outline-none w-full text-text-main" />
+              </div>
+              <button onClick={() => setStatusFilter(null)} title="Clear filters" className="text-text-faint hover:text-text-main transition-colors flex items-center"><SlidersHorizontal size={18} /></button>
+            </div>
+            
+            {/* Status filters */}
+            <div className="flex flex-wrap gap-[4px] p-[8px_14px] bg-surface border-b border-border">
+              {['PASSED', 'FAILED', 'BLOCKED', 'SKIPPED', 'IN_PROGRESS'].map(st => (
+                 <button key={st} onClick={() => setStatusFilter(statusFilter === st ? null : st)} className={`px-2 py-1 rounded text-[10px] font-bold ${statusFilter === st ? "bg-primary-light text-primary" : "bg-surface-hover text-text-muted hover:text-text-main"}`}>
+                   {st}
+                 </button>
+              ))}
+            </div>
 
-        {/* Complete Run Modal */}
+            <div className="flex-1 overflow-y-auto pb-8">
+              {unassignedResults.length > 0 && (
+                <>
+                  <div className="flex items-center gap-[7px] px-[14px] py-[9px] bg-surface-hover border-b border-border">
+                    <ChevronDown size={17} className="text-text-faint" />
+                    <span className="font-semibold text-[12px]">Unassigned Cases</span>
+                    <span className="text-[10.5px] text-text-faint ml-auto tabular-nums">{unassignedResults.length} cases</span>
+                  </div>
+                  {unassignedResults.map((r) => renderResultRow(r, 0))}
+                </>
+              )}
+              {roots.map((suite) => renderSuiteTree(suite, 0))}
+            </div>
+          </div>
+{/* Execution Workspace Panel */}
+          {activeResultId && activeResult && activeResult.testCase ? (
+            (() => {
+              const caseStatusVis = statusVisual(activeResult.status);
+              const casePriVis = priorityVisual(activeResult.testCase.priority);
+              const statusLabelMap: Record<string, string> = { PASSED: "Passed", FAILED: "Failed", BLOCKED: "Blocked", SKIPPED: "Skipped", IN_PROGRESS: "In progress" };
+              const caseStatusLabel = statusLabelMap[activeResult.status] || "Untested";
+              const tags: string[] = Array.isArray(activeResult.testCase.tags)
+                ? activeResult.testCase.tags
+                : typeof activeResult.testCase.tags === "string" && activeResult.testCase.tags
+                  ? activeResult.testCase.tags.split(",").map((t: string) => t.trim()).filter(Boolean)
+                  : [];
+
+              // Collect real evidence attachments (result-level + step-level).
+              const evidence: { url: string; name: string }[] = [];
+              if (Array.isArray(activeResult.attachments)) evidence.push(...activeResult.attachments);
+              (activeResult.testCase.steps || []).forEach((s: any) => {
+                const sr = stepResults[s.id];
+                if (sr?.attachments?.length) evidence.push(...sr.attachments);
+              });
+              const consoleLog = activeResult.errorMessage || activeResult.comment || automationLogs || "";
+              const automationScript = activeResult.testCase.automationScript;
+
+              return (
+            <div className="flex flex-col min-h-0 overflow-hidden bg-background">
+            <div className="flex-1 overflow-y-auto px-[24px] py-[20px]">
+              <div className="flex items-start gap-[12px]">
+                <div className="flex-1">
+                  <div className="flex items-center gap-[9px] mb-[5px] flex-wrap">
+                    <span className="font-mono text-[11px] text-text-faint">{projectCode}-{activeResult.testCase.sequenceNumber || activeResult.testCase.id.substring(0,4).toUpperCase()}</span>
+                    <span className="inline-flex items-center gap-[5px] text-[11px] font-bold px-[9px] py-[2px] rounded-full" style={{ background: caseStatusVis.soft, color: caseStatusVis.color }}>
+                      <caseStatusVis.Icon size={13} />{caseStatusLabel}
+                    </span>
+                    <span className="inline-flex items-center gap-[4px] text-[11px] font-semibold px-[9px] py-[2px] rounded-full" style={{ background: casePriVis.soft, color: casePriVis.color }}>
+                      <casePriVis.Icon size={13} />{casePriVis.label}
+                    </span>
+                  </div>
+                  <div className="text-[19px] font-semibold tracking-[-0.015em] text-text-main">{activeResult.testCase.title}</div>
+
+                  {activeResult.testCase.description && <div className="text-[13px] text-text-muted mt-2 mb-2 max-w-3xl leading-relaxed">{activeResult.testCase.description}</div>}
+                  {activeResult.testCase.preconditions && (
+                    <div className="text-[12px] text-text-faint bg-surface p-3 rounded-lg border border-border mb-3 max-w-3xl">
+                      <span className="font-semibold block mb-1">Pre-conditions:</span>
+                      {activeResult.testCase.preconditions}
+                    </div>
+                  )}
+
+                  {tags.length > 0 && (
+                    <div className="flex gap-[7px] mt-[9px] flex-wrap">
+                      {tags.map((tag) => (
+                        <span key={tag} className="text-[11px] font-semibold px-[9px] py-[3px] rounded-[7px] bg-surface-hover border border-border text-text-muted">{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-[6px] shrink-0">
+                  <button onClick={goPrev} disabled={activeIndex <= 0} title="Previous case" className="w-[32px] h-[32px] rounded-[8px] border border-border bg-surface flex items-center justify-center text-text-muted hover:text-text-main hover:bg-surface-hover transition-colors disabled:opacity-40 disabled:pointer-events-none"><ChevronLeft size={18} /></button>
+                  <button onClick={goNext} disabled={activeIndex < 0 || activeIndex >= flatVisibleResults.length - 1} title="Next case" className="w-[32px] h-[32px] rounded-[8px] border border-border bg-surface flex items-center justify-center text-text-muted hover:text-text-main hover:bg-surface-hover transition-colors disabled:opacity-40 disabled:pointer-events-none"><ChevronRight size={18} /></button>
+                  <button onClick={() => setActiveResultId(null)} title="Close" className="w-[32px] h-[32px] rounded-[8px] border border-border bg-surface flex items-center justify-center text-text-muted hover:text-text-main hover:bg-surface-hover transition-colors"><X size={16} /></button>
+                </div>
+              </div>
+
+              {/* Run Local automation (only when the case has a script) */}
+              {automationScript && (
+                <div className="mt-[14px]">
+                  <Button size="sm" variant="secondary" onClick={handleRunAutomation} loading={isExecutingAutomated}>
+                    {!isExecutingAutomated && <Play size={14} />} Run Local (Playwright)
+                  </Button>
+                </div>
+              )}
+
+              {/* steps */}
+              {activeResult.testCase.steps && activeResult.testCase.steps.length > 0 && (
+                <div className="mt-[18px] bg-surface border border-border rounded-[12px] shadow-sm overflow-hidden">
+                  <div className="grid grid-cols-[34px_1fr_1fr_84px] gap-[12px] px-[16px] py-[9px] text-[10.5px] font-semibold tracking-[0.05em] uppercase text-text-faint border-b border-border">
+                    <div>#</div><div>Action</div><div>Expected</div><div className="text-right">Result</div>
+                  </div>
+                  {activeResult.testCase.steps.map((step: any, idx: number) => {
+                    const stepData = stepResults[step.id] || {};
+                    const stepStatus = stepData.status;
+                    const sv = statusVisual(stepStatus);
+                    const sBg = stepStatus === "FAILED" ? "var(--danger-soft)" : "transparent";
+                    const actualResult = stepData.actualResult || "";
+                    const attachments = stepData.attachments || [];
+                    // Cycle the step result: untested → Pass → Fail → Block → Skip → untested
+                    const cycle: Record<string, string> = { "": "PASSED", PASSED: "FAILED", FAILED: "BLOCKED", BLOCKED: "SKIPPED", SKIPPED: "" };
+                    const next = cycle[stepStatus || ""];
+
+                    return (
+                      <div key={step.id} className="border-b border-border last:border-0" style={{ background: sBg }}>
+                        <div className="grid grid-cols-[34px_1fr_1fr_84px] gap-[12px] px-[16px] py-[12px] items-start">
+                          <div className="w-[22px] h-[22px] rounded-[6px] bg-surface-hover border border-border flex items-center justify-center text-[11px] font-bold text-text-muted tabular-nums">{idx + 1}</div>
+                          <div className="text-[12.5px] text-text-main whitespace-pre-wrap">{step.action}</div>
+                          <div className="text-[12.5px] text-text-muted whitespace-pre-wrap">{step.expectedResult}</div>
+                          <div className="text-right">
+                            <button onClick={() => updateStepResult(step.id, { status: next || null })} title="Click to cycle status" className="inline-flex items-center gap-[4px] text-[10.5px] font-bold px-[8px] py-[2px] rounded-full hover:opacity-80 transition-opacity" style={{ background: sv.soft, color: sv.color, border: stepStatus ? "none" : "1px solid var(--border-color)" }}>
+                              <sv.Icon size={12} />{sv.label}
+                            </button>
+                          </div>
+                        </div>
+                        {/* per-step actual result + evidence */}
+                        <div className="px-[16px] pb-[12px] grid grid-cols-[34px_1fr] gap-[12px]">
+                          <div />
+                          <div className="space-y-2">
+                            <textarea
+                              value={actualResult}
+                              onChange={(e) => setStepResults({ ...stepResults, [step.id]: { ...stepData, actualResult: e.target.value } })}
+                              onBlur={(e) => updateStepResult(step.id, { actualResult: e.target.value })}
+                              onPaste={(e) => handlePaste(e, step.id)}
+                              placeholder="Actual result / notes…"
+                              className="w-full text-[12px] bg-surface-hover text-text-main border border-border rounded-md p-2 min-h-[40px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition placeholder:text-text-faint"
+                            />
+                            {attachments.length > 0 && (
+                              <div className="flex flex-wrap gap-2">
+                                {attachments.map((att: any, i: number) => (
+                                  <div key={i} className="relative w-28 h-20 border border-border rounded-md overflow-hidden group bg-surface-hover flex items-center justify-center cursor-pointer hover:border-primary transition-colors" onClick={() => setViewingAttachment({ url: att.url, name: att.name || "Attachment" })}>
+                                    {att.url?.match(/\.(mp4|webm|ogg)$/i) ? (
+                                      <video src={att.url} className="w-full h-full object-contain bg-black" />
+                                    ) : att.url?.match(/\.(zip|pdf|csv|txt|doc|docx|xls|xlsx)$/i) ? (
+                                      <div className="w-full h-full flex flex-col items-center justify-center text-text-faint"><FileText size={24} /><span className="text-[10px] truncate w-full px-1 text-center">{att.name || "File"}</span></div>
+                                    ) : (
+                                      <img src={att.url} alt={att.name || "Attachment"} className="w-full h-full object-contain" />
+                                    )}
+                                    <button onClick={(e) => { e.stopPropagation(); updateStepResult(step.id, { attachments: attachments.filter((_: any, index: number) => index !== i) }); }} className="absolute top-1 right-1 bg-black/50 text-danger rounded p-0.5 opacity-0 group-hover:opacity-100 transition hover:bg-danger/20 z-10"><XCircle size={14} /></button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            <input type="file" id={`file-upload-${step.id}`} className="hidden" accept="image/*,video/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) { handleFileUpload(step.id, file); e.target.value = ""; } }} />
+                            <label htmlFor={`file-upload-${step.id}`} className="flex items-center justify-center gap-1.5 py-1.5 border border-dashed border-border hover:border-primary bg-surface-hover hover:bg-surface rounded-md text-[11px] font-semibold text-text-faint hover:text-primary cursor-pointer transition w-full">
+                              <ImageIcon size={13} /> <span>Upload screenshot / log</span>
+                              {uploadingStepId === step.id && <RefreshCw size={12} className="animate-spin" />}
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* evidence + console (real data) */}
+              <div className="mt-[16px] grid grid-cols-[1fr_1fr] gap-[14px]">
+                <div className="bg-surface border border-border rounded-[12px] p-[14px] shadow-sm">
+                  <div className="flex items-center gap-[7px] font-semibold text-[13px] mb-[10px]"><ImageIcon size={17} className="text-text-faint" />Evidence</div>
+                  {evidence.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      {evidence.map((att, i) => (
+                        <div key={i} className="aspect-[16/10] rounded-[9px] bg-surface-hover border border-border overflow-hidden cursor-pointer hover:border-primary transition-colors flex items-center justify-center" onClick={() => setViewingAttachment({ url: att.url, name: att.name || "Attachment" })}>
+                          {att.url?.match(/\.(mp4|webm|ogg)$/i) ? (
+                            <video src={att.url} className="w-full h-full object-contain bg-black" />
+                          ) : att.url?.match(/\.(zip|pdf|csv|txt|doc|docx|xls|xlsx)$/i) ? (
+                            <div className="flex flex-col items-center gap-1 text-text-faint"><FileText size={24} /><span className="font-mono text-[10px] truncate w-full px-1 text-center">{att.name}</span></div>
+                          ) : (
+                            <img src={att.url} alt={att.name || "Evidence"} className="w-full h-full object-contain" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="aspect-[16/10] rounded-[9px] bg-surface-hover border border-border flex flex-col items-center justify-center gap-[6px] text-text-faint">
+                      <ImageOff size={30} />
+                      <span className="font-mono text-[10.5px]">No evidence attached</span>
+                    </div>
+                  )}
+                </div>
+                <div className="bg-surface border border-border rounded-[12px] p-[14px] shadow-sm">
+                  <div className="flex items-center gap-[7px] font-semibold text-[13px] mb-[10px]"><Terminal size={17} className="text-text-faint" />Console</div>
+                  <div className="bg-surface-hover border border-border rounded-[9px] px-[12px] py-[11px] font-mono text-[11px] leading-[1.7] text-text-muted overflow-auto max-h-[200px]">
+                    {consoleLog ? (
+                      <pre className="whitespace-pre-wrap">{consoleLog}</pre>
+                    ) : (
+                      <span className="text-text-faint">No console output</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* automation logs (live) */}
+              {(isExecutingAutomated || automationLogs) && (
+                <div className="mt-[16px] bg-[#0d1117] border border-border rounded-[12px] p-[14px] shadow-sm">
+                  <div className="flex items-center gap-[7px] font-semibold text-[13px] mb-[10px] text-[#c9d1d9]"><Terminal size={17} />Automation log {isExecutingAutomated && <Loader2 size={13} className="animate-spin" />}</div>
+                  <pre className="font-mono text-[11px] text-[#c9d1d9] whitespace-pre-wrap max-h-[240px] overflow-auto">{automationLogs}</pre>
+                </div>
+              )}
+
+              </div>{/* end scroll content */}
+
+              {/* runner action bar (pinned footer) */}
+              <div className="shrink-0 border-t border-border bg-background px-[24px] py-[14px] flex items-center gap-[9px]">
+                <button onClick={() => updateResult(activeResult.id, "PASSED")} className="flex-1 flex items-center justify-center gap-[7px] h-[44px] rounded-[10px] bg-success text-white font-bold text-[14px] shadow-sm hover:opacity-90 transition-opacity"><CheckCircle2 size={19} />Pass</button>
+                <button onClick={() => updateResult(activeResult.id, "FAILED")} className="flex-1 flex items-center justify-center gap-[7px] h-[44px] rounded-[10px] bg-danger text-white font-bold text-[14px] shadow-sm hover:opacity-90 transition-opacity"><XCircle size={19} />Fail</button>
+                <button onClick={() => updateResult(activeResult.id, "BLOCKED")} className="flex items-center justify-center gap-[7px] h-[44px] px-[18px] rounded-[10px] bg-surface border border-[var(--border-strong)] text-warning font-bold text-[14px] hover:bg-surface-hover transition-colors"><Ban size={19} />Block</button>
+                <button onClick={() => updateResult(activeResult.id, "SKIPPED")} className="flex items-center justify-center gap-[7px] h-[44px] px-[18px] rounded-[10px] bg-surface border border-[var(--border-strong)] text-text-muted font-bold text-[14px] hover:bg-surface-hover transition-colors"><SkipForward size={19} />Skip</button>
+                <button onClick={() => setReportingResult(activeResult)} title="Report bug / AI triage" className="w-[44px] h-[44px] rounded-[10px] bg-surface border border-border flex items-center justify-center text-danger hover:bg-danger-soft transition-colors"><Bug size={20} /></button>
+              </div>
+            </div>
+              );
+            })()
+          ) : (
+            <div className="flex-1 bg-background" />
+          )}
+        </div>
+      </div>
+
+      {/* Complete Run Modal */}
+{/* Complete Run Modal */}
         {isCompleteModalOpen && (
           <div className="fixed inset-0 z-[200] bg-black/40 flex items-center justify-center p-4 animate-in fade-in duration-200">
             <div className="bg-surface rounded-lg shadow-[0_8px_30px_rgb(0,0,0,0.12)] w-[480px] overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 transition-colors border border-border">
@@ -2788,6 +1946,38 @@ export default function RunExecutionClient({
           </div>
         )}
 
+        {/* Fullscreen Attachment Viewer (lightbox) */}
+        {viewingAttachment && (
+          <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 md:p-8 animate-in fade-in duration-200" onClick={() => setViewingAttachment(null)}>
+            <div className="absolute top-4 right-4 md:top-6 md:right-6">
+              <button onClick={() => setViewingAttachment(null)} className="bg-surface/10 hover:bg-surface/20 text-white rounded-full p-2 transition backdrop-blur-sm"><XCircle size={32} /></button>
+            </div>
+            <div className="relative w-full h-full flex items-center justify-center animate-in zoom-in-95 duration-200 p-8 pt-16" onClick={(e) => e.stopPropagation()}>
+              {viewingAttachment.url?.match(/\.(mp4|webm|ogg)$/i) ? (
+                <video src={viewingAttachment.url} controls autoPlay className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl bg-black" />
+              ) : viewingAttachment.isTrace ? (
+                <div className="w-full h-full bg-surface rounded-lg overflow-hidden shadow-2xl flex flex-col">
+                  <div className="bg-surface-hover border-b border-border px-4 py-3 flex items-center">
+                    <span className="text-sm font-bold text-text-main flex items-center">
+                      <img src="https://playwright.dev/img/playwright-logo.svg" className="w-5 h-5 mr-2" alt="Playwright" />
+                      Playwright Trace Viewer
+                    </span>
+                  </div>
+                  <iframe src={`https://trace.playwright.dev/?trace=${encodeURIComponent(viewingAttachment.url)}`} className="w-full flex-1 border-none" title="Playwright Trace Viewer" />
+                </div>
+              ) : viewingAttachment.url?.match(/\.(zip|pdf|csv|txt|doc|docx|xls|xlsx)$/i) ? (
+                <div className="bg-surface p-12 rounded-lg shadow-2xl flex flex-col items-center justify-center border border-border min-w-[300px]">
+                  <FileText size={48} className="text-text-muted mb-4" />
+                  <h3 className="text-lg font-bold text-text-main mb-6 text-center break-all max-w-sm">{viewingAttachment.name}</h3>
+                  <a href={viewingAttachment.url} download target="_blank" rel="noreferrer" className="px-6 py-2.5 bg-primary text-primary-foreground font-medium rounded-md hover:bg-primary-hover transition-colors shadow-sm">Download File</a>
+                </div>
+              ) : (
+                <img src={viewingAttachment.url} alt={viewingAttachment.name} className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
+              )}
+            </div>
+          </div>
+        )}
+
         <ReportBugModal
           isOpen={!!reportingResult}
           onClose={() => setReportingResult(null)}
@@ -2805,7 +1995,6 @@ export default function RunExecutionClient({
             }));
           }}
         />
-      </div>
     </>
   );
 }

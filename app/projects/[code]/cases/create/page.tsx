@@ -8,17 +8,15 @@ import { toast } from "sonner";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Plus,
-  GripVertical,
   Trash2,
-  Save,
   X,
   ChevronDown,
-  Beaker,
-  AlertCircle,
-  Zap,
+  ChevronRight,
+  ChevronsUp,
   FileIcon,
-  Folder,
+  Link2,
+  Plus,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FileUpload } from "@/components/ui/FileUpload";
@@ -179,379 +177,265 @@ function CreateCaseContent({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="h-full overflow-y-auto w-full bg-surface-hover pb-20"
-    >
-      {/* Sticky Header */}
-      <header className="sticky top-0 z-10 bg-surface border-b border-border/80 shadow-sm px-8 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            className="p-2 hover:bg-surface-hover rounded-xl transition-colors hover:text-primary"
-          >
-            <X size={20} className="text-text-muted" />
-          </button>
-          <h1 className="text-xl font-semibold text-text-main">
-            Create test case
-          </h1>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => router.back()}
-          >
-            Cancel
-          </Button>
-          <Button type="submit">
-            <Save size={16} />
-            Save Case
-          </Button>
-        </div>
-      </header>
+    <div className="w-full bg-background h-full overflow-hidden flex flex-col antialiased text-[14px]">
+      {/* Header */}
+      <div className="flex items-center gap-[12px] px-[20px] py-[14px] bg-surface border-b border-border shrink-0">
+        <button type="button" onClick={() => router.back()} className="text-[13px] text-text-faint hover:text-text-main transition-colors">Repository</button>
+        <ChevronRight size={16} className="text-text-faint" />
+        <span className="text-[14px] font-semibold">New test case</span>
+      </div>
 
-      <main className="max-w-5xl mx-auto mt-8 px-4 space-y-6">
-        {/* Basic Information Card */}
-        <section className="bg-surface rounded-[13px] border border-border/80 shadow-[var(--shadow-float)] p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-text-main mb-2">
-                Title
-              </label>
-              <input
-                {...register("title", { required: "Title is required" })}
-                placeholder="e.g., User can complete checkout with Credit Card"
-                className={cn(
-                  "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main",
-                  errors.title ? "border-danger" : "border-border/80",
-                )}
-              />
-              {errors.title && (
-                <p className="mt-1 text-xs text-danger">
-                  {errors.title.message}
-                </p>
-              )}
-            </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-hidden flex flex-col min-h-0">
+        <div className="flex-1 grid gap-0 overflow-hidden" style={{ gridTemplateColumns: '1fr 320px' }}>
+          
+          {/* Main Form Area */}
+          <div className="p-[26px] overflow-y-auto">
+            <div className="max-w-[620px] flex flex-col gap-[22px]">
+              
+              {/* Title */}
+              <div>
+                <label className="block text-[13px] text-text-muted mb-[7px]">Title</label>
+                <input
+                  {...register("title", { required: "Title is required" })}
+                  placeholder="e.g., Apply promo code at checkout"
+                  className={cn(
+                    "w-full h-[42px] px-[14px] rounded-[11px] bg-surface text-[14px] outline-none transition-colors",
+                    "focus:ring-2 focus:ring-primary/20",
+                    errors.title ? "border-danger shadow-[inset_0_0_0_1px_var(--danger)]" : "shadow-[inset_0_0_0_1px_var(--border)] focus:shadow-[inset_0_0_0_1px_var(--primary)]"
+                  )}
+                />
+                {errors.title && <p className="mt-[4px] text-[12px] text-danger">{errors.title.message}</p>}
+              </div>
 
-            <div>
-              <label className="flex items-center text-sm font-semibold text-text-main mb-2">
-                <Folder size={14} className="mr-1.5 text-text-muted" /> Suite
-              </label>
-              <select
-                {...register("suiteId", { required: "Suite is required" })}
-                className={cn(
-                  "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main appearance-none cursor-pointer",
-                  errors.suiteId ? "border-danger" : "border-border/80",
-                )}
-              >
-                <option value="" disabled>
-                  Select a Suite...
-                </option>
-                {suites.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {s.title}
-                  </option>
-                ))}
-              </select>
-              {errors.suiteId && (
-                <p className="mt-1 text-xs text-danger">
-                  {errors.suiteId.message}
-                </p>
-              )}
-            </div>
-          </div>
+              {/* Description */}
+              <div>
+                <label className="block text-[13px] text-text-muted mb-[7px]">Description</label>
+                <textarea
+                  {...register("description")}
+                  placeholder="Verify the best single discount is applied..."
+                  className="w-full min-h-[74px] p-[11px_14px] rounded-[11px] bg-surface text-[13.5px] text-text-main leading-[1.55] outline-none shadow-[inset_0_0_0_1px_var(--border)] focus:shadow-[inset_0_0_0_1px_var(--primary)] focus:ring-2 focus:ring-primary/20 transition-colors resize-y"
+                />
+              </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-text-main mb-2">
-              Tags (comma separated)
-            </label>
-            <input
-              {...register("tagsInput")}
-              placeholder="e.g., login, api, smoke"
-              className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main"
-            />
-          </div>
+              {/* Preconditions */}
+              <div>
+                <label className="block text-[13px] text-text-muted mb-[7px]">Preconditions</label>
+                <textarea
+                  {...register("preconditions")}
+                  placeholder="Cart has 2 items ($96.00)..."
+                  className="w-full min-h-[48px] p-[11px_14px] rounded-[11px] bg-surface text-[13.5px] text-text-main leading-[1.55] outline-none shadow-[inset_0_0_0_1px_var(--border)] focus:shadow-[inset_0_0_0_1px_var(--primary)] focus:ring-2 focus:ring-primary/20 transition-colors resize-y"
+                />
+              </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Severity */}
-            <div>
-              <label className="flex items-center text-sm font-semibold text-text-main mb-2">
-                <AlertCircle size={14} className="mr-1.5 text-text-muted" />{" "}
-                Severity
-              </label>
-              <select
-                {...register("severity")}
-                className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main appearance-none cursor-pointer"
-              >
-                <option value="BLOCKER">Blocker</option>
-                <option value="CRITICAL">Critical</option>
-                <option value="MAJOR">Major</option>
-                <option value="NORMAL">Normal</option>
-                <option value="MINOR">Minor</option>
-              </select>
-            </div>
-
-            {/* Priority */}
-            <div>
-              <label className="flex items-center text-sm font-semibold text-text-main mb-2">
-                <Zap size={14} className="mr-1.5 text-text-muted" /> Priority
-              </label>
-              <select
-                {...register("priority")}
-                className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main appearance-none cursor-pointer"
-              >
-                <option value="HIGH">High</option>
-                <option value="MEDIUM">Medium</option>
-                <option value="LOW">Low</option>
-              </select>
-            </div>
-
-            {/* Automation */}
-            <div>
-              <label className="flex items-center text-sm font-semibold text-text-main mb-2">
-                <Beaker size={14} className="mr-1.5 text-text-muted" />{" "}
-                Automation
-              </label>
-              <select
-                {...register("automationStatus")}
-                className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main appearance-none cursor-pointer"
-              >
-                <option value="MANUAL">Manual</option>
-                <option value="TO_BE_AUTOMATED">To be automated</option>
-                <option value="AUTOMATED">Automated</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Custom Fields */}
-          {customFieldsDef.length > 0 && (
-            <div className="pt-4 border-t border-border">
-              <h3 className="text-sm font-bold text-text-main mb-4">
-                Custom Fields
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {customFieldsDef.map((field) => (
-                  <div
-                    key={field.id}
-                    className={
-                      field.type === "TEXT" ? "col-span-1 md:col-span-2" : ""
-                    }
-                  >
-                    <label className="flex items-center text-sm font-semibold text-text-main mb-2">
-                      {field.name}{" "}
-                      {field.isRequired && (
-                        <span className="text-danger ml-1">*</span>
-                      )}
-                    </label>
-                    {field.type === "SELECT" && (
-                      <select
-                        {...register(`customFields.${field.id}`, {
-                          required: field.isRequired ? "Required" : false,
-                        })}
-                        className={cn(
-                          "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main appearance-none cursor-pointer",
-                          errors?.customFields?.[field.id]
-                            ? "border-danger"
-                            : "border-border/80",
-                        )}
-                      >
-                        <option value="">Select an option</option>
-                        {field.options?.map((opt: any) => (
-                          <option key={opt.id} value={opt.value}>
-                            {opt.value}
-                          </option>
-                        ))}
-                      </select>
-                    )}
-                    {field.type === "STRING" && (
-                      <input
-                        type="text"
-                        {...register(`customFields.${field.id}`, {
-                          required: field.isRequired ? "Required" : false,
-                        })}
-                        className={cn(
-                          "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main",
-                          errors?.customFields?.[field.id]
-                            ? "border-danger"
-                            : "border-border/80",
-                        )}
-                      />
-                    )}
-                    {field.type === "TEXT" && (
-                      <textarea
-                        {...register(`customFields.${field.id}`, {
-                          required: field.isRequired ? "Required" : false,
-                        })}
-                        rows={3}
-                        className={cn(
-                          "w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border rounded-xl shadow-inner focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main resize-y",
-                          errors?.customFields?.[field.id]
-                            ? "border-danger"
-                            : "border-border/80",
-                        )}
-                      />
-                    )}
-                    {field.type === "CHECKBOX" && (
-                      <div className="flex items-center mt-2">
-                        <input
-                          type="checkbox"
-                          {...register(`customFields.${field.id}`, {
-                            required: field.isRequired ? "Required" : false,
-                          })}
-                          className="w-4 h-4 rounded border-text-muted text-primary focus:ring-blue-500"
+              {/* Steps */}
+              <div>
+                <div className="flex items-center justify-between mb-[10px]">
+                  <label className="text-[13px] text-text-muted font-semibold">Steps</label>
+                  <button type="button" onClick={openSharedStepsModal} className="flex items-center gap-[5px] text-[12px] font-semibold text-[var(--primary-text)] hover:text-primary transition-colors">
+                    <Link2 size={16} />
+                    Insert shared steps
+                  </button>
+                </div>
+                <div className="border border-border rounded-[12px] overflow-hidden">
+                  <div className="grid gap-[10px] p-[8px_12px] bg-surface-hover text-[10.5px] font-semibold tracking-[0.05em] uppercase text-text-faint" style={{ gridTemplateColumns: '34px 1fr 1fr 32px' }}>
+                    <div>#</div><div>Action</div><div>Expected result</div><div></div>
+                  </div>
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="grid gap-[10px] p-[10px_12px] items-start border-t border-border bg-surface group" style={{ gridTemplateColumns: '34px 1fr 1fr 32px' }}>
+                      <div className="w-[22px] h-[22px] rounded-[6px] bg-surface-hover flex items-center justify-center text-[11px] font-bold text-text-muted mt-[4px]">{index + 1}</div>
+                      <div>
+                        <textarea
+                          {...register(`steps.${index}.action` as const, { required: true })}
+                          rows={2}
+                          placeholder="Action..."
+                          className="w-full text-[12.5px] bg-transparent border-none outline-none resize-none placeholder-text-faint"
                         />
                       </div>
-                    )}
-                    {errors?.customFields?.[field.id] && (
-                      <p className="mt-1 text-xs text-danger">
-                        {errors.customFields[field.id]?.message as string}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Attachments */}
-          <div>
-            <label className="block text-sm font-semibold text-text-main mb-2">
-              Attachments
-            </label>
-            <FileUpload
-              projectId={projectCode}
-              onUploadComplete={(attachment) =>
-                setAttachments((prev) => [...prev, attachment])
-              }
-            />
-            {attachments.length > 0 && (
-              <div className="mt-3 space-y-2">
-                {attachments.map((file, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between p-2 bg-surface-hover border border-border/80 rounded-xl"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-blue-100 text-primary rounded flex items-center justify-center">
-                        <FileIcon size={16} />
-                      </div>
                       <div>
-                        <p className="text-xs font-medium text-text-main truncate max-w-[200px]">
-                          {file.originalName}
-                        </p>
-                        <p className="text-[10px] text-text-muted">
-                          {(file.size / 1024).toFixed(1)} KB
-                        </p>
+                        <textarea
+                          {...register(`steps.${index}.expectedResult` as const)}
+                          rows={2}
+                          placeholder="Expected..."
+                          className="w-full text-[12.5px] text-text-muted bg-transparent border-none outline-none resize-none placeholder-text-faint"
+                        />
+                      </div>
+                      <div className="flex justify-center mt-[4px]">
+                        <button type="button" onClick={() => remove(index)} className="text-text-faint hover:text-danger opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setAttachments((prev) =>
-                          prev.filter((a) => a.id !== file.id),
-                        )
-                      }
-                      className="p-1.5 text-text-muted hover:text-danger rounded-md transition-colors"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                ))}
+                  ))}
+                  <button type="button" onClick={() => append({ action: "", expectedResult: "" })} className="w-full flex items-center gap-[7px] p-[10px_12px] border-t border-border bg-surface text-[var(--primary-text)] text-[12.5px] font-semibold hover:bg-surface-hover transition-colors">
+                    <Plus size={17} />
+                    Add step
+                  </button>
+                </div>
               </div>
-            )}
-          </div>
-        </section>
 
-        {/* Test Steps Section */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-text-main">Test Steps</h2>
-            <span className="text-xs font-medium text-text-muted uppercase tracking-wider">
-              {fields.length} {fields.length === 1 ? "Step" : "Steps"}
-            </span>
-          </div>
-
-          <div className="space-y-3">
-            {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="group bg-surface border border-border/80 rounded-[13px] shadow-[var(--shadow-float)] overflow-hidden flex transition-all duration-300 hover:shadow-lg"
-              >
-                {/* Drag Handle & Number */}
-                <div className="w-12 bg-surface-hover/50 border-r border-border/80 flex flex-col items-center py-4 space-y-2">
-                  <GripVertical
-                    size={16}
-                    className="text-text-muted cursor-grab active:cursor-grabbing"
+              {/* Attachments */}
+              <div>
+                <label className="block text-[13px] text-text-muted mb-[9px] font-semibold">Attachments</label>
+                <div className="relative">
+                  <FileUpload
+                    projectId={projectCode}
+                    onUploadComplete={(attachment) => setAttachments((prev) => [...prev, attachment])}
                   />
-                  <span className="text-xs font-bold text-text-muted">
-                    {index + 1}
-                  </span>
                 </div>
-
-                {/* Step Inputs */}
-                <div className="flex-1 p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-bold text-text-muted uppercase mb-1">
-                      Action
-                    </label>
-                    <textarea
-                      {...register(`steps.${index}.action` as const, {
-                        required: true,
-                      })}
-                      rows={2}
-                      placeholder="Step description..."
-                      className="w-full px-4 py-2.5 text-[13px] font-semibold bg-transparent border border-transparent hover:border-border/80 focus:border-primary focus:bg-surface-hover/50 rounded-xl outline-none transition-all resize-none text-text-main"
-                    />
+                {attachments.length > 0 && (
+                  <div className="mt-[10px] space-y-[6px]">
+                    {attachments.map((file, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-[8px_12px] bg-surface border border-border rounded-[8px]">
+                        <div className="flex items-center gap-[8px]">
+                          <FileIcon size={14} className="text-primary" />
+                          <span className="text-[12.5px] text-text-main truncate max-w-[200px]">{file.originalName}</span>
+                          <span className="text-[11px] text-text-faint">{(file.size / 1024).toFixed(1)} KB</span>
+                        </div>
+                        <button type="button" onClick={() => setAttachments((prev) => prev.filter((a) => a.id !== file.id))} className="text-text-faint hover:text-danger">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-bold text-text-muted uppercase mb-1">
-                      Expected Result
-                    </label>
-                    <textarea
-                      {...register(`steps.${index}.expectedResult` as const)}
-                      rows={2}
-                      placeholder="What should happen?"
-                      className="w-full px-4 py-2.5 text-[13px] font-semibold bg-transparent border border-transparent hover:border-border/80 focus:border-primary focus:bg-surface-hover/50 rounded-xl outline-none transition-all resize-none text-text-main"
-                    />
-                  </div>
-                </div>
-
-                {/* Delete Action */}
-                <div className="w-12 flex items-center justify-center pr-2">
-	                  <button
-	                    type="button"
-	                    onClick={() => remove(index)}
-	                    className="p-2 text-text-muted hover:text-danger hover:bg-danger-soft rounded-xl transition-all opacity-0 group-hover:opacity-100"
-	                  >
-	                    <Trash2 size={18} />
-	                  </button>
-                </div>
+                )}
               </div>
-            ))}
+
+              {/* Custom fields row */}
+              {customFieldsDef.length > 0 && (
+                <div>
+                  <label className="block text-[13px] text-text-muted mb-[11px] font-semibold">Custom fields</label>
+                  <div className="grid grid-cols-2 gap-[14px]">
+                    {customFieldsDef.map((field) => (
+                      <div key={field.id} className={field.type === "TEXT" ? "col-span-2" : ""}>
+                        <label className="block text-[12px] text-text-faint mb-[6px]">{field.name}</label>
+                        {field.type === "SELECT" && (
+                          <div className="relative">
+                            <select
+                              {...register(`customFields.${field.id}`, { required: field.isRequired ? "Required" : false })}
+                              className="w-full h-[38px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border)] text-[13px] appearance-none outline-none focus:shadow-[inset_0_0_0_1px_var(--primary)]"
+                            >
+                              <option value="">Select...</option>
+                              {field.options?.map((opt: any) => <option key={opt.id} value={opt.value}>{opt.value}</option>)}
+                            </select>
+                            <ChevronDown size={18} className="absolute right-[10px] top-1/2 -translate-y-1/2 text-text-faint pointer-events-none" />
+                          </div>
+                        )}
+                        {field.type === "STRING" && (
+                          <input
+                            type="text"
+                            {...register(`customFields.${field.id}`, { required: field.isRequired ? "Required" : false })}
+                            className="w-full h-[38px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border)] text-[13px] outline-none focus:shadow-[inset_0_0_0_1px_var(--primary)]"
+                          />
+                        )}
+                        {field.type === "TEXT" && (
+                          <textarea
+                            {...register(`customFields.${field.id}`, { required: field.isRequired ? "Required" : false })}
+                            rows={3}
+                            className="w-full px-[12px] py-[8px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border)] text-[13px] outline-none focus:shadow-[inset_0_0_0_1px_var(--primary)] resize-y"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          <div className="flex space-x-4 mt-6">
-            <button
-              type="button"
-              onClick={() => append({ action: "", expectedResult: "" })}
-              className="flex-1 py-3 border-2 border-dashed border-border rounded-xl text-text-muted hover:border-blue-400 hover:text-primary hover:bg-info-soft/50 transition-all flex items-center justify-center font-medium text-sm"
-            >
-              <Plus size={18} className="mr-2" />
-              Add step
-            </button>
-            <button
-              type="button"
-              onClick={openSharedStepsModal}
-              className="flex-1 py-3 border-2 border-dashed border-border rounded-xl text-text-muted hover:border-blue-400 hover:text-primary hover:bg-info-soft/50 transition-all flex items-center justify-center font-medium text-sm"
-            >
-              <Plus size={18} className="mr-2" />
-              Insert Shared Step
-            </button>
+          {/* Right Meta Rail */}
+          <div className="border-l border-border bg-surface p-[20px_18px] flex flex-col gap-[18px] overflow-y-auto">
+            <div>
+              <label className="block text-[12px] text-text-faint mb-[8px]">Priority</label>
+              <div className="flex gap-[6px]">
+                <label className="flex-1 flex items-center justify-center gap-[4px] h-[32px] rounded-[8px] text-[12px] font-semibold cursor-pointer has-[:checked]:bg-danger-soft has-[:checked]:text-danger has-[:checked]:shadow-[inset_0_0_0_1px_var(--danger)] text-text-muted shadow-[inset_0_0_0_1px_var(--border)] transition-all">
+                  <input type="radio" value="HIGH" {...register("priority")} className="hidden" />
+                  <ChevronsUp size={15} />High
+                </label>
+                <label className="flex-1 flex items-center justify-center gap-[4px] h-[32px] rounded-[8px] text-[12px] font-medium cursor-pointer has-[:checked]:bg-surface-hover has-[:checked]:text-text-main has-[:checked]:shadow-[inset_0_0_0_1px_var(--border-strong)] text-text-muted shadow-[inset_0_0_0_1px_var(--border)] transition-all">
+                  <input type="radio" value="MEDIUM" {...register("priority")} className="hidden" />
+                  Med
+                </label>
+                <label className="flex-1 flex items-center justify-center gap-[4px] h-[32px] rounded-[8px] text-[12px] font-medium cursor-pointer has-[:checked]:bg-info-soft has-[:checked]:text-info has-[:checked]:shadow-[inset_0_0_0_1px_var(--info)] text-text-muted shadow-[inset_0_0_0_1px_var(--border)] transition-all">
+                  <input type="radio" value="LOW" {...register("priority")} className="hidden" />
+                  Low
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[12px] text-text-faint mb-[8px]">Suite</label>
+              <div className="relative">
+                <select
+                  {...register("suiteId", { required: "Suite is required" })}
+                  className="w-full h-[38px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border)] text-[13px] appearance-none outline-none focus:shadow-[inset_0_0_0_1px_var(--primary)]"
+                >
+                  <option value="" disabled>Select...</option>
+                  {suites.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
+                </select>
+                <ChevronDown size={18} className="absolute right-[10px] top-1/2 -translate-y-1/2 text-text-faint pointer-events-none" />
+              </div>
+              {errors.suiteId && <p className="mt-[4px] text-[12px] text-danger">{errors.suiteId.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-[12px] text-text-faint mb-[8px]">Severity</label>
+              <div className="relative">
+                <select
+                  {...register("severity")}
+                  className="w-full h-[38px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border)] text-[13px] appearance-none outline-none focus:shadow-[inset_0_0_0_1px_var(--primary)]"
+                >
+                  <option value="BLOCKER">Blocker</option>
+                  <option value="CRITICAL">Critical</option>
+                  <option value="MAJOR">Major</option>
+                  <option value="NORMAL">Normal</option>
+                  <option value="MINOR">Minor</option>
+                </select>
+                <ChevronDown size={18} className="absolute right-[10px] top-1/2 -translate-y-1/2 text-text-faint pointer-events-none" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[12px] text-text-faint mb-[8px]">Automation status</label>
+              <div className="relative">
+                <select
+                  {...register("automationStatus")}
+                  className="w-full h-[38px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border)] text-[13px] appearance-none outline-none focus:shadow-[inset_0_0_0_1px_var(--primary)]"
+                >
+                  <option value="MANUAL">Manual</option>
+                  <option value="TO_BE_AUTOMATED">To be automated</option>
+                  <option value="AUTOMATED">Automated</option>
+                </select>
+                <ChevronDown size={18} className="absolute right-[10px] top-1/2 -translate-y-1/2 text-text-faint pointer-events-none" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[12px] text-text-faint mb-[8px]">Tags</label>
+              <input
+                {...register("tagsInput")}
+                placeholder="e.g. e2e, pricing"
+                className="w-full h-[38px] px-[12px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border)] text-[13px] outline-none focus:shadow-[inset_0_0_0_1px_var(--primary)] placeholder-text-faint"
+              />
+            </div>
+            
+            <div className="mt-auto pt-[14px] border-t border-border flex items-center gap-[8px]">
+               {/* Checkbox for 'create another' could go here */}
+               <div className="w-[18px] h-[18px] rounded-[5px] bg-surface-hover shadow-[inset_0_0_0_1px_var(--border-strong)] flex items-center justify-center"></div>
+               <span className="text-[12.5px] text-text-muted">Create another after saving</span>
+            </div>
           </div>
-        </section>
-      </main>
+        </div>
+
+        {/* Sticky footer */}
+        <div className="flex items-center justify-end gap-[9px] p-[13px_20px] bg-surface border-t border-border shrink-0">
+          <Button type="button" size="sm" variant="ghost" onClick={() => router.back()}>Cancel</Button>
+          <Button type="submit" size="sm" variant="secondary">Save &amp; new</Button>
+          <Button type="submit" size="sm" variant="primary">
+            <Check size={16} />Save case
+          </Button>
+        </div>
+      </form>
+
 
       {isSharedStepsModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -609,7 +493,7 @@ function CreateCaseContent({
           </div>
         </div>
       )}
-    </form>
+    </div>
   );
 }
 

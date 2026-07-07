@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Activity log" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;">
+  <div style="display:flex; align-items:center; gap:18px; padding:0 18px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:7px; padding:11px 0;"><span style="font-weight:600; font-size:13.5px;">Checkout Web</span><span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">unfold_more</span></div>
+    <div style="width:1px; height:18px; background:var(--border);"></div>
+    <div style="display:flex; gap:2px;">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="5"><div style="padding:11px 12px 9px; font-weight:{{ t.weight }}; font-size:13px; color:{{ t.color }}; border-bottom:2px solid {{ t.border }}; margin-bottom:-1px;">{{ t.label }}</div></sc-for>
+    </div>
+  </div>
+
+  <div style="padding:20px 22px; max-width:860px; margin:0 auto;">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+      <div><div style="font-size:19px; font-weight:600; letter-spacing:-0.015em;">Activity</div><div style="font-size:13px; color:var(--text-muted); margin-top:2px;">Everything that happened in this project</div></div>
+      <div style="flex:1;"></div>
+      <div style="display:flex; align-items:center; gap:6px; height:34px; padding:0 12px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); border-radius:9px; font-size:12.5px; font-weight:500;"><span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">bolt</span>All actions<span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">expand_more</span></div>
+      <div style="display:flex; align-items:center; gap:6px; height:34px; padding:0 12px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); border-radius:9px; font-size:12.5px; font-weight:500;"><span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">category</span>All entities<span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">expand_more</span></div>
+      <div style="display:flex; align-items:center; gap:6px; height:34px; padding:0 12px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); border-radius:9px; font-size:12.5px; font-weight:500;"><span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">person</span>Anyone<span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">expand_more</span></div>
+    </div>
+
+    <sc-for list="{{ days }}" as="d" hint-placeholder-count="3">
+      <div style="display:flex; align-items:center; gap:10px; margin:18px 0 10px;">
+        <span style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint);">{{ d.label }}</span>
+        <div style="flex:1; height:1px; background:var(--border);"></div>
+      </div>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow-sm); overflow:hidden;">
+        <sc-for list="{{ d.items }}" as="a" hint-placeholder-count="4">
+          <div style="display:flex; align-items:center; gap:12px; padding:11px 16px; border-bottom:1px solid var(--border);">
+            <div style="width:30px; height:30px; border-radius:999px; background:{{ a.avBg }}; color:{{ a.avColor }}; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; flex-shrink:0;">{{ a.who2 }}</div>
+            <div style="width:24px; height:24px; border-radius:7px; background:{{ a.iconBg }}; color:{{ a.iconColor }}; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-symbols-rounded fill" style="font-size:14px;">{{ a.icon }}</span></div>
+            <div style="flex:1; min-width:0; font-size:13px;"><span style="font-weight:600;">{{ a.who }}</span> <span style="color:var(--text-muted);">{{ a.action }}</span> <span style="font-weight:500; font-family:'JetBrains Mono',monospace; font-size:11.5px;">{{ a.entity }}</span> <span style="color:var(--text-muted);">{{ a.target }}</span></div>
+            <span style="font-size:11.5px; color:var(--text-faint); flex-shrink:0;">{{ a.when }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const tab=(label,sel)=>({ label, weight: sel?'600':'500', color: sel?'var(--primary-text)':'var(--text-muted)', border: sel?'var(--primary)':'transparent' });
+    const tabs=[ tab('Dashboards'), tab('Repository'), tab('Test Plans'), tab('Test Runs'), tab('Automation') ];
+    const avs=[['var(--primary-soft)','var(--primary-text)'],['var(--info-soft-fill)','var(--info)'],['var(--pass-soft)','var(--pass)'],['var(--warn-soft)','var(--warn)']];
+    const ic={ run:['play_circle','var(--primary-soft)','var(--primary-text)'], pass:['check_circle','var(--pass-soft)','var(--pass)'], fail:['cancel','var(--fail-soft)','var(--fail)'], defect:['bug_report','var(--warn-soft)','var(--warn)'], edit:['edit','var(--info-soft-fill)','var(--info)'], add:['add_circle','var(--primary-soft)','var(--primary-text)'] };
+    let ai=0;
+    const a=(who,action,entity,target,when,kind)=>{ const i=ai++; return { who, who2:who.split(' ').map(w=>w[0]).join('').slice(0,2), action, entity, target, when, avBg:avs[i%4][0], avColor:avs[i%4][1], icon:ic[kind][0], iconBg:ic[kind][1], iconColor:ic[kind][2] }; };
+    const days=[
+      { label:'Today', items:[
+        a('Mara Alvarez','completed','RUN-318','· 96% pass','10:24','pass'),
+        a('Ravi Kapoor','raised defect','BUG-412','on TC-2041','09:48','defect'),
+        a('Jordan Lee','started','RUN-320','Regression v4.9','09:12','run'),
+        a('CI bot','aborted','RUN-313','Load-spike','08:30','fail'),
+      ]},
+      { label:'Yesterday', items:[
+        a('Lin Qiu','edited','TC-2041','Apply promo code','17:55','edit'),
+        a('Sam Park','created','PLAN-04','Mobile web RC','15:20','add'),
+        a('Ravi Kapoor','completed','RUN-317','· 100% pass','11:02','pass'),
+      ]},
+      { label:'Jun 22, 2026', items:[
+        a('Jordan Lee','created','RUN-318','Regression v4.8','14:40','add'),
+        a('Mara Alvarez','edited','MILE-09','v4.8 release','10:15','edit'),
+      ]},
+    ];
+    return { tabs, days };
+  }
+}
+</script>
+</body>
+</html>

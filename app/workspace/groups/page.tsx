@@ -1,60 +1,26 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import {
-  Users,
-  MoreHorizontal,
-  Check,
-  Plus,
-  X,
-  Loader2,
-  Search,
-  AlertTriangle,
-} from "lucide-react";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
+import {
+  UserPlus,
+  Search,
+  X,
+  Check,
+  Pencil,
+  Trash2,
+  Loader2,
+  ShoppingCart,
+  CreditCard,
+  Network,
+  Flag,
+  Building2,
+  type LucideIcon,
+} from "lucide-react";
 
-function ConfirmDialog({
-  message,
-  onConfirm,
-  onCancel,
-}: {
-  message: string;
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  return (
-    <div
-      className="fixed inset-0 bg-black/40 z-[200] flex items-center justify-center p-4"
-      onClick={onCancel}
-    >
-      <div
-        className="bg-surface rounded-[13px] shadow-[var(--shadow-float)] border border-border/80 w-full max-w-sm p-8 animate-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start gap-4 mb-6">
-          <div className="w-9 h-9 rounded-full bg-danger-soft flex items-center justify-center shrink-0">
-            <AlertTriangle size={18} className="text-danger" />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-text-main mb-1">
-              Delete group
-            </h3>
-            <p className="text-sm text-text-muted">{message}</p>
-          </div>
-        </div>
-        <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={onConfirm}>
-            Delete
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
+const GROUP_ICONS: LucideIcon[] = [ShoppingCart, CreditCard, Network, Flag, Building2];
 
 interface GroupMember {
   id: string;
@@ -82,27 +48,29 @@ interface WorkspaceUser {
 }
 
 const AVATAR_COLORS = [
-  "#4f46e5",
-  "#7c3aed",
-  "#0891b2",
-  "#059669",
-  "#d97706",
-  "#e11d48",
-  "#0284c7",
-  "#9333ea",
+  "var(--primary-soft)",
+  "var(--info-soft-fill)",
+  "var(--pass-soft)",
+  "var(--warn-soft)",
 ];
-function avatarMeta(u: { name?: string | null; email: string }) {
+const TEXT_COLORS = [
+  "var(--primary-text)",
+  "var(--info)",
+  "var(--pass)",
+  "var(--warn)",
+];
+
+function avatarMeta(u: { name?: string | null; email: string }, idx: number) {
   const display = u.name || u.email.split("@")[0];
   const parts = display.split(" ");
   const initials = (
     parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}` : display.substring(0, 2)
   ).toUpperCase();
-  let sum = 0;
-  for (let i = 0; i < display.length; i++) sum += display.charCodeAt(i);
   return {
     display,
     initials,
-    color: AVATAR_COLORS[sum % AVATAR_COLORS.length],
+    bg: AVATAR_COLORS[idx % AVATAR_COLORS.length],
+    color: TEXT_COLORS[idx % TEXT_COLORS.length],
   };
 }
 
@@ -110,10 +78,8 @@ export default function WorkspaceGroupsPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [users, setUsers] = useState<WorkspaceUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  // Drawer state (shared create + edit)
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -139,12 +105,6 @@ export default function WorkspaceGroupsPage() {
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = () => setOpenMenuId(null);
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
-
-  useEffect(() => {
     (async () => {
       setIsLoading(true);
       await loadGroups();
@@ -166,9 +126,7 @@ export default function WorkspaceGroupsPage() {
   };
 
   const openEdit = async (group: Group) => {
-    setOpenMenuId(null);
     setEditingId(group.id);
-    // Fetch fresh member list for the group
     let memberIds = new Set<string>((group.memberList || []).map((m) => m.id));
     if (!group.memberList) {
       const res = await fetch("/api/workspace/groups");
@@ -208,21 +166,15 @@ export default function WorkspaceGroupsPage() {
         memberIds: Array.from(form.memberIds),
       };
       const res = await fetch(
-        editingId
-          ? `/api/workspace/groups/${editingId}`
-          : "/api/workspace/groups",
+        editingId ? `/api/workspace/groups/${editingId}` : "/api/workspace/groups",
         {
           method: editingId ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        },
+        }
       );
       if (res.ok) {
-        toast.success(
-          editingId
-            ? "Group updated successfully"
-            : "Group created successfully",
-        );
+        toast.success(editingId ? "Group updated successfully" : "Group created successfully");
         setDrawerOpen(false);
         await loadGroups();
       } else {
@@ -261,157 +213,232 @@ export default function WorkspaceGroupsPage() {
   const filteredUsers = users.filter((u) => {
     const q = memberSearch.trim().toLowerCase();
     if (!q) return true;
-    return (
-      (u.name || "").toLowerCase().includes(q) ||
-      u.email.toLowerCase().includes(q)
-    );
+    return (u.name || "").toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
   });
 
   if (isLoading) {
     return (
-      <div className="w-full h-[500px] flex items-center justify-center">
-        <Loader2 className="animate-spin text-primary" size={32} />
+      <div className="w-full max-w-[1000px] mx-auto p-[20px_22px] flex items-center justify-center h-[200px]">
+        <div className="animate-spin w-8 h-8 rounded-full border-4 border-primary border-t-transparent"></div>
       </div>
     );
   }
 
+  const getGroupIconInfo = (idx: number) => {
+    const ic = [
+      ["var(--primary-soft)", "var(--primary-text)"],
+      ["var(--info-soft-fill)", "var(--info)"],
+      ["var(--pass-soft)", "var(--pass)"],
+      ["var(--warn-soft)", "var(--warn)"]
+    ];
+    return {
+      Icon: GROUP_ICONS[idx % GROUP_ICONS.length],
+      bg: ic[idx % 4][0],
+      color: ic[idx % 4][1]
+    };
+  };
+
   return (
-    <div className="w-full max-w-[1400px] mx-auto px-6 py-6 relative">
-      <div className="flex justify-between items-center mb-5">
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-text-main tracking-tight">
-            User Groups
-          </h1>
-          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary">
-            {groups.length}
-          </span>
+    <div className="w-full max-w-[1000px] mx-auto p-[20px_22px] relative min-h-0 antialiased font-sans">
+      <div className="flex items-center gap-[12px] mb-[16px]">
+        <div className="text-[16px] font-semibold text-text-main">
+          Groups <span className="text-text-faint font-normal">· {groups.length}</span>
         </div>
-        <Button
-          onClick={openCreate}
-          className="shadow-[var(--shadow-float)] hover:-translate-y-0.5 duration-300"
-        >
-          <Plus size={15} strokeWidth={2.5} /> Create Group
+        <div className="flex-1" />
+        <Button size="sm" onClick={openCreate}>
+          <UserPlus size={16} />
+          Create group
         </Button>
       </div>
 
-      <p className="text-sm text-text-muted mb-5">
-        Manage user groups to easily assign permissions across projects.
-      </p>
-
-      {groups.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 border border-dashed border-border/80 rounded-[13px] bg-surface shadow-[var(--shadow-float)] animate-in zoom-in-95 duration-200">
-          <div className="bg-primary-light p-4 rounded-full mb-4">
-            <Users className="text-primary" size={32} />
-          </div>
-          <h3 className="text-lg font-bold text-text-main">No groups found</h3>
-          <p className="text-text-muted mt-1 mb-4 text-sm max-w-sm text-center">
-            Groups help you manage permissions and roles for multiple users at
-            once.
-          </p>
-          <Button
-            variant="ghost"
-            onClick={openCreate}
-            className="text-primary hover:text-primary hover:bg-transparent"
-          >
-            Create your first group
-          </Button>
-        </div>
-      ) : (
-        <div className="bg-surface border border-border/80 rounded-[13px] shadow-[var(--shadow-float)] overflow-visible">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-border/80 bg-surface-hover/70">
-                <th className="px-6 py-3.5 text-[11px] font-bold text-text-muted uppercase tracking-wider">
-                  Group Details
-                </th>
-                <th className="px-6 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider w-32">
-                  Members
-                </th>
-                <th className="px-6 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider">
-                  Projects
-                </th>
-                <th className="px-6 py-3 w-16"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/80">
-              {groups.map((group) => (
-                <tr
-                  key={group.id}
-                  className="border-b border-border/80 last:border-0 hover:bg-surface-hover/70 transition-colors group/row"
-                >
-                  <td className="px-6 py-4">
-                    <div className="flex flex-col">
-                      <span className="font-semibold text-text-main text-sm">
-                        {group.title}
+      <div className="flex flex-col gap-[11px]">
+        {groups.map((g, idx) => {
+          const iconInfo = getGroupIconInfo(idx);
+          const projects = g.projectList?.slice(0, 3) || [];
+          const members = g.memberList?.slice(0, 4) || [];
+          
+          return (
+            <div key={g.id} className="flex items-center gap-[16px] bg-surface border border-border rounded-[13px] p-[15px_18px] shadow-sm transition-shadow">
+              <div
+                className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center shrink-0"
+                style={{ background: iconInfo.bg, color: iconInfo.color }}
+              >
+                <iconInfo.Icon size={20} />
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <div className="text-[14px] font-semibold text-text-main">{g.title}</div>
+                <div className="flex gap-[5px] mt-[5px] flex-wrap">
+                  {projects.length > 0 ? (
+                    projects.map((p) => (
+                      <span key={p.id} className="text-[10.5px] font-semibold px-[8px] py-[1px] rounded-[6px] bg-surface-hover text-text-muted">
+                        {p.name}
                       </span>
-                      <span className="text-xs text-text-muted mt-0.5">
-                        {group.description || "No description provided."}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold bg-primary-light text-primary border border-primary/15/50">
-                      {group.members} {group.members === 1 ? "user" : "users"}
+                    ))
+                  ) : (
+                    <span className="text-[10.5px] font-semibold px-[8px] py-[1px] rounded-[6px] bg-surface-hover text-text-faint">
+                      No projects
                     </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    {group.projectList && group.projectList.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
-                        {group.projectList.map((p) => (
-                          <span
-                            key={p.id}
-                            className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-surface-hover text-text-muted"
+                  )}
+                  {(g.projectList?.length || 0) > 3 && (
+                    <span className="text-[10.5px] font-semibold px-[8px] py-[1px] rounded-[6px] bg-surface-hover text-text-muted">
+                      +{(g.projectList?.length || 0) - 3}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-[14px]">
+                <div className="flex items-center gap-[8px]">
+                  <div className="flex">
+                    {members.map((m, i) => {
+                      const a = avatarMeta(m, i);
+                      return (
+                        <div 
+                          key={m.id} 
+                          className="w-[24px] h-[24px] rounded-full flex items-center justify-center text-[9px] font-bold shadow-[0_0_0_2px_var(--surface)]"
+                          style={{ background: a.bg, color: a.color, marginLeft: i === 0 ? "0" : "-7px" }}
+                          title={m.name || m.email}
+                        >
+                          {a.initials}
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <span className="text-[11.5px] text-text-faint">{g.members} members</span>
+                </div>
+                
+                <div className="flex gap-[3px]">
+                  <button onClick={() => openEdit(g)} className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center text-text-muted hover:bg-surface-hover hover:text-text-main transition-colors">
+                    <Pencil size={16} />
+                  </button>
+                  <button onClick={() => setConfirmDeleteId(g.id)} className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center text-text-faint hover:bg-danger-soft hover:text-danger transition-colors">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        
+        {groups.length === 0 && (
+          <div className="p-[40px] text-center border border-dashed border-border-strong rounded-[13px] bg-surface mt-[20px]">
+            <div className="text-[14px] font-semibold text-text-main">No groups found</div>
+            <div className="text-[13px] text-text-muted mt-[4px]">Create a group to manage user permissions across projects.</div>
+          </div>
+        )}
+      </div>
+
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end" style={{ background: "color(display-p3 0 0 0 / 0.4)" }} onClick={() => setDrawerOpen(false)}>
+          <div 
+            className="w-[380px] h-full bg-surface border-l border-border shadow-2xl flex flex-col animate-in slide-in-from-right duration-200"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-[10px] p-[16px_18px] border-b border-border">
+              <div className="flex-1">
+                <div className="text-[15px] font-semibold text-text-main">{editingId ? "Edit group" : "Create group"}</div>
+                {editingId && <div className="text-[12px] text-text-faint">{form.title}</div>}
+              </div>
+              <button onClick={() => setDrawerOpen(false)} className="text-text-faint hover:text-text-main transition-colors">
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-[16px_18px] flex flex-col gap-[16px] flex-1 overflow-y-auto">
+              <div>
+                <label className="block text-[12px] text-text-muted mb-[6px]">Group name</label>
+                <div className="flex items-center h-[40px] px-[13px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] text-[13.5px] focus-within:shadow-[inset_0_0_0_1.5px_var(--primary-color)] transition-shadow">
+                  <input 
+                    type="text" 
+                    value={form.title}
+                    onChange={e => setForm({...form, title: e.target.value})}
+                    placeholder="e.g. Payments squad"
+                    className="w-full bg-transparent outline-none text-text-main"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-[12px] text-text-muted mb-[6px]">Description</label>
+                <div className="flex p-[8px_13px] rounded-[10px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] text-[13.5px] focus-within:shadow-[inset_0_0_0_1.5px_var(--primary-color)] transition-shadow">
+                  <textarea 
+                    value={form.description}
+                    onChange={e => setForm({...form, description: e.target.value})}
+                    placeholder="Group description..."
+                    className="w-full bg-transparent outline-none text-text-main h-[60px] resize-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[12px] text-text-muted mb-[8px]">
+                  Members <span className="text-text-faint font-normal">· {form.memberIds.size} selected</span>
+                </label>
+                <div className="flex items-center gap-[8px] h-[36px] px-[11px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] rounded-[9px] text-[12.5px] mb-[10px] focus-within:shadow-[inset_0_0_0_1px_var(--primary-color)] transition-shadow">
+                  <Search size={16} className="text-text-faint shrink-0" />
+                  <input
+                    type="text" 
+                    value={memberSearch}
+                    onChange={e => setMemberSearch(e.target.value)}
+                    placeholder="Search members"
+                    className="w-full bg-transparent outline-none text-text-main"
+                  />
+                </div>
+                
+                <div className="flex flex-col gap-[2px]">
+                  {filteredUsers.length === 0 ? (
+                    <div className="text-[12px] text-text-muted text-center py-4">No members found.</div>
+                  ) : (
+                    filteredUsers.map((u, i) => {
+                      const selected = form.memberIds.has(u.id);
+                      const a = avatarMeta(u, i);
+                      return (
+                        <div 
+                          key={u.id}
+                          onClick={() => toggleMember(u.id)}
+                          className="flex items-center gap-[10px] p-[8px_8px] rounded-[9px] cursor-pointer transition-colors"
+                          style={{ background: selected ? "var(--primary-soft)" : "transparent" }}
+                        >
+                          <div 
+                            className="w-[18px] h-[18px] rounded-[5px] flex items-center justify-center shrink-0"
+                            style={{ 
+                              background: selected ? "var(--primary)" : "var(--surface)",
+                              boxShadow: selected ? "none" : "inset 0 0 0 1.5px var(--border-strong)"
+                            }}
                           >
-                            {p.code}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-text-muted opacity-60 font-semibold">None</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 text-right relative">
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.nativeEvent.stopImmediatePropagation();
-                        setOpenMenuId(
-                          openMenuId === group.id ? null : group.id,
-                        );
-                      }}
-                      className="text-text-muted hover:text-primary p-1.5 rounded-xl hover:bg-primary/10 transition-colors"
-                    >
-                      <MoreHorizontal size={18} />
-                    </button>
-                    {openMenuId === group.id && (
-                      <div className="absolute right-12 top-10 w-44 bg-surface rounded-xl shadow-[var(--shadow-float)] border border-border/80 z-50 py-1 text-left animate-in zoom-in-95 duration-200">
-                        <button
-                          className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover transition-colors"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openEdit(group);
-                          }}
-                        >
-                          Edit Group
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpenMenuId(null);
-                            setConfirmDeleteId(group.id);
-                          }}
-                          className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger-soft transition-colors border-t border-border mt-1 pt-1"
-                        >
-                          Delete Group
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                            {selected && <Check size={13} strokeWidth={3} className="text-primary-fg" />}
+                          </div>
+                          
+                          <div 
+                            className="w-[26px] h-[26px] rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
+                            style={{ background: a.bg, color: a.color }}
+                          >
+                            {a.initials}
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[12.5px] font-medium text-text-main whitespace-nowrap overflow-hidden text-ellipsis">{a.display}</div>
+                          </div>
+                          <span className="text-[10.5px] text-text-faint truncate max-w-[80px]">{u.email}</span>
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-[9px] p-[14px_18px] border-t border-border bg-surface">
+              <Button variant="ghost" size="sm" fullWidth onClick={() => setDrawerOpen(false)}>
+                Cancel
+              </Button>
+              <Button size="sm" fullWidth onClick={handleSubmit} disabled={isSubmitting}>
+                {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
+                {editingId ? "Save group" : "Create"}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -421,143 +448,6 @@ export default function WorkspaceGroupsPage() {
           onConfirm={() => handleDelete(confirmDeleteId)}
           onCancel={() => setConfirmDeleteId(null)}
         />
-      )}
-
-      {/* Slide-out drawer for create/edit */}
-      {drawerOpen && (
-        <div
-          className="fixed inset-0 bg-[color:oklch(0.18_0.015_264)]/40 backdrop-blur-sm z-50 flex justify-end"
-          onClick={() => setDrawerOpen(false)}
-        >
-          <div
-            className="bg-surface w-full max-w-md h-full shadow-[var(--shadow-float)] animate-in slide-in-from-right duration-300 flex flex-col border-l border-border/80"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-6 py-4 border-b border-border flex justify-between items-center">
-              <h2 className="text-lg font-bold text-text-main">
-                {editingId ? "Edit Group" : "Create New Group"}
-              </h2>
-              <button
-                onClick={() => setDrawerOpen(false)}
-                className="text-text-muted hover:text-text-muted p-1 rounded-md hover:bg-surface-hover transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-6 space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-text-main mb-1.5">
-                  Group Name <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  placeholder="e.g. QA Automation Team"
-                  className="w-full border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 text-sm transition-all bg-surface-hover"
-                  autoFocus
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-text-main mb-1.5">
-                  Description
-                </label>
-                <textarea
-                  value={form.description}
-                  onChange={(e) =>
-                    setForm({ ...form, description: e.target.value })
-                  }
-                  placeholder="What is the purpose of this group?"
-                  className="w-full border border-border rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary/40 text-sm h-24 resize-none transition-all bg-surface-hover"
-                />
-              </div>
-
-              {/* Member picker */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-sm font-semibold text-text-main">
-                    Members
-                  </label>
-                  <span className="text-[11px] font-bold text-primary bg-primary-light px-2 py-0.5 rounded-full">
-                    {form.memberIds.size} selected
-                  </span>
-                </div>
-                <div className="relative mb-2">
-                  <Search
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-                    size={14}
-                  />
-                  <input
-                    type="text"
-                    value={memberSearch}
-                    onChange={(e) => setMemberSearch(e.target.value)}
-                    placeholder="Search members…"
-                    className="w-full pl-8 pr-3 py-2 text-sm border border-border bg-surface-hover rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/25 transition-all"
-                  />
-                </div>
-                <div className="border border-border rounded-lg max-h-56 overflow-y-auto divide-y divide-border">
-                  {filteredUsers.length === 0 ? (
-                    <div className="px-4 py-6 text-center text-sm text-text-muted">
-                      No users found
-                    </div>
-                  ) : (
-                    filteredUsers.map((u) => {
-                      const a = avatarMeta(u);
-                      const selected = form.memberIds.has(u.id);
-                      return (
-                        <button
-                          key={u.id}
-                          type="button"
-                          onClick={() => toggleMember(u.id)}
-                          className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${selected ? "bg-primary-light/60" : "hover:bg-surface-hover"}`}
-                        >
-                          <div
-                            className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                            style={{ background: a.color }}
-                          >
-                            {a.initials}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium text-text-main truncate">
-                              {a.display}
-                            </div>
-                            <div className="text-[11px] text-text-muted truncate">
-                              {u.email}
-                            </div>
-                          </div>
-                          <div
-                            className={`w-5 h-5 rounded-md flex items-center justify-center shrink-0 transition-colors ${selected ? "bg-primary text-white" : "border border-border"}`}
-                          >
-                            {selected && <Check size={13} strokeWidth={3} />}
-                          </div>
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="px-6 py-4 border-t border-border bg-surface-hover/60 flex justify-end gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => setDrawerOpen(false)}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                loading={isSubmitting}
-                className="hover:-translate-y-0.5"
-              >
-                {editingId ? "Save Changes" : "Create Group"}
-              </Button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

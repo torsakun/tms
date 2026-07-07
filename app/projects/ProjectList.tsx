@@ -2,22 +2,14 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   Search,
   LayoutList,
   Grid,
-  MoreVertical,
-  AlertTriangle,
-  Check,
-  Settings,
-  Archive,
-  FolderOpen,
-  Plus,
   ChevronDown,
+  Plus,
+  FolderOpen,
 } from "lucide-react";
-import { toast } from "sonner";
-import { ButtonLink } from "@/components/ui/Button";
 
 function timeAgo(dateString: string) {
   const date = new Date(dateString);
@@ -52,57 +44,27 @@ interface ProjectData {
   updatedAt: string;
 }
 
-// Deterministic instrument accents per project index.
-const PROJECT_PALETTES = [
-  { bg: "var(--primary)", border: "var(--primary)", shadow: "color-mix(in oklch, var(--primary) 24%, transparent)" },
-  { bg: "var(--success)", border: "var(--success)", shadow: "color-mix(in oklch, var(--success) 22%, transparent)" },
-  { bg: "var(--info)", border: "var(--info)", shadow: "color-mix(in oklch, var(--info) 20%, transparent)" },
-  { bg: "var(--warning)", border: "var(--warning)", shadow: "color-mix(in oklch, var(--warning) 20%, transparent)" },
-  { bg: "var(--danger)", border: "var(--danger)", shadow: "color-mix(in oklch, var(--danger) 18%, transparent)" },
-  { bg: "var(--text-muted)", border: "var(--border-strong)", shadow: "color-mix(in oklch, var(--text-main) 10%, transparent)" },
+const avs = [
+  ["var(--primary-soft)", "var(--primary-text)"],
+  ["var(--info-soft-fill)", "var(--info)"],
+  ["var(--pass-soft)", "var(--pass)"],
+  ["var(--warn-soft)", "var(--warn)"],
 ];
 
-function HealthBadge({ rate }: { rate: number | null }) {
-  if (rate === null)
-    return <span className="text-text-faint font-bold text-xs">—</span>;
-  const good = rate >= 90,
-    warn = rate >= 70;
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black uppercase tracking-wider border
-      ${good ? "bg-success-soft text-success-foreground border-success/25" : warn ? "bg-warning-soft text-warning-foreground border-warning/25" : "bg-danger-soft text-danger-foreground border-danger/25"}`}
-    >
-      {good ? (
-        <Check size={11} strokeWidth={3.5} />
-      ) : warn ? (
-        <AlertTriangle size={11} />
-      ) : (
-        <span className="w-1.5 h-1.5 rounded-full bg-danger inline-block animate-pulse" />
-      )}
-      {rate.toFixed(0)}%
-    </span>
-  );
-}
+const healthColors = (h: number | null) => {
+  if (h === null) return ["var(--surface-hover)", "var(--text-faint)"];
+  if (h >= 90) return ["var(--pass-soft)", "var(--pass)"];
+  if (h >= 75) return ["var(--warn-soft)", "var(--warn)"];
+  return ["var(--fail-soft)", "var(--fail)"];
+};
 
-function AutomationBar({ percent }: { percent: number }) {
-  const color =
-    percent >= 70 ? "var(--success)" : percent >= 30 ? "var(--warning)" : "var(--border-strong)";
-  return (
-    <div className="flex items-center gap-2 min-w-[100px]">
-      <div className="flex-1 h-2 bg-surface-hover rounded-full overflow-hidden border border-border/20">
-        <div
-          className="h-full rounded-full transition-all"
-          style={{ width: `${percent}%`, background: color }}
-        />
-      </div>
-      <span className="text-xs font-bold text-text-muted w-8 text-right shrink-0">
-        {percent.toFixed(0)}%
-      </span>
-    </div>
-  );
-}
+const iconC = [
+  ["var(--primary-soft)", "var(--primary-text)"],
+  ["var(--info-soft-fill)", "var(--info)"],
+  ["var(--pass-soft)", "var(--pass)"],
+  ["var(--warn-soft)", "var(--warn)"],
+];
 
-type StatusFilter = "ACTIVE" | "ARCHIVED" | "ALL";
 type ViewMode = "list" | "grid";
 
 export function ProjectList({
@@ -110,558 +72,196 @@ export function ProjectList({
 }: {
   initialProjects: ProjectData[];
 }) {
-  const router = useRouter();
   const [projects, setProjects] = useState<ProjectData[]>(initialProjects);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("ACTIVE");
-  const [showStatusMenu, setShowStatusMenu] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [archivingId, setArchivingId] = useState<string | null>(null);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const statusMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setProjects(initialProjects);
   }, [initialProjects]);
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      )
-        setActiveDropdown(null);
-      if (
-        statusMenuRef.current &&
-        !statusMenuRef.current.contains(e.target as Node)
-      )
-        setShowStatusMenu(false);
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleToggleArchive = async (project: ProjectData) => {
-    setActiveDropdown(null);
-    setArchivingId(project.id);
-    const next = !project.isArchived;
-    try {
-      const res = await fetch(`/api/projects/${project.code}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isArchived: next }),
-      });
-      if (res.ok) {
-        setProjects((prev) =>
-          prev.map((p) =>
-            p.id === project.id ? { ...p, isArchived: next } : p,
-          ),
-        );
-        toast.success(
-          next ? `Archived "${project.name}"` : `Restored "${project.name}"`,
-        );
-        router.refresh();
-      } else {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data.error || "Failed to update project");
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Error updating project");
-    } finally {
-      setArchivingId(null);
-    }
-  };
-
-  const STATUS_LABEL: Record<StatusFilter, string> = {
-    ACTIVE: "Active",
-    ARCHIVED: "Archived",
-    ALL: "All",
-  };
-
   const filtered = projects.filter((p) => {
-    const matchesSearch =
+    return (
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.code.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus =
-      statusFilter === "ALL"
-        ? true
-        : statusFilter === "ARCHIVED"
-          ? p.isArchived
-          : !p.isArchived;
-    return matchesSearch && matchesStatus;
+      p.code.toLowerCase().includes(searchQuery.toLowerCase())
+    );
   });
 
   return (
-    <>
-      {/* ── Page header ───────────────────────────────────── */}
-      <div className="flex items-center justify-between mb-6 border-b border-border/40 pb-5">
-        <div className="flex items-center gap-3">
-          <h1 className="text-[32px] md:text-[40px] font-black tracking-tight text-text-main leading-none">
-            Projects
-          </h1>
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-black bg-primary-light text-primary border border-primary/20 shadow-2xs">
-            {initialProjects.length}
-          </span>
+    <div className="w-full bg-background text-[14px] leading-[1.45] text-text-main antialiased font-sans">
+      <div className="mx-auto w-full max-w-[1180px] p-[22px]">
+        {/* header */}
+        <div className="mb-[18px] flex items-center gap-3">
+          <div>
+            <div className="text-[21px] font-semibold tracking-[-0.015em]">Projects</div>
+            <div className="mt-0.5 text-[13px] text-text-muted">
+              {projects.length} projects across the workspace
+            </div>
+          </div>
+          <div className="flex-1"></div>
+          <Link
+            href="?create=true"
+            className="flex h-[36px] items-center gap-2 rounded-[9px] bg-primary px-3 text-[13px] font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover"
+          >
+            <Plus size={16} /> New project
+          </Link>
         </div>
-        <ButtonLink
-          href="?create=true"
-          size="md"
-          className="text-white shadow-md hover:-translate-y-0.5 active:translate-y-0 hover:shadow-primary/20"
-        >
-          <Plus size={14} strokeWidth={3} />
-          New project
-        </ButtonLink>
-      </div>
 
-      {/* ── Toolbar ──────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between mb-5 gap-4 p-3.5 bg-surface/90 backdrop-blur-md border border-border/80 rounded-2xl shadow-xs">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-primary"
-              size={14}
-            />
+        {/* toolbar */}
+        <div className="mb-[16px] flex items-center gap-2.5">
+          <div className="flex min-w-[200px] h-[36px] items-center gap-2 rounded-[9px] bg-surface px-[11px] text-[12.5px] text-text-faint shadow-[inset_0_0_0_1px_var(--border)] focus-within:shadow-[inset_0_0_0_1.5px_var(--primary)] transition-shadow">
+            <Search size={17} />
             <input
               type="text"
-              aria-label="Search projects"
-              placeholder="Search projects…"
+              placeholder="Search projects"
+              className="flex-1 bg-transparent text-text-main outline-none placeholder:text-text-faint"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-4 h-8.5 text-xs font-bold border border-border bg-background text-text-main rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary w-52 transition-all duration-200"
             />
           </div>
-          <div className="relative" ref={statusMenuRef}>
+          <div className="flex h-[36px] cursor-pointer items-center gap-1.5 rounded-[9px] bg-surface px-3 text-[12.5px] font-medium shadow-[inset_0_0_0_1px_var(--border)] hover:bg-surface-hover">
+            All statuses <ChevronDown size={17} className="text-text-faint" />
+          </div>
+          <div className="flex-1"></div>
+          {/* segmented view toggle */}
+          <div className="flex gap-[3px] rounded-[9px] border border-border bg-surface-hover p-[3px]">
             <button
-              onClick={() => setShowStatusMenu((v) => !v)}
-              className={[
-                "h-8.5 flex items-center gap-1.5 px-3.5 rounded-xl border text-xs font-bold transition-all duration-200 cursor-pointer outline-none",
-                statusFilter !== "ACTIVE"
-                  ? "border-primary/25 bg-primary-light text-primary shadow-2xs"
-                  : "border-border bg-background text-text-main hover:border-primary/35 focus:ring-2 focus:ring-primary/25",
-              ].join(" ")}
+              onClick={() => setViewMode("list")}
+              className={`flex items-center gap-[5px] rounded-[7px] px-[11px] py-[5px] text-[12px] font-semibold transition-colors ${
+                viewMode === "list" ? "bg-surface shadow-sm text-text-main" : "text-text-muted hover:text-text-main"
+              }`}
             >
-               Status: {STATUS_LABEL[statusFilter]} <ChevronDown size={12} className="text-text-muted" />
+              <LayoutList size={16} /> List
             </button>
-            {showStatusMenu && (
-              <div
-                className="absolute left-0 mt-1.5 w-40 bg-surface rounded-xl py-1 z-35 overflow-hidden shadow-lg border border-border animate-fade-up"
-              >
-                {(["ACTIVE", "ARCHIVED", "ALL"] as StatusFilter[]).map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => {
-                      setStatusFilter(s);
-                      setShowStatusMenu(false);
-                    }}
-                    className={[
-                      "w-full text-left px-4 py-2 text-xs font-bold transition-colors flex items-center justify-between cursor-pointer",
-                      statusFilter === s
-                        ? "bg-primary-light text-primary"
-                        : "text-text-main hover:bg-surface-hover",
-                    ].join(" ")}
-                  >
-                    {STATUS_LABEL[s]}
-                    {statusFilter === s && <Check size={13} strokeWidth={3} className="text-primary" />}
-                  </button>
-                ))}
-              </div>
-            )}
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`flex items-center gap-[5px] rounded-[7px] px-[11px] py-[5px] text-[12px] font-semibold transition-colors ${
+                viewMode === "grid" ? "bg-surface shadow-sm text-text-main" : "text-text-muted hover:text-text-main"
+              }`}
+            >
+              <Grid size={16} /> Grid
+            </button>
           </div>
         </div>
 
-        {/* View toggle */}
-        <div className="flex items-center gap-0.5 p-1 bg-background border border-border/80 rounded-xl">
-          <button
-            onClick={() => setViewMode("list")}
-            className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${viewMode === "list" ? "bg-surface shadow-xs text-primary font-bold" : "text-text-muted hover:text-text-main"}`}
-          >
-            <LayoutList size={14} />
-          </button>
-          <button
-            onClick={() => setViewMode("grid")}
-            className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${viewMode === "grid" ? "bg-surface shadow-xs text-primary font-bold" : "text-text-muted hover:text-text-main"}`}
-          >
-            <Grid size={14} />
-          </button>
-        </div>
-      </div>
-
-      {/* ── Table (list view) ────────────────────────────── */}
-      {viewMode === "list" && (
-        <div className="rounded-xl bg-surface border border-border shadow-sm overflow-visible">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-border text-[10px] font-black text-text-muted uppercase tracking-widest bg-surface-hover/70 backdrop-blur-xs">
-                <th className="pl-4 pr-5 py-4">
-                  Project
-                </th>
-                <th className="px-5 py-4 w-36">
-                  Health
-                </th>
-                <th className="px-5 py-4 w-48">
-                  Automation
-                </th>
-                <th className="px-5 py-4 w-44">
-                  Runs
-                </th>
-                <th className="px-5 py-4 w-28">
-                  Team
-                </th>
-                <th className="pr-4 py-4 w-10" />
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((project, idx) => {
-                const pal = PROJECT_PALETTES[idx % PROJECT_PALETTES.length];
-                const isOpen = activeDropdown === project.id;
-
+        {filtered.length === 0 ? (
+          <>
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-text-faint">Empty state</div>
+            <div className="flex flex-col items-center rounded-[13px] border border-border bg-surface p-10 text-center shadow-sm">
+              <div className="mb-[14px] flex h-[56px] w-[56px] items-center justify-center rounded-[15px] bg-primary-light">
+                <FolderOpen size={28} className="text-primary" />
+              </div>
+              <div className="text-[15.5px] font-semibold">No projects yet</div>
+              <div className="my-1.5 max-w-[300px] text-[13px] text-text-muted mb-4">
+                Create a project to start organizing suites, cases and test runs for a product area.
+              </div>
+              <Link
+                href="?create=true"
+                className="flex h-[40px] items-center gap-2 rounded-[10px] bg-primary px-4 text-[14px] font-semibold text-primary-foreground shadow-sm hover:bg-primary-hover"
+              >
+                <Plus size={18} /> New project
+              </Link>
+            </div>
+          </>
+        ) : viewMode === "list" ? (
+          <>
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-text-faint">List view</div>
+            <div className="mb-[26px] overflow-hidden rounded-[13px] border border-border bg-surface shadow-sm">
+              <div className="grid grid-cols-[2.2fr_96px_130px_90px_110px] gap-[14px] border-b border-border p-[10px_18px] text-[10.5px] font-semibold uppercase tracking-[0.06em] text-text-faint">
+                <div>Project</div><div>Health</div><div>Automation</div><div>Runs</div><div>Team</div>
+              </div>
+              {filtered.map((p, idx) => {
+                const hBg = healthColors(p.latestRunPassRate)[0];
+                const hColor = healthColors(p.latestRunPassRate)[1];
+                const iBg = iconC[idx % 4][0];
+                const iColor = iconC[idx % 4][1];
                 return (
-                  <tr
-                    key={project.id}
-                    className="border-b border-border last:border-0 hover:bg-surface-hover/80 transition-all duration-200 group"
-                  >
-                    {/* PROJECT — left accent border via pseudo box-shadow trick on first td */}
-                    <td className="pl-0 pr-5 py-4 align-middle">
-                      <Link
-                        href={`/projects/${project.code}/repository`}
-                        className="flex items-center gap-3 pl-4"
-                      >
-                        <div
-                          className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-xs shrink-0 shadow-xs group-hover:scale-105 transition-all duration-200"
-                          style={{ 
-                            background: pal.bg,
-                            boxShadow: `0 4px 12px ${pal.shadow}`
-                          }}
-                        >
-                          {project.code.slice(0, 2).toUpperCase()}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-text-main text-[15px] group-hover:text-primary transition-colors">
-                              {project.name}
-                            </span>
-                            {project.isArchived && (
-                              <span className="text-[9px] font-black uppercase tracking-wider bg-warning-soft text-warning-foreground px-1.5 py-0.5 rounded border border-warning/25 shadow-2xs">
-                                Archived
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-1.5 mt-1">
-                            <span className="text-[13px] font-medium text-text-muted">
-                              {project.testCasesCount} cases
-                            </span>
-                            <span className="text-text-faint">•</span>
-                            <span className="text-[13px] font-medium text-text-muted">
-                              {project.suitesCount} suites
-                            </span>
-                            <span className="text-text-faint">•</span>
-                            <span className="text-[13px] font-medium text-text-muted">
-                              {timeAgo(project.updatedAt)}
-                            </span>
-                          </div>
-                        </div>
-                      </Link>
-                    </td>
-
-                    {/* HEALTH */}
-                    <td className="px-5 py-4 align-middle">
-                      <HealthBadge rate={project.latestRunPassRate} />
-                    </td>
-
-                    {/* AUTOMATION */}
-                    <td className="px-5 py-4 align-middle">
-                      <AutomationBar percent={project.automationPercent} />
-                    </td>
-
-                    {/* RUNS */}
-                    <td className="px-5 py-4 align-middle">
-                      {project.testRunsCount > 0 ? (
-                        <Link
-                          href={`/projects/${project.code}/runs`}
-                          className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-hover transition-colors"
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-success shrink-0 shadow-[0_0_6px_color-mix(in_oklch,var(--success)_40%,transparent)]" />
-                          {project.activeRunsCount} active
-                          <span className="text-text-faint font-normal">/</span>
-                          <span className="text-text-muted font-bold">
-                            {project.testRunsCount} total
-                          </span>
-                        </Link>
-                      ) : (
-                        <span className="text-text-faint font-bold text-xs">—</span>
-                      )}
-                    </td>
-
-                    {/* TEAM */}
-                    <td className="px-5 py-4 align-middle">
-                      {project.teamMembers > 0 ? (
-                        <div className="flex -space-x-2">
-                          {Array.from({
-                            length: Math.min(project.teamMembers, 3),
-                          }).map((_, i) => (
-                            <div
-                              key={i}
-                              className="w-8 h-8 rounded-full border-2 border-white border-background flex items-center justify-center text-[11px] font-black text-white shadow-xs"
-                              style={{
-                                background:
-                                  PROJECT_PALETTES[i % PROJECT_PALETTES.length].bg,
-                              }}
-                            >
-                              U{i + 1}
-                            </div>
-                          ))}
-                          {project.teamMembers > 3 && (
-                            <div className="w-8 h-8 rounded-full border-2 border-white border-background bg-surface-hover flex items-center justify-center text-[11px] font-bold text-text-muted shadow-xs">
-                              +{project.teamMembers - 3}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-text-faint font-bold text-xs">—</span>
-                      )}
-                    </td>
-
-                    {/* ACTIONS */}
-                    <td className="pr-4 py-4 align-middle text-right">
-                      <div
-                        className="relative inline-block"
-                        ref={isOpen ? dropdownRef : null}
-                      >
-                        <button
-                          onClick={() =>
-                            setActiveDropdown(isOpen ? null : project.id)
-                          }
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all
-                          ${isOpen ? "bg-surface-hover text-text-main" : "text-text-faint hover:text-text-muted hover:bg-surface-hover opacity-0 group-hover:opacity-100"}`}
-                        >
-                          <MoreVertical size={15} />
-                        </button>
-
-                        {isOpen && (
-                          <div
-                            className="absolute right-0 mt-1 w-48 bg-surface rounded-xl py-1 z-30 overflow-hidden"
-                            style={{
-                              border: "1px solid var(--border-color)",
-                              boxShadow: "0 4px 20px rgba(79,70,229,0.30)",
-                            }}
-                          >
-                            <Link
-                              href={`/projects/${project.code}/dashboards`}
-                              className="flex items-center gap-2 px-4 py-2 text-sm text-text-muted hover:bg-surface-hover hover:text-text-main transition-colors"
-                            >
-                              <LayoutList
-                                size={13}
-                                className="text-text-muted"
-                              />{" "}
-                              View Dashboard
-                            </Link>
-                            <Link
-                              href={`/projects/${project.code}/settings`}
-                              className="flex items-center gap-2 px-4 py-2 text-sm text-text-muted hover:bg-surface-hover hover:text-text-main transition-colors"
-                            >
-                              <Settings size={13} className="text-text-muted" />{" "}
-                              Settings
-                            </Link>
-                            <div className="h-px bg-surface-hover my-1" />
-                            <button
-                              onClick={() => handleToggleArchive(project)}
-                              disabled={archivingId === project.id}
-                              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-warning-foreground hover:bg-warning-soft transition-colors disabled:opacity-50"
-                            >
-                              <Archive size={13} className="text-warning" />{" "}
-                              {project.isArchived ? "Restore" : "Archive"}
-                            </button>
-                          </div>
-                        )}
+                  <Link href={`/projects/${p.code}/dashboards`} key={p.id} className="grid grid-cols-[2.2fr_96px_130px_90px_110px] items-center gap-[14px] border-b border-border p-[13px_18px] hover:bg-surface-hover">
+                    <div className="flex min-w-0 items-center gap-[11px]">
+                      <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-[9px] text-[13px] font-bold" style={{ background: iBg, color: iColor }}>
+                        {p.code.slice(0, 2).toUpperCase()}
                       </div>
-                    </td>
-                  </tr>
+                      <div className="min-w-0">
+                        <div className="truncate text-[13.5px] font-semibold">{p.name}</div>
+                        <div className="text-[11.5px] text-text-faint">{p.testCasesCount} cases · {p.suitesCount} suites · {timeAgo(p.updatedAt)}</div>
+                      </div>
+                    </div>
+                    <div>
+                      <span className="rounded-full px-[9px] py-[3px] tabular-nums text-[11.5px] font-bold" style={{ background: hBg, color: hColor }}>
+                        {p.latestRunPassRate !== null ? `${Math.round(p.latestRunPassRate)}%` : "—"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="h-[5px] flex-1 overflow-hidden rounded-[3px] bg-surface-hover">
+                        <div className="h-full bg-primary" style={{ width: `${p.automationPercent}%` }}></div>
+                      </div>
+                      <span className="tabular-nums text-[11.5px] font-semibold text-text-muted">{Math.round(p.automationPercent)}%</span>
+                    </div>
+                    <div className="tabular-nums text-[12.5px]">
+                      <span className="font-bold text-primary">{p.activeRunsCount}</span>
+                      <span className="text-text-faint"> / {p.testRunsCount}</span>
+                    </div>
+                    <div className="flex">
+                      {Array.from({ length: Math.min(p.teamMembers || 1, 3) }).map((_, i) => (
+                        <div key={i} className="flex h-[24px] w-[24px] items-center justify-center rounded-full text-[9.5px] font-bold shadow-[0_0_0_2px_var(--surface)]" style={{ background: avs[i % 4][0], color: avs[i % 4][1], marginLeft: i === 0 ? "0" : "-7px" }}>
+                          U{i + 1}
+                        </div>
+                      ))}
+                    </div>
+                  </Link>
                 );
               })}
-
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="py-20 text-center">
-                    <FolderOpen
-                      size={32}
-                      className="mx-auto mb-3 text-text-faint"
-                    />
-                    <p className="text-sm text-text-muted mb-3">
-                      No projects found
-                    </p>
-                    <Link
-                      href="?create=true"
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-hover"
-                    >
-                      <Plus size={14} /> Create a project
-                    </Link>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* ── Grid view ────────────────────────────────────── */}
-      {viewMode === "grid" &&
-        (filtered.length === 0 ? (
-          <div className="rounded-xl bg-surface border border-border shadow-sm py-20 text-center">
-            <FolderOpen size={32} className="mx-auto mb-3 text-text-faint" />
-            <p className="text-sm text-text-muted mb-3">No projects found</p>
-            <Link
-              href="?create=true"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-hover"
-            >
-              <Plus size={14} /> Create a project
-            </Link>
-          </div>
+            </div>
+          </>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((project, idx) => {
-              const pal = PROJECT_PALETTES[idx % PROJECT_PALETTES.length];
-              const isOpen = activeDropdown === project.id;
-              return (
-                <div
-                  key={project.id}
-                  onMouseEnter={() => setHoveredId(project.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                  className="group relative bg-surface rounded-2xl border border-border/80 shadow-xs hover:-translate-y-1.5 hover:scale-[1.02] duration-300 transition-all overflow-hidden cursor-pointer"
-                  style={{ 
-                    borderTop: `3.5px solid ${pal.border}`,
-                    boxShadow: hoveredId === project.id 
-                      ? `0 20px 25px -5px ${pal.shadow}, 0 8px 10px -6px ${pal.shadow}, 0 0 15px -3px ${pal.shadow}` 
-                      : undefined
-                  }}
-                >
-                  <div className="p-5">
-                    <div className="flex items-start justify-between mb-4">
-                      <Link
-                        href={`/projects/${project.code}/repository`}
-                        className="flex items-center gap-3 min-w-0"
-                      >
-                        <div
-                          className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-sm shrink-0 shadow-xs"
-                          style={{ background: pal.bg }}
-                        >
-                          {project.code.slice(0, 2).toUpperCase()}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-text-main text-sm truncate group-hover:text-primary transition-colors">
-                              {project.name}
-                            </span>
-                            {project.isArchived && (
-                              <span className="text-[9px] font-black uppercase tracking-wider bg-warning-soft text-warning-foreground px-1.5 py-0.5 rounded border border-warning/25 shadow-2xs shrink-0">
-                                Archived
-                              </span>
-                            )}
+          <>
+            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-text-faint">Grid view</div>
+            <div className="mb-[26px] grid grid-cols-1 gap-[14px] sm:grid-cols-2 lg:grid-cols-3">
+              {filtered.map((p, idx) => {
+                const hBg = healthColors(p.latestRunPassRate)[0];
+                const hColor = healthColors(p.latestRunPassRate)[1];
+                const iBg = iconC[idx % 4][0];
+                const iColor = iconC[idx % 4][1];
+                return (
+                  <Link href={`/projects/${p.code}/dashboards`} key={p.id} className="rounded-[13px] border border-border bg-surface p-4 shadow-sm hover:border-primary/30 hover:shadow-md transition-all">
+                    <div className="mb-[14px] flex items-center gap-2.5">
+                      <div className="flex h-[36px] w-[36px] items-center justify-center rounded-[10px] text-[14px] font-bold" style={{ background: iBg, color: iColor }}>
+                        {p.code.slice(0, 2).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[13.5px] font-semibold">{p.name}</div>
+                        <div className="text-[11px] text-text-faint">{p.testCasesCount} cases · {p.suitesCount} suites</div>
+                      </div>
+                      <span className="rounded-full px-2 py-0.5 text-[11px] font-bold" style={{ background: hBg, color: hColor }}>
+                        {p.latestRunPassRate !== null ? `${Math.round(p.latestRunPassRate)}%` : "—"}
+                      </span>
+                    </div>
+                    <div className="mb-3 flex items-center gap-2">
+                      <span className="w-[62px] text-[11px] text-text-faint">Automation</span>
+                      <div className="h-[5px] flex-1 overflow-hidden rounded-[3px] bg-surface-hover">
+                        <div className="h-full bg-primary" style={{ width: `${p.automationPercent}%` }}></div>
+                      </div>
+                      <span className="text-[11px] font-semibold text-text-muted">{Math.round(p.automationPercent)}%</span>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-border pt-3">
+                      <span className="text-[11.5px] text-text-muted">
+                        <span className="font-bold text-primary">{p.activeRunsCount}</span> active runs
+                      </span>
+                      <div className="flex">
+                        {Array.from({ length: Math.min(p.teamMembers || 1, 3) }).map((_, i) => (
+                          <div key={i} className="flex h-[22px] w-[22px] items-center justify-center rounded-full text-[9px] font-bold shadow-[0_0_0_2px_var(--surface)]" style={{ background: avs[i % 4][0], color: avs[i % 4][1], marginLeft: i === 0 ? "0" : "-7px" }}>
+                            U{i + 1}
                           </div>
-                          <span className="text-[10px] font-black text-primary bg-primary-light border border-primary/20 px-1.5 py-0.5 rounded shadow-2xs w-max mt-1.5 inline-block">
-                            {project.code}
-                          </span>
-                        </div>
-                      </Link>
-                      <div
-                        className="relative shrink-0"
-                        ref={isOpen ? dropdownRef : null}
-                      >
-                        <button
-                          onClick={() =>
-                            setActiveDropdown(isOpen ? null : project.id)
-                          }
-                          className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all cursor-pointer ${isOpen ? "bg-surface-hover text-text-main" : "text-text-faint hover:text-text-muted hover:bg-surface-hover"}`}
-                        >
-                          <MoreVertical size={15} />
-                        </button>
-                        {isOpen && (
-                          <div
-                            className="absolute right-0 mt-1.5 w-48 bg-surface rounded-xl py-1 z-35 overflow-hidden shadow-lg border border-border animate-fade-up"
-                          >
-                            <Link
-                              href={`/projects/${project.code}/dashboards`}
-                              className="flex items-center gap-2 px-4 py-2 text-sm text-text-muted hover:bg-surface-hover hover:text-text-main transition-colors"
-                            >
-                              <LayoutList
-                                size={13}
-                                className="text-text-muted"
-                              />{" "}
-                              View Dashboard
-                            </Link>
-                            <Link
-                              href={`/projects/${project.code}/settings`}
-                              className="flex items-center gap-2 px-4 py-2 text-sm text-text-muted hover:bg-surface-hover hover:text-text-main transition-colors"
-                            >
-                              <Settings size={13} className="text-text-muted" />{" "}
-                              Settings
-                            </Link>
-                            <div className="h-px bg-surface-hover my-1" />
-                            <button
-                              onClick={() => handleToggleArchive(project)}
-                              disabled={archivingId === project.id}
-                              className="w-full flex items-center gap-2 px-4 py-2 text-sm text-warning-foreground hover:bg-warning-soft transition-colors disabled:opacity-50"
-                            >
-                              <Archive size={13} className="text-warning" />{" "}
-                              {project.isArchived ? "Restore" : "Archive"}
-                            </button>
-                          </div>
-                        )}
+                        ))}
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-2.5 text-[11px] font-semibold text-text-muted mb-4">
-                      <span>{project.testCasesCount} cases</span>
-                      <span className="text-text-faint">•</span>
-                      <span>{project.suitesCount} suites</span>
-                      <span className="text-text-faint">•</span>
-                      <span>{project.milestonesCount} milestones</span>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black text-text-muted/80 uppercase tracking-widest">
-                          Health
-                        </span>
-                        <HealthBadge rate={project.latestRunPassRate} />
-                      </div>
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-[10px] font-black text-text-muted/80 uppercase tracking-widest shrink-0">
-                          Automation
-                        </span>
-                        <AutomationBar percent={project.automationPercent} />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-black text-text-muted/80 uppercase tracking-widest">
-                          Runs
-                        </span>
-                        {project.testRunsCount > 0 ? (
-                          <Link
-                            href={`/projects/${project.code}/runs`}
-                            className="inline-flex items-center gap-1.5 text-[13px] font-bold text-primary hover:text-primary-hover transition-colors"
-                          >
-                            <span className="w-1.5 h-1.5 rounded-full bg-success shadow-[0_0_6px_color-mix(in_oklch,var(--success)_40%,transparent)]" />
-                            {project.activeRunsCount} active{" "}
-                            <span className="text-text-faint font-normal">/</span>{" "}
-                            <span className="text-text-muted font-bold">
-                              {project.testRunsCount}
-                            </span>
-                          </Link>
-                        ) : (
-                          <span className="text-text-faint font-bold text-xs">
-                            —
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ))}
-    </>
+                  </Link>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
   );
 }

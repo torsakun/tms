@@ -3,6 +3,7 @@
 // app/api/projects/[code]/cases/route.ts
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { AutomationStatus, Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { requireProjectRole } from "@/lib/project-auth";
@@ -46,32 +47,31 @@ export async function POST(
 ) {
   const { code: projectIdOrCode } = await params;
   try {
-    let project = await prisma.project.findFirst({
+    const project = await prisma.project.findFirst({
       where: {
         OR: [{ id: projectIdOrCode }, { code: projectIdOrCode }],
       },
     });
 
     if (!project) {
-      project = await prisma.project.create({
-        data: {
-          code: projectIdOrCode,
-          name: projectIdOrCode + " Project",
-        },
-      });
+      return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
     const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const sessionUser = session.user as { id?: string; role?: string };
+    if (!sessionUser.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const hasAccess = await requireProjectRole(
       project.code,
-      (session.user as any).id,
+      sessionUser.id,
       ["EDITOR", "ADMIN"],
     );
-    if (!hasAccess && (session.user as any).role !== "ADMIN") {
+    if (!hasAccess && sessionUser.role !== "ADMIN") {
       return NextResponse.json(
         {
           error:
@@ -125,7 +125,7 @@ export async function POST(
 
     await logAudit({
       projectId,
-      userId: (session.user as any).id,
+      userId: sessionUser.id,
       action: "CREATED",
       entity: "TEST_CASE",
       entityId: testCase.id,
@@ -148,27 +148,27 @@ export async function GET(
 ) {
   const { code: projectIdOrCode } = await params;
 
-  let project = await prisma.project.findFirst({
+  const project = await prisma.project.findFirst({
     where: {
       OR: [{ id: projectIdOrCode }, { code: projectIdOrCode }],
     },
   });
 
   if (!project) {
-    project = await prisma.project.create({
-      data: {
-        code: projectIdOrCode,
-        name: projectIdOrCode + " Project",
-      },
-    });
+    return NextResponse.json({ error: "Project not found" }, { status: 404 });
   }
 
   const url = new URL(req.url);
   const automationStatus = url.searchParams.get("automationStatus");
 
-  const whereClause: any = { projectId: project.id };
-  if (automationStatus) {
-    whereClause.automationStatus = automationStatus;
+  const whereClause: Prisma.TestCaseWhereInput = {
+    projectId: project.id,
+  };
+  if (
+    automationStatus &&
+    Object.values(AutomationStatus).includes(automationStatus as AutomationStatus)
+  ) {
+    whereClause.automationStatus = automationStatus as AutomationStatus;
   }
 
   const cases = await prisma.testCase.findMany({

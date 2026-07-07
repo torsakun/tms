@@ -1,0 +1,5 @@
+/* S9 Design System — global entry point.
+   Consumers link THIS file only. Keep it a list of @import lines. */
+@import "./tokens/fonts.css";
+@import "./tokens/fig-tokens.css";
+@import "./tokens/typography.css";

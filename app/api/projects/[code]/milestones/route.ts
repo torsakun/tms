@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { requireProjectAccess } from "@/lib/project-route-auth";
 
 export async function GET(
   req: Request,
@@ -10,6 +11,13 @@ export async function GET(
     const milestones = await prisma.milestone.findMany({
       where: { project: { code } },
       orderBy: { createdAt: "desc" },
+      include: {
+        testRuns: {
+          include: {
+            results: { select: { status: true } },
+          },
+        },
+      },
     });
 
     return NextResponse.json(milestones);
@@ -28,6 +36,9 @@ export async function POST(
 ) {
   const { code } = await params;
   try {
+    const access = await requireProjectAccess(code);
+    if (access instanceof NextResponse) return access;
+
     const body = await req.json();
     const { title, description, dueDate } = body;
 

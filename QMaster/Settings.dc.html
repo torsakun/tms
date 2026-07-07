@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Project settings" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;">
+  <div style="display:flex; align-items:center; gap:10px; padding:16px 22px;">
+    <span class="material-symbols-rounded" style="font-size:21px; color:var(--text-faint);">settings</span>
+    <span style="font-size:18px; font-weight:600; letter-spacing:-0.01em;">Project settings</span>
+    <span style="font-size:13px; color:var(--text-faint);">· Checkout Web</span>
+  </div>
+
+  <div style="display:grid; grid-template-columns:220px 1fr; gap:0; min-height:600px; border-top:1px solid var(--border);">
+    <!-- settings nav -->
+    <div style="border-right:1px solid var(--border); padding:16px 12px; display:flex; flex-direction:column; gap:2px;">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="6">
+        <div style="display:flex; align-items:center; gap:10px; padding:8px 11px; border-radius:9px; background:{{ n.bg }}; color:{{ n.color }}; font-weight:{{ n.weight }}; font-size:13px;">
+          <span class="material-symbols-rounded {{ n.fill }}" style="font-size:18px;">{{ n.icon }}</span>{{ n.label }}
+        </div>
+      </sc-for>
+      <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border); display:flex; align-items:center; gap:10px; padding:8px 11px; border-radius:9px; color:var(--fail); font-weight:500; font-size:13px;"><span class="material-symbols-rounded" style="font-size:18px;">delete</span>Delete project</div>
+    </div>
+
+    <!-- content: Integrations -->
+    <div style="padding:24px 28px; max-width:760px;">
+      <div style="margin-bottom:6px; font-size:17px; font-weight:600; letter-spacing:-0.01em;">Integrations</div>
+      <div style="color:var(--text-muted); font-size:13.5px; margin-bottom:22px;">Connect QMaster to the tools your team already uses. Defects sync both ways.</div>
+
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <sc-for list="{{ integrations }}" as="i" hint-placeholder-count="3">
+          <div style="display:flex; align-items:center; gap:15px; padding:16px 18px; background:var(--surface); border:1px solid var(--border); border-radius:13px; box-shadow:var(--shadow-sm);">
+            <div style="width:42px; height:42px; border-radius:11px; background:{{ i.iconBg }}; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-symbols-rounded fill" style="font-size:23px; color:{{ i.iconColor }};">{{ i.icon }}</span></div>
+            <div style="flex:1; min-width:0;">
+              <div style="display:flex; align-items:center; gap:9px;"><span style="font-size:14.5px; font-weight:600;">{{ i.name }}</span><sc-if value="{{ i.connected }}" hint-placeholder-val="{{ true }}"><span style="display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; background:var(--pass-soft); color:var(--pass);"><span class="material-symbols-rounded fill" style="font-size:12px;">check_circle</span>Connected</span></sc-if></div>
+              <div style="font-size:12.5px; color:var(--text-muted); margin-top:2px;">{{ i.desc }}</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:14px;">
+              <span style="font-size:12px; font-weight:600; color:{{ i.connected ? 'var(--text-muted)' : 'var(--primary-text)' }};">{{ i.action }}</span>
+              <x-import component-from-global-scope="S9DesignSystem_874ecb.Switch" checked="{{ i.connected }}" hint-size="44px,24px"></x-import>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="margin-top:30px; margin-bottom:6px; font-size:15px; font-weight:600;">Webhook</div>
+      <div style="color:var(--text-muted); font-size:13px; margin-bottom:12px;">POST run results to your endpoint on completion.</div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <div style="flex:1; display:flex; align-items:center; height:42px; padding:0 14px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--text-muted);">https://hooks.checkout.dev/qmaster/runs</div>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="90px,42px" variant="outline" leading-icon="content_copy" style="{{ btnStyle }}">Copy</x-import>
+      </div>
+
+      <div style="margin-top:28px; display:flex; justify-content:flex-end; gap:9px;">
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="90px,40px" variant="ghost" style="{{ btnStyle2 }}">Discard</x-import>
+        <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="120px,40px" variant="primary" leading-icon="check" style="{{ btnStyle2 }}">Save changes</x-import>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const btnStyle = { height: 42, borderRadius: 11, fontSize: 14 };
+    const btnStyle2 = { height: 40, borderRadius: 10, fontSize: 14 };
+    const ni=(label,icon,sel)=>({ label, icon, fill: sel?'fill':'', bg: sel?'var(--primary-soft)':'transparent', color: sel?'var(--primary-text)':'var(--text-muted)', weight: sel?'600':'500' });
+    const nav=[
+      ni('General','tune'), ni('Members','group'), ni('Access control','shield'),
+      ni('Integrations','extension', true), ni('Environments','dns'), ni('Activity log','history'),
+    ];
+    const integrations=[
+      { name:'Jira', desc:'Create & sync defects with Jira issues', icon:'bug_report', iconBg:'var(--primary-soft)', iconColor:'var(--primary-text)', connected:true, action:'Configure' },
+      { name:'GitHub', desc:'Link runs to commits, PRs and checks', icon:'merge', iconBg:'var(--surface-2)', iconColor:'var(--text)', connected:true, action:'Configure' },
+      { name:'Microsoft Teams', desc:'Post run summaries to a channel', icon:'forum', iconBg:'var(--info-soft)', iconColor:'var(--info)', connected:false, action:'Connect' },
+    ];
+    return { nav, integrations, btnStyle, btnStyle2 };
+  }
+}
+</script>
+</body>
+</html>

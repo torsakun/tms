@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { canManageWorkspace } from "@/lib/permissions";
-import bcrypt from "bcrypt";
+import { v4 as uuidv4 } from "uuid";
 
 export async function PATCH(
   req: Request,
@@ -75,15 +75,18 @@ export async function PATCH(
     }
 
     if (action === "reset_password") {
-      const defaultPassword = "password123";
-      const passwordHash = await bcrypt.hash(defaultPassword, 10);
-      await prisma.user.update({
-        where: { id: userId },
-        data: { passwordHash },
+      const token = uuidv4();
+      const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      await prisma.passwordResetToken.create({
+        data: { token, userId, expiresAt },
       });
+      const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
+      const host = req.headers.get("host");
+      const baseUrl = process.env.NEXTAUTH_URL || `${protocol}://${host}`;
       return NextResponse.json({
         success: true,
-        message: "Password reset to default (password123)",
+        message: "Password reset link generated",
+        resetLink: `${baseUrl}/reset-password?token=${token}`,
       });
     }
 
@@ -113,7 +116,7 @@ export async function PATCH(
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Workspace User Action API Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

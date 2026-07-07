@@ -16,6 +16,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Workspace-level uploads (e.g. the logo) aren't tied to a project — just
+    // push the bytes to S3 and return the URL without creating a project/attachment.
+    if (projectIdOrCode === "__workspace__") {
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const safeFilename = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "_");
+      const uniqueFilename = `${Date.now()}-${safeFilename}`;
+      await s3Client.send(
+        new PutObjectCommand({
+          Bucket: S3_BUCKET,
+          Key: uniqueFilename,
+          Body: buffer,
+          ContentType: file.type || "application/octet-stream",
+        }),
+      );
+      const fileUrl = `/api/uploads/${uniqueFilename}`;
+      return NextResponse.json(
+        { url: fileUrl, filename: uniqueFilename, originalName: file.name },
+        { status: 201 },
+      );
+    }
+
     let project = await prisma.project.findFirst({
       where: {
         OR: [{ id: projectIdOrCode }, { code: projectIdOrCode }],

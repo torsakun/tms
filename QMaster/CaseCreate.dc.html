@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="Case create" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased; display:flex; flex-direction:column; min-height:660px;">
+
+  <!-- header -->
+  <div style="display:flex; align-items:center; gap:12px; padding:14px 20px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <span style="font-size:13px; color:var(--text-faint);">Repository</span>
+    <span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">chevron_right</span>
+    <span style="font-size:13px; color:var(--text-faint);">Pricing &amp; promotions</span>
+    <span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">chevron_right</span>
+    <span style="font-size:14px; font-weight:600;">New test case</span>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 320px; gap:0; flex:1;">
+    <!-- main form -->
+    <div style="padding:22px 26px; overflow:auto; max-height:600px;">
+      <div style="max-width:620px; display:flex; flex-direction:column; gap:22px;">
+
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:7px;">Title</label>
+          <div style="display:flex; align-items:center; height:42px; padding:0 14px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:14px;">Apply promo code at checkout</div>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:7px;">Description</label>
+          <div style="min-height:74px; padding:11px 14px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13.5px; color:var(--text-muted); line-height:1.55;">Verify the best single discount is applied when a promo code is entered while a member discount is active.</div>
+        </div>
+
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:7px;">Preconditions</label>
+          <div style="min-height:48px; padding:11px 14px; border-radius:11px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13.5px; color:var(--text-muted); line-height:1.55;">Cart has 2 items ($96.00); signed-in member with active 10% discount.</div>
+        </div>
+
+        <!-- steps editor -->
+        <div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <label style="font-size:13px; color:var(--text-muted); font-weight:600;">Steps</label>
+            <span style="display:flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:var(--primary-text);"><span class="material-symbols-rounded" style="font-size:16px;">link</span>Insert shared steps</span>
+          </div>
+          <div style="border:1px solid var(--border); border-radius:12px; overflow:hidden;">
+            <div style="display:grid; grid-template-columns:34px 1fr 1fr 32px; gap:10px; padding:8px 12px; background:var(--surface-2); font-size:10.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint);"><div>#</div><div>Action</div><div>Expected result</div><div></div></div>
+            <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+              <div style="display:grid; grid-template-columns:34px 1fr 1fr 32px; gap:10px; padding:10px 12px; align-items:center; border-top:1px solid var(--border); background:var(--surface);">
+                <div style="width:22px; height:22px; border-radius:6px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--text-muted);">{{ s.n }}</div>
+                <div style="font-size:12.5px;">{{ s.action }}</div>
+                <div style="font-size:12.5px; color:var(--text-muted);">{{ s.expected }}</div>
+                <div style="display:flex; justify-content:center;"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">drag_indicator</span></div>
+              </div>
+            </sc-for>
+            <div style="display:flex; align-items:center; gap:7px; padding:10px 12px; border-top:1px solid var(--border); background:var(--surface); color:var(--primary-text); font-size:12.5px; font-weight:600;"><span class="material-symbols-rounded" style="font-size:17px;">add</span>Add step</div>
+          </div>
+        </div>
+
+        <!-- attachments -->
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:9px; font-weight:600;">Attachments</label>
+          <div style="display:flex; align-items:center; justify-content:center; gap:9px; height:78px; border:1.5px dashed var(--border-strong); border-radius:12px; color:var(--text-faint); font-size:13px;"><span class="material-symbols-rounded" style="font-size:22px;">cloud_upload</span>Drop files or <span style="color:var(--primary-text); font-weight:600;">browse</span></div>
+        </div>
+
+        <!-- custom fields -->
+        <div>
+          <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:11px; font-weight:600;">Custom fields</label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+            <div>
+              <label style="display:block; font-size:12px; color:var(--text-faint); margin-bottom:6px;">Automation status</label>
+              <div style="display:flex; align-items:center; justify-content:space-between; height:38px; padding:0 12px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13px;">Automated<span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">expand_more</span></div>
+            </div>
+            <div>
+              <label style="display:block; font-size:12px; color:var(--text-faint); margin-bottom:6px;">Layer</label>
+              <div style="display:flex; align-items:center; justify-content:space-between; height:38px; padding:0 12px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13px;">E2E<span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">expand_more</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- right meta rail -->
+    <div style="border-left:1px solid var(--border); background:var(--surface); padding:20px 18px; display:flex; flex-direction:column; gap:18px;">
+      <div>
+        <label style="display:block; font-size:12px; color:var(--text-faint); margin-bottom:8px;">Priority</label>
+        <div style="display:flex; gap:6px;">
+          <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:4px; height:32px; border-radius:8px; background:var(--fail-soft); color:var(--fail); font-size:12px; font-weight:600; box-shadow:inset 0 0 0 1px var(--fail);"><span class="material-symbols-rounded" style="font-size:15px;">keyboard_double_arrow_up</span>High</div>
+          <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:4px; height:32px; border-radius:8px; color:var(--text-muted); font-size:12px; font-weight:500; box-shadow:inset 0 0 0 1px var(--border);">Med</div>
+          <div style="flex:1; display:flex; align-items:center; justify-content:center; gap:4px; height:32px; border-radius:8px; color:var(--text-muted); font-size:12px; font-weight:500; box-shadow:inset 0 0 0 1px var(--border);">Low</div>
+        </div>
+      </div>
+      <div>
+        <label style="display:block; font-size:12px; color:var(--text-faint); margin-bottom:8px;">Type</label>
+        <div style="display:flex; align-items:center; justify-content:space-between; height:38px; padding:0 12px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border); font-size:13px;">Functional<span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">expand_more</span></div>
+      </div>
+      <div>
+        <label style="display:block; font-size:12px; color:var(--text-faint); margin-bottom:8px;">Owner</label>
+        <div style="display:flex; align-items:center; gap:8px; height:38px; padding:0 10px; border-radius:10px; background:var(--surface); box-shadow:inset 0 0 0 1px var(--border);"><div style="width:22px; height:22px; border-radius:999px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:700;">JL</div><span style="font-size:13px;">Jordan Lee</span></div>
+      </div>
+      <div>
+        <label style="display:block; font-size:12px; color:var(--text-faint); margin-bottom:8px;">Tags</label>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          <span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:3px 8px; border-radius:7px; background:var(--primary-soft); color:var(--primary-text);">e2e<span class="material-symbols-rounded" style="font-size:13px;">close</span></span>
+          <span style="display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:3px 8px; border-radius:7px; background:var(--primary-soft); color:var(--primary-text);">pricing<span class="material-symbols-rounded" style="font-size:13px;">close</span></span>
+          <span style="display:inline-flex; align-items:center; font-size:11px; font-weight:500; padding:3px 8px; border-radius:7px; box-shadow:inset 0 0 0 1px var(--border); color:var(--text-faint);">+ Add</span>
+        </div>
+      </div>
+      <div style="margin-top:auto; padding-top:14px; border-top:1px solid var(--border); display:flex; align-items:center; gap:8px;">
+        <div style="width:18px; height:18px; border-radius:5px; background:var(--primary); display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded fill" style="font-size:13px; color:var(--primary-fg);">check</span></div>
+        <span style="font-size:12.5px; color:var(--text-muted);">Create another after saving</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- sticky footer -->
+  <div style="display:flex; align-items:center; justify-content:flex-end; gap:9px; padding:13px 20px; background:var(--surface); border-top:1px solid var(--border);">
+    <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="90px,36px" variant="ghost" size="sm" style="{{ btnStyle }}">Cancel</x-import>
+    <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="100px,36px" variant="outline" size="sm" style="{{ btnStyle }}">Save &amp; new</x-import>
+    <x-import component-from-global-scope="S9DesignSystem_874ecb.Button" hint-size="120px,36px" variant="primary" size="sm" leading-icon="check" style="{{ btnStyle }}">Save case</x-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals(){
+    const btnStyle = { height: 36, borderRadius: 9, fontSize: 13 };
+    const steps=[
+      { n:1, action:'Add 2 items to cart ($96.00)', expected:'Cart subtotal shows $96.00' },
+      { n:2, action:'Enter promo code "SAVE20"', expected:'Field accepts the code' },
+      { n:3, action:'Apply promo with member discount active', expected:'Best single discount → $84.00' },
+    ];
+    return { steps, btnStyle };
+  }
+}
+</script>
+</body>
+</html>

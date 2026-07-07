@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import { logAudit } from "@/lib/audit-logger";
+import { requireRunAccess } from "@/lib/project-route-auth";
 
 // Create a NEW run containing only the cases that failed/blocked in a source run.
 export async function POST(
@@ -11,10 +10,8 @@ export async function POST(
 ) {
   const { runId } = await params;
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const access = await requireRunAccess(runId);
+    if (access instanceof NextResponse) return access;
 
     const source = await prisma.testRun.findUnique({
       where: { id: runId },
@@ -59,7 +56,7 @@ export async function POST(
         title: `Re-run: ${source.title}`,
         description: `Re-run of failed/blocked cases from "${source.title}"`,
         projectId: source.project.id,
-        authorId: (session.user as any).id,
+        authorId: access.userId,
         planId: source.planId || undefined,
         environmentId: source.environmentId || undefined,
         milestoneId: source.milestoneId || undefined,
@@ -74,7 +71,7 @@ export async function POST(
 
     await logAudit({
       projectId: source.project.id,
-      userId: (session.user as any).id,
+      userId: access.userId,
       action: "CREATED",
       entity: "TEST_RUN",
       entityId: run.id,
@@ -85,8 +82,11 @@ export async function POST(
       { success: true, run, projectCode: source.project.code },
       { status: 201 },
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Re-run Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Failed to create re-run" },
+      { status: 500 },
+    );
   }
 }

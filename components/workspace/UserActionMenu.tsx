@@ -81,8 +81,38 @@ export default function UserActionMenu({
     message: string;
     action: string;
   } | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{
+    top: number;
+    left: number;
+  } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   const router = useRouter();
+
+  const updateMenuPosition = () => {
+    const rect = buttonRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const menuWidth = 192;
+    const gutter = 8;
+    setMenuPosition({
+      top: rect.bottom + 4,
+      left: Math.min(
+        window.innerWidth - menuWidth - gutter,
+        Math.max(gutter, rect.right - menuWidth),
+      ),
+    });
+  };
+
+  const toggleMenu = () => {
+    if (isOpen) {
+      setIsOpen(false);
+      return;
+    }
+
+    updateMenuPosition();
+    setIsOpen(true);
+  };
 
   const handleSendResetLink = async () => {
     setIsOpen(false);
@@ -104,8 +134,10 @@ export default function UserActionMenu({
       } else {
         toast.error(data.error || "Failed to generate reset link");
       }
-    } catch (error: any) {
-      toast.error(`Failed: ${error.message}`);
+    } catch (error: unknown) {
+      toast.error(
+        `Failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -117,15 +149,39 @@ export default function UserActionMenu({
         setIsOpen(false);
       }
     }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        setConfirm(null);
+        setResetLink(null);
+        setShowRoleModal(false);
+      }
+    }
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    updateMenuPosition();
+    window.addEventListener("resize", updateMenuPosition);
+    window.addEventListener("scroll", updateMenuPosition, true);
+    return () => {
+      window.removeEventListener("resize", updateMenuPosition);
+      window.removeEventListener("scroll", updateMenuPosition, true);
+    };
+  }, [isOpen]);
 
   const handleActionRequest = (action: string) => {
     setIsOpen(false);
     if (action === "reset_password") {
       setConfirm({
-        message: "Reset this user's password to 'password123'?",
+        message: "Generate a password reset link for this user?",
         action,
       });
     } else if (action === "deactivate") {
@@ -154,17 +210,19 @@ export default function UserActionMenu({
 
       if (response.ok) {
         if (action === "reset_password") {
-          toast.success("Password has been reset to: password123", {
-            duration: 5000,
-          });
+          const data = await response.json();
+          if (data.resetLink) setResetLink(data.resetLink);
+          else toast.success("Password reset link generated", { duration: 5000 });
         }
         router.refresh();
       } else {
         const data = await response.json();
         toast.error(`Action failed: ${data.error || "Unknown error"}`);
       }
-    } catch (error: any) {
-      toast.error(`Action failed: ${error.message}`);
+    } catch (error: unknown) {
+      toast.error(
+        `Action failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -187,8 +245,10 @@ export default function UserActionMenu({
         const data = await response.json();
         toast.error(`Role update failed: ${data.error || "Unknown error"}`);
       }
-    } catch (error: any) {
-      toast.error(`Role update failed: ${error.message}`);
+    } catch (error: unknown) {
+      toast.error(
+        `Role update failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -198,8 +258,13 @@ export default function UserActionMenu({
     <>
       <div className="relative" ref={menuRef}>
         <button
-          onClick={() => setIsOpen(!isOpen)}
+          ref={buttonRef}
+          type="button"
+          onClick={toggleMenu}
           disabled={isLoading}
+          aria-label="Open member actions"
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
           className={`p-1.5 rounded-md transition-colors ${
             isOpen
               ? "bg-skip-soft text-text-main"
@@ -210,8 +275,18 @@ export default function UserActionMenu({
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 mt-1 w-48 bg-surface rounded-md shadow-lg border border-border py-1 z-50">
+          <div
+            className="fixed w-48 bg-surface rounded-md shadow-lg border border-border py-1"
+            role="menu"
+            style={{
+              top: menuPosition?.top ?? 0,
+              left: menuPosition?.left ?? 0,
+              zIndex: "var(--z-dropdown)",
+            }}
+          >
             <button
+              type="button"
+              role="menuitem"
               onClick={() => {
                 setIsOpen(false);
                 setShowRoleModal(true);
@@ -222,6 +297,8 @@ export default function UserActionMenu({
               <span>Edit Role</span>
             </button>
             <button
+              type="button"
+              role="menuitem"
               onClick={handleSendResetLink}
               className="w-full text-left px-4 py-2 text-sm text-text-main hover:bg-surface-hover flex items-center space-x-2"
             >
@@ -233,6 +310,8 @@ export default function UserActionMenu({
 
             {isActive ? (
               <button
+                type="button"
+                role="menuitem"
                 onClick={() => handleActionRequest("deactivate")}
                 className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger-soft flex items-center space-x-2 font-medium"
               >
@@ -241,6 +320,8 @@ export default function UserActionMenu({
               </button>
             ) : (
               <button
+                type="button"
+                role="menuitem"
                 onClick={() => handleActionRequest("activate")}
                 className="w-full text-left px-4 py-2 text-sm text-success hover:bg-success-soft flex items-center space-x-2 font-medium"
               >

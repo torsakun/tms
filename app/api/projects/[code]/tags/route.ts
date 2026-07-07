@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { requireProjectAccess } from "@/lib/project-route-auth";
 
 const tagSchema = z.object({
   name: z.string().min(1),
@@ -12,6 +13,9 @@ export async function POST(
 ) {
   const { code } = await params;
   try {
+    const access = await requireProjectAccess(code);
+    if (access instanceof NextResponse) return access;
+
     const body = await req.json();
     const validatedData = tagSchema.parse(body);
 
@@ -23,8 +27,13 @@ export async function POST(
     });
 
     return NextResponse.json(tag, { status: 201 });
-  } catch (error: any) {
-    if (error.code === "P2002") {
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2002"
+    ) {
       return NextResponse.json(
         { error: "Tag already exists in this project" },
         { status: 409 },

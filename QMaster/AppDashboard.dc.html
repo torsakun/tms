@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/fig-tokens.css">
+<link rel="stylesheet" href="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/tokens/typography.css">
+<link rel="stylesheet" href="qm-tokens.css">
+<script src="_ds/s9-headless-ui-design-system-874ecbf7-9fc1-4ab6-bccf-c3704fc12ec6/_ds_bundle.js"></script>
+</helmet>
+<div data-screen-label="QA Dashboard" style="width:100%; background:var(--bg); color:var(--text); font-family:Inter,system-ui,sans-serif; font-size:14px; line-height:1.45; -webkit-font-smoothing:antialiased;">
+
+  <!-- ============ TOP NAV ============ -->
+  <div style="height:52px; display:flex; align-items:center; gap:20px; padding:0 18px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:9px;">
+      <div style="width:26px; height:26px; border-radius:7px; background:var(--primary); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow-sm);">
+        <span class="material-symbols-rounded fill" style="font-size:18px; color:var(--primary-fg);">radar</span>
+      </div>
+      <span style="font-weight:700; font-size:15px; letter-spacing:-0.01em;">QMaster</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:2px; margin-left:6px;">
+      <div style="padding:6px 11px; border-radius:8px; font-weight:500; color:var(--text);">Projects</div>
+      <div style="padding:6px 11px; border-radius:8px; font-weight:500; color:var(--text-muted);">Workspace</div>
+      <div style="padding:6px 11px; border-radius:8px; font-weight:500; color:var(--text-muted);">Dashboards</div>
+    </div>
+    <div style="flex:1;"></div>
+    <div style="display:flex; align-items:center; gap:8px; height:34px; padding:0 10px 0 12px; min-width:230px; background:var(--surface-2); border:1px solid var(--border); border-radius:9px; color:var(--text-faint);">
+      <span class="material-symbols-rounded" style="font-size:18px;">search</span>
+      <span style="flex:1; font-size:13px;">Search cases, runs, defects</span>
+      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; padding:2px 6px; border:1px solid var(--border); border-radius:5px; color:var(--text-muted);">⌘K</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <div style="width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><span class="material-symbols-rounded" style="font-size:20px;">light_mode</span></div>
+      <div style="position:relative; width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:var(--text-muted);">
+        <span class="material-symbols-rounded" style="font-size:20px;">notifications</span>
+        <span style="position:absolute; top:5px; right:5px; min-width:15px; height:15px; padding:0 3px; border-radius:999px; background:var(--fail); color:#fff; font-size:9.5px; font-weight:700; display:flex; align-items:center; justify-content:center; border:2px solid var(--surface);">3</span>
+      </div>
+      <div style="width:30px; height:30px; border-radius:999px; background:var(--primary-soft); color:var(--primary-text); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; margin-left:2px;">JL</div>
+    </div>
+  </div>
+
+  <!-- ============ PROJECT TAB BAR ============ -->
+  <div style="display:flex; align-items:center; gap:18px; padding:0 18px; background:var(--surface); border-bottom:1px solid var(--border);">
+    <div style="display:flex; align-items:center; gap:7px; padding:11px 0;">
+      <span style="font-weight:600; font-size:13.5px;">Checkout Web</span>
+      <span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">unfold_more</span>
+    </div>
+    <div style="width:1px; height:18px; background:var(--border);"></div>
+    <div style="display:flex; align-items:stretch; gap:2px;">
+      <div style="padding:11px 12px 9px; font-weight:600; font-size:13px; color:var(--primary-text); border-bottom:2px solid var(--primary); margin-bottom:-1px;">Dashboards</div>
+      <div style="padding:11px 12px 9px; font-weight:500; font-size:13px; color:var(--text-muted); border-bottom:2px solid transparent; margin-bottom:-1px;">Repository</div>
+      <div style="padding:11px 12px 9px; font-weight:500; font-size:13px; color:var(--text-muted); border-bottom:2px solid transparent; margin-bottom:-1px;">Test Plans</div>
+      <div style="padding:11px 12px 9px; font-weight:500; font-size:13px; color:var(--text-muted); border-bottom:2px solid transparent; margin-bottom:-1px;">Test Runs</div>
+      <div style="padding:11px 12px 9px; font-weight:500; font-size:13px; color:var(--text-muted); border-bottom:2px solid transparent; margin-bottom:-1px;">Automation</div>
+    </div>
+  </div>
+
+  <!-- ============ DASHBOARD BODY ============ -->
+  <div style="padding:20px; max-width:1280px; margin:0 auto;">
+
+    <!-- page header -->
+    <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:16px;">
+      <div>
+        <div style="font-size:21px; font-weight:600; letter-spacing:-0.015em;">Quality overview</div>
+        <div style="color:var(--text-muted); font-size:13px; margin-top:2px;">Last 30 days · Checkout Web · all environments</div>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <div style="display:flex; align-items:center; gap:7px; height:34px; padding:0 12px; background:var(--surface); border:1px solid var(--border); border-radius:9px; font-weight:500; font-size:13px; color:var(--text);"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">filter_list</span>All projects<span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">expand_more</span></div>
+        <div style="display:flex; align-items:center; gap:7px; height:34px; padding:0 12px; background:var(--surface); border:1px solid var(--border); border-radius:9px; font-weight:500; font-size:13px; color:var(--text);"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">calendar_today</span>30 days<span class="material-symbols-rounded" style="font-size:18px; color:var(--text-faint);">expand_more</span></div>
+        <div style="display:flex; align-items:center; gap:6px; height:34px; padding:0 12px; background:var(--surface); border:1px solid var(--border); border-radius:9px; font-weight:600; font-size:13px; color:var(--text);"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-faint);">workspaces</span>Projects</div>
+        <div style="display:flex; align-items:center; gap:7px; height:34px; padding:0 14px; background:var(--primary); color:var(--primary-fg); border-radius:9px; font-weight:600; font-size:13px; box-shadow:var(--shadow-sm);"><span class="material-symbols-rounded" style="font-size:17px;">add</span>New run</div>
+      </div>
+    </div>
+
+    <!-- KPI row -->
+    <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:14px;">
+      <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px 16px; box-shadow:var(--shadow-sm);">
+          <div style="display:flex; align-items:center; gap:7px; color:var(--text-muted); font-size:12.5px; font-weight:500;">
+            <span class="material-symbols-rounded" style="font-size:16px; color:var(--text-faint);">{{ k.icon }}</span>{{ k.label }}
+          </div>
+          <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-top:9px;">
+            <div style="font-size:27px; font-weight:600; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">{{ k.value }}</div>
+            <svg width="78" height="26" viewBox="0 0 78 26" style="overflow:visible;"><polyline points="{{ k.spark }}" fill="none" stroke="{{ k.sparkColor }}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"></polyline></svg>
+          </div>
+          <div style="display:flex; align-items:center; gap:4px; margin-top:6px; font-size:12px; font-weight:600; color:{{ k.deltaColor }};">
+            <span class="material-symbols-rounded" style="font-size:15px;">{{ k.arrow }}</span>{{ k.delta }}<span style="color:var(--text-faint); font-weight:400;">vs prev</span>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- trend + distribution -->
+    <div style="display:grid; grid-template-columns:1.7fr 1fr; gap:14px; margin-bottom:14px;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+          <div style="font-weight:600; font-size:14.5px;">Execution trend</div>
+          <div style="display:flex; gap:14px; font-size:12px; color:var(--text-muted);">
+            <span style="display:flex; align-items:center; gap:5px;"><span style="width:9px; height:9px; border-radius:3px; background:var(--primary);"></span>Pass rate</span>
+            <span style="display:flex; align-items:center; gap:5px;"><span style="width:9px; height:9px; border-radius:3px; background:var(--fail);"></span>Failures</span>
+          </div>
+        </div>
+        <svg viewBox="0 0 620 140" width="100%" height="150" preserveAspectRatio="none" style="display:block;">
+          <defs><linearGradient id="qmtrend" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--primary)" stop-opacity="0.22"></stop><stop offset="100%" stop-color="var(--primary)" stop-opacity="0"></stop></linearGradient></defs>
+          <line x1="0" y1="35" x2="620" y2="35" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"></line>
+          <line x1="0" y1="88" x2="620" y2="88" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 4"></line>
+          <path d="{{ trendArea }}" fill="url(#qmtrend)"></path>
+          <path d="{{ trendLine }}" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"></path>
+          <sc-for list="{{ trendDots }}" as="d" hint-placeholder-count="0"><circle cx="{{ d.x }}" cy="{{ d.y }}" r="2.6" fill="var(--surface)" stroke="var(--primary)" stroke-width="1.6"></circle></sc-for>
+        </svg>
+        <div style="display:flex; justify-content:space-between; margin-top:4px; color:var(--text-faint); font-size:11px;">
+          <span>4 wks ago</span><span>3 wks</span><span>2 wks</span><span>last wk</span><span>today</span>
+        </div>
+      </div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm);">
+        <div style="font-weight:600; font-size:14.5px; margin-bottom:14px;">Result distribution</div>
+        <div style="display:flex; height:12px; border-radius:6px; overflow:hidden; gap:2px;">
+          <sc-for list="{{ dist }}" as="s" hint-placeholder-count="5"><div style="width:{{ s.pctw }}; background:{{ s.color }};"></div></sc-for>
+        </div>
+        <div style="margin-top:14px; display:flex; flex-direction:column; gap:9px;">
+          <sc-for list="{{ dist }}" as="s" hint-placeholder-count="5">
+            <div style="display:flex; align-items:center; gap:9px; font-size:13px;">
+              <span style="width:9px; height:9px; border-radius:3px; background:{{ s.color }};"></span>
+              <span style="flex:1; color:var(--text-muted);">{{ s.label }}</span>
+              <span style="font-weight:600; font-variant-numeric:tabular-nums;">{{ s.count }}</span>
+              <span style="width:38px; text-align:right; color:var(--text-faint); font-variant-numeric:tabular-nums;">{{ s.pct }}%</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <!-- run-status / avg-time / automation donut -->
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm);">
+        <div style="font-weight:600; font-size:14px; margin-bottom:14px;">Run status</div>
+        <div style="display:flex; height:10px; border-radius:5px; overflow:hidden; gap:2px; margin-bottom:14px;">
+          <div style="width:4%; background:var(--primary);"></div><div style="width:94%; background:var(--pass);"></div><div style="width:2%; background:var(--fail);"></div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:9px;">
+          <sc-for list="{{ runStatus }}" as="s" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; gap:9px; font-size:13px;"><span style="width:9px; height:9px; border-radius:3px; background:{{ s.color }};"></span><span style="flex:1; color:var(--text-muted);">{{ s.label }}</span><span style="font-weight:700; font-variant-numeric:tabular-nums;">{{ s.count }}</span></div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm);">
+        <div style="font-weight:600; font-size:14px; margin-bottom:6px;">Avg execution time</div>
+        <div style="display:flex; align-items:flex-end; justify-content:space-between;">
+          <div style="font-size:28px; font-weight:600; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">7m 42s</div>
+          <svg width="90" height="34" viewBox="0 0 78 26" preserveAspectRatio="none" style="overflow:visible;"><polyline points="{{ avgSpark }}" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></polyline></svg>
+        </div>
+        <div style="display:flex; align-items:center; gap:4px; margin-top:8px; font-size:12px; font-weight:600; color:var(--pass);"><span class="material-symbols-rounded" style="font-size:15px;">arrow_downward</span>12% faster<span style="color:var(--text-faint); font-weight:400;">per case vs prev</span></div>
+      </div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm); display:flex; align-items:center; gap:16px;">
+        <svg width="92" height="92" viewBox="0 0 96 96" style="flex-shrink:0;">
+          <circle cx="48" cy="48" r="38" fill="none" stroke="var(--surface-2)" stroke-width="11"></circle>
+          <circle cx="48" cy="48" r="38" fill="none" stroke="var(--primary)" stroke-width="11" stroke-linecap="round" stroke-dasharray="238.8" stroke-dashoffset="76.4" transform="rotate(-90 48 48)"></circle>
+          <text x="48" y="45" text-anchor="middle" style="font-size:20px; font-weight:700; fill:var(--text); font-family:Inter;">68%</text>
+          <text x="48" y="61" text-anchor="middle" style="font-size:9px; fill:var(--text-faint); font-family:Inter;">automated</text>
+        </svg>
+        <div>
+          <div style="font-weight:600; font-size:14px; margin-bottom:9px;">Automation coverage</div>
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:12px;">
+            <div style="display:flex; align-items:center; gap:7px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--primary);"></span><span style="color:var(--text-muted);">Automated</span><span style="margin-left:auto; font-weight:700; font-variant-numeric:tabular-nums;">1,689</span></div>
+            <div style="display:flex; align-items:center; gap:7px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--surface-2);"></span><span style="color:var(--text-muted);">Manual</span><span style="margin-left:auto; font-weight:700; font-variant-numeric:tabular-nums;">795</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- risk: 3 cards -->
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px;">
+      <sc-for list="{{ riskCards }}" as="rc" hint-placeholder-count="3">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm);">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <span class="material-symbols-rounded fill" style="font-size:18px; color:{{ rc.iconColor }};">{{ rc.icon }}</span>
+            <span style="font-weight:600; font-size:14px;">{{ rc.title }}</span>
+            <span style="margin-left:auto; font-size:11px; font-weight:700; padding:1px 8px; border-radius:999px; background:{{ rc.badgeBg }}; color:{{ rc.badgeColor }};">{{ rc.badge }}</span>
+          </div>
+          <div style="display:flex; flex-direction:column;">
+            <sc-for list="{{ rc.items }}" as="it" hint-placeholder-count="4">
+              <div style="display:flex; align-items:center; gap:9px; padding:8px 0; border-top:1px solid var(--border);">
+                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint); width:52px; flex-shrink:0;">{{ it.id }}</span>
+                <div style="flex:1; min-width:0; font-size:12.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ it.title }}</div>
+                <span style="font-size:12px; font-weight:700; color:{{ it.metricColor }}; font-variant-numeric:tabular-nums;">{{ it.metric }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- quality grid full width -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm); margin-bottom:14px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+        <div style="font-weight:600; font-size:14.5px;">Quality grid <span style="color:var(--text-faint); font-weight:400; font-size:12.5px;">· daily pass rate by project · 30d</span></div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-faint);">low<span style="width:11px;height:11px;border-radius:3px;background:var(--heat-0);"></span><span style="width:11px;height:11px;border-radius:3px;background:var(--heat-2);"></span><span style="width:11px;height:11px;border-radius:3px;background:var(--heat-4);"></span>high</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:7px;">
+        <sc-for list="{{ heat }}" as="row" hint-placeholder-count="5">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:64px; font-size:12px; color:var(--text-muted); text-align:right; flex-shrink:0;">{{ row.name }}</div>
+            <div style="display:flex; gap:3px; flex:1;">
+              <sc-for list="{{ row.cells }}" as="c" hint-placeholder-count="30"><div title="{{ c.rate }}% pass" style="flex:1; height:18px; border-radius:3px; background:{{ c.varRef }};"></div></sc-for>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- recent runs + my work -->
+    <div style="display:grid; grid-template-columns:1.7fr 1fr; gap:14px;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow-sm); overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px;">
+          <div style="font-weight:600; font-size:14.5px;">Recent runs</div>
+          <div style="font-size:12.5px; font-weight:600; color:var(--primary-text);">View all</div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 80px 110px 90px; gap:10px; padding:7px 16px; font-size:10.5px; font-weight:600; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-faint); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+          <div>Run</div><div>Env</div><div>Result</div><div style="text-align:right;">When</div>
+        </div>
+        <sc-for list="{{ recent }}" as="r" hint-placeholder-count="5">
+          <div style="display:grid; grid-template-columns:1fr 80px 110px 90px; gap:10px; padding:11px 16px; align-items:center; border-bottom:1px solid var(--border);">
+            <div style="min-width:0;">
+              <div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.name }}</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-faint);">{{ r.id }} · {{ r.total }} cases</div>
+            </div>
+            <div style="font-size:12px; color:var(--text-muted);">{{ r.env }}</div>
+            <div style="display:flex; align-items:center; gap:7px;">
+              <div style="flex:1; height:5px; border-radius:3px; background:var(--surface-2); overflow:hidden;"><div style="width:{{ r.passw }}; height:100%; background:{{ r.passColor }};"></div></div>
+              <span style="font-size:11.5px; font-weight:700; font-variant-numeric:tabular-nums; color:{{ r.passColor }};">{{ r.pass }}%</span>
+            </div>
+            <div style="text-align:right; font-size:11.5px; color:var(--text-faint);">{{ r.when }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; box-shadow:var(--shadow-sm); overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--border);">
+          <div style="font-weight:600; font-size:14.5px;">My work</div>
+          <span style="font-size:11px; font-weight:700; background:var(--primary-soft); color:var(--primary-text); padding:2px 8px; border-radius:999px;">{{ mywork.length }} assigned</span>
+        </div>
+        <sc-for list="{{ mywork }}" as="m" hint-placeholder-count="4">
+          <div style="display:flex; align-items:center; gap:10px; padding:11px 16px; border-bottom:1px solid var(--border);">
+            <span class="material-symbols-rounded fill" style="font-size:18px; color:{{ m.statusColor }};">{{ m.statusIcon }}</span>
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ m.title }}</div>
+              <div style="font-size:11px; color:var(--text-faint); margin-top:1px;">{{ m.suite }}</div>
+            </div>
+            <span class="material-symbols-rounded" style="font-size:16px; color:{{ m.priColor }};">{{ m.priIcon }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- by tester / by suite / schedules -->
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-top:14px;">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm);">
+        <div style="font-weight:600; font-size:14px; margin-bottom:13px;">Executions by tester</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <sc-for list="{{ byTester }}" as="t" hint-placeholder-count="4">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:24px; height:24px; border-radius:999px; background:{{ t.avBg }}; color:{{ t.avColor }}; display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:700; flex-shrink:0;">{{ t.i }}</div>
+              <div style="flex:1; min-width:0;"><div style="font-size:12.5px; font-weight:500;">{{ t.name }}</div><div style="height:4px; border-radius:2px; background:var(--surface-2); margin-top:5px; overflow:hidden;"><div style="width:{{ t.w }}; height:100%; background:var(--primary);"></div></div></div>
+              <span style="font-size:12px; font-weight:700; font-variant-numeric:tabular-nums;">{{ t.count }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm);">
+        <div style="font-weight:600; font-size:14px; margin-bottom:13px;">Coverage by suite</div>
+        <div style="display:flex; flex-direction:column; gap:13px;">
+          <sc-for list="{{ bySuite }}" as="s" hint-placeholder-count="4">
+            <div style="display:flex; align-items:center; gap:10px; font-size:12.5px;">
+              <span style="flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:var(--text-muted);">{{ s.name }}</span>
+              <div style="width:84px; height:5px; border-radius:3px; background:var(--surface-2); overflow:hidden;"><div style="width:{{ s.w }}; height:100%; background:{{ s.color }};"></div></div>
+              <span style="font-weight:700; font-variant-numeric:tabular-nums; width:34px; text-align:right;">{{ s.pct }}%</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm);">
+        <div style="font-weight:600; font-size:14px; margin-bottom:13px;">Upcoming schedules</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <sc-for list="{{ schedules }}" as="s" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:30px; height:30px; border-radius:8px; background:var(--surface-2); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><span class="material-symbols-rounded" style="font-size:17px; color:var(--text-muted);">{{ s.icon }}</span></div>
+              <div style="flex:1; min-width:0;"><div style="font-size:12.5px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ s.name }}</div><div style="font-size:10.5px; color:var(--text-faint); font-family:'JetBrains Mono',monospace;">{{ s.cron }}</div></div>
+              <span style="font-size:11px; font-weight:700; color:var(--primary-text);">{{ s.when }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <!-- activity timeline -->
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow-sm); margin-top:14px;">
+      <div style="font-weight:600; font-size:14.5px; margin-bottom:14px;">Activity</div>
+      <div style="display:flex; flex-direction:column;">
+        <sc-for list="{{ activity }}" as="a" hint-placeholder-count="5">
+          <div style="display:flex; gap:12px;">
+            <div style="display:flex; flex-direction:column; align-items:center; flex-shrink:0;">
+              <div style="width:28px; height:28px; border-radius:999px; background:{{ a.iconBg }}; color:{{ a.iconColor }}; display:flex; align-items:center; justify-content:center;"><span class="material-symbols-rounded fill" style="font-size:15px;">{{ a.icon }}</span></div>
+              <div style="width:2px; flex:1; background:var(--border); margin:3px 0; min-height:10px;"></div>
+            </div>
+            <div style="padding-bottom:16px; min-width:0;">
+              <div style="font-size:13px;"><span style="font-weight:600;">{{ a.who }}</span> <span style="color:var(--text-muted);">{{ a.action }}</span> <span style="font-weight:500;">{{ a.target }}</span></div>
+              <div style="font-size:11px; color:var(--text-faint); margin-top:2px;">{{ a.when }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  rng(s){ let t=(s+0x6D2B79F5)>>>0; t=Math.imul(t^(t>>>15),t|1); t^=t+Math.imul(t^(t>>>7),t|61); return ((t^(t>>>14))>>>0)/4294967296; }
+  spark(arr){ const w=78,h=26,mn=Math.min(...arr),mx=Math.max(...arr),sp=mx-mn||1; return arr.map((v,i)=>`${(i*(w/(arr.length-1))).toFixed(1)},${(h-2-((v-mn)/sp)*(h-4)).toFixed(1)}`).join(' '); }
+  renderVals(){
+    const projects=['Checkout','Payments','Auth','Search','Mobile'];
+    const heat=projects.map((p,pi)=>({ name:p, cells:Array.from({length:30},(_,d)=>{
+      const r=this.rng(pi*131+d*17); let rate=Math.min(1, 0.74+0.28*r-(pi===4?0.17:0)-(pi===1?0.07:0)-(d>26?0.07:0));
+      let tier=4; if(rate<0.65)tier=0; else if(rate<0.8)tier=1; else if(rate<0.9)tier=2; else if(rate<0.97)tier=3;
+      return { tier, varRef:`var(--heat-${tier})`, rate:Math.round(rate*100) };
+    })}));
+
+    const trend=[88,90,87,91,93,90,94,92,91,95,93,96,94,96];
+    const W=620,H=140,pad=16,dmin=84,dmax=98;
+    const xs=i=>+(i*(W/(trend.length-1))).toFixed(1);
+    const ys=v=>+(H-pad-((v-dmin)/(dmax-dmin))*(H-pad*2)).toFixed(1);
+    const pts=trend.map((v,i)=>`${xs(i)} ${ys(v)}`);
+    const trendLine='M'+pts.join(' L');
+    const trendArea=`M0 ${H} L`+pts.join(' L')+` L${W} ${H} Z`;
+    const trendDots=trend.map((v,i)=>({x:xs(i),y:ys(v)}));
+
+    const kpis=[
+      { label:'Pass rate', value:'94.2%', icon:'check_circle', delta:'+1.8 pts', spark:this.spark([90,89,91,92,91,93,94]), sparkColor:'var(--pass)', deltaColor:'var(--pass)', arrow:'arrow_upward' },
+      { label:'Test runs', value:'151', icon:'play_circle', delta:'+12', spark:this.spark([120,128,131,140,144,148,151]), sparkColor:'var(--primary)', deltaColor:'var(--text-muted)', arrow:'arrow_upward' },
+      { label:'Automation', value:'68%', icon:'smart_toy', delta:'+5 pts', spark:this.spark([58,60,61,63,65,66,68]), sparkColor:'var(--primary)', deltaColor:'var(--pass)', arrow:'arrow_upward' },
+      { label:'Test cases', value:'2,484', icon:'description', delta:'+126', spark:this.spark([2300,2340,2360,2400,2430,2460,2484]), sparkColor:'var(--primary)', deltaColor:'var(--text-muted)', arrow:'arrow_upward' },
+      { label:'Active runs', value:'6', icon:'bolt', delta:'2 finishing', spark:this.spark([3,5,4,6,5,7,6]), sparkColor:'var(--primary)', deltaColor:'var(--text-muted)', arrow:'bolt' },
+    ];
+
+    const avgSpark=this.spark([9.2,8.8,8.4,8.1,7.9,7.6,7.7]);
+    const runStatus=[
+      { label:'Active', count:6, color:'var(--primary)' },
+      { label:'Completed', count:142, color:'var(--pass)' },
+      { label:'Aborted', count:3, color:'var(--fail)' },
+    ];
+    const riskCards=[
+      { title:'Top failing', icon:'trending_down', iconColor:'var(--fail)', badge:'4', badgeBg:'var(--fail-soft)', badgeColor:'var(--fail)', items:[
+        { id:'TC-2041', title:'Apply promo code at checkout', metric:'62%', metricColor:'var(--fail)' },
+        { id:'TC-1180', title:'Guest checkout — invalid card', metric:'68%', metricColor:'var(--fail)' },
+        { id:'TC-3322', title:'Tax recalc on address change', metric:'74%', metricColor:'var(--warn)' },
+        { id:'TC-2890', title:'Saved cards pagination', metric:'81%', metricColor:'var(--warn)' },
+      ]},
+      { title:'Flaky tests', icon:'sync_problem', iconColor:'var(--info)', badge:'7', badgeBg:'var(--info-soft-fill)', badgeColor:'var(--info)', items:[
+        { id:'TC-1902', title:'Session timeout redirect', metric:'38% flip', metricColor:'var(--info)' },
+        { id:'TC-2210', title:'Cart merge after login', metric:'31% flip', metricColor:'var(--info)' },
+        { id:'TC-3050', title:'Search debounce results', metric:'27% flip', metricColor:'var(--info)' },
+        { id:'TC-1771', title:'Currency rounding banner', metric:'22% flip', metricColor:'var(--info)' },
+      ]},
+      { title:'Open defects', icon:'bug_report', iconColor:'var(--warn)', badge:'18', badgeBg:'var(--warn-soft)', badgeColor:'var(--warn)', items:[
+        { id:'BUG-412', title:'Promo stacking returns 422', metric:'P1', metricColor:'var(--fail)' },
+        { id:'BUG-409', title:'Tax line off by 1¢ in EU', metric:'P2', metricColor:'var(--warn)' },
+        { id:'BUG-401', title:'Saved card avatar mismatch', metric:'P3', metricColor:'var(--text-faint)' },
+        { id:'BUG-398', title:'Slow cart on 3G network', metric:'P2', metricColor:'var(--warn)' },
+      ]},
+    ];
+    const avs=[['var(--primary-soft)','var(--primary-text)'],['var(--info-soft-fill)','var(--info)'],['var(--pass-soft)','var(--pass)'],['var(--warn-soft)','var(--warn)']];
+    const byTester=[
+      { name:'Mara Alvarez', count:418, w:'100%', i:'MA', avBg:avs[1][0], avColor:avs[1][1] },
+      { name:'Ravi Kapoor', count:362, w:'87%', i:'RK', avBg:avs[0][0], avColor:avs[0][1] },
+      { name:'Jordan Lee', count:289, w:'69%', i:'JL', avBg:avs[2][0], avColor:avs[2][1] },
+      { name:'Lin Qiu', count:204, w:'49%', i:'LQ', avBg:avs[3][0], avColor:avs[3][1] },
+    ];
+    const sc=(name,pct)=>({ name, pct, w:pct+'%', color: pct>=85?'var(--pass)':pct>=70?'var(--warn)':'var(--fail)' });
+    const bySuite=[ sc('Checkout / Pricing',92), sc('Payments / Cards',86), sc('Auth / Sessions',78), sc('Search / Browse',64) ];
+    const schedules=[
+      { name:'Nightly regression', cron:'0 2 * * *', when:'in 6h', icon:'dark_mode' },
+      { name:'Hourly smoke', cron:'0 * * * *', when:'in 24m', icon:'bolt' },
+      { name:'Weekly full sweep', cron:'0 3 * * 1', when:'Mon', icon:'calendar_month' },
+    ];
+    const act=(who,action,target,when,icon,bg,color)=>({ who, action, target, when, icon, iconBg:bg, iconColor:color });
+    const activity=[
+      act('Mara Alvarez','completed','RUN-318 · Regression v4.8','12 min ago','check_circle','var(--pass-soft)','var(--pass)'),
+      act('Ravi Kapoor','raised defect','BUG-412 · Promo stacking 422','38 min ago','bug_report','var(--warn-soft)','var(--warn)'),
+      act('CI bot','aborted','RUN-313 · Load-spike','1 h ago','cancel','var(--fail-soft)','var(--fail)'),
+      act('Jordan Lee','created','Test plan · Mobile web RC','2 h ago','add_circle','var(--primary-soft)','var(--primary-text)'),
+      act('Lin Qiu','assigned 4 cases to','Sam Park','3 h ago','assignment_ind','var(--info-soft-fill)','var(--info)'),
+    ];
+
+    const dist=[
+      { label:'Passed', count:'1,842', pct:74, pctw:'74%', color:'var(--pass)' },
+      { label:'Failed', count:'182', pct:7, pctw:'7%', color:'var(--fail)' },
+      { label:'Blocked', count:'96', pct:4, pctw:'4%', color:'var(--warn)' },
+      { label:'Skipped', count:'143', pct:6, pctw:'6%', color:'var(--skip)' },
+      { label:'Untested', count:'221', pct:9, pctw:'9%', color:'var(--text-faint)' },
+    ];
+
+    const failing=[
+      { id:'TC-2041', title:'Apply promo code at checkout', rate:'62%', runs:18, priIcon:'keyboard_double_arrow_up', priColor:'var(--fail)' },
+      { id:'TC-1180', title:'Guest checkout — invalid card', rate:'68%', runs:22, priIcon:'keyboard_double_arrow_up', priColor:'var(--fail)' },
+      { id:'TC-3322', title:'Tax recalculation on address change', rate:'74%', runs:15, priIcon:'drag_handle', priColor:'var(--warn)' },
+      { id:'TC-2890', title:'Saved cards list pagination', rate:'81%', runs:12, priIcon:'drag_handle', priColor:'var(--warn)' },
+    ];
+
+    const mkpass=p=>({ pass:p, passw:p+'%', passColor: p>=90?'var(--pass)':p>=75?'var(--warn)':'var(--fail)' });
+    const recent=[
+      { id:'RUN-318', name:'Regression — Checkout v4.8', env:'Staging', total:420, when:'12m ago', ...mkpass(96) },
+      { id:'RUN-317', name:'Smoke — Payments hotfix', env:'Prod', total:64, when:'1h ago', ...mkpass(100) },
+      { id:'RUN-315', name:'Nightly automation', env:'CI', total:1284, when:'8h ago', ...mkpass(88) },
+      { id:'RUN-314', name:'Mobile web sanity', env:'Staging', total:96, when:'1d ago', ...mkpass(73) },
+      { id:'RUN-311', name:'Release candidate v4.8-rc2', env:'Staging', total:420, when:'2d ago', ...mkpass(92) },
+    ];
+
+    const stMap={ failed:['cancel','var(--fail)'], passed:['check_circle','var(--pass)'], blocked:['block','var(--warn)'], untested:['radio_button_unchecked','var(--skip)'] };
+    const priMap={ high:['keyboard_double_arrow_up','var(--fail)'], medium:['drag_handle','var(--warn)'], low:['keyboard_arrow_down','var(--text-faint)'] };
+    const mywork=[
+      { title:'Guest checkout — invalid card', suite:'Payments / Cards', status:'failed', pri:'high' },
+      { title:'Promo code stacking rules', suite:'Checkout / Pricing', status:'blocked', pri:'high' },
+      { title:'Address autocomplete fallback', suite:'Checkout / Address', status:'untested', pri:'medium' },
+      { title:'Order confirmation email', suite:'Checkout / Notify', status:'passed', pri:'low' },
+    ].map(m=>({ ...m, statusIcon:stMap[m.status][0], statusColor:stMap[m.status][1], priIcon:priMap[m.pri][0], priColor:priMap[m.pri][1] }));
+
+    return { heat, trendLine, trendArea, trendDots, kpis, dist, recent, mywork,
+      avgSpark, runStatus, riskCards, byTester, bySuite, schedules, activity };
+  }
+}
+</script>
+</body>
+</html>

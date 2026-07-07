@@ -1,268 +1,259 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
-import { Plus, Pencil, Trash2, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Button } from "@/components/ui/Button";
+import {
+  Plus,
+  ListChecks,
+  ChevronRight,
+  GripVertical,
+  Check,
+  Trash2,
+} from "lucide-react";
 
 export default function SharedStepsPage() {
   const params = useParams();
   const projectCode = params.code as string;
   const [sharedSteps, setSharedSteps] = useState<any[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [action, setAction] = useState("");
   const [expectedResult, setExpectedResult] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  const openCreate = () => {
-    setEditingId(null);
-    setTitle("");
+  const fetchSharedSteps = useCallback(() => {
+    fetch(`/api/projects/${projectCode}/shared-steps`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setSharedSteps(data);
+          if (data.length > 0 && !editingId) {
+            handleEdit(data[0]);
+          }
+        }
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setIsLoading(false);
+      });
+  }, [projectCode, editingId]);
+
+  useEffect(() => {
+    fetchSharedSteps();
+  }, [fetchSharedSteps]);
+
+  const handleCreateNew = () => {
+    setEditingId("new");
+    setTitle("New Shared Step");
     setAction("");
     setExpectedResult("");
-    setIsModalOpen(true);
   };
 
-  const openEdit = (step: any) => {
+  const handleEdit = (step: any) => {
     setEditingId(step.id);
     setTitle(step.title);
     setAction(step.action || "");
     setExpectedResult(step.expectedResult || "");
-    setIsModalOpen(true);
   };
 
   const handleDelete = async (id: string) => {
     setConfirmDeleteId(null);
-    const backup = sharedSteps;
-    setSharedSteps((prev) => prev.filter((s) => s.id !== id));
     try {
-      const res = await fetch(
-        `/api/projects/${projectCode}/shared-steps/${id}`,
-        { method: "DELETE" },
-      );
+      const res = await fetch(`/api/projects/${projectCode}/shared-steps/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
       toast.success("Shared step deleted");
+      if (editingId === id) {
+        const rem = sharedSteps.filter(s => s.id !== id);
+        if (rem.length > 0) handleEdit(rem[0]);
+        else handleCreateNew();
+      }
+      fetchSharedSteps();
     } catch {
-      setSharedSteps(backup);
       toast.error("Failed to delete shared step");
     }
   };
 
-  useEffect(() => {
-    fetch(`/api/projects/${projectCode}/shared-steps`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) setSharedSteps(data);
-      })
-      .catch(console.error);
-  }, [projectCode]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async () => {
+    if (!title.trim() || !action.trim()) {
+      toast.error("Title and action are required");
+      return;
+    }
+    setIsSubmitting(true);
     try {
       const res = await fetch(
-        editingId
+        editingId && editingId !== "new"
           ? `/api/projects/${projectCode}/shared-steps/${editingId}`
           : `/api/projects/${projectCode}/shared-steps`,
         {
-          method: editingId ? "PATCH" : "POST",
+          method: editingId && editingId !== "new" ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title, action, expectedResult }),
-        },
+        }
       );
       if (res.ok) {
-        const saved = await res.json();
-        setSharedSteps((prev) =>
-          editingId
-            ? prev.map((s) => (s.id === editingId ? saved : s))
-            : [saved, ...prev],
-        );
-        setIsModalOpen(false);
-        toast.success(editingId ? "Shared step updated" : "Shared step created");
+        toast.success(editingId && editingId !== "new" ? "Saved successfully" : "Created successfully");
+        if (editingId === "new") {
+          const data = await res.json();
+          setEditingId(data.id || null);
+        }
+        fetchSharedSteps();
       } else {
         toast.error("Failed to save shared step");
       }
     } catch (err) {
       console.error(err);
       toast.error("Failed to save shared step");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin w-8 h-8 rounded-full border-4 border-primary border-t-transparent"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex-1 flex flex-col h-full bg-background overflow-hidden transition-colors">
-      <header className="px-8 py-6 border-b border-border flex justify-between items-center bg-surface shrink-0">
-        <div className="flex items-center space-x-3">
-          <Share2 className="text-text-muted" size={24} />
-          <h1 className="text-2xl font-bold text-text-main">Shared Steps</h1>
+    <div className="w-full max-w-[1080px] mx-auto px-[22px] py-[20px] antialiased font-sans">
+      <div className="flex items-center gap-[12px] mb-[16px]">
+        <div>
+          <div className="text-[19px] font-semibold tracking-[-0.015em] text-text-main">Shared steps</div>
+          <div className="text-[13px] text-text-muted mt-[2px]">Reusable step sequences referenced across cases</div>
         </div>
-        <Button
-          variant="primary"
-          onClick={openCreate}
-          className="shadow-premium hover:-translate-y-0.5"
-        >
-          <Plus size={16} /> Create shared step
+        <div className="flex-1" />
+        <Button variant="primary" size="sm" onClick={handleCreateNew}>
+          <Plus size={16} />
+          New shared step
         </Button>
-      </header>
+      </div>
 
-      <main className="flex-1 overflow-y-auto p-8">
-        {sharedSteps.length === 0 ? (
-          <div className="text-center py-20 bg-surface rounded-2xl border-2 border-border border-dashed shadow-sm">
-            <Share2
-              size={48}
-              className="mx-auto text-text-muted opacity-50 mb-4"
-            />
-            <h3 className="text-lg font-medium text-text-main mb-2">
-              No shared steps yet
-            </h3>
-            <p className="text-text-muted max-w-sm mx-auto mb-6 text-sm">
-              Create reusable steps like "Login as Admin" to include in multiple
-              test cases, saving you time when steps change.
-            </p>
-            <Button
-              variant="primary"
-              onClick={openCreate}
-              className="shadow-premium hover:-translate-y-0.5"
-            >
-              Create shared step
-            </Button>
-          </div>
-        ) : (
-          <div className="bg-surface rounded-2xl border border-border/80 overflow-hidden shadow-premium animate-in zoom-in-95 duration-200">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-background/50 border-b border-border/80 text-text-muted">
-                <tr>
-                  <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">Title</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">Action</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider">Expected Result</th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-text-muted uppercase tracking-wider text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/80">
-                {sharedSteps.map((step) => (
-                  <tr
-                    key={step.id}
-                    className="hover:bg-surface-hover transition-colors"
-                  >
-                    <td className="px-6 py-4 font-medium text-text-main">
-                      {step.title}
-                    </td>
-                    <td className="px-6 py-4 text-text-muted">{step.action}</td>
-                    <td className="px-6 py-4 text-text-muted">
-                      {step.expectedResult || "-"}
-                    </td>
-                    <td className="px-6 py-4 text-right space-x-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        iconOnly
-                        onClick={() => openEdit(step)}
-                        className="text-text-muted hover:text-text-main"
-                        title="Edit"
-                      >
-                        <Pencil size={16} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        iconOnly
-                        onClick={() => setConfirmDeleteId(step.id)}
-                        className="text-text-muted hover:text-danger"
-                        title="Delete"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </main>
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_1.2fr] gap-[16px] items-start">
 
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-surface w-[600px] rounded-3xl shadow-premium overflow-hidden border border-border/80 animate-in zoom-in-95 duration-200">
-            <div className="px-6 py-5 border-b border-border/80 flex justify-between items-center bg-surface-hover/50">
-              <h3 className="text-lg font-bold text-text-main">
-                {editingId ? "Edit shared step" : "Create shared step"}
-              </h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-text-muted hover:text-text-main transition-colors"
+        {/* list */}
+        <div className="flex flex-col gap-[10px]">
+          {sharedSteps.map((s) => {
+            const isSelected = s.id === editingId;
+            return (
+              <div
+                key={s.id}
+                onClick={() => handleEdit(s)}
+                className={`flex items-center gap-[12px] bg-surface border rounded-[12px] px-[16px] py-[13px] shadow-[var(--shadow-sm)] cursor-pointer hover:bg-surface-hover transition-colors group ${isSelected ? "border-[var(--primary)]" : "border-border"}`}
               >
-                &times;
-              </button>
+                <div className="w-[34px] h-[34px] rounded-[9px] bg-[var(--surface-2)] flex items-center justify-center shrink-0">
+                  <ListChecks size={18} className="text-text-muted" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13.5px] font-semibold text-text-main truncate">{s.title}</div>
+                  <div className="text-[11.5px] text-text-faint mt-[1px]">1 step · used in 0 cases</div>
+                </div>
+
+                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
+                  <button onClick={() => setConfirmDeleteId(s.id)} className="text-text-faint hover:text-danger transition-colors" aria-label="Delete shared step">
+                    <Trash2 size={17} />
+                  </button>
+                </div>
+                <ChevronRight size={19} className="text-text-faint" />
+              </div>
+            );
+          })}
+
+          {sharedSteps.length === 0 && (
+            <div className="p-[40px] text-center border border-dashed border-[var(--border-strong)] rounded-[13px] bg-surface">
+              <ListChecks size={32} className="text-text-muted mb-2 mx-auto" />
+              <div className="text-[14px] font-semibold text-text-main">No shared steps</div>
             </div>
-            <form onSubmit={handleSubmit}>
-              <div className="p-6 space-y-4">
+          )}
+        </div>
+
+        {/* editor */}
+        {(editingId || editingId === "new") && (
+          <div className="bg-surface border border-border rounded-[13px] shadow-[var(--shadow-sm)] overflow-hidden sticky top-6">
+            <div className="px-[16px] py-[14px] border-b border-border">
+              <div className="text-[11px] font-semibold tracking-[0.06em] uppercase text-text-faint">
+                {editingId === "new" ? "New shared step" : "Editing"}
+              </div>
+              <input
+                type="text"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="Shared step title"
+                className="qm-input w-full h-[38px] px-[12px] mt-[8px] text-[13.5px] font-semibold focus:ring-2 focus:ring-[var(--ring)]"
+              />
+            </div>
+
+            <div className="px-[16px] pt-[6px] pb-[14px]">
+              <div className="grid grid-cols-[30px_1fr_1fr_28px] gap-[10px] py-[9px] text-[10px] font-semibold tracking-[0.05em] uppercase text-text-faint">
+                <div>#</div>
+                <div>Action</div>
+                <div>Expected</div>
+                <div></div>
+              </div>
+
+              <div className="grid grid-cols-[30px_1fr_1fr_28px] gap-[10px] py-[9px] items-start border-t border-border">
+                <div className="w-[22px] h-[22px] rounded-[6px] bg-[var(--surface-2)] flex items-center justify-center text-[11px] font-bold text-text-muted mt-2">1</div>
                 <div>
-                  <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
-                    Title <span className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main"
-                    placeholder="e.g. Login as Administrator"
+                  <textarea
+                    value={action}
+                    onChange={e => setAction(e.target.value)}
+                    placeholder="Describe action..."
+                    className="qm-input w-full text-[12.5px] p-2 min-h-[60px] resize-none focus:ring-2 focus:ring-[var(--ring)]"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
-                      Action <span className="text-danger">*</span>
-                    </label>
-                    <textarea
-                      required
-                      value={action}
-                      onChange={(e) => setAction(e.target.value)}
-                      className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main min-h-[100px]"
-                      placeholder="1. Enter email..."
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[13px] font-bold text-text-main mb-2 uppercase tracking-wider">
-                      Expected Result
-                    </label>
-                    <textarea
-                      value={expectedResult}
-                      onChange={(e) => setExpectedResult(e.target.value)}
-                      className="w-full px-4 py-2.5 text-[13px] font-semibold bg-surface-hover/50 border border-border/80 rounded-xl shadow-inner placeholder-text-muted/50 focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40 text-text-main min-h-[100px]"
-                      placeholder="User is logged in..."
-                    />
-                  </div>
+                <div>
+                  <textarea
+                    value={expectedResult}
+                    onChange={e => setExpectedResult(e.target.value)}
+                    placeholder="Expected result..."
+                    className="qm-input w-full text-[12.5px] p-2 min-h-[60px] resize-none text-text-muted focus:ring-2 focus:ring-[var(--ring)]"
+                  />
+                </div>
+                <div className="flex justify-center text-text-faint mt-2">
+                  <GripVertical size={17} />
                 </div>
               </div>
-              <div className="px-6 py-4 bg-background/50 border-t border-border/80 flex justify-end space-x-3">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="shadow-premium hover:-translate-y-0.5"
-                >
-                  {editingId ? "Save changes" : "Create"}
-                </Button>
+
+              <div className="flex items-center gap-[7px] py-[10px] pb-[2px] border-t border-border text-[var(--primary-text)] text-[12.5px] font-semibold opacity-50 cursor-not-allowed">
+                <Plus size={17} />Add step
               </div>
-            </form>
+            </div>
+
+            <div className="flex justify-end gap-[9px] px-[16px] py-[13px] border-t border-border bg-surface">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (editingId === "new") {
+                    setEditingId(null);
+                  } else {
+                    const s = sharedSteps.find(x => x.id === editingId);
+                    if (s) handleEdit(s);
+                  }
+                }}
+              >
+                Cancel
+              </Button>
+              <Button variant="primary" size="sm" onClick={handleSave} loading={isSubmitting}>
+                {!isSubmitting && <Check size={16} />}
+                Save
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {confirmDeleteId && (
         <ConfirmDialog
-          title="Delete shared step"
-          message="This shared step will be permanently deleted. Test cases referencing it keep their own steps."
+          message="Delete this shared step? Reference will be lost."
           onConfirm={() => handleDelete(confirmDeleteId)}
           onCancel={() => setConfirmDeleteId(null)}
         />

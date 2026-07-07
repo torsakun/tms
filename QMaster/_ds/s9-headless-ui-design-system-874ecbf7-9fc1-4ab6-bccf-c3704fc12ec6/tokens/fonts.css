@@ -1,0 +1,28 @@
+/* S9 Design System — webfonts.
+   The system uses Inter for all UI/headings; Noto Sans Thai is the Thai script fallback.
+   Loaded from Google Fonts CDN. (No local font binaries were present in the source file.) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+/* Iconography: the source file's icon set ("Icon-Round") is the complete Google
+   Material Icons library (~1332 glyphs, Round variant). Loaded as the Material
+   Symbols Rounded variable font so every glyph name (check_circle, expand_more,
+   arrow_right_alt, …) resolves by ligature without bundling 1332 SVGs. */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.material-symbols-rounded.fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+

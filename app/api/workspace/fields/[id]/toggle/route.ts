@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getSessionUser, forbidden, unauthorized } from "@/lib/api-auth";
+import { canManageWorkspace } from "@/lib/permissions";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const actor = await getSessionUser();
+  if (!actor) return unauthorized();
+  if (!canManageWorkspace(actor)) return forbidden();
+
   try {
     const { id } = await params;
 

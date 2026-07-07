@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect, useMemo } from "react";
-import { Search, ChevronDown, Check, Users as UsersIcon } from "lucide-react";
+import { Search, ChevronDown, MoreHorizontal } from "lucide-react";
 import UserActionMenu from "@/components/workspace/UserActionMenu";
-import { Tooltip } from "@/components/ui/Tooltip";
+import InviteMemberButton from "@/components/workspace/InviteMemberButton";
 
 interface UserRow {
   id: string;
@@ -39,8 +39,15 @@ export default function UsersTable({
       if (filterRef.current && !filterRef.current.contains(e.target as Node))
         setOpenMenu(null);
     };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenMenu(null);
+    };
     document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, []);
 
   const filtered = useMemo(() => {
@@ -57,185 +64,142 @@ export default function UsersTable({
   }, [users, search, status]);
 
   const STATUS_LABEL: Record<StatusFilter, string> = {
-    ALL: "All",
-    ACTIVE: "Active",
-    INACTIVE: "Inactive",
+    ALL: "All members",
+    ACTIVE: "Active only",
+    INACTIVE: "Inactive only",
   };
 
-  const chip = (active: boolean) =>
-      [
-        "h-9 flex items-center gap-1.5 px-4 py-2.5 rounded-xl border transition-all duration-300 text-[13px] font-bold shadow-sm hover:shadow-md hover:-translate-y-0.5",
-        active
-          ? "border-primary/25 bg-primary-light text-primary"
-          : "border-border/80 bg-surface text-text-main hover:border-text-muted/40 hover:bg-surface-hover",
-      ].join(" ");
+  const getRoleStyle = (role: string) => {
+    const r = role.toLowerCase();
+    if (r === "admin" || r === "sys") return { bg: "var(--primary-soft)", color: "var(--primary-text)" };
+    if (r === "test lead" || r === "lead") return { bg: "var(--info-soft-fill)", color: "var(--info)" };
+    if (r === "engineer") return { bg: "var(--surface-2)", color: "var(--text-muted)" };
+    return { bg: "var(--surface-2)", color: "var(--text-faint)" };
+  };
 
   return (
     <>
-      {/* Toolbar */}
-      <div className="flex items-center gap-2 mb-4" ref={filterRef}>
-        <div className="relative">
-          <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted"
-            size={14}
-          />
+      <div className="flex flex-wrap items-center gap-[10px] mb-[16px]">
+        <div className="text-[16px] font-semibold text-text-main">
+          Users <span className="text-text-faint font-normal">· {users.length}</span>
+        </div>
+        <div className="flex-1 min-w-[16px]" />
+        
+        <div className="flex items-center gap-[8px] h-[36px] px-[11px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] rounded-[9px] text-[12.5px] min-w-[200px] focus-within:shadow-[inset_0_0_0_1px_var(--primary-color)] transition-colors">
+          <Search size={16} className="text-text-faint shrink-0" />
           <input
-            type="text"
+            type="text" 
+            aria-label="Search members"
+            placeholder="Search members" 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search members…"
-            className="pl-9 pr-4 py-2 text-[13px] font-semibold border border-border/80 bg-surface text-text-main rounded-xl focus:outline-none focus:ring-4 focus:ring-primary/20 shadow-inner w-52 transition-all hover:border-text-muted/40"
+            className="w-full bg-transparent outline-none text-text-main placeholder:text-text-faint"
           />
         </div>
 
-        {/* Status filter */}
-        <div className="relative">
-          <button
+        <div className="relative" ref={filterRef}>
+          <button 
+            type="button"
             onClick={() => setOpenMenu(openMenu === "status" ? null : "status")}
-            className={chip(status !== "ALL")}
+            aria-haspopup="menu"
+            aria-expanded={openMenu === "status"}
+            className="flex items-center gap-[6px] h-[36px] px-[12px] bg-surface shadow-[inset_0_0_0_1px_var(--border-color)] rounded-[9px] text-[12.5px] font-medium text-text-main hover:bg-surface-hover transition-colors"
           >
-            Status: {STATUS_LABEL[status]} <ChevronDown size={12} />
+            {STATUS_LABEL[status]}
+            <ChevronDown size={16} className="text-text-faint" />
           </button>
+          
           {openMenu === "status" && (
-            <div
-              className="absolute left-0 mt-2 w-40 bg-surface rounded-[13px] py-2 z-30 overflow-hidden animate-in zoom-in-95 duration-200 shadow-[var(--shadow-float)] border border-border/80"
-            >
+            <div className="absolute right-0 top-full mt-2 w-40 bg-surface border border-border shadow-sm rounded-[9px] py-1 z-30" role="menu">
               {(["ALL", "ACTIVE", "INACTIVE"] as StatusFilter[]).map((s) => (
                 <button
                   key={s}
-                  onClick={() => {
-                    setStatus(s);
-                    setOpenMenu(null);
-                  }}
-                  className={[
-                    "w-full text-left px-4 py-2 text-[13px] font-bold transition-colors flex items-center justify-between",
-                    status === s
-                      ? "bg-primary-light text-primary"
-                      : "text-text-main hover:bg-surface-hover",
-                  ].join(" ")}
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={status === s}
+                  onClick={() => { setStatus(s); setOpenMenu(null); }}
+                  className={`w-full text-left px-3 py-1.5 text-[12.5px] ${status === s ? "bg-primary-soft text-primary font-medium" : "text-text-muted hover:text-text-main hover:bg-surface-hover"}`}
                 >
-                  {STATUS_LABEL[s]}{" "}
-                  {status === s && <Check size={13} strokeWidth={3} />}
+                  {STATUS_LABEL[s]}
                 </button>
               ))}
             </div>
           )}
         </div>
 
-        {(search || status !== "ALL") && (
-          <span className="text-xs text-text-muted ml-1">
-            {filtered.length} of {users.length}
-          </span>
-        )}
+        {isAdmin && <InviteMemberButton />}
       </div>
 
-      {/* Table */}
-      <div className="rounded-[13px] overflow-visible bg-surface border border-border/80 shadow-[var(--shadow-float)] animate-in zoom-in-95 duration-200">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-border/80 bg-surface-hover/70">
-              <th className="px-5 py-3.5 text-[11px] font-bold text-text-muted uppercase tracking-wider">
-                User
-              </th>
-              <th className="px-5 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider w-28">
-                Status
-              </th>
-              <th className="px-5 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider w-44">
-                Role
-              </th>
-              <th className="px-5 py-3 text-[11px] font-bold text-text-muted uppercase tracking-wider w-36">
-                Last Seen
-              </th>
-              <th className="pr-4 py-3 w-10" />
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((user) => (
-              <tr
-                key={user.id}
-                className={`border-b border-border/80 last:border-0 transition-colors group ${user.isActive ? "hover:bg-surface-hover/70" : "opacity-60"}`}
-              >
-                <td className="px-5 py-3.5 align-middle">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-                      style={{ background: user.avatarBg }}
-                    >
-                      {user.initials}
-                    </div>
-                    <div>
-                      <div
-                        className={`text-[15px] font-bold text-text-main ${!user.isActive && "line-through"}`}
-                      >
-                        {user.name}
-                      </div>
-                      <div className="text-[13px] font-medium text-text-muted mt-0.5">
-                        {user.email}
-                      </div>
-                    </div>
+      <div className="bg-surface border border-border rounded-[13px] shadow-sm overflow-hidden overflow-x-auto">
+        <div className="min-w-[720px]">
+          <div className="grid grid-cols-[2fr_1.2fr_110px_110px_40px] gap-[14px] p-[10px_18px] text-[10.5px] font-semibold tracking-[0.06em] uppercase text-text-faint border-b border-border">
+            <div>Member</div><div>Role</div><div>Status</div><div>Last seen</div><div></div>
+          </div>
+          
+          {filtered.map((u) => {
+            const roleStyle = getRoleStyle(u.role);
+            const statusColor = u.isActive ? "var(--pass)" : "var(--text-faint)";
+            
+            return (
+              <div key={u.id} className="grid grid-cols-[2fr_1.2fr_110px_110px_40px] gap-[14px] p-[12px_18px] items-center border-b border-border last:border-0 hover:bg-surface-hover transition-colors group">
+                <div className="flex items-center gap-[11px] min-w-0">
+                  <div 
+                    className="w-[32px] h-[32px] rounded-full text-white flex items-center justify-center text-[12px] font-bold shrink-0"
+                    style={{ background: u.avatarBg }}
+                  >
+                    {u.initials}
                   </div>
-                </td>
-                <td className="px-5 py-3.5 align-middle">
-                  {user.isActive ? (
-                    <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-success">
-                      <span className="w-1.5 h-1.5 rounded-full bg-success" />{" "}
-                      Active
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-text-muted">
-                      <span className="w-1.5 h-1.5 rounded-full bg-skip-soft" />{" "}
-                      Inactive
-                    </span>
-                  )}
-                </td>
-                <td className="px-5 py-3.5 align-middle">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[13px] font-semibold text-text-main">
-                      {user.role}
-                    </span>
-                    {user.isSysAdmin && (
-                      <Tooltip label="System administrator — full workspace access">
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary-light text-primary border border-primary/15 cursor-help">
-                          SYS
-                        </span>
-                      </Tooltip>
-                    )}
+                  <div className="min-w-0">
+                    <div className={`text-[13px] font-semibold whitespace-nowrap overflow-hidden text-ellipsis ${!u.isActive ? "line-through text-text-muted" : "text-text-main"}`}>{u.name}</div>
+                    <div className="text-[11.5px] text-text-faint whitespace-nowrap overflow-hidden text-ellipsis">{u.email}</div>
                   </div>
-                </td>
-                <td className="px-5 py-3.5 align-middle">
-                  <span className="text-[13px] font-medium text-text-muted">
-                    {user.lastAction}
+                </div>
+
+                <div>
+                  <span 
+                    className="inline-flex items-center gap-[5px] text-[11.5px] font-semibold p-[3px_9px] rounded-[7px]"
+                    style={{ background: roleStyle.bg, color: roleStyle.color }}
+                  >
+                    {u.role}
+                    {u.isSysAdmin && <span className="text-[9px] uppercase opacity-60 ml-1">Sys</span>}
                   </span>
-                </td>
-                <td className="pr-4 py-3.5 align-middle text-right">
-                  {isAdmin && (
-                    <div className="flex justify-end text-text-faint group-hover:text-text-muted transition-colors">
-                      <UserActionMenu
-                        userId={user.id}
-                        isActive={user.isActive}
-                        currentRoleId={user.roleId}
-                        roles={roles}
-                      />
-                    </div>
+                </div>
+
+                <div>
+                  <span className="inline-flex items-center gap-[5px] text-[11.5px] font-semibold" style={{ color: statusColor }}>
+                    <span className="w-[7px] h-[7px] rounded-full" style={{ background: statusColor }}></span>
+                    {u.isActive ? "Active" : "Inactive"}
+                  </span>
+                </div>
+
+                <div className="text-[12px] text-text-muted">{u.lastAction}</div>
+
+                <div className="flex justify-center text-text-faint group-hover:text-text-muted transition-colors">
+                  {isAdmin ? (
+                    <UserActionMenu
+                      userId={u.id}
+                      isActive={u.isActive}
+                      currentRoleId={u.roleId}
+                      roles={roles}
+                    />
+                  ) : (
+                    <MoreHorizontal size={18} aria-hidden="true" />
                   )}
-                </td>
-              </tr>
-            ))}
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-5 py-16 text-center">
-                  <UsersIcon
-                    size={28}
-                    className="mx-auto mb-2 text-text-main"
-                  />
-                  <p className="text-sm text-text-muted">
-                    No members match your filters.
-                  </p>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                </div>
+              </div>
+            );
+          })}
+          
+          {filtered.length === 0 && (
+            <div className="p-[32px] text-center text-[13px] text-text-muted">
+              No members match your search criteria.
+            </div>
+          )}
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-between mt-[14px]">
+        <span className="text-[12px] text-text-faint">{filtered.length} members · {users.filter(u => u.isActive).length} active</span>
       </div>
     </>
   );

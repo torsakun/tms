@@ -3,8 +3,30 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, Camera, Mail, Lock, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+
+function initialsFrom(name: string, email: string) {
+  const src = (name || email || "").trim();
+  if (!src) return "?";
+  const parts = src.split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+  return src.slice(0, 2).toUpperCase();
+}
+
+function passwordStrength(pw: string): { pct: number; label: string; color: string } {
+  if (!pw) return { pct: 0, label: "", color: "var(--text-faint)" };
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (pw.length >= 12) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  const pct = Math.min(100, (score / 5) * 100);
+  if (pct >= 80) return { pct, label: "Strong", color: "var(--pass)" };
+  if (pct >= 50) return { pct, label: "Good", color: "var(--warn)" };
+  return { pct: Math.max(pct, 18), label: "Weak", color: "var(--fail)" };
+}
 
 export default function ProfilePage() {
   const { data: session, update } = useSession();
@@ -53,7 +75,7 @@ export default function ProfilePage() {
         setConfirmPassword("");
         // Tell next-auth to refresh the session so the new name shows in the top nav
         await update({ name });
-        
+
         // Redirect back after a short delay
         setTimeout(() => {
           router.back();
@@ -79,179 +101,159 @@ export default function ProfilePage() {
     );
   }
 
+  const email = session.user?.email || "";
+  const initials = initialsFrom(name, email);
+  const strength = passwordStrength(newPassword);
+
   return (
-    <div className="w-full max-w-[1000px] mx-auto px-6 py-12 md:px-10">
-      {/* ── Impeccable Hero Header ── */}
-      <div className="flex items-center gap-5 mb-10">
-        <div className="w-16 h-16 rounded-[13px] flex items-center justify-center text-white bg-primary shadow-[var(--shadow-float)] shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </div>
-        <div>
-          <h1 className="text-[32px] md:text-[40px] font-semibold tracking-tight text-text-main leading-none">
-            Profile Settings
-          </h1>
-          <p className="text-[14px] font-medium text-text-muted mt-2">
-            Manage your personal identity and security preferences.
-          </p>
-        </div>
+    <form
+      onSubmit={handleUpdateProfile}
+      className="flex min-h-[600px] w-full flex-col bg-background text-[14px] leading-[1.45] text-text-main antialiased font-sans"
+    >
+      {/* header */}
+      <div className="border-b border-border bg-surface p-[18px_22px]">
+        <div className="text-[18px] font-semibold tracking-[-0.01em]">Profile</div>
+        <div className="mt-0.5 text-[13px] text-text-muted">Manage your account and sign-in details</div>
       </div>
 
-      {message.text && (
-        <div
-          className={`p-4 mb-8 rounded-[13px] flex items-start gap-3 text-[14px] font-bold border shadow-sm transition-all animate-in fade-in slide-in-from-top-2 ${
-            message.type === "error"
-              ? "bg-danger-soft text-danger-foreground border-danger/25"
-              : "bg-success-soft text-success-foreground border-success/25"
-          }`}
-        >
-          {message.type === "error" ? (
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
-          ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      {/* body */}
+      <div className="flex-1 overflow-auto p-[28px_22px]">
+        <div className="mx-auto flex max-w-[560px] flex-col gap-[24px]">
+          {message.text && (
+            <div
+              className={`flex items-start gap-3 rounded-[13px] border p-4 text-[13px] font-medium shadow-sm ${
+                message.type === "error"
+                  ? "border-danger/25 bg-danger-soft text-danger"
+                  : "border-success/25 bg-success-soft text-success"
+              }`}
+            >
+              {message.type === "error" ? (
+                <AlertCircle size={18} className="mt-0.5 shrink-0" />
+              ) : (
+                <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
+              )}
+              <div className="leading-tight">{message.text}</div>
+            </div>
           )}
-          <div className="leading-tight mt-[1px]">{message.text}</div>
-        </div>
-      )}
 
-      <form onSubmit={handleUpdateProfile} className="space-y-8">
-        {/* ── Section: Personal Information ── */}
-        <section className="bg-surface border border-border/80 rounded-[16px] p-8 shadow-[var(--shadow-float)] transition-shadow duration-300">
-          <div className="flex items-center gap-4 mb-8 border-b border-border/50 pb-5">
-            <div className="p-3 rounded-xl bg-primary-light text-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          {/* avatar block */}
+          <div className="flex items-center gap-[18px] rounded-[13px] border border-border bg-surface p-[18px_20px] shadow-sm">
+            <div className="flex h-[64px] w-[64px] items-center justify-center rounded-full bg-primary-soft text-[24px] font-bold text-primary-text">
+              {initials}
             </div>
-            <div>
-              <h2 className="text-xl font-extrabold text-text-main tracking-tight">
-                Personal Information
-              </h2>
-              <p className="text-sm font-medium text-text-muted mt-0.5">
-                Update your identity details and how others see you.
-              </p>
+            <div className="flex-1">
+              <div className="text-[15px] font-semibold">{name || "Your name"}</div>
+              <div className="text-[12.5px] text-text-muted">{email}</div>
             </div>
+            <Button type="button" variant="secondary" size="sm" disabled>
+              <Camera size={16} /> Change photo
+            </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-2">
-              <label className="block text-sm font-extrabold text-text-main uppercase tracking-wider opacity-80">
-                Email Address
-              </label>
-              <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted opacity-60">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-                </div>
-                <input
-                  type="email"
-                  value={session.user?.email || ""}
-                  disabled
-                  className="w-full pl-11 pr-4 py-3.5 border border-border/80 rounded-xl bg-surface-hover/50 text-text-muted font-medium cursor-not-allowed shadow-inner transition-colors"
-                />
-              </div>
-              <p className="text-xs font-semibold text-text-muted/70 mt-1.5 ml-1">
-                Your email is used for login and cannot be changed here.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-extrabold text-text-main uppercase tracking-wider opacity-80">
-                Full Name
-              </label>
+          {/* account fields */}
+          <div className="flex flex-col gap-[16px] rounded-[13px] border border-border bg-surface p-[20px] shadow-sm">
+            <div className="text-[13px] font-semibold">Account</div>
+            <div>
+              <label className="mb-[7px] block text-[12.5px] text-text-muted">Display name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Enter your full name"
-                className="w-full px-4 py-3.5 border border-border/80 rounded-xl bg-surface text-text-main font-semibold shadow-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40"
+                className="flex h-[42px] w-full items-center rounded-[11px] bg-surface px-[13px] text-[14px] text-text-main outline-none shadow-[inset_0_0_0_1px_var(--border)] transition-shadow focus:shadow-[inset_0_0_0_2px_var(--ring)] placeholder:text-text-faint"
               />
             </div>
-          </div>
-        </section>
-
-        {/* ── Section: Security ── */}
-        <section className="bg-surface border border-border/80 rounded-[16px] p-8 shadow-[var(--shadow-float)] transition-shadow duration-300">
-          <div className="flex items-center gap-4 mb-8 border-b border-border/50 pb-5">
-            <div className="p-3 rounded-xl bg-info-soft text-info">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            </div>
             <div>
-              <h2 className="text-xl font-extrabold text-text-main tracking-tight">
-                Security & Password
-              </h2>
-              <p className="text-sm font-medium text-text-muted mt-0.5">
-                Keep your account secure. Leave blank if you don't want to change.
+              <label className="mb-[7px] block text-[12.5px] text-text-muted">Email address</label>
+              <div className="flex h-[42px] items-center gap-[9px] rounded-[11px] bg-surface-hover px-[13px] text-[14px] text-text-muted shadow-[inset_0_0_0_1px_var(--border)]">
+                <Mail size={18} className="text-text-faint" />
+                {email}
+                <span className="ml-auto rounded-full bg-success-soft px-[8px] py-[2px] text-[10.5px] font-bold text-success">
+                  Verified
+                </span>
+              </div>
+              <p className="mt-[7px] text-[11.5px] text-text-faint">
+                Your email is used for login and cannot be changed here.
               </p>
             </div>
           </div>
 
-          <div className="space-y-6 max-w-2xl">
-            <div className="space-y-2">
-              <label className="block text-sm font-extrabold text-text-main uppercase tracking-wider opacity-80">
-                Current Password
-              </label>
-              <input
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                placeholder="Enter your current password"
-                className="w-full px-4 py-3.5 border border-border/80 rounded-xl bg-surface text-text-main font-semibold shadow-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40"
-              />
+          {/* change password */}
+          <div className="flex flex-col gap-[16px] rounded-[13px] border border-border bg-surface p-[20px] shadow-sm">
+            <div>
+              <div className="text-[13px] font-semibold">Change password</div>
+              <div className="mt-0.5 text-[12px] text-text-faint">
+                Use at least 8 characters with a number and a symbol. Leave blank to keep your current password.
+              </div>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="block text-sm font-extrabold text-text-main uppercase tracking-wider opacity-80">
-                  New Password
-                </label>
+            <div>
+              <label className="mb-[7px] block text-[12.5px] text-text-muted">Current password</label>
+              <div className="flex h-[42px] items-center gap-[9px] rounded-[11px] bg-surface px-[13px] shadow-[inset_0_0_0_1px_var(--border)] focus-within:shadow-[inset_0_0_0_2px_var(--ring)] transition-shadow">
+                <Lock size={18} className="text-text-faint" />
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="h-full flex-1 bg-transparent text-[14px] text-text-main outline-none placeholder:text-text-faint"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-[12px]">
+              <div>
+                <label className="mb-[7px] block text-[12.5px] text-text-muted">New password</label>
                 <input
                   type="password"
                   minLength={8}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="At least 8 characters"
-                  className="w-full px-4 py-3.5 border border-border/80 rounded-xl bg-surface text-text-main font-semibold shadow-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40"
+                  placeholder="••••••••••"
+                  className="flex h-[42px] w-full items-center rounded-[11px] bg-surface px-[13px] text-[14px] text-text-main outline-none shadow-[inset_0_0_0_1px_var(--border)] transition-shadow focus:shadow-[inset_0_0_0_2px_var(--ring)] placeholder:text-text-faint"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="block text-sm font-extrabold text-text-main uppercase tracking-wider opacity-80">
-                  Confirm Password
-                </label>
+              <div>
+                <label className="mb-[7px] block text-[12.5px] text-text-muted">Confirm</label>
                 <input
                   type="password"
                   minLength={8}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Type new password again"
-                  className="w-full px-4 py-3.5 border border-border/80 rounded-xl bg-surface text-text-main font-semibold shadow-sm focus:outline-none focus:ring-4 focus:ring-primary/20 focus:border-primary transition-all hover:border-text-muted/40"
+                  placeholder="••••••••••"
+                  className="flex h-[42px] w-full items-center rounded-[11px] bg-surface px-[13px] text-[14px] text-text-main outline-none shadow-[inset_0_0_0_1px_var(--border)] transition-shadow focus:shadow-[inset_0_0_0_2px_var(--ring)] placeholder:text-text-faint"
                 />
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* ── Actions ── */}
-        <div className="pt-2 flex justify-end gap-4">
-          <Button
-            type="button"
-            variant="secondary"
-            size="lg"
-            onClick={() => router.back()}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            size="lg"
-            loading={loading}
-            className="text-white hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/25"
-            style={{ background: "var(--primary)" }}
-          >
-            {!loading && (
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            {newPassword && (
+              <div className="flex items-center gap-[8px]">
+                <div className="h-[5px] flex-1 overflow-hidden rounded-[3px] bg-surface-hover">
+                  <div
+                    className="h-full transition-all"
+                    style={{ width: `${strength.pct}%`, background: strength.color }}
+                  ></div>
+                </div>
+                <span className="text-[11.5px] font-semibold" style={{ color: strength.color }}>
+                  {strength.label}
+                </span>
+              </div>
             )}
-            Save changes
-          </Button>
+          </div>
         </div>
-      </form>
-    </div>
+      </div>
+
+      {/* sticky footer */}
+      <div className="flex items-center justify-end gap-[9px] border-t border-border bg-surface p-[13px_22px]">
+        <Button type="button" variant="ghost" onClick={() => router.back()} disabled={loading}>
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          loading={loading}
+          className="h-[40px] rounded-[10px] px-[18px] text-[14px] text-white shadow-sm"
+          style={{ background: "var(--primary)" }}
+        >
+          {loading ? "Saving…" : "Save changes"}
+        </Button>
+      </div>
+    </form>
   );
 }
