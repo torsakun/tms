@@ -19,11 +19,39 @@ unit-tests:
   before_script:
     - npm ci
   script:
-    - npm run test
+    # Unit tests are fully mocked (no DB). Integration tests need a real
+    # Postgres and run in the separate integration-tests job below.
+    - npx vitest run --exclude '**/tests/integration/**'
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == "main"'
     - if: '$CI_COMMIT_BRANCH == "feature-automation-integration"'
+
+# ─── Integration Tests (real Postgres) ──────────────────────────────────────
+# Non-blocking: spins up a throwaway Postgres, applies the schema, runs the
+# DB-backed integration tests. allow_failure so infra hiccups don't block MRs.
+integration-tests:
+  stage: test
+  image: node:20
+  tags:
+    - bcp-biai-runner
+  services:
+    - name: postgres:15-alpine
+      alias: postgres
+  variables:
+    POSTGRES_DB: tms_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/tms_test?schema=public"
+  before_script:
+    - npm ci
+    - npx prisma db push --skip-generate
+  script:
+    - npx vitest run tests/integration
+  allow_failure: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
 
 # ─── Coverage + SonarQube Scan ───────────────────────────────────────────────
 # Only runs when SONAR_TOKEN + SONAR_HOST_URL are configured (CI/CD variables)
