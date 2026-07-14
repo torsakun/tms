@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
@@ -33,6 +33,7 @@ import {
   Circle,
   GitBranch,
   Play,
+  MessageSquare,
 } from "lucide-react";
 import { ReportBugModal } from "./ReportBugModal";
 import { toast } from "sonner";
@@ -268,6 +269,69 @@ function ResultRow({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Editable comment/notes box for a run result. Testers write bug notes here
+// (e.g. why a case failed) — persisted to TestRunResult.comment via PATCH.
+function ResultCommentBox({
+  result,
+  onSave,
+}: {
+  result: any;
+  onSave: (text: string) => Promise<void>;
+}) {
+  const [draft, setDraft] = useState<string>(result.comment || "");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  // Reset the draft whenever a different case is opened
+  useEffect(() => {
+    setDraft(result.comment || "");
+    setSaved(false);
+  }, [result.id]);
+
+  const dirty = draft !== (result.comment || "");
+
+  return (
+    <div className="mt-[16px] bg-surface border border-border rounded-[12px] p-[14px] shadow-sm">
+      <div className="flex items-center justify-between mb-[10px]">
+        <div className="flex items-center gap-[7px] font-semibold text-[13px]">
+          <MessageSquare size={17} className="text-text-faint" />
+          Comment / Notes
+        </div>
+        {saved && !dirty && (
+          <span className="text-[11px] text-success font-semibold">Saved ✓</span>
+        )}
+      </div>
+      <textarea
+        value={draft}
+        onChange={(e) => {
+          setDraft(e.target.value);
+          setSaved(false);
+        }}
+        placeholder="Add a note for this case — e.g. why it failed, repro steps, or a bug summary…"
+        className="w-full min-h-[90px] resize-y bg-surface-hover border border-border rounded-[9px] px-[12px] py-[10px] text-[12.5px] leading-[1.6] text-text-main outline-none focus:border-primary transition-colors placeholder:text-text-faint"
+      />
+      <div className="flex justify-end mt-[10px]">
+        <Button
+          size="sm"
+          variant="secondary"
+          loading={saving}
+          onClick={async () => {
+            setSaving(true);
+            try {
+              await onSave(draft);
+              setSaved(true);
+            } finally {
+              setSaving(false);
+            }
+          }}
+        >
+          Save note
+        </Button>
+      </div>
     </div>
   );
 }
@@ -840,6 +904,27 @@ export default function RunExecutionClient({
     } catch (err) {
       console.error("Failed to update status", err);
     }
+  };
+
+  const saveComment = async (resultId: string, comment: string) => {
+    // Optimistic update so the UI reflects the note immediately
+    setRun((prev: any) => ({
+      ...prev,
+      results: prev.results.map((r: any) =>
+        r.id === resultId ? { ...r, comment } : r,
+      ),
+    }));
+
+    const res = await fetch(`/api/runs/${runId}/results/${resultId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ comment }),
+    });
+    if (!res.ok) {
+      toast.error("Failed to save note");
+      throw new Error("save comment failed");
+    }
+    toast.success("Note saved");
   };
 
   const updateStepResult = async (stepId: string, updates: any) => {
@@ -1700,6 +1785,9 @@ export default function RunExecutionClient({
                   </div>
                 </div>
               </div>
+
+              {/* comment / notes (editable) */}
+              <ResultCommentBox result={activeResult} onSave={(text) => saveComment(activeResult.id, text)} />
 
               {/* automation logs (live) */}
               {(isExecutingAutomated || automationLogs) && (
