@@ -1,0 +1,50 @@
+stages:
+  - test
+  - quality
+
+# ─── Unit + Integration Tests ────────────────────────────────────────────────
+unit-tests:
+  stage: test
+  image: node:20-alpine
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - node_modules/
+  before_script:
+    - npm ci
+  script:
+    - npm run test
+  coverage: '/Branches\s*:\s*(\d+\.?\d+)%/'
+  artifacts:
+    when: always
+    reports:
+      junit: reports/vitest/junit.xml
+    paths:
+      - reports/vitest/coverage/lcov.info
+    expire_in: 7 days
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "feature-automation-integration"'
+
+# ─── Coverage + SonarQube Scan ───────────────────────────────────────────────
+sonar-scan:
+  stage: quality
+  image: node:20-alpine
+  dependencies:
+    - unit-tests
+  before_script:
+    - npm ci
+    - apk add --no-cache openjdk17-jre curl
+    - curl -sSLo /tmp/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux-x64.zip
+    - unzip -q /tmp/sonar-scanner.zip -d /opt
+    - export PATH="/opt/sonar-scanner-6.2.1.4610-linux-x64/bin:$PATH"
+  script:
+    - npm run test:coverage
+    - sonar-scanner
+      -Dsonar.token=$SONAR_TOKEN
+      -Dsonar.host.url=$SONAR_HOST_URL
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+  allow_failure: true

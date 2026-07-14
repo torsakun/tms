@@ -6,6 +6,7 @@ import {
   Priority,
   Severity,
   TestResultStatus,
+  TestRunStatus,
 } from "@prisma/client";
 import {
   getDevAdminCredentials,
@@ -145,7 +146,8 @@ export async function GET(req: Request) {
             title: `Regression Test Run v1.${r}`,
             description: `Execution run for milestone ${r}`,
             projectId: project.id,
-            status: r === 3 ? "ACTIVE" : "COMPLETED",
+            status: r === 3 ? TestRunStatus.ACTIVE : TestRunStatus.COMPLETED,
+            authorId: user.id,
           },
         });
 
@@ -159,15 +161,19 @@ export async function GET(req: Request) {
         for (const tc of casesToRun) {
           const rand = Math.random();
           let status: TestResultStatus = TestResultStatus.PASSED;
-          if (rand > 0.8) status = TestResultStatus.FAILED;
-          else if (rand > 0.75) status = TestResultStatus.BLOCKED;
-          else if (rand > 0.7) status = TestResultStatus.SKIPPED;
+          if (r === 3 && rand < 0.25) {
+            status = TestResultStatus.IN_PROGRESS;
+          } else {
+            if (rand > 0.8) status = TestResultStatus.FAILED;
+            else if (rand > 0.75) status = TestResultStatus.BLOCKED;
+            else if (rand > 0.7) status = TestResultStatus.SKIPPED;
+          }
 
           runResultsData.push({
             runId: run.id,
             caseId: tc.id,
             status,
-            timeSpent: Math.floor(Math.random() * 5000) + 1000,
+            timeSpent: status === TestResultStatus.IN_PROGRESS ? null : Math.floor(Math.random() * 5000) + 1000,
           });
         }
 
