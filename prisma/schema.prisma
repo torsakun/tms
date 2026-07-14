@@ -257,10 +257,13 @@ model TestSuite {
 
   testCases TestCase[]
 
+  externalId String? // e.g. Qase suite id, for one-off migration idempotency
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([projectId])
+  @@index([projectId, externalId])
 }
 
 model TestCase {
@@ -299,6 +302,7 @@ model TestCase {
 
   customFields   Json? // Stores custom field values
   sequenceNumber Int   @default(0)
+  externalId     String? // e.g. Qase case id, for one-off migration idempotency
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -362,6 +366,8 @@ model TestRun {
   milestone   Milestone? @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
 
   reportUrl String? @db.Text
+
+  externalId String? // e.g. Qase run id, for one-off migration idempotency
 
   results  TestRunResult[]
   comments Comment[]
