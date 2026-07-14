@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireDevRouteSecret } from "@/lib/dev-route-auth";
+import { TestResultStatus, TestRunStatus } from "@prisma/client";
 
 export async function GET(req: Request) {
   const authError = requireDevRouteSecret(req);
@@ -114,6 +115,7 @@ export async function GET(req: Request) {
             projectId: project.id,
             suiteId: suite.id,
             authorId: user.id,
+            sequenceNumber: 1,
           },
           {
             title: `Handle invalid input errors gracefully in ${p.code}`,
@@ -123,6 +125,7 @@ export async function GET(req: Request) {
             projectId: project.id,
             suiteId: suite.id,
             authorId: user.id,
+            sequenceNumber: 2,
           },
           {
             title: `Check performance under load for ${p.name}`,
@@ -132,6 +135,7 @@ export async function GET(req: Request) {
             projectId: project.id,
             suiteId: suite.id,
             authorId: user.id,
+            sequenceNumber: 3,
           },
           {
             title: `Security audit: SQL injection prevention in ${p.code}`,
@@ -141,18 +145,67 @@ export async function GET(req: Request) {
             projectId: project.id,
             suiteId: suite.id,
             authorId: user.id,
+            sequenceNumber: 4,
           },
         ],
       });
 
-      // Create a test run
-      await prisma.testRun.create({
+      // Fetch created test cases
+      const createdCases = await prisma.testCase.findMany({
+        where: { projectId: project.id },
+      });
+
+      // Create a completed test run
+      const completedRun = await prisma.testRun.create({
         data: {
           title: `Regression Run v1.0 - ${p.code}`,
           projectId: project.id,
-          status: "ACTIVE",
+          status: TestRunStatus.COMPLETED,
+          authorId: user.id,
         },
       });
+
+      // Create results for completed run
+      const completedResults = createdCases.map((tc, index) => ({
+        runId: completedRun.id,
+        caseId: tc.id,
+        status: index === 3 ? TestResultStatus.FAILED : TestResultStatus.PASSED,
+        timeSpent: Math.floor(Math.random() * 5000) + 1000,
+        comment: index === 3 ? "Failed due to SQL injection vulnerability detected during test scan" : "Passed successfully",
+      }));
+      await prisma.testRunResult.createMany({ data: completedResults });
+
+      // Create an active test run
+      const activeRun = await prisma.testRun.create({
+        data: {
+          title: `Active Test Run v1.1 - ${p.code}`,
+          projectId: project.id,
+          status: TestRunStatus.ACTIVE,
+          authorId: user.id,
+        },
+      });
+
+      // Create results for active run: 2 PASSED, 1 FAILED, 1 IN_PROGRESS
+      const activeResults = createdCases.map((tc, index) => {
+        let status = TestResultStatus.IN_PROGRESS;
+        let comment = null;
+        if (index === 0) {
+          status = TestResultStatus.PASSED;
+        } else if (index === 1) {
+          status = TestResultStatus.FAILED;
+          comment = "Input validator threw undefined error";
+        } else if (index === 2) {
+          status = TestResultStatus.PASSED;
+        }
+        return {
+          runId: activeRun.id,
+          caseId: tc.id,
+          status,
+          timeSpent: status === TestResultStatus.IN_PROGRESS ? null : Math.floor(Math.random() * 5000) + 1000,
+          comment,
+        };
+      });
+      await prisma.testRunResult.createMany({ data: activeResults });
 
       createdCount++;
     }

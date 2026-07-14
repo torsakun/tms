@@ -1,0 +1,46 @@
+{
+  "projectCode": "QMS",
+  "projectId": "51257a96-e1f1-451f-a992-2995f605896e",
+  "cases": {
+    "QMS-01": {
+      "qmasterId": "46db5679-53a6-46bb-9588-5d4422958b69",
+      "shortId": "QMS-46db",
+      "title": "Login with valid credentials"
+    },
+    "QMS-02": {
+      "qmasterId": "2b05e1c1-9246-4038-8686-eebef9227466",
+      "shortId": "QMS-2b05",
+      "title": "Login with wrong password"
+    },
+    "QMS-03": {
+      "qmasterId": "d6d8f2ca-8232-46ec-9ae1-cc8ec144897d",
+      "shortId": "QMS-d6d8",
+      "title": "Create a new project"
+    },
+    "QMS-04": {
+      "qmasterId": "82068152-db56-4d84-87f2-08af9c6578a5",
+      "shortId": "QMS-8206",
+      "title": "Open project and see test cases"
+    },
+    "QMS-05": {
+      "qmasterId": "8a1ea5a8-7b22-4723-b2e2-0dedaa6fdc6e",
+      "shortId": "QMS-8a1e",
+      "title": "Create a new test case"
+    },
+    "QMS-06": {
+      "qmasterId": "5f01ff58-6d5c-4c8e-8063-f379c24d4deb",
+      "shortId": "QMS-5f01",
+      "title": "Edit an existing test case"
+    },
+    "QMS-07": {
+      "qmasterId": "66fc05dd-7bc7-4f4d-9e46-99bb6345da6b",
+      "shortId": "QMS-66fc",
+      "title": "Create a test run and select cases"
+    },
+    "QMS-08": {
+      "qmasterId": "792849b0-8bfc-4ffa-a1c1-6edde387aa54",
+      "shortId": "QMS-7928",
+      "title": "Logout from the system"
+    }
+  }
+}
