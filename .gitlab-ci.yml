@@ -42,10 +42,18 @@ integration-tests:
     POSTGRES_DB: tms_test
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: postgres
-    DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/tms_test?schema=public"
+    # Kubernetes executor: service containers share the pod network and are
+    # reachable on 127.0.0.1 (NOT the service alias, which only works on the
+    # Docker executor). Use localhost so Prisma can connect.
+    DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/tms_test?schema=public"
   before_script:
     - npm ci
-    - npx prisma db push --skip-generate
+    # Wait until Postgres accepts connections, then apply the schema.
+    - |
+      for i in $(seq 1 30); do
+        if npx prisma db push --skip-generate; then break; fi
+        echo "Postgres not ready yet ($i/30) — retrying in 2s"; sleep 2
+      done
   script:
     - npx vitest run tests/integration
   allow_failure: true
