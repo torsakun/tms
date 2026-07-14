@@ -2,10 +2,16 @@ stages:
   - test
   - quality
 
+# NOTE: instance runners on this GitLab are tagged. Jobs without a matching
+# tag stay "pending" forever. Set the tag of an ONLINE runner here.
+# (seen in Settings → CI/CD → Runners, e.g. "bcp-biai-runner")
+
 # ─── Unit + Integration Tests ────────────────────────────────────────────────
 unit-tests:
   stage: test
   image: node:20-alpine
+  tags:
+    - bcp-biai-runner
   cache:
     key: "$CI_COMMIT_REF_SLUG"
     paths:
@@ -14,37 +20,29 @@ unit-tests:
     - npm ci
   script:
     - npm run test
-  coverage: '/Branches\s*:\s*(\d+\.?\d+)%/'
-  artifacts:
-    when: always
-    reports:
-      junit: reports/vitest/junit.xml
-    paths:
-      - reports/vitest/coverage/lcov.info
-    expire_in: 7 days
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_COMMIT_BRANCH == "main"'
     - if: '$CI_COMMIT_BRANCH == "feature-automation-integration"'
 
 # ─── Coverage + SonarQube Scan ───────────────────────────────────────────────
+# Only runs when SONAR_TOKEN + SONAR_HOST_URL are configured (CI/CD variables)
+# and the SonarQube host is reachable from the runner. Skipped otherwise so it
+# never leaves a red/failed job on normal MRs.
 sonar-scan:
   stage: quality
   image: node:20-alpine
-  dependencies:
-    - unit-tests
+  tags:
+    - bcp-biai-runner
   before_script:
     - npm ci
-    - apk add --no-cache openjdk17-jre curl
+    - apk add --no-cache openjdk17-jre curl unzip
     - curl -sSLo /tmp/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux-x64.zip
     - unzip -q /tmp/sonar-scanner.zip -d /opt
     - export PATH="/opt/sonar-scanner-6.2.1.4610-linux-x64/bin:$PATH"
   script:
-    - npm run test:coverage
-    - sonar-scanner
-      -Dsonar.token=$SONAR_TOKEN
-      -Dsonar.host.url=$SONAR_HOST_URL
+    - npx vitest run --coverage
+    - sonar-scanner -Dsonar.token=$SONAR_TOKEN -Dsonar.host.url=$SONAR_HOST_URL
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$SONAR_TOKEN && $SONAR_HOST_URL && $CI_COMMIT_BRANCH == "main"'
   allow_failure: true
