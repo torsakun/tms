@@ -10,7 +10,6 @@ import {
   Puzzle,
   Server,
   History,
-  Trash2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -67,18 +66,13 @@ export default function SettingsLayout({
               </Link>
             );
           })}
-
-          <div className="mt-[14px] pt-[14px] border-t border-border flex items-center gap-[10px] p-[8px_11px] rounded-[9px] text-[var(--fail)] font-medium text-[13px] cursor-pointer hover:bg-danger-soft transition-colors">
-            <Trash2 size={18} />
-            Delete project
-          </div>
         </div>
 
         {/* content */}
         <div className="p-[24px_28px]">
           {children}
         </div>
-        
+
       </div>
     </div>
   );
