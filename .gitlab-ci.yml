@@ -1,0 +1,84 @@
+stages:
+  - test
+  - quality
+
+# NOTE: instance runners on this GitLab are tagged. Jobs without a matching
+# tag stay "pending" forever. Set the tag of an ONLINE runner here.
+# (seen in Settings → CI/CD → Runners, e.g. "bcp-biai-runner")
+
+# ─── Unit + Integration Tests ────────────────────────────────────────────────
+unit-tests:
+  stage: test
+  image: node:20-alpine
+  tags:
+    - bcp-biai-runner
+  cache:
+    key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - node_modules/
+  before_script:
+    - npm ci
+  script:
+    # Unit tests are fully mocked (no DB). Integration tests need a real
+    # Postgres and run in the separate integration-tests job below.
+    - npx vitest run --exclude '**/tests/integration/**'
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "feature-automation-integration"'
+
+# ─── Integration Tests (real Postgres) ──────────────────────────────────────
+# Non-blocking: spins up a throwaway Postgres, applies the schema, runs the
+# DB-backed integration tests. allow_failure so infra hiccups don't block MRs.
+integration-tests:
+  stage: test
+  image: node:20
+  tags:
+    - bcp-biai-runner
+  services:
+    - name: postgres:15-alpine
+      alias: postgres
+  variables:
+    POSTGRES_DB: tms_test
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+    # Kubernetes executor: service containers share the pod network and are
+    # reachable on 127.0.0.1 (NOT the service alias, which only works on the
+    # Docker executor). Use localhost so Prisma can connect.
+    DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/tms_test?schema=public"
+  before_script:
+    - npm ci
+    # Wait until Postgres accepts connections, then apply the schema.
+    - |
+      for i in $(seq 1 30); do
+        if npx prisma db push --skip-generate; then break; fi
+        echo "Postgres not ready yet ($i/30) — retrying in 2s"; sleep 2
+      done
+  script:
+    - npx vitest run tests/integration
+  allow_failure: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+# ─── Coverage + SonarQube Scan ───────────────────────────────────────────────
+# Only runs when SONAR_TOKEN + SONAR_HOST_URL are configured (CI/CD variables)
+# and the SonarQube host is reachable from the runner. Skipped otherwise so it
+# never leaves a red/failed job on normal MRs.
+sonar-scan:
+  stage: quality
+  image: node:20-alpine
+  tags:
+    - bcp-biai-runner
+  before_script:
+    - npm ci
+    - apk add --no-cache openjdk17-jre curl unzip
+    - curl -sSLo /tmp/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.2.1.4610-linux-x64.zip
+    - unzip -q /tmp/sonar-scanner.zip -d /opt
+    - export PATH="/opt/sonar-scanner-6.2.1.4610-linux-x64/bin:$PATH"
+  script:
+    - npx vitest run --coverage
+    - sonar-scanner -Dsonar.token=$SONAR_TOKEN -Dsonar.host.url=$SONAR_HOST_URL
+  rules:
+    - if: '$SONAR_TOKEN && $SONAR_HOST_URL && $CI_COMMIT_BRANCH == "main"'
+  allow_failure: true

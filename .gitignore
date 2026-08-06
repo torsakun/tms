@@ -43,3 +43,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .claude/
+
+# test & scan artifacts
+/test-results/
+/reports/
+/.scannerwork/
+/outputs/
+/playwright-report/

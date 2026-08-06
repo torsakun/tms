@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { Check, Archive, ArchiveRestore, Loader2 } from "lucide-react";
+import { Check, Archive, ArchiveRestore, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 
 interface Project {
   id: string;
@@ -20,6 +21,8 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
   const [description, setDescription] = useState(project.description || "");
   const [saving, setSaving] = useState(false);
   const [archiving, setArchiving] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const isDirty = name !== project.name || description !== (project.description || "");
 
@@ -65,6 +68,22 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
       toast.error(e.message || "Failed");
     } finally {
       setArchiving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (deleting) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/projects/${project.code}`, { method: "DELETE" });
+      if (!res.ok) throw new Error((await res.json()).error || "Failed");
+      toast.success(`Project ${project.code} deleted`);
+      setConfirmOpen(false);
+      router.push("/projects");
+      router.refresh();
+    } catch (e: any) {
+      toast.error(e.message || "Failed to delete project");
+      setDeleting(false);
     }
   };
 
@@ -151,8 +170,33 @@ export function GeneralSettingsClient({ project }: { project: Project }) {
             {project.isArchived ? "Restore" : "Archive"}
           </button>
         </div>
+
+        <div className="mt-[14px] flex items-center justify-between p-[18px] border border-danger-border bg-surface rounded-[13px] shadow-sm">
+          <div>
+            <div className="text-[14px] font-semibold text-text-main">Delete this project</div>
+            <div className="text-[13px] text-text-muted mt-[2px]">Once you delete a project, there is no going back. Please be certain.</div>
+          </div>
+          <button
+            onClick={() => setConfirmOpen(true)}
+            disabled={deleting}
+            className="h-[36px] px-[16px] rounded-[9px] text-[13px] font-semibold border border-danger-border text-danger hover:bg-danger-soft flex items-center gap-[6px] transition-colors disabled:opacity-50 whitespace-nowrap"
+          >
+            {deleting ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+            Delete this project
+          </button>
+        </div>
       </div>
 
+      {confirmOpen && (
+        <ConfirmDialog
+          title={`Delete project ${project.code}?`}
+          message="This permanently deletes the project and all its suites, cases, runs and results. This cannot be undone."
+          confirmationText={project.code}
+          confirmLabel={deleting ? "Deleting…" : "Delete this project"}
+          onConfirm={handleDelete}
+          onCancel={() => !deleting && setConfirmOpen(false)}
+        />
+      )}
     </div>
   );
 }
