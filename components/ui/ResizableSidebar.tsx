@@ -1,25 +1,37 @@
 "use client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-const STORAGE_KEY = "qmaster.repository.sidebarWidth";
-const MIN_WIDTH = 200;
-const MAX_WIDTH = 480;
-const DEFAULT_WIDTH = 268;
+interface ResizableSidebarProps {
+  children: React.ReactNode;
+  storageKey: string;
+  defaultWidth?: number;
+  minWidth?: number;
+  maxWidth?: number;
+}
 
-export function ResizableSidebar({ children }: { children: React.ReactNode }) {
-  const [width, setWidth] = useState(DEFAULT_WIDTH);
+export function ResizableSidebar({
+  children,
+  storageKey,
+  defaultWidth = 268,
+  minWidth = 200,
+  maxWidth = 480,
+}: ResizableSidebarProps) {
+  const [width, setWidth] = useState(defaultWidth);
   const isDragging = useRef(false);
 
   useEffect(() => {
-    const stored = Number(localStorage.getItem(STORAGE_KEY));
-    if (stored >= MIN_WIDTH && stored <= MAX_WIDTH) setWidth(stored);
-  }, []);
+    const stored = Number(localStorage.getItem(storageKey));
+    if (stored >= minWidth && stored <= maxWidth) setWidth(stored);
+  }, [storageKey, minWidth, maxWidth]);
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging.current) return;
-    const next = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, e.clientX));
-    setWidth(next);
-  }, []);
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      const next = Math.min(maxWidth, Math.max(minWidth, e.clientX));
+      setWidth(next);
+    },
+    [minWidth, maxWidth],
+  );
 
   const handleMouseUp = useCallback(() => {
     if (!isDragging.current) return;
@@ -27,10 +39,10 @@ export function ResizableSidebar({ children }: { children: React.ReactNode }) {
     document.body.style.cursor = "";
     document.body.style.userSelect = "";
     setWidth((w) => {
-      localStorage.setItem(STORAGE_KEY, String(w));
+      localStorage.setItem(storageKey, String(w));
       return w;
     });
-  }, []);
+  }, [storageKey]);
 
   useEffect(() => {
     window.addEventListener("mousemove", handleMouseMove);

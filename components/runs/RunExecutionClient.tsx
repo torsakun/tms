@@ -42,6 +42,7 @@ import { useSession } from "next-auth/react";
 import { createRoot } from "react-dom/client";
 import { PdfReportTemplate } from "./PdfReportTemplate";
 import { Button } from "@/components/ui/Button";
+import { ResizableSidebar } from "@/components/ui/ResizableSidebar";
 import { formatThaiTime } from "@/lib/utils";
 
 const AVATAR_COLORS = [
@@ -224,21 +225,21 @@ function ResultRow({
     router.push(`/projects/${projectCode}/cases/${result.testCase.id}/edit`);
   };
 
-  const leftPadding = depth * 24 + 14;
+  const leftPadding = depth * 18 + 12;
 
   return (
     <div
       onClick={() => openResult(result)}
-      className="flex items-center gap-[11px] border-b border-border transition-colors cursor-pointer relative group"
+      className="flex items-center gap-[9px] border-b border-border transition-colors cursor-pointer relative group"
       style={{
-        padding: `11px 14px 11px ${leftPadding}px`,
+        padding: `7px 14px 7px ${leftPadding}px`,
         background: isSelected ? "var(--primary-light)" : "transparent",
         boxShadow: isSelected ? "inset 3px 0 0 var(--primary)" : "none"
       }}
     >
-      <st.Icon size={18} className="shrink-0" style={{ color: st.color } as any} />
+      <st.Icon size={16} className="shrink-0" style={{ color: st.color } as any} />
       <div className="flex-1 min-w-0">
-        <div className="text-[13px] whitespace-nowrap overflow-hidden text-ellipsis text-text-main" style={{ fontWeight: isSelected ? "600" : "500" }}>{result.testCase.title}</div>
+        <div className="text-[12.5px] whitespace-nowrap overflow-hidden text-ellipsis text-text-main" style={{ fontWeight: isSelected ? "600" : "500" }}>{result.testCase.title}</div>
         <div className="font-mono text-[10px] text-text-faint mt-[1px]">{projectCode}-{result.testCase.sequenceNumber || result.testCase.id.substring(0, 4).toUpperCase()}</div>
       </div>
       <pri.Icon size={16} className="shrink-0" style={{ color: pri.color } as any} />
@@ -1133,40 +1134,42 @@ export default function RunExecutionClient({
     return (
       <div
         key={suite.id}
-        className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden mb-3 hover:shadow transition-shadow duration-300"
-        style={{ borderTop: `3px solid ${accentColor}` }}
+        className="bg-surface border-b border-border"
+        style={{ borderLeft: depth === 0 ? `2px solid ${accentColor}` : "none" }}
       >
         <div
-          className="flex items-center py-2.5 px-4 border-b border-border bg-gradient-to-r from-surface-hover/90 to-surface/80 hover:bg-primary-light/40 cursor-pointer group transition-colors select-none"
+          className="flex items-center py-[7px] px-3 hover:bg-surface-hover cursor-pointer group transition-colors select-none"
           onClick={() => toggleSuite(suite.id)}
         >
-          <div className="w-5 flex items-center justify-center mr-2 text-text-muted transition-transform group-hover:scale-110">
+          <div className="w-4 flex items-center justify-center mr-1.5 text-text-muted">
             {isExpanded ? (
-              <ChevronDown size={16} />
+              <ChevronDown size={15} />
             ) : (
-              <ChevronRight size={16} />
+              <ChevronRight size={15} />
             )}
           </div>
           <input
             type="checkbox"
-            className="w-4 h-4 mr-3 rounded border-border text-primary focus:ring-primary/25"
+            className="w-[13px] h-[13px] mr-2 rounded border-border text-primary focus:ring-primary/25"
             onClick={(e) => e.stopPropagation()}
           />
-          <span className={`text-text-main group-hover:text-primary transition-colors ${
+          <span
+            title={suite.title}
+            className={`text-text-main group-hover:text-primary transition-colors min-w-0 whitespace-nowrap overflow-hidden text-ellipsis ${
             depth === 0
-              ? "font-extrabold text-[16px] tracking-tight mr-3"
-              : "font-semibold text-[14px] mr-3"
+              ? "font-bold text-[13px] mr-2"
+              : "font-semibold text-[12.5px] mr-2"
           }`}>
             {suite.title}
           </span>
 
-          <div className="flex items-center text-xs text-text-muted font-medium gap-3 ml-auto shrink-0 select-none">
-            <span className="px-2.5 py-0.5 bg-success/10 text-[10px] font-bold rounded-full text-success text-success-foreground border border-success/15 whitespace-nowrap">
+          <div className="flex items-center text-xs text-text-muted font-medium gap-2 ml-auto shrink-0 select-none">
+            <span className="px-[7px] py-[1px] bg-success/10 text-[10px] font-bold rounded-full text-success text-success-foreground border border-success/15 whitespace-nowrap">
               {stats.passed}/{stats.total} Passed
             </span>
             {renderProgressBar(stats)}
-            <div className="flex items-center text-[10px] text-text-muted bg-skip-soft px-2 py-0.5 rounded-full border border-border/40 font-semibold">
-              <Clock size={11} className="mr-1" />
+            <div className="flex items-center text-[10px] text-text-muted bg-skip-soft px-[6px] py-[1px] rounded-full border border-border/40 font-semibold">
+              <Clock size={10} className="mr-1" />
               {formatRunDuration(computeSuiteTime(suite.id))}
             </div>
           </div>
@@ -1175,11 +1178,8 @@ export default function RunExecutionClient({
         {isExpanded && (
           <div className="flex flex-col bg-surface">
             {results.map((r) => renderResultRow(r, depth + 1))}
-            {children.length > 0 && (
-              <div className="px-2 pb-2 mt-0.5 space-y-1.5">
-                {children.map((child) => renderSuiteTree(child, depth + 1))}
-              </div>
-            )}
+            {children.length > 0 &&
+              children.map((child) => renderSuiteTree(child, depth + 1))}
           </div>
         )}
       </div>
@@ -1574,40 +1574,51 @@ export default function RunExecutionClient({
           </div>
         </div>
 
-        <div className={`flex-1 min-h-0 ${activeResultId ? "grid grid-cols-[370px_1fr] grid-rows-[minmax(0,1fr)]" : "flex"}`}>
+        <div className="flex-1 min-h-0 flex">
           {/* case list */}
-          <div className={`border-r border-border bg-surface flex-col ${activeResultId ? "flex" : "flex flex-1 w-full"}`}>
-            <div className="flex items-center gap-[8px] px-[14px] py-[11px] border-b border-border shrink-0">
-              <div className="flex-1 flex items-center gap-[8px] h-[32px] px-[10px] bg-surface-hover border border-border rounded-[8px] text-text-faint text-[12.5px] focus-within:border-primary transition-colors">
-                <Search size={16} />
-                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Filter cases" className="bg-transparent outline-none w-full text-text-main" />
-              </div>
-              <button onClick={() => setStatusFilter(null)} title="Clear filters" className="text-text-faint hover:text-text-main transition-colors flex items-center"><SlidersHorizontal size={18} /></button>
-            </div>
-            
-            {/* Status filters */}
-            <div className="flex flex-wrap gap-[4px] p-[8px_14px] bg-surface border-b border-border">
-              {['PASSED', 'FAILED', 'BLOCKED', 'SKIPPED', 'IN_PROGRESS'].map(st => (
-                 <button key={st} onClick={() => setStatusFilter(statusFilter === st ? null : st)} className={`px-2 py-1 rounded text-[10px] font-bold ${statusFilter === st ? "bg-primary-light text-primary" : "bg-surface-hover text-text-muted hover:text-text-main"}`}>
-                   {st}
-                 </button>
-              ))}
-            </div>
-
-            <div className="flex-1 overflow-y-auto pb-8">
-              {unassignedResults.length > 0 && (
-                <>
-                  <div className="flex items-center gap-[7px] px-[14px] py-[9px] bg-surface-hover border-b border-border">
-                    <ChevronDown size={17} className="text-text-faint" />
-                    <span className="font-semibold text-[12px]">Unassigned Cases</span>
-                    <span className="text-[10.5px] text-text-faint ml-auto tabular-nums">{unassignedResults.length} cases</span>
+          {(() => {
+            const caseListBody = (
+              <div className="border-r border-border bg-surface flex flex-col h-full">
+                <div className="flex items-center gap-[8px] px-[14px] py-[11px] border-b border-border shrink-0">
+                  <div className="flex-1 flex items-center gap-[8px] h-[32px] px-[10px] bg-surface-hover border border-border rounded-[8px] text-text-faint text-[12.5px] focus-within:border-primary transition-colors">
+                    <Search size={16} />
+                    <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Filter cases" className="bg-transparent outline-none w-full text-text-main" />
                   </div>
-                  {unassignedResults.map((r) => renderResultRow(r, 0))}
-                </>
-              )}
-              {roots.map((suite) => renderSuiteTree(suite, 0))}
-            </div>
-          </div>
+                  <button onClick={() => setStatusFilter(null)} title="Clear filters" className="text-text-faint hover:text-text-main transition-colors flex items-center"><SlidersHorizontal size={18} /></button>
+                </div>
+
+                {/* Status filters */}
+                <div className="flex flex-wrap gap-[4px] p-[8px_14px] bg-surface border-b border-border">
+                  {['PASSED', 'FAILED', 'BLOCKED', 'SKIPPED', 'IN_PROGRESS'].map(st => (
+                     <button key={st} onClick={() => setStatusFilter(statusFilter === st ? null : st)} className={`px-2 py-1 rounded text-[10px] font-bold ${statusFilter === st ? "bg-primary-light text-primary" : "bg-surface-hover text-text-muted hover:text-text-main"}`}>
+                       {st}
+                     </button>
+                  ))}
+                </div>
+
+                <div className="flex-1 overflow-y-auto pb-8">
+                  {unassignedResults.length > 0 && (
+                    <>
+                      <div className="flex items-center gap-[7px] px-[14px] py-[9px] bg-surface-hover border-b border-border">
+                        <ChevronDown size={17} className="text-text-faint" />
+                        <span className="font-semibold text-[12px]">Unassigned Cases</span>
+                        <span className="text-[10.5px] text-text-faint ml-auto tabular-nums">{unassignedResults.length} cases</span>
+                      </div>
+                      {unassignedResults.map((r) => renderResultRow(r, 0))}
+                    </>
+                  )}
+                  {roots.map((suite) => renderSuiteTree(suite, 0))}
+                </div>
+              </div>
+            );
+            return activeResultId ? (
+              <ResizableSidebar storageKey="qmaster.run.sidebarWidth" defaultWidth={370} minWidth={280} maxWidth={640}>
+                {caseListBody}
+              </ResizableSidebar>
+            ) : (
+              <div className="flex-1 w-full">{caseListBody}</div>
+            );
+          })()}
 {/* Execution Workspace Panel */}
           {activeResultId && activeResult && activeResult.testCase ? (
             (() => {
@@ -1681,8 +1692,8 @@ export default function RunExecutionClient({
 
               {/* steps */}
               {activeResult.testCase.steps && activeResult.testCase.steps.length > 0 && (
-                <div className="mt-[18px] bg-surface border border-border rounded-[12px] shadow-sm overflow-hidden">
-                  <div className="grid grid-cols-[34px_1fr_1fr_84px] gap-[12px] px-[16px] py-[9px] text-[10.5px] font-semibold tracking-[0.05em] uppercase text-text-faint border-b border-border">
+                <div className="mt-[14px] bg-surface border border-border rounded-[10px] overflow-hidden">
+                  <div className="grid grid-cols-[34px_1fr_1fr_84px] gap-[12px] px-[16px] py-[7px] text-[10.5px] font-semibold tracking-[0.05em] uppercase text-text-faint border-b border-border">
                     <div>#</div><div>Action</div><div>Expected</div><div className="text-right">Result</div>
                   </div>
                   {activeResult.testCase.steps.map((step: any, idx: number) => {
@@ -1698,8 +1709,8 @@ export default function RunExecutionClient({
 
                     return (
                       <div key={step.id} className="border-b border-border last:border-0" style={{ background: sBg }}>
-                        <div className="grid grid-cols-[34px_1fr_1fr_84px] gap-[12px] px-[16px] py-[12px] items-start">
-                          <div className="w-[22px] h-[22px] rounded-[6px] bg-surface-hover border border-border flex items-center justify-center text-[11px] font-bold text-text-muted tabular-nums">{idx + 1}</div>
+                        <div className="grid grid-cols-[34px_1fr_1fr_84px] gap-[12px] px-[16px] py-[8px] items-start">
+                          <div className="w-[20px] h-[20px] rounded-[6px] bg-surface-hover border border-border flex items-center justify-center text-[11px] font-bold text-text-muted tabular-nums">{idx + 1}</div>
                           <div className="text-[12.5px] text-text-main whitespace-pre-wrap">{step.action}</div>
                           <div className="text-[12.5px] text-text-muted whitespace-pre-wrap">{step.expectedResult}</div>
                           <div className="text-right">
@@ -1709,7 +1720,7 @@ export default function RunExecutionClient({
                           </div>
                         </div>
                         {/* per-step actual result + evidence */}
-                        <div className="px-[16px] pb-[12px] grid grid-cols-[34px_1fr] gap-[12px]">
+                        <div className="px-[16px] pb-[8px] grid grid-cols-[34px_1fr] gap-[12px]">
                           <div />
                           <div className="space-y-2">
                             <textarea
@@ -1718,7 +1729,7 @@ export default function RunExecutionClient({
                               onBlur={(e) => updateStepResult(step.id, { actualResult: e.target.value })}
                               onPaste={(e) => handlePaste(e, step.id)}
                               placeholder="Actual result / notes…"
-                              className="w-full text-[12px] bg-surface-hover text-text-main border border-border rounded-md p-2 min-h-[40px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition placeholder:text-text-faint"
+                              className="w-full text-[12px] bg-surface-hover text-text-main border border-border rounded-md p-2 min-h-[32px] focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition placeholder:text-text-faint"
                             />
                             {attachments.length > 0 && (
                               <div className="flex flex-wrap gap-2">

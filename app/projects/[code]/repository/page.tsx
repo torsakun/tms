@@ -1,5 +1,5 @@
 import { SuiteTree } from "@/components/repository/SuiteTree";
-import { ResizableSidebar } from "@/components/repository/ResizableSidebar";
+import { ResizableSidebar } from "@/components/ui/ResizableSidebar";
 import { RepositoryContent } from "@/components/repository/RepositoryContent";
 import { SuiteExpansionProvider } from "@/components/providers/SuiteExpansionProvider";
 import { SuiteSelectionProvider } from "@/components/providers/SuiteSelectionProvider";
@@ -53,7 +53,7 @@ export default async function RepositoryPage({
     <SuiteExpansionProvider initialExpandedIds={allSuiteIds} projectCode={code}>
       <SuiteSelectionProvider>
         <div className="flex min-h-0 flex-1 w-full bg-background overflow-hidden">
-          <ResizableSidebar>
+          <ResizableSidebar storageKey="qmaster.repository.sidebarWidth">
             <SuiteTree
               initialSuites={suites}
               cases={cases}
