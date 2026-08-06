@@ -34,6 +34,9 @@ import {
   GitBranch,
   Play,
   MessageSquare,
+  Bot,
+  Hand,
+  UserCircle2,
 } from "lucide-react";
 import { ReportBugModal } from "./ReportBugModal";
 import { toast } from "sonner";
@@ -42,7 +45,6 @@ import { useSession } from "next-auth/react";
 import { createRoot } from "react-dom/client";
 import { PdfReportTemplate } from "./PdfReportTemplate";
 import { Button } from "@/components/ui/Button";
-import { ResizableSidebar } from "@/components/ui/ResizableSidebar";
 import { formatThaiTime } from "@/lib/utils";
 
 const AVATAR_COLORS = [
@@ -135,6 +137,11 @@ interface RunExecutionClientProps {
   runId: string;
 }
 
+// Shared column template for the case table (mirrors Qase's dense run table):
+// status · priority · type · ID · MEMBER · STATUS · TITLE · DURATION · menu
+const ROW_GRID =
+  "24px 20px 20px 78px 176px 116px minmax(0,1fr) 92px 30px";
+
 // ── Status visual map (lucide icon + real design tokens) ──
 // Maps the design's --pass/--fail/--warn/--skip onto the app's
 // --success/--danger/--warning/--skip tokens.
@@ -225,51 +232,112 @@ function ResultRow({
     router.push(`/projects/${projectCode}/cases/${result.testCase.id}/edit`);
   };
 
-  const leftPadding = depth * 18 + 12;
+  const leftPadding = depth * 16 + 14;
+  const isAutomated =
+    (result.testCase.automationStatus || "").toUpperCase() === "AUTOMATED";
+  const assignee = result.assigneeId ? userMeta(result.assignee) : null;
 
   return (
     <div
       onClick={() => openResult(result)}
-      className="flex items-center gap-[9px] border-b border-border transition-colors cursor-pointer relative group"
+      className="grid gap-[12px] items-center border-b border-border transition-colors cursor-pointer relative group hover:bg-surface-hover/70"
       style={{
-        padding: `7px 14px 7px ${leftPadding}px`,
+        gridTemplateColumns: ROW_GRID,
+        padding: `9px 16px 9px ${leftPadding}px`,
         background: isSelected ? "var(--primary-light)" : "transparent",
         boxShadow: isSelected ? "inset 3px 0 0 var(--primary)" : "none"
       }}
     >
-      <st.Icon size={16} className="shrink-0" style={{ color: st.color } as any} />
-      <div className="flex-1 min-w-0">
-        <div className="text-[12.5px] whitespace-nowrap overflow-hidden text-ellipsis text-text-main" style={{ fontWeight: isSelected ? "600" : "500" }}>{result.testCase.title}</div>
-        <div className="font-mono text-[10px] text-text-faint mt-[1px]">{projectCode}-{result.testCase.sequenceNumber || result.testCase.id.substring(0, 4).toUpperCase()}</div>
-      </div>
-      <pri.Icon size={16} className="shrink-0" style={{ color: pri.color } as any} />
-      
-      {!isDetailsOpen && (
-        <div className="w-32 flex items-center justify-end shrink-0 gap-2 opacity-0 group-hover:opacity-100 transition-opacity absolute right-4">
-          {result.assigneeId ? (
-            <div className="w-5 h-5 rounded-full text-[9px] text-white flex items-center justify-center font-bold" style={{ background: userMeta(result.assignee).color }} title={userMeta(result.assignee).display}>
-              {userMeta(result.assignee).initials}
-            </div>
-          ) : null}
-          <div className="relative" ref={menuRef}>
-            <button onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }} className="text-text-muted hover:text-text-main flex items-center justify-center bg-surface border border-border rounded shadow-sm w-[24px] h-[24px]">
-              <MoreHorizontal size={16} />
-            </button>
-            {menuOpen && (
-              <div className="absolute right-0 top-full mt-1 w-40 bg-surface border border-border shadow-md z-50 py-1 rounded">
-                <button onClick={(e) => { e.stopPropagation(); setMenuOpen(false); openResult(result); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Run wizard</button>
-                <button onClick={(e) => { e.stopPropagation(); setMenuOpen(false); onAssignClick(result.id); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Assign</button>
-                <button onClick={handleAssignToMe} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Assign to me</button>
-                <button onClick={handleUnassign} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Unassign</button>
-                <div className="h-px bg-border my-1"></div>
-                <button onClick={handleEdit} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Edit case</button>
-                <div className="h-px bg-border my-1"></div>
-                <button onClick={handleDelete} className="w-full text-left px-4 py-2 text-[13px] text-danger hover:bg-danger-soft">Delete</button>
-              </div>
-            )}
+      <st.Icon size={18} className="shrink-0" style={{ color: st.color } as any} />
+
+      <pri.Icon size={17} className="shrink-0" style={{ color: pri.color } as any} />
+
+      <span className="shrink-0 text-text-faint" title={isAutomated ? "Automated" : "Manual"}>
+        {isAutomated ? <Bot size={16} /> : <Hand size={16} />}
+      </span>
+
+      <span className="qm-mono text-[12.5px] text-text-faint tabular-nums truncate">
+        {projectCode}-{result.testCase.sequenceNumber || result.testCase.id.substring(0, 4).toUpperCase()}
+      </span>
+
+      <span className="flex items-center gap-[7px] min-w-0">
+        {assignee ? (
+          <>
+            <span className="w-[22px] h-[22px] shrink-0 rounded-full text-[10px] text-white flex items-center justify-center font-bold" style={{ background: assignee.color }}>
+              {assignee.initials}
+            </span>
+            <span className="text-[13.5px] text-text-main truncate">{assignee.display}</span>
+          </>
+        ) : (
+          <>
+            <UserCircle2 size={20} className="shrink-0 text-text-faint" />
+            <span className="text-[13.5px] text-text-faint truncate">Unassigned</span>
+          </>
+        )}
+      </span>
+
+      <span
+        className="justify-self-start inline-flex items-center text-[12px] font-bold px-[9px] py-[3px] rounded-[6px] whitespace-nowrap"
+        style={
+          result.status && result.status !== "IN_PROGRESS"
+            ? { background: st.soft, color: st.color }
+            : { background: "var(--surface-hover)", color: "var(--text-faint)" }
+        }
+      >
+        {result.status && result.status !== "IN_PROGRESS" ? st.label : "Untested"}
+      </span>
+
+      <span
+        className="text-[14px] truncate text-text-main"
+        style={{ fontWeight: isSelected ? "600" : "500" }}
+        title={result.testCase.title}
+      >
+        {result.testCase.title}
+      </span>
+
+      <span className="flex items-center gap-[5px] text-[12.5px] text-text-faint tabular-nums whitespace-nowrap">
+        <Clock size={13} />
+        {formatRunDuration(result.timeSpent || 0)}
+      </span>
+
+      <div className="relative justify-self-end" ref={menuRef}>
+        <button
+          onClick={(e) => { e.stopPropagation(); setMenuOpen(!menuOpen); }}
+          className="text-text-faint hover:text-text-main flex items-center justify-center w-[24px] h-[24px] rounded opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+        >
+          <MoreHorizontal size={17} />
+        </button>
+        {menuOpen && (
+          <div className="absolute right-0 top-full mt-1 w-40 bg-surface border border-border shadow-md z-50 py-1 rounded">
+            <button onClick={(e) => { e.stopPropagation(); setMenuOpen(false); openResult(result); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Run wizard</button>
+            <button onClick={(e) => { e.stopPropagation(); setMenuOpen(false); onAssignClick(result.id); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Assign</button>
+            <button onClick={handleAssignToMe} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Assign to me</button>
+            <button onClick={handleUnassign} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Unassign</button>
+            <div className="h-px bg-border my-1"></div>
+            <button onClick={handleEdit} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover">Edit case</button>
+            <div className="h-px bg-border my-1"></div>
+            <button onClick={handleDelete} className="w-full text-left px-4 py-2 text-[13px] text-danger hover:bg-danger-soft">Delete</button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Column header strip shown above a suite's cases (like Qase's run table).
+function CaseTableHeader({ depth }: { depth: number }) {
+  return (
+    <div
+      className="grid gap-[12px] items-center bg-surface-hover/40 border-b border-border text-[11.5px] font-semibold tracking-[0.05em] uppercase text-text-faint select-none"
+      style={{ gridTemplateColumns: ROW_GRID, padding: `7px 16px 7px ${depth * 16 + 14}px` }}
+    >
+      <div /><div /><div />
+      <div>ID</div>
+      <div>Member</div>
+      <div>Status</div>
+      <div>Title</div>
+      <div>Duration</div>
+      <div />
     </div>
   );
 }
@@ -460,21 +528,7 @@ export default function RunExecutionClient({
     return () => clearInterval(intervalId);
   }, [run?.status, runId]);
 
-  // Auto-select a case on load so the two-pane runner is always populated.
-  React.useEffect(() => {
-    if (activeResultId) return;
-    const results = run?.results || [];
-    if (results.length === 0) return;
-    const firstActionable =
-      results.find(
-        (r: any) => r.status === "IN_PROGRESS" || !r.status,
-      ) || results[0];
-    if (firstActionable) {
-      setActiveResultId(firstActionable.id);
-      setStepResults(firstActionable.stepResults || {});
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // The run opens on the full case list; the detail drawer only opens on click.
 
   const handleAssignClick = (resultId: string) => {
     setAssigningResultId(resultId);
@@ -1069,7 +1123,7 @@ export default function RunExecutionClient({
         result={result}
         depth={depth}
         isSelected={isSelected}
-        isDetailsOpen={!!activeResultId}
+        isDetailsOpen={false}
         openResult={openResult}
         projectCode={projectCode}
         runId={runId}
@@ -1138,38 +1192,38 @@ export default function RunExecutionClient({
         style={{ borderLeft: depth === 0 ? `2px solid ${accentColor}` : "none" }}
       >
         <div
-          className="flex items-center py-[7px] px-3 hover:bg-surface-hover cursor-pointer group transition-colors select-none"
+          className="flex items-center py-[10px] px-4 hover:bg-surface-hover cursor-pointer group transition-colors select-none"
           onClick={() => toggleSuite(suite.id)}
         >
-          <div className="w-4 flex items-center justify-center mr-1.5 text-text-muted">
+          <div className="w-5 flex items-center justify-center mr-2 text-text-muted">
             {isExpanded ? (
-              <ChevronDown size={15} />
+              <ChevronDown size={17} />
             ) : (
-              <ChevronRight size={15} />
+              <ChevronRight size={17} />
             )}
           </div>
           <input
             type="checkbox"
-            className="w-[13px] h-[13px] mr-2 rounded border-border text-primary focus:ring-primary/25"
+            className="w-[15px] h-[15px] mr-2.5 rounded border-border text-primary focus:ring-primary/25"
             onClick={(e) => e.stopPropagation()}
           />
           <span
             title={suite.title}
             className={`text-text-main group-hover:text-primary transition-colors min-w-0 whitespace-nowrap overflow-hidden text-ellipsis ${
             depth === 0
-              ? "font-bold text-[13px] mr-2"
-              : "font-semibold text-[12.5px] mr-2"
+              ? "font-bold text-[15.5px] mr-3"
+              : "font-semibold text-[14.5px] mr-3"
           }`}>
             {suite.title}
           </span>
 
-          <div className="flex items-center text-xs text-text-muted font-medium gap-2 ml-auto shrink-0 select-none">
-            <span className="px-[7px] py-[1px] bg-success/10 text-[10px] font-bold rounded-full text-success text-success-foreground border border-success/15 whitespace-nowrap">
+          <div className="flex items-center text-text-muted font-medium gap-2.5 ml-auto shrink-0 select-none">
+            <span className="px-[9px] py-[2px] bg-success/10 text-[11.5px] font-bold rounded-full text-success text-success-foreground border border-success/15 whitespace-nowrap">
               {stats.passed}/{stats.total} Passed
             </span>
             {renderProgressBar(stats)}
-            <div className="flex items-center text-[10px] text-text-muted bg-skip-soft px-[6px] py-[1px] rounded-full border border-border/40 font-semibold">
-              <Clock size={10} className="mr-1" />
+            <div className="flex items-center text-[11.5px] text-text-muted bg-skip-soft px-[8px] py-[2px] rounded-full border border-border/40 font-semibold">
+              <Clock size={12} className="mr-1" />
               {formatRunDuration(computeSuiteTime(suite.id))}
             </div>
           </div>
@@ -1177,6 +1231,7 @@ export default function RunExecutionClient({
 
         {isExpanded && (
           <div className="flex flex-col bg-surface">
+            {results.length > 0 && <CaseTableHeader depth={depth + 1} />}
             {results.map((r) => renderResultRow(r, depth + 1))}
             {children.length > 0 &&
               children.map((child) => renderSuiteTree(child, depth + 1))}
@@ -1575,51 +1630,54 @@ export default function RunExecutionClient({
         </div>
 
         <div className="flex-1 min-h-0 flex">
-          {/* case list */}
-          {(() => {
-            const caseListBody = (
-              <div className="border-r border-border bg-surface flex flex-col h-full">
-                <div className="flex items-center gap-[8px] px-[14px] py-[11px] border-b border-border shrink-0">
-                  <div className="flex-1 flex items-center gap-[8px] h-[32px] px-[10px] bg-surface-hover border border-border rounded-[8px] text-text-faint text-[12.5px] focus-within:border-primary transition-colors">
-                    <Search size={16} />
-                    <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Filter cases" className="bg-transparent outline-none w-full text-text-main" />
-                  </div>
-                  <button onClick={() => setStatusFilter(null)} title="Clear filters" className="text-text-faint hover:text-text-main transition-colors flex items-center"><SlidersHorizontal size={18} /></button>
-                </div>
-
-                {/* Status filters */}
-                <div className="flex flex-wrap gap-[4px] p-[8px_14px] bg-surface border-b border-border">
-                  {['PASSED', 'FAILED', 'BLOCKED', 'SKIPPED', 'IN_PROGRESS'].map(st => (
-                     <button key={st} onClick={() => setStatusFilter(statusFilter === st ? null : st)} className={`px-2 py-1 rounded text-[10px] font-bold ${statusFilter === st ? "bg-primary-light text-primary" : "bg-surface-hover text-text-muted hover:text-text-main"}`}>
-                       {st}
-                     </button>
-                  ))}
-                </div>
-
-                <div className="flex-1 overflow-y-auto pb-8">
-                  {unassignedResults.length > 0 && (
-                    <>
-                      <div className="flex items-center gap-[7px] px-[14px] py-[9px] bg-surface-hover border-b border-border">
-                        <ChevronDown size={17} className="text-text-faint" />
-                        <span className="font-semibold text-[12px]">Unassigned Cases</span>
-                        <span className="text-[10.5px] text-text-faint ml-auto tabular-nums">{unassignedResults.length} cases</span>
-                      </div>
-                      {unassignedResults.map((r) => renderResultRow(r, 0))}
-                    </>
-                  )}
-                  {roots.map((suite) => renderSuiteTree(suite, 0))}
-                </div>
+          {/* case list — always full width; clicking a case opens the detail drawer */}
+          <div className="flex-1 w-full min-w-0 bg-surface flex flex-col h-full">
+            <div className="flex items-center gap-[8px] px-[14px] py-[11px] border-b border-border shrink-0">
+              <div className="flex-1 max-w-[340px] flex items-center gap-[8px] h-[36px] px-[12px] bg-surface-hover border border-border rounded-[8px] text-text-faint text-[13.5px] focus-within:border-primary transition-colors">
+                <Search size={17} />
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Filter cases" className="bg-transparent outline-none w-full text-text-main" />
               </div>
-            );
-            return activeResultId ? (
-              <ResizableSidebar storageKey="qmaster.run.sidebarWidth" defaultWidth={370} minWidth={280} maxWidth={640}>
-                {caseListBody}
-              </ResizableSidebar>
-            ) : (
-              <div className="flex-1 w-full">{caseListBody}</div>
-            );
-          })()}
-{/* Execution Workspace Panel */}
+              <button onClick={() => setStatusFilter(null)} title="Clear filters" className="text-text-faint hover:text-text-main transition-colors flex items-center"><SlidersHorizontal size={19} /></button>
+            </div>
+
+            {/* Status filters */}
+            <div className="flex flex-wrap gap-[5px] p-[9px_16px] bg-surface border-b border-border">
+              {['PASSED', 'FAILED', 'BLOCKED', 'SKIPPED', 'IN_PROGRESS'].map(st => (
+                 <button key={st} onClick={() => setStatusFilter(statusFilter === st ? null : st)} className={`px-2.5 py-1 rounded text-[11.5px] font-bold ${statusFilter === st ? "bg-primary-light text-primary" : "bg-surface-hover text-text-muted hover:text-text-main"}`}>
+                   {st}
+                 </button>
+              ))}
+            </div>
+
+            <div className="flex-1 overflow-y-auto pb-8">
+              {unassignedResults.length > 0 && (
+                <>
+                  <div className="flex items-center gap-[8px] px-[16px] py-[10px] bg-surface-hover border-b border-border">
+                    <ChevronDown size={17} className="text-text-faint" />
+                    <span className="font-bold text-[15.5px]">Unassigned Cases</span>
+                    <span className="text-[11.5px] text-text-faint ml-auto tabular-nums">{unassignedResults.length} cases</span>
+                  </div>
+                  <CaseTableHeader depth={0} />
+                  {unassignedResults.map((r) => renderResultRow(r, 0))}
+                </>
+              )}
+              {roots.map((suite) => renderSuiteTree(suite, 0))}
+            </div>
+          </div>
+        </div>
+
+        {/* Backdrop for the case detail drawer */}
+        {activeResultId && (
+          <div
+            className="fixed inset-0 bg-[color:var(--overlay)] z-[60] transition-opacity"
+            onClick={() => setActiveResultId(null)}
+          />
+        )}
+
+        {/* Execution detail drawer */}
+        <div
+          className={`fixed top-0 right-0 h-full w-[62vw] min-w-[720px] max-w-[1040px] bg-surface shadow-[var(--shadow-lg)] border-l border-border transform transition-transform duration-200 ease-out z-[70] flex flex-col ${activeResultId ? "translate-x-0" : "translate-x-full"}`}
+        >
           {activeResultId && activeResult && activeResult.testCase ? (
             (() => {
               const caseStatusVis = statusVisual(activeResult.status);
@@ -1643,7 +1701,7 @@ export default function RunExecutionClient({
               const automationScript = activeResult.testCase.automationScript;
 
               return (
-            <div className="flex flex-col min-h-0 overflow-hidden bg-background">
+            <div className="flex flex-col h-full min-h-0 overflow-hidden bg-background">
             <div className="flex-1 overflow-y-auto px-[24px] py-[20px]">
               <div className="flex items-start gap-[12px]">
                 <div className="flex-1">
@@ -1656,11 +1714,11 @@ export default function RunExecutionClient({
                       <casePriVis.Icon size={13} />{casePriVis.label}
                     </span>
                   </div>
-                  <div className="text-[19px] font-semibold tracking-[-0.015em] text-text-main">{activeResult.testCase.title}</div>
+                  <div className="text-[21px] font-semibold tracking-[-0.015em] text-text-main">{activeResult.testCase.title}</div>
 
-                  {activeResult.testCase.description && <div className="text-[13px] text-text-muted mt-2 mb-2 max-w-3xl leading-relaxed">{activeResult.testCase.description}</div>}
+                  {activeResult.testCase.description && <div className="text-[13.5px] text-text-muted mt-2 mb-2 max-w-3xl leading-relaxed">{activeResult.testCase.description}</div>}
                   {activeResult.testCase.preconditions && (
-                    <div className="text-[12px] text-text-faint bg-surface p-3 rounded-lg border border-border mb-3 max-w-3xl">
+                    <div className="text-[12.5px] text-text-faint bg-surface p-3 rounded-lg border border-border mb-3 max-w-3xl">
                       <span className="font-semibold block mb-1">Pre-conditions:</span>
                       {activeResult.testCase.preconditions}
                     </div>
@@ -1693,7 +1751,7 @@ export default function RunExecutionClient({
               {/* steps */}
               {activeResult.testCase.steps && activeResult.testCase.steps.length > 0 && (
                 <div className="mt-[14px] bg-surface border border-border rounded-[10px] overflow-hidden">
-                  <div className="grid grid-cols-[34px_1fr_1fr_84px] gap-[12px] px-[16px] py-[7px] text-[10.5px] font-semibold tracking-[0.05em] uppercase text-text-faint border-b border-border">
+                  <div className="grid grid-cols-[34px_1fr_1fr_92px] gap-[14px] px-[18px] py-[8px] text-[11px] font-semibold tracking-[0.05em] uppercase text-text-faint border-b border-border">
                     <div>#</div><div>Action</div><div>Expected</div><div className="text-right">Result</div>
                   </div>
                   {activeResult.testCase.steps.map((step: any, idx: number) => {
@@ -1709,10 +1767,10 @@ export default function RunExecutionClient({
 
                     return (
                       <div key={step.id} className="border-b border-border last:border-0" style={{ background: sBg }}>
-                        <div className="grid grid-cols-[34px_1fr_1fr_84px] gap-[12px] px-[16px] py-[8px] items-start">
+                        <div className="grid grid-cols-[34px_1fr_1fr_92px] gap-[14px] px-[18px] py-[9px] items-start">
                           <div className="w-[20px] h-[20px] rounded-[6px] bg-surface-hover border border-border flex items-center justify-center text-[11px] font-bold text-text-muted tabular-nums">{idx + 1}</div>
-                          <div className="text-[12.5px] text-text-main whitespace-pre-wrap">{step.action}</div>
-                          <div className="text-[12.5px] text-text-muted whitespace-pre-wrap">{step.expectedResult}</div>
+                          <div className="text-[13px] text-text-main whitespace-pre-wrap">{step.action}</div>
+                          <div className="text-[13px] text-text-muted whitespace-pre-wrap">{step.expectedResult}</div>
                           <div className="text-right">
                             <button onClick={() => updateStepResult(step.id, { status: next || null })} title="Click to cycle status" className="inline-flex items-center gap-[4px] text-[10.5px] font-bold px-[8px] py-[2px] rounded-full hover:opacity-80 transition-opacity" style={{ background: sv.soft, color: sv.color, border: stepStatus ? "none" : "1px solid var(--border-color)" }}>
                               <sv.Icon size={12} />{sv.label}
@@ -1720,7 +1778,7 @@ export default function RunExecutionClient({
                           </div>
                         </div>
                         {/* per-step actual result + evidence */}
-                        <div className="px-[16px] pb-[8px] grid grid-cols-[34px_1fr] gap-[12px]">
+                        <div className="px-[18px] pb-[9px] grid grid-cols-[34px_1fr] gap-[14px]">
                           <div />
                           <div className="space-y-2">
                             <textarea
@@ -1821,9 +1879,7 @@ export default function RunExecutionClient({
             </div>
               );
             })()
-          ) : (
-            <div className="flex-1 bg-background" />
-          )}
+          ) : null}
         </div>
       </div>
 

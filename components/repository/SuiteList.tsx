@@ -135,7 +135,9 @@ export function SuiteList({
 
   const hasSelection = selectedCases.size > 0;
 
-  const GRID = "30px 26px minmax(0,640px) 120px 96px 70px 1fr";
+  // Qase-style dense table: check · priority · type · ID · TITLE · TAGS · TYPE · OWNER
+  const GRID =
+    "30px 24px 24px 84px minmax(0,1fr) 150px 112px 56px";
 
   // priority arrow icon (high / medium / low / not set)
   const getPriIcon = (pri?: string) => {
@@ -223,16 +225,17 @@ export function SuiteList({
       <div className="flex h-full min-w-[560px] flex-col">
       {/* column header */}
       <div
-        className="grid gap-[12px] px-[18px] py-[9px] text-[10.5px] font-semibold tracking-[0.05em] uppercase text-text-faint border-b border-border shrink-0"
+        className="grid gap-[12px] px-[18px] py-[8px] text-[11.5px] font-semibold tracking-[0.05em] uppercase text-text-faint border-b border-border shrink-0 bg-surface-hover/40"
         style={{ gridTemplateColumns: GRID }}
       >
         <div></div>
         <div></div>
-        <div>Case</div>
+        <div></div>
+        <div>ID</div>
+        <div>Title</div>
         <div>Tags</div>
         <div>Type</div>
         <div className="text-right">Owner</div>
-        <div></div>
       </div>
 
       {/* rows */}
@@ -262,7 +265,7 @@ export function SuiteList({
               <div
                 key={tc.id}
                 onClick={() => onSelectCase && onSelectCase(tc)}
-                className="grid gap-[12px] px-[18px] py-[11px] items-center border-b border-border cursor-pointer transition-colors hover:bg-surface-hover/60"
+                className="grid gap-[12px] px-[18px] py-[9px] items-center border-b border-border cursor-pointer transition-colors hover:bg-surface-hover/60"
                 style={{
                   gridTemplateColumns: GRID,
                   background:
@@ -305,45 +308,50 @@ export function SuiteList({
                 </div>
 
                 <div className="flex items-center justify-center">
-                  <PriIcon size={17} style={{ color: priColor }} />
+                  <PriIcon size={18} style={{ color: priColor }} />
                 </div>
 
-                <div className="min-w-0">
-                  <div className="text-[13px] font-medium whitespace-nowrap overflow-hidden text-ellipsis text-text-main">
-                    {tc.title}
-                  </div>
-                  <div className="qm-mono text-[10px] text-text-faint mt-[1px]">
-                    {projectCode}-{tc.sequenceNumber || tc.id.substring(0, 4)}
-                  </div>
+                <div className="flex items-center justify-center text-text-faint" title={typeLabel}>
+                  <TypeIcon size={16} />
                 </div>
 
-                <div className="flex gap-[4px] overflow-hidden">
+                <div className="qm-mono text-[12.5px] text-text-faint tabular-nums truncate">
+                  {projectCode}-{tc.sequenceNumber || tc.id.substring(0, 4)}
+                </div>
+
+                <div
+                  className="text-[14px] font-medium truncate text-text-main"
+                  title={tc.title}
+                >
+                  {tc.title}
+                </div>
+
+                <div className="flex gap-[5px] overflow-hidden">
                   {tc.tags?.slice(0, 2).map((t: any) => (
                     <span
                       key={t.id || t.name}
-                      className="text-[10.5px] font-semibold px-[7px] py-[1px] rounded-[6px] bg-surface-hover text-text-muted whitespace-nowrap"
+                      className="text-[11.5px] font-semibold px-[8px] py-[2px] rounded-[6px] bg-surface-hover text-text-muted whitespace-nowrap"
                     >
                       {t.name}
                     </span>
                   ))}
                   {tc.tags?.length > 2 && (
-                    <span className="text-[10.5px] font-semibold px-[7px] py-[1px] rounded-[6px] bg-surface-hover text-text-muted whitespace-nowrap">
+                    <span className="text-[11.5px] font-semibold px-[8px] py-[2px] rounded-[6px] bg-surface-hover text-text-muted whitespace-nowrap">
                       +{tc.tags.length - 2}
                     </span>
                   )}
                 </div>
 
-                <div className="flex items-center gap-[5px] text-[11.5px] text-text-muted whitespace-nowrap">
-                  <TypeIcon size={15} className="text-text-faint" />
+                <div className="flex items-center gap-[6px] text-[13px] text-text-muted whitespace-nowrap">
+                  <TypeIcon size={16} className="text-text-faint" />
                   {typeLabel}
                 </div>
 
                 <div className="flex justify-end">
-                  <div className="w-[24px] h-[24px] rounded-full bg-primary-light text-primary flex items-center justify-center text-[10px] font-bold">
+                  <div className="w-[26px] h-[26px] rounded-full bg-primary-light text-primary flex items-center justify-center text-[11px] font-bold">
                     {ownerInitials(tc)}
                   </div>
                 </div>
-                <div></div>
               </div>
             );
           })

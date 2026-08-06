@@ -585,7 +585,7 @@ export function RepositoryContent({
 
       {/* Slide-over Detail Panel */}
       <div
-        className={`fixed top-0 right-0 h-full w-[392px] max-w-[92vw] bg-surface shadow-[var(--shadow-lg)] border-l transform transition-transform duration-200 ease-out z-[70] flex flex-col ${activeTestCaseId ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed top-0 right-0 h-full w-[62vw] min-w-[720px] max-w-[1040px] bg-surface shadow-[var(--shadow-lg)] border-l transform transition-transform duration-200 ease-out z-[70] flex flex-col ${activeTestCaseId ? "translate-x-0" : "translate-x-full"}`}
         style={{ borderColor: "var(--border)" }}
       >
         {activeTestCase && (
@@ -594,10 +594,10 @@ export function RepositoryContent({
               className="flex flex-col bg-surface shrink-0 border-b"
               style={{ borderColor: "var(--border)" }}
             >
-              <div className="flex items-start gap-[10px] px-[18px] pt-4 pb-3">
+              <div className="flex items-start gap-[10px] px-[24px] pt-5 pb-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="qm-mono text-[11px] text-text-faint">
+                    <span className="qm-mono text-[12px] text-text-faint">
                       {`${projectCode}-${activeTestCase.sequenceNumber || activeTestCase.id.substring(0, 4)}`}
                     </span>
                     {(() => {
@@ -624,7 +624,7 @@ export function RepositoryContent({
                       <Copy size={13} />
                     </button>
                   </div>
-                  <div className="text-[16px] font-semibold tracking-[-0.01em] text-text-main mt-1 break-words leading-snug">
+                  <div className="text-[21px] font-semibold tracking-[-0.015em] text-text-main mt-1 break-words leading-snug">
                     {activeTestCase.title}
                   </div>
                 </div>
@@ -636,16 +636,16 @@ export function RepositoryContent({
                 </button>
               </div>
 
-              <div className="flex gap-[2px] px-[14px]">
+              <div className="flex gap-[2px] px-[20px]">
                 <button
                   onClick={() => setDetailTab("general")}
-                  className={`px-[10px] pt-[10px] pb-2 text-[12.5px] border-b-2 -mb-px transition-colors ${detailTab === "general" ? "border-primary text-primary font-semibold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                  className={`px-[12px] pt-[10px] pb-2 text-[14px] border-b-2 -mb-px transition-colors ${detailTab === "general" ? "border-primary text-primary font-semibold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
                 >
                   General
                 </button>
                 <button
                   onClick={() => setDetailTab("defects")}
-                  className={`px-[10px] pt-[10px] pb-2 text-[12.5px] border-b-2 -mb-px transition-colors flex items-center gap-1.5 ${detailTab === "defects" ? "border-primary text-primary font-semibold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                  className={`px-[12px] pt-[10px] pb-2 text-[14px] border-b-2 -mb-px transition-colors flex items-center gap-1.5 ${detailTab === "defects" ? "border-primary text-primary font-semibold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
                 >
                   Defects
                   {activeTestCase.linkedIssues?.length > 0 && (
@@ -656,28 +656,28 @@ export function RepositoryContent({
                 </button>
                 <button
                   onClick={() => setDetailTab("comments")}
-                  className={`px-[10px] pt-[10px] pb-2 text-[12.5px] border-b-2 -mb-px transition-colors ${detailTab === "comments" ? "border-primary text-primary font-semibold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                  className={`px-[12px] pt-[10px] pb-2 text-[14px] border-b-2 -mb-px transition-colors ${detailTab === "comments" ? "border-primary text-primary font-semibold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
                 >
                   Comments
                 </button>
                 <button
                   onClick={() => setDetailTab("history")}
-                  className={`px-[10px] pt-[10px] pb-2 text-[12.5px] border-b-2 -mb-px transition-colors ${detailTab === "history" ? "border-primary text-primary font-semibold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
+                  className={`px-[12px] pt-[10px] pb-2 text-[14px] border-b-2 -mb-px transition-colors ${detailTab === "history" ? "border-primary text-primary font-semibold" : "border-transparent text-text-muted hover:text-text-main font-medium"}`}
                 >
                   History
                 </button>
               </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto bg-surface px-[18px] py-4 space-y-4">
+            <div className="flex-1 overflow-y-auto bg-surface px-[24px] py-5 space-y-4">
               {detailTab === "general" && (
               <>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-4 gap-4">
                 <div>
-                  <div className="text-[11px] text-text-faint mb-1">
+                  <div className="text-[12.5px] text-text-faint mb-1">
                     Priority
                   </div>
-                  <span className="inline-flex items-center gap-[5px] text-[12px] font-semibold text-text-main">
+                  <span className="inline-flex items-center gap-[5px] text-[13.5px] font-semibold text-text-main">
                     {(() => {
                       const p = (activeTestCase.priority || "").toUpperCase();
                       if (p === "HIGH")
@@ -706,7 +706,7 @@ export function RepositoryContent({
                   </span>
                 </div>
                 <div>
-                  <div className="text-[11px] text-text-faint mb-1">Type</div>
+                  <div className="text-[12.5px] text-text-faint mb-1">Type</div>
                   <span className="text-[12.5px] font-medium text-text-main">
                     {activeTestCase.type
                       ? activeTestCase.type.charAt(0) +
@@ -715,7 +715,7 @@ export function RepositoryContent({
                   </span>
                 </div>
                 <div>
-                  <div className="text-[11px] text-text-faint mb-1">
+                  <div className="text-[12.5px] text-text-faint mb-1">
                     Automation
                   </div>
                   <span className="text-[12.5px] font-medium text-text-main">
@@ -727,7 +727,7 @@ export function RepositoryContent({
                   </span>
                 </div>
                 <div>
-                  <div className="text-[11px] text-text-faint mb-1">Owner</div>
+                  <div className="text-[12.5px] text-text-faint mb-1">Owner</div>
                   <div className="flex items-center gap-[6px]">
                     <div className="w-5 h-5 rounded-full bg-primary-light text-primary flex items-center justify-center text-[9px] font-bold">
                       {(activeTestCase.author?.name ||
@@ -786,7 +786,7 @@ export function RepositoryContent({
                 </div>
               )}
               <div className="bg-surface p-5 rounded-2xl border border-border/80 shadow-sm">
-                <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
+                <h3 className="text-[12px] font-bold text-text-muted uppercase tracking-wider mb-2">
                   Description
                 </h3>
                 <div className="text-sm text-text-main leading-relaxed">
@@ -797,7 +797,7 @@ export function RepositoryContent({
               </div>
 
               <div className="bg-surface p-5 rounded-2xl border border-border/80 shadow-sm">
-                <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
+                <h3 className="text-[12px] font-bold text-text-muted uppercase tracking-wider mb-2">
                   Pre-conditions
                 </h3>
                 <div className="text-sm text-text-main leading-relaxed whitespace-pre-wrap break-words">
@@ -810,7 +810,7 @@ export function RepositoryContent({
               </div>
 
               <div className="bg-surface p-5 rounded-2xl border border-border/80 shadow-sm">
-                <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2">
+                <h3 className="text-[12px] font-bold text-text-muted uppercase tracking-wider mb-2">
                   Post-conditions
                 </h3>
                 <div className="text-sm text-text-main leading-relaxed whitespace-pre-wrap break-words">
@@ -825,7 +825,7 @@ export function RepositoryContent({
               {activeTestCase.customFields &&
                 Object.keys(activeTestCase.customFields).length > 0 && (
                   <div className="bg-surface p-5 rounded-2xl border border-border/80 shadow-sm">
-                    <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-4">
+                    <h3 className="text-[12px] font-bold text-text-muted uppercase tracking-wider mb-4">
                       Custom Fields
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -857,7 +857,7 @@ export function RepositoryContent({
 
               <div className="bg-surface p-5 rounded-2xl border border-border/80 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider">
+                  <h3 className="text-[12px] font-bold text-text-muted uppercase tracking-wider">
                     Steps
                   </h3>
                   <button
@@ -918,7 +918,7 @@ export function RepositoryContent({
                 (activeTestCase.linkedIssues &&
                 activeTestCase.linkedIssues.length > 0 ? (
                   <div className="bg-surface p-5 rounded-xl border border-border shadow-sm">
-                    <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                    <h3 className="text-[12px] font-bold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-1.5">
                       <Ticket size={12} className="text-danger" /> Linked
                       Defects ({activeTestCase.linkedIssues.length})
                     </h3>

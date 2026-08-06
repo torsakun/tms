@@ -90,7 +90,7 @@ const SuiteItem = ({
         <span
           title={suite.title}
           className={cn(
-          "flex-1 text-[13px] whitespace-nowrap overflow-hidden text-ellipsis",
+          "flex-1 text-[14px] whitespace-nowrap overflow-hidden text-ellipsis",
           isActive ? "font-semibold" : "font-medium"
         )}>
           {suite.title}
@@ -98,7 +98,7 @@ const SuiteItem = ({
 
         <div className="ml-auto flex items-center gap-2">
           {suite.caseCount !== undefined && (
-            <span className="text-[11px] text-text-faint tabular-nums group-hover/item:hidden">
+            <span className="text-[12px] text-text-faint tabular-nums group-hover/item:hidden">
               {suite.caseCount}
             </span>
           )}
@@ -340,7 +340,7 @@ export const SuiteTree = ({
       <div
         className="px-[14px] pt-[13px] pb-[10px] flex justify-between items-center shrink-0"
       >
-        <span className="font-semibold text-[13px]">
+        <span className="font-bold text-[14.5px]">
           Suites
         </span>
         {role !== "VIEWER" && (
