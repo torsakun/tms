@@ -1,4 +1,5 @@
 import { SuiteTree } from "@/components/repository/SuiteTree";
+import { ResizableSidebar } from "@/components/repository/ResizableSidebar";
 import { RepositoryContent } from "@/components/repository/RepositoryContent";
 import { SuiteExpansionProvider } from "@/components/providers/SuiteExpansionProvider";
 import { SuiteSelectionProvider } from "@/components/providers/SuiteSelectionProvider";
@@ -51,12 +52,14 @@ export default async function RepositoryPage({
   return (
     <SuiteExpansionProvider initialExpandedIds={allSuiteIds} projectCode={code}>
       <SuiteSelectionProvider>
-        <div className="grid min-h-0 flex-1 w-full bg-background overflow-hidden" style={{ gridTemplateColumns: "268px minmax(0, 1fr)" }}>
-          <SuiteTree
-            initialSuites={suites}
-            cases={cases}
-            projectCode={code}
-          />
+        <div className="flex min-h-0 flex-1 w-full bg-background overflow-hidden">
+          <ResizableSidebar>
+            <SuiteTree
+              initialSuites={suites}
+              cases={cases}
+              projectCode={code}
+            />
+          </ResizableSidebar>
           <RepositoryContent
             projectCode={code}
             suites={suites}

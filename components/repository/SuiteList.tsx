@@ -135,7 +135,7 @@ export function SuiteList({
 
   const hasSelection = selectedCases.size > 0;
 
-  const GRID = "30px 26px 1fr 120px 96px 70px";
+  const GRID = "30px 26px minmax(0,640px) 120px 96px 70px 1fr";
 
   // priority arrow icon (high / medium / low / not set)
   const getPriIcon = (pri?: string) => {
@@ -232,6 +232,7 @@ export function SuiteList({
         <div>Tags</div>
         <div>Type</div>
         <div className="text-right">Owner</div>
+        <div></div>
       </div>
 
       {/* rows */}
@@ -342,6 +343,7 @@ export function SuiteList({
                     {ownerInitials(tc)}
                   </div>
                 </div>
+                <div></div>
               </div>
             );
           })

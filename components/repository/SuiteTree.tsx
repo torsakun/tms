@@ -10,7 +10,8 @@ import {
   Loader2,
   X,
   FolderPlus,
-  FileText
+  FileText,
+  Trash2
 } from "lucide-react";
 import { toast } from "sonner";
 import { Suite } from "@/types/repository";
@@ -18,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useProjectRole } from "@/components/providers/ProjectRoleProvider";
 import { useSuiteExpansion } from "@/components/providers/SuiteExpansionProvider";
+import { DeleteSuiteModal } from "@/components/repository/DeleteSuiteModal";
 
 interface SuiteItemProps {
   suite: any;
@@ -25,6 +27,7 @@ interface SuiteItemProps {
   projectCode: string;
   selectedSuiteId: string | null;
   onAddChild: (parentId: string) => void;
+  onDeleteClick: (suite: any) => void;
 }
 
 const SuiteItem = ({
@@ -33,6 +36,7 @@ const SuiteItem = ({
   projectCode,
   selectedSuiteId,
   onAddChild,
+  onDeleteClick,
 }: SuiteItemProps) => {
   const router = useRouter();
   const { role } = useProjectRole();
@@ -83,7 +87,9 @@ const SuiteItem = ({
           )}
         </span>
 
-        <span className={cn(
+        <span
+          title={suite.title}
+          className={cn(
           "flex-1 text-[13px] whitespace-nowrap overflow-hidden text-ellipsis",
           isActive ? "font-semibold" : "font-medium"
         )}>
@@ -97,7 +103,7 @@ const SuiteItem = ({
             </span>
           )}
 
-          {role !== "VIEWER" && (
+          {role !== "VIEWER" && suite.id !== "unassigned" && (
             <div className="hidden group-hover/item:flex items-center text-text-muted">
               <button
                 onClick={(e) => {
@@ -109,6 +115,16 @@ const SuiteItem = ({
                 title="Add child suite"
               >
                 <Plus size={14} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteClick(suite);
+                }}
+                className="p-0.5 hover:text-danger transition-colors mx-1"
+                title="Delete suite"
+              >
+                <Trash2 size={14} />
               </button>
             </div>
           )}
@@ -129,6 +145,7 @@ const SuiteItem = ({
                 projectCode={projectCode}
                 selectedSuiteId={selectedSuiteId}
                 onAddChild={onAddChild}
+                onDeleteClick={onDeleteClick}
               />
             ))}
         </div>
@@ -151,6 +168,8 @@ export const SuiteTree = ({
   const [newSuiteTitle, setNewSuiteTitle] = useState("");
   const [targetParentId, setTargetParentId] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [suiteToDelete, setSuiteToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   React.useEffect(() => {
     setSuites(initialSuites);
@@ -211,6 +230,68 @@ export const SuiteTree = ({
     () => cases.filter((tc) => !tc.suiteId).length,
     [cases],
   );
+
+  const casesBySuiteId = React.useMemo(() => {
+    const map = new Map<string, any[]>();
+    cases.forEach((tc) => {
+      if (!tc.suiteId) return;
+      if (!map.has(tc.suiteId)) map.set(tc.suiteId, []);
+      map.get(tc.suiteId)!.push(tc);
+    });
+    return map;
+  }, [cases]);
+
+  const childrenMap = React.useMemo(() => {
+    const map = new Map<string, any[]>();
+    suites.forEach((s) => {
+      if (!s.parentId) return;
+      if (!map.has(s.parentId)) map.set(s.parentId, []);
+      map.get(s.parentId)!.push(s);
+    });
+    return map;
+  }, [suites]);
+
+  const getDescendantIds = (parentId: string): string[] => {
+    const children = childrenMap.get(parentId) || [];
+    let ids = children.map((c) => c.id);
+    children.forEach((c) => {
+      ids = ids.concat(getDescendantIds(c.id));
+    });
+    return ids;
+  };
+
+  const handleDeleteSuite = async (retainCases: boolean) => {
+    if (!suiteToDelete) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(
+        `/api/projects/${projectCode}/suites/${suiteToDelete.id}`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ retainCases }),
+        },
+      );
+      if (res.ok) {
+        const removedIds = new Set([
+          suiteToDelete.id,
+          ...getDescendantIds(suiteToDelete.id),
+        ]);
+        setSuites(suites.filter((s) => !removedIds.has(s.id)));
+        toast.success("Suite deleted");
+        setSuiteToDelete(null);
+        router.refresh();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || "Failed to delete suite");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error deleting suite");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const handleOpenCreateModal = (parentId: string | null) => {
     setTargetParentId(parentId);
@@ -280,6 +361,7 @@ export const SuiteTree = ({
             projectCode={projectCode}
             selectedSuiteId={selectedSuiteId}
             onAddChild={handleOpenCreateModal}
+            onDeleteClick={setSuiteToDelete}
           />
         ))}
         {unassignedCount > 0 && (
@@ -295,6 +377,7 @@ export const SuiteTree = ({
             projectCode={projectCode}
             selectedSuiteId={selectedSuiteId}
             onAddChild={() => {}}
+            onDeleteClick={() => {}}
           />
         )}
       </div>
@@ -372,6 +455,17 @@ export const SuiteTree = ({
           </div>
         </div>
       )}
+
+      {/* Delete Suite Modal */}
+      <DeleteSuiteModal
+        isOpen={!!suiteToDelete}
+        onClose={() => setSuiteToDelete(null)}
+        suite={suiteToDelete || {}}
+        casesBySuiteId={casesBySuiteId}
+        childrenMap={childrenMap}
+        onDelete={handleDeleteSuite}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 };

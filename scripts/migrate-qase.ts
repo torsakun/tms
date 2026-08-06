@@ -284,11 +284,11 @@ async function main() {
         log(`  ${dryTag}run "${r.title}" → ${results.length} results`);
         continue;
       }
-      const rows: Prisma.TestRunResultCreateManyInput[] = [];
+      const rowMap = new Map<string, Prisma.TestRunResultCreateManyInput>();
       for (const res of results) {
         const caseId = res.case_id ? caseMap.get(res.case_id) : undefined;
         if (!caseId) continue; // result for a case we didn't migrate
-        rows.push({
+        rowMap.set(caseId, {
           runId,
           caseId,
           status: mapResultStatus(res.status),
@@ -296,6 +296,8 @@ async function main() {
           timeSpent: typeof res.time_spent === "number" ? res.time_spent : null,
         });
       }
+      
+      const rows = Array.from(rowMap.values());
       if (rows.length) {
         // Fresh run → bulk insert; existing run → skip to stay idempotent.
         if (!existingRun) await prisma.testRunResult.createMany({ data: rows });
