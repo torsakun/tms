@@ -13,10 +13,12 @@ export const config = {
     "/projects/:path*", 
     "/workspace/:path*",
     "/settings/:path*",
+    "/profile/:path*",
     "/api/projects/:path*",
     "/api/runs/:path*",
     "/api/cases/:path*",
     "/api/workspace/:path*",
+    "/api/profile/:path*",
     "/api/search"
   ],
 };

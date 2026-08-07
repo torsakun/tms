@@ -112,10 +112,12 @@ model User {
   projects               ProjectMember[]
   testCases              TestCase[]
   assignedRunResults     TestRunResult[]
+  executedRunResults     TestRunResult[]      @relation("ResultExecutor")
   authoredRuns           TestRun[]            @relation("RunAuthor")
   auditLogs              AuditLog[]
   groups                 Group[]              @relation("GroupMembers")
   passwordResetTokens    PasswordResetToken[]
+  apiTokens              ApiToken[]
   receivedNotifications  Notification[]       @relation("NotificationRecipient")
   triggeredNotifications Notification[]       @relation("NotificationActor")
   comments               Comment[]
@@ -136,6 +138,26 @@ model PasswordResetToken {
   createdAt DateTime  @default(now())
 
   @@index([userId])
+}
+
+/// Personal access token for the public REST API (/api/v1).
+/// Only the SHA-256 hash is stored — the token itself is shown once, at
+/// creation, and is unrecoverable afterwards. A request authenticated with a
+/// token acts as `user`, so it inherits exactly that user's project roles.
+model ApiToken {
+  id        String    @id @default(uuid())
+  name      String // human label, e.g. "GitHub Actions"
+  tokenHash String    @unique // sha256 of the plaintext token
+  prefix    String // first chars, shown in the UI so a token is recognisable
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([tokenHash])
 }
 
 model LinkedIssue {
@@ -414,6 +436,13 @@ model TestRunResult {
 
   assigneeId String?
   assignee   User?   @relation(fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  /// Who actually recorded the outcome, and when. Distinct from `assignee`,
+  /// which is only who the case was handed to — the person who ran it may be
+  /// someone else, and for CI it is the API token's owner.
+  executedById String?
+  executedBy   User?     @relation("ResultExecutor", fields: [executedById], references: [id], onDelete: SetNull)
+  executedAt   DateTime?
 
   attachments  Attachment[]
   linkedIssues LinkedIssue[]

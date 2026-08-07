@@ -22,6 +22,10 @@ export async function GET(
               include: { steps: true },
             },
             assignee: { select: { id: true, name: true, email: true } },
+            // Must mirror the server-rendered query: the run page polls this
+            // endpoint every 5s and replaces its state wholesale, so anything
+            // missing here silently disappears from the UI a few seconds in.
+            executedBy: { select: { id: true, name: true, email: true } },
             linkedIssues: { orderBy: { createdAt: "desc" } },
             attachments: true,
           },

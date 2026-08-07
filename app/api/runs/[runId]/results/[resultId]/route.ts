@@ -68,6 +68,10 @@ export async function PATCH(
       select: { assigneeId: true, testCase: { select: { title: true } } },
     });
 
+    // Stamp who recorded the outcome — only when the status itself changes, so
+    // editing a note later doesn't rewrite who ran the test.
+    const executor = status ? await getSessionUser() : null;
+
     const result = await prisma.testRunResult.update({
       where: {
         id: resultId,
@@ -80,6 +84,9 @@ export async function PATCH(
         comment,
         stepResults,
         assigneeId,
+        ...(status
+          ? { executedAt: new Date(), ...(executor ? { executedById: executor.id } : {}) }
+          : {}),
       },
     });
 

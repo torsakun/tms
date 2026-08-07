@@ -41,6 +41,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { CommentThread } from "@/components/ui/CommentThread";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { ChevronRight } from "lucide-react";
+import { formatThaiTime } from "@/lib/utils";
 
 interface RepositoryContentProps {
   projectCode: string;
@@ -743,6 +744,30 @@ export function RepositoryContent({
                     </span>
                   </div>
                 </div>
+              </div>
+
+              {/* Provenance — who wrote this case and when it last moved. */}
+              <div className="flex flex-wrap items-center gap-x-[18px] gap-y-[4px] text-[12.5px] text-text-faint border-t border-border pt-[12px]">
+                <span className="inline-flex items-center gap-[6px]">
+                  <Plus size={13} />
+                  Created {formatThaiTime(activeTestCase.createdAt)}
+                  {activeTestCase.author && (
+                    <>
+                      {" by "}
+                      <span className="text-text-muted font-medium">
+                        {activeTestCase.author.name ||
+                          activeTestCase.author.email?.split("@")[0]}
+                      </span>
+                    </>
+                  )}
+                </span>
+                {activeTestCase.updatedAt &&
+                  activeTestCase.updatedAt !== activeTestCase.createdAt && (
+                    <span className="inline-flex items-center gap-[6px]">
+                      <Edit3 size={13} />
+                      Updated {formatThaiTime(activeTestCase.updatedAt)}
+                    </span>
+                  )}
               </div>
               {activeTestCase.tags?.length > 0 && (
                 <div>

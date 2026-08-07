@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { getSessionUser } from "@/lib/api-auth";
 
 const bulkResultSchema = z.object({
   results: z.array(
@@ -32,6 +33,15 @@ export async function POST(
         { status: 404 },
       );
 
+    // Record who submitted the batch. This route also serves unauthenticated
+    // automation webhooks, so the executor may legitimately be unknown — the
+    // timestamp is still worth keeping in that case.
+    const executor = await getSessionUser();
+    const stamp = {
+      executedAt: new Date(),
+      ...(executor ? { executedById: executor.id } : {}),
+    };
+
     const processedResults = await prisma.$transaction(
       results.map((res) =>
         prisma.testRunResult.upsert({
@@ -43,6 +53,7 @@ export async function POST(
             timeSpent: res.timeSpent ?? undefined,
             errorMessage: res.errorMessage ?? undefined,
             comment: res.comment ?? undefined,
+            ...stamp,
           },
           create: {
             runId: runId,
@@ -51,6 +62,7 @@ export async function POST(
             timeSpent: res.timeSpent ?? undefined,
             errorMessage: res.errorMessage ?? undefined,
             comment: res.comment ?? undefined,
+            ...stamp,
           },
         }),
       ),

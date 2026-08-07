@@ -140,7 +140,27 @@ interface RunExecutionClientProps {
 // Shared column template for the case table (mirrors Qase's dense run table):
 // status · priority · type · ID · MEMBER · STATUS · TITLE · DURATION · menu
 const ROW_GRID =
-  "24px 20px 20px 78px 176px 116px minmax(0,1fr) 92px 30px";
+  "24px 20px 20px 78px 176px 116px minmax(0,1fr) 132px 92px 30px";
+
+/**
+ * Compact stamp for the run table — "07 Aug 17:11". Year is noise in a column.
+ *
+ * Pinned to Asia/Bangkok like formatThaiTime: reading the viewer's local zone
+ * makes the server and browser render different text and React fails hydration.
+ */
+function formatShortStamp(value?: string | Date | null) {
+  if (!value) return null;
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleString("en-GB", {
+    timeZone: "Asia/Bangkok",
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+}
 
 // ── Status visual map (lucide icon + real design tokens) ──
 // Maps the design's --pass/--fail/--warn/--skip onto the app's
@@ -295,6 +315,21 @@ function ResultRow({
         {result.testCase.title}
       </span>
 
+      <span
+        className="text-[12.5px] text-text-faint tabular-nums whitespace-nowrap truncate"
+        title={
+          result.executedAt
+            ? `${formatThaiTime(result.executedAt)}${
+                result.executedBy
+                  ? ` by ${result.executedBy.name || result.executedBy.email}`
+                  : ""
+              }`
+            : undefined
+        }
+      >
+        {formatShortStamp(result.executedAt) ?? "—"}
+      </span>
+
       <span className="flex items-center gap-[5px] text-[12.5px] text-text-faint tabular-nums whitespace-nowrap">
         <Clock size={13} />
         {formatRunDuration(result.timeSpent || 0)}
@@ -336,6 +371,7 @@ function CaseTableHeader({ depth }: { depth: number }) {
       <div>Member</div>
       <div>Status</div>
       <div>Title</div>
+      <div>Tested</div>
       <div>Duration</div>
       <div />
     </div>
@@ -931,8 +967,13 @@ export default function RunExecutionClient({
     setExpandedSuites((prev) => ({ ...prev, [suiteId]: !prev[suiteId] }));
   };
 
+  // When a case was opened, so recording its outcome can capture how long the
+  // tester spent on it. Kept in a ref — this must not trigger a re-render.
+  const openedAtRef = React.useRef<{ id: string; at: number } | null>(null);
+
   const openResult = (result: any) => {
     setActiveResultId(result.id);
+    openedAtRef.current = { id: result.id, at: Date.now() };
     if (result.stepResults) {
       setStepResults(result.stepResults);
     } else {
@@ -942,19 +983,49 @@ export default function RunExecutionClient({
 
   const updateResult = async (resultId: string, status: string) => {
     try {
-      // Optimistic Update
+      // Optimistic update — stamp the executor locally too so the "who / when"
+      // line appears immediately instead of waiting for a reload.
+      const now = new Date().toISOString();
+      const me = session?.user
+        ? {
+            id: (session.user as any).id,
+            name: session.user.name ?? null,
+            email: session.user.email ?? null,
+          }
+        : null;
+
+      // How long this case was open before a verdict was given. Capped at an
+      // hour so a tab left open overnight doesn't report a nonsense duration,
+      // and only sent when the timer belongs to the case being recorded.
+      const opened = openedAtRef.current;
+      const elapsed =
+        opened?.id === resultId ? Math.min(Date.now() - opened.at, 60 * 60 * 1000) : null;
+      const timeSpent = elapsed !== null && elapsed >= 1000 ? elapsed : undefined;
+
       setRun((prev: any) => {
         const updatedResults = prev.results.map((r: any) =>
-          r.id === resultId ? { ...r, status } : r,
+          r.id === resultId
+            ? {
+                ...r,
+                status,
+                executedAt: now,
+                executedBy: me ?? r.executedBy,
+                ...(timeSpent !== undefined ? { timeSpent } : {}),
+              }
+            : r,
         );
         return { ...prev, results: updatedResults };
       });
+
+      // Restart the clock so a second verdict on the same case measures afresh
+      // rather than accumulating from when it was first opened.
+      if (opened?.id === resultId) openedAtRef.current = { id: resultId, at: Date.now() };
 
       // Actual fetch to update DB
       await fetch(`/api/runs/${runId}/results/${resultId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, ...(timeSpent !== undefined ? { timeSpent } : {}) }),
       });
     } catch (err) {
       console.error("Failed to update status", err);
@@ -1720,6 +1791,26 @@ export default function RunExecutionClient({
                     </span>
                   </div>
                   <div className="text-[21px] font-semibold tracking-[-0.015em] text-text-main">{activeResult.testCase.title}</div>
+
+                  {/* Who recorded this outcome and when — the audit trail a
+                      reviewer asks for first when a result looks wrong. */}
+                  {activeResult.executedAt && (
+                    <div className="mt-[6px] inline-flex items-center gap-[6px] text-[12.5px] text-text-faint">
+                      <caseStatusVis.Icon size={13} style={{ color: caseStatusVis.color } as any} />
+                      <span>
+                        {caseStatusLabel} {formatThaiTime(activeResult.executedAt)}
+                        {activeResult.executedBy && (
+                          <>
+                            {" by "}
+                            <span className="text-text-muted font-medium">
+                              {activeResult.executedBy.name ||
+                                activeResult.executedBy.email?.split("@")[0]}
+                            </span>
+                          </>
+                        )}
+                      </span>
+                    </div>
+                  )}
 
                   {activeResult.testCase.description && <div className="text-[13.5px] text-text-muted mt-2 mb-2 max-w-3xl leading-relaxed">{activeResult.testCase.description}</div>}
                   {activeResult.testCase.preconditions && (

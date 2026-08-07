@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { ChevronDown, Search, User, LogOut, Radar } from "lucide-react";
+import { ChevronDown, Search, User, LogOut, Radar, KeyRound } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CommandPalette } from "@/components/ui/CommandPalette";
 
@@ -144,6 +144,16 @@ export function TopNav() {
                   >
                     <User size={16} />
                     Profile settings
+                  </Link>
+                  {/* Personal, not workspace config — a token acts as this user,
+                      and every user needs to be able to mint one without admin
+                      rights on the workspace. */}
+                  <Link
+                    href="/profile/api-tokens"
+                    className="flex items-center gap-3 rounded-[9px] px-4 py-2.5 text-[14px] font-semibold text-text-muted transition-colors hover:bg-surface-hover hover:text-text-main"
+                  >
+                    <KeyRound size={16} />
+                    API tokens
                   </Link>
                 </div>
                 <div className="mt-1 border-t border-border/50 px-2 py-1">
