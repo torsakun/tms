@@ -27,7 +27,6 @@ import {
   Search,
   SlidersHorizontal,
   Image as ImageIcon,
-  ImageOff,
   Ban,
   SkipForward,
   Circle,
@@ -1824,13 +1823,15 @@ export default function RunExecutionClient({
                 </div>
               )}
 
-              {/* evidence + console (real data). Console only appears when there
-                  is actual output — manual runs have none, so Evidence gets the
-                  full width instead of sitting next to an empty box. */}
-              <div className={`mt-[16px] grid gap-[14px] ${consoleLog ? "grid-cols-[1fr_1fr]" : "grid-cols-1"}`}>
-                <div className="bg-surface border border-border rounded-[12px] p-[14px] shadow-sm">
-                  <div className="flex items-center gap-[7px] font-semibold text-[13px] mb-[10px]"><ImageIcon size={17} className="text-text-faint" />Evidence</div>
-                  {evidence.length > 0 ? (
+              {/* Evidence + Console. Both are supplementary to the per-step
+                  evidence above, so each only appears when it actually has
+                  something — most manual runs record everything on the steps
+                  and show neither. */}
+              {(evidence.length > 0 || consoleLog) && (
+              <div className={`mt-[16px] grid gap-[14px] ${evidence.length > 0 && consoleLog ? "grid-cols-[1fr_1fr]" : "grid-cols-1"}`}>
+                {evidence.length > 0 && (
+                  <div className="bg-surface border border-border rounded-[12px] p-[14px] shadow-sm">
+                    <div className="flex items-center gap-[7px] font-semibold text-[13px] mb-[10px]"><ImageIcon size={17} className="text-text-faint" />Evidence</div>
                     <div className="grid grid-cols-2 gap-2">
                       {evidence.map((att, i) => (
                         <div key={i} className="aspect-[16/10] rounded-[9px] bg-surface-hover border border-border overflow-hidden cursor-pointer hover:border-primary transition-colors flex items-center justify-center" onClick={() => setViewingAttachment({ url: att.url, name: att.name || "Attachment" })}>
@@ -1844,13 +1845,8 @@ export default function RunExecutionClient({
                         </div>
                       ))}
                     </div>
-                  ) : (
-                    <div className="aspect-[16/10] rounded-[9px] bg-surface-hover border border-border flex flex-col items-center justify-center gap-[6px] text-text-faint">
-                      <ImageOff size={30} />
-                      <span className="font-mono text-[10.5px]">No evidence attached</span>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
                 {consoleLog && (
                   <div className="bg-surface border border-border rounded-[12px] p-[14px] shadow-sm">
                     <div className="flex items-center gap-[7px] font-semibold text-[13px] mb-[10px]"><Terminal size={17} className="text-text-faint" />Console</div>
@@ -1860,6 +1856,7 @@ export default function RunExecutionClient({
                   </div>
                 )}
               </div>
+              )}
 
               {/* comment / notes (editable) */}
               <ResultCommentBox result={activeResult} onSave={(text) => saveComment(activeResult.id, text)} />
