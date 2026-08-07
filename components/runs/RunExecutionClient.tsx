@@ -37,6 +37,7 @@ import {
   Bot,
   Hand,
   UserCircle2,
+  Edit,
 } from "lucide-react";
 import { ReportBugModal } from "./ReportBugModal";
 import { toast } from "sonner";
@@ -1614,6 +1615,8 @@ export default function RunExecutionClient({
                   <button onClick={() => { setMainMenuOpen(false); handleRunAllAutomated(); }} disabled={isExecutingAllAutomated} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><Play size={14} className="text-text-muted" /> {isExecutingAllAutomated ? `Running ${automatedProgress.current}/${automatedProgress.total}…` : "Run all automated (Local)"}</button>
                   <button onClick={() => { setMainMenuOpen(false); handleOpenWizard(); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><RefreshCw size={14} className="text-text-muted" /> Open run wizard</button>
                   <div className="h-px bg-border my-1" />
+                  <button onClick={() => { setMainMenuOpen(false); router.push(`/projects/${projectCode}/runs/${runId}/edit`); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><Edit size={14} className="text-text-muted" /> Edit run (add / remove cases)</button>
+                  <div className="h-px bg-border my-1" />
                   <button onClick={() => { setMainMenuOpen(false); setIsShareModalOpen(true); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><Share size={14} className="text-text-muted" /> Share report</button>
                   <button onClick={() => { setMainMenuOpen(false); setIsExportModalOpen(true); }} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><FileText size={14} className="text-text-muted" /> Export (PDF / CSV)</button>
                   {failedCount > 0 && <button onClick={handleRerunFailed} disabled={isRerunning} className="w-full text-left px-4 py-2 text-[13px] hover:bg-surface-hover flex items-center gap-2"><RotateCcw size={14} className="text-text-muted" /> {isRerunning ? "Re-running…" : `Re-run failed (${failedCount})`}</button>}
@@ -1690,14 +1693,17 @@ export default function RunExecutionClient({
                   ? activeResult.testCase.tags.split(",").map((t: string) => t.trim()).filter(Boolean)
                   : [];
 
-              // Collect real evidence attachments (result-level + step-level).
-              const evidence: { url: string; name: string }[] = [];
-              if (Array.isArray(activeResult.attachments)) evidence.push(...activeResult.attachments);
-              (activeResult.testCase.steps || []).forEach((s: any) => {
-                const sr = stepResults[s.id];
-                if (sr?.attachments?.length) evidence.push(...sr.attachments);
-              });
-              const consoleLog = activeResult.errorMessage || activeResult.comment || automationLogs || "";
+              // Result-level evidence only — step-level attachments already render
+              // under their own step, so including them here just duplicates them.
+              const evidence: { url: string; name: string }[] = Array.isArray(
+                activeResult.attachments,
+              )
+                ? activeResult.attachments
+                : [];
+              // Real console output only. `comment` is a human note and has its
+              // own "Comment / Notes" box below — showing it here duplicated it
+              // and mislabelled it as console output.
+              const consoleLog = activeResult.errorMessage || automationLogs || "";
               const automationScript = activeResult.testCase.automationScript;
 
               return (
@@ -1818,8 +1824,10 @@ export default function RunExecutionClient({
                 </div>
               )}
 
-              {/* evidence + console (real data) */}
-              <div className="mt-[16px] grid grid-cols-[1fr_1fr] gap-[14px]">
+              {/* evidence + console (real data). Console only appears when there
+                  is actual output — manual runs have none, so Evidence gets the
+                  full width instead of sitting next to an empty box. */}
+              <div className={`mt-[16px] grid gap-[14px] ${consoleLog ? "grid-cols-[1fr_1fr]" : "grid-cols-1"}`}>
                 <div className="bg-surface border border-border rounded-[12px] p-[14px] shadow-sm">
                   <div className="flex items-center gap-[7px] font-semibold text-[13px] mb-[10px]"><ImageIcon size={17} className="text-text-faint" />Evidence</div>
                   {evidence.length > 0 ? (
@@ -1843,16 +1851,14 @@ export default function RunExecutionClient({
                     </div>
                   )}
                 </div>
-                <div className="bg-surface border border-border rounded-[12px] p-[14px] shadow-sm">
-                  <div className="flex items-center gap-[7px] font-semibold text-[13px] mb-[10px]"><Terminal size={17} className="text-text-faint" />Console</div>
-                  <div className="bg-surface-hover border border-border rounded-[9px] px-[12px] py-[11px] font-mono text-[11px] leading-[1.7] text-text-muted overflow-auto max-h-[200px]">
-                    {consoleLog ? (
+                {consoleLog && (
+                  <div className="bg-surface border border-border rounded-[12px] p-[14px] shadow-sm">
+                    <div className="flex items-center gap-[7px] font-semibold text-[13px] mb-[10px]"><Terminal size={17} className="text-text-faint" />Console</div>
+                    <div className="bg-surface-hover border border-border rounded-[9px] px-[12px] py-[11px] font-mono text-[11px] leading-[1.7] text-text-muted overflow-auto max-h-[200px]">
                       <pre className="whitespace-pre-wrap">{consoleLog}</pre>
-                    ) : (
-                      <span className="text-text-faint">No console output</span>
-                    )}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* comment / notes (editable) */}
