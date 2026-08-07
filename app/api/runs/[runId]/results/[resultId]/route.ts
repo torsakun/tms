@@ -2,6 +2,41 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/api-auth";
 
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ runId: string; resultId: string }> },
+) {
+  const { runId, resultId } = await params;
+  try {
+    const result = await prisma.testRunResult.findUnique({
+      where: {
+        id: resultId,
+        runId: runId,
+      },
+      include: {
+        testCase: {
+          include: { steps: true },
+        },
+        assignee: { select: { id: true, name: true, email: true } },
+        linkedIssues: { orderBy: { createdAt: "desc" } },
+        attachments: true,
+      },
+    });
+
+    if (!result) {
+      return NextResponse.json({ error: "Result not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(result);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Failed to fetch run result" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ runId: string; resultId: string }> },

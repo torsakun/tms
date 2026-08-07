@@ -23,6 +23,7 @@ export async function GET(
             },
             assignee: { select: { id: true, name: true, email: true } },
             linkedIssues: { orderBy: { createdAt: "desc" } },
+            attachments: true,
           },
         },
       },

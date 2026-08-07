@@ -30,6 +30,7 @@ export default async function RunExecutionPage({
           },
           assignee: { select: { id: true, name: true, email: true } },
           linkedIssues: { orderBy: { createdAt: "desc" } },
+          attachments: true,
         },
       },
     },
