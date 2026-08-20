@@ -110,10 +110,13 @@ export default function ProfilePage() {
       onSubmit={handleUpdateProfile}
       className="flex min-h-[600px] w-full flex-col bg-background text-[14px] leading-[1.45] text-text-main antialiased font-sans"
     >
-      {/* header */}
-      <div className="border-b border-border bg-surface p-[18px_22px]">
-        <div className="text-[18px] font-semibold tracking-[-0.01em]">Profile</div>
-        <div className="mt-0.5 text-[13px] text-text-muted">Manage your account and sign-in details</div>
+      {/* header — contents share the body's centred column so the title lines
+          up with the cards instead of hugging the edge on a wide window */}
+      <div className="border-b border-border bg-surface">
+        <div className="mx-auto w-full max-w-[560px] p-[18px_22px]">
+          <div className="text-[18px] font-semibold tracking-[-0.01em]">Profile</div>
+          <div className="mt-0.5 text-[13px] text-text-muted">Manage your account and sign-in details</div>
+        </div>
       </div>
 
       {/* body */}
@@ -240,19 +243,22 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* sticky footer */}
-      <div className="flex items-center justify-end gap-[9px] border-t border-border bg-surface p-[13px_22px]">
-        <Button type="button" variant="ghost" onClick={() => router.back()} disabled={loading}>
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          loading={loading}
-          className="h-[40px] rounded-[10px] px-[18px] text-[14px] text-white shadow-sm"
-          style={{ background: "var(--primary)" }}
-        >
-          {loading ? "Saving…" : "Save changes"}
-        </Button>
+      {/* sticky footer — same centred column, so the buttons sit under the
+          cards rather than out at the window edge */}
+      <div className="border-t border-border bg-surface">
+        <div className="mx-auto flex w-full max-w-[560px] items-center justify-end gap-[9px] p-[13px_22px]">
+          <Button type="button" variant="ghost" onClick={() => router.back()} disabled={loading}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            loading={loading}
+            className="h-[40px] rounded-[10px] px-[18px] text-[14px] text-white shadow-sm"
+            style={{ background: "var(--primary)" }}
+          >
+            {loading ? "Saving…" : "Save changes"}
+          </Button>
+        </div>
       </div>
     </form>
   );

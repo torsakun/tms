@@ -89,34 +89,39 @@ export default function ApiTokensPage() {
 
   return (
     <div className="flex min-h-[600px] w-full flex-col bg-background text-[14px] leading-[1.45] text-text-main antialiased font-sans">
-      {/* header — mirrors /profile so the two personal-settings pages match */}
-      <div className="border-b border-border bg-surface p-[18px_22px]">
-        <div className="flex items-center gap-[10px]">
-          <Link
-            href="/profile"
-            className="flex items-center gap-[5px] text-[13px] font-medium text-text-muted hover:text-text-main transition-colors"
-          >
-            <ChevronLeft size={16} /> Profile
-          </Link>
-        </div>
-        <div className="mt-[6px] flex items-start justify-between gap-4">
-          <div>
-            <div className="text-[18px] font-semibold tracking-[-0.01em]">API tokens</div>
-            <div className="mt-0.5 text-[13px] text-text-muted">
-              Reach the REST API at{" "}
-              <code className="qm-mono text-[12.5px] bg-surface-hover px-[5px] py-[1px] rounded">
-                /api/v1
-              </code>{" "}
-              from CI or a script. A token acts as you, so it can do exactly what your account can.{" "}
-              <Link href="/docs/api" className="text-primary hover:underline underline-offset-2">
-                Read the API reference
-              </Link>
-              .
-            </div>
+      {/* Header spans the window for its border, but its contents sit in the
+          same centred column as the table below — otherwise the title hugs the
+          left edge while the table floats mid-screen on a wide monitor. */}
+      <div className="border-b border-border bg-surface">
+        <div className="mx-auto w-full max-w-[900px] p-[18px_22px]">
+          <div className="flex items-center gap-[10px]">
+            <Link
+              href="/profile"
+              className="flex items-center gap-[5px] text-[13px] font-medium text-text-muted hover:text-text-main transition-colors"
+            >
+              <ChevronLeft size={16} /> Profile
+            </Link>
           </div>
-          <Button onClick={() => setShowCreate(true)}>
-            <Plus size={16} /> New token
-          </Button>
+          <div className="mt-[6px] flex items-start justify-between gap-4">
+            <div className="max-w-[620px]">
+              <div className="text-[18px] font-semibold tracking-[-0.01em]">API tokens</div>
+              <div className="mt-0.5 text-[13px] leading-[1.6] text-text-muted">
+                Reach the REST API at{" "}
+                <code className="qm-mono text-[12.5px] bg-surface-hover px-[5px] py-[1px] rounded">
+                  /api/v1
+                </code>{" "}
+                from CI or a script. A token acts as you, so it can do exactly what your account
+                can.{" "}
+                <Link href="/docs/api" className="text-primary hover:underline underline-offset-2">
+                  Read the API reference
+                </Link>
+                .
+              </div>
+            </div>
+            <Button onClick={() => setShowCreate(true)}>
+              <Plus size={16} /> New token
+            </Button>
+          </div>
         </div>
       </div>
 
