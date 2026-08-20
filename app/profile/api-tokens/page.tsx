@@ -107,7 +107,11 @@ export default function ApiTokensPage() {
               <code className="qm-mono text-[12.5px] bg-surface-hover px-[5px] py-[1px] rounded">
                 /api/v1
               </code>{" "}
-              from CI or a script. A token acts as you, so it can do exactly what your account can.
+              from CI or a script. A token acts as you, so it can do exactly what your account can.{" "}
+              <Link href="/docs/api" className="text-primary hover:underline underline-offset-2">
+                Read the API reference
+              </Link>
+              .
             </div>
           </div>
           <Button onClick={() => setShowCreate(true)}>

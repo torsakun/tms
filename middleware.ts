@@ -14,6 +14,7 @@ export const config = {
     "/workspace/:path*",
     "/settings/:path*",
     "/profile/:path*",
+    "/docs/:path*",
     "/api/projects/:path*",
     "/api/runs/:path*",
     "/api/cases/:path*",
