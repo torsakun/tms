@@ -64,6 +64,12 @@ export const authOptions: NextAuthOptions = {
             clientSecret: process.env.AZURE_AD_CLIENT_SECRET!,
             tenantId: process.env.AZURE_AD_TENANT_ID!,
             authorization: { params: { scope: "openid profile email User.Read" } },
+            // NextAuth defaults to 3500ms for its server-side calls to Microsoft
+            // (discovery, token exchange, userinfo). A brief DNS or network
+            // hiccup on the host therefore locks every SSO user out at once —
+            // which is exactly what happened on 2026-09-02. Ten seconds still
+            // fails fast for a real outage but rides out a blip.
+            httpOptions: { timeout: 10000 },
           }),
         ]
       : []),
