@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
     "/docs/api": ["./docs/api-v1.md"],
   },
   serverExternalPackages: ["@prisma/client", "prisma"],
+  // แดชบอร์ด monitor เป็นไฟล์สแตติกที่ QA อัปทับเป็นรอบ ๆ (public/monitor/<slug>/index.html)
+  // rewrite ให้เข้าถึงด้วย /monitor/<slug> ตรง ๆ โดยไม่ต้องต่อ /index.html
+  async rewrites() {
+    return [{ source: "/monitor/:slug", destination: "/monitor/:slug/index.html" }];
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

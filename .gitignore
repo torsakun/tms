@@ -50,3 +50,4 @@ next-env.d.ts
 /.scannerwork/
 /outputs/
 /playwright-report/
+public/monitor/*/index.html
