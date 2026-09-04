@@ -9,7 +9,7 @@ import { getSessionUser, unauthorized } from "@/lib/api-auth";
 // request marker; a cron job on the host picks it up within a minute and does
 // the work. Worst case for this route being reachable is one extra refresh.
 const STATE_DIR = process.env.MONITOR_STATE_DIR || "/home/ubuntu/tms-monitor/state";
-const SLUGS = new Set(["stsd"]);
+const SLUGS = new Set(["stsd", "pkl"]);
 const MIN_INTERVAL_MS = 60_000;
 
 function paths(slug: string) {
